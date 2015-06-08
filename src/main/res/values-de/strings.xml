@@ -3,7 +3,7 @@
 
     <string name="action_settings">Einstellungen</string>
     <string name="action_add">Neue Unterhaltung</string>
-    <string name="action_accounts">Konten verwalten</string>
+    <string name="action_accounts">Profil</string>
     <string name="action_end_conversation">Unterhaltung beenden</string>
     <string name="action_contact_details">Kontaktdetails</string>
     <string name="action_muc_details">Konferenzdetails</string>
@@ -166,7 +166,7 @@
     <string name="mgmt_account_are_you_sure">Bist du dir sicher?</string>
     <string name="mgmt_account_delete_confirm_text">Wenn du dein Account löscht, gehen alle Gesprächsverläufe verloren</string>
     <string name="attach_record_voice">Sprache aufzeichnen</string>
-    <string name="account_settings_jabber_id">ID:</string>
+    <string name="account_settings_jabber_id">Name:</string>
     <string name="account_settings_password">Passwort:</string>
     <string name="account_settings_example_jabber_id"></string>
     <string name="account_settings_confirm_password">Passwort bestätigen</string>
@@ -213,16 +213,16 @@
     <string name="decrypt">Entschlüsseln</string>
     <string name="conferences">Konferenzen</string>
     <string name="search">Suche</string>
-    <string name="create_contact">Kontakt erstellen</string>
+    <string name="create_contact">Kontakt hinzufügen</string>
     <string name="join_conference">Konferenz beitreten</string>
     <string name="delete_contact">Kontakt löschen</string>
     <string name="view_contact_details">Kontaktdetails anzeigen</string>
     <string name="block_contact">Kontakt sperren</string>
     <string name="unblock_contact">Kontakte entsperren</string>
-    <string name="create">Erstellen</string>
+    <string name="create">Hinzufügen</string>
     <string name="contact_already_exists">Der Kontakt existiert bereits</string>
     <string name="join">Beitreten</string>
-    <string name="conference_address">Konferenzadresse</string>
+    <string name="conference_address">Konferenzname</string>
     <string name="conference_address_example">raum@conference.example.com</string>
     <string name="save_as_bookmark">Als Lesezeichen speichern</string>
     <string name="delete_bookmark">Lesezeichen löschen</string>
@@ -289,7 +289,7 @@
     <string name="pref_use_indicate_received_summary">Empfangene Nachrichten werden mit einem grünen Häkchen markiert. Bitte beachte, dass dies nicht in allen Fällen funktioniert.</string>
     <string name="pref_expert_options_other">Sonstiges</string>
     <string name="pref_conference_name">Konferenz-Name</string>
-    <string name="pref_conference_name_summary">Konferenz-Thema statt Raum-JID als Namen verwenden</string>
+    <string name="pref_conference_name_summary">Konferenz-Thema statt Raum-ID als Namen verwenden</string>
     <string name="toast_message_otr_fingerprint">OTR-Fingerabdruck in die Zwischenablage kopiert!</string>
     <string name="conference_banned">Du wurdest aus dem Konferenzraum verbannt</string>
     <string name="conference_members_only">Der Konferenzraum ist nur für Mitglieder</string>
@@ -444,4 +444,6 @@
   <string name="none">keine</string>
   <string name="recently_used">zuletzt verwendet</string>
   <string name="choose_quick_action">wähle Schnell-Taste</string>
+  <string name="hide_offline">nur online</string>
+
 </resources>
