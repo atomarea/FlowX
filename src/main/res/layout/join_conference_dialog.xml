@@ -31,7 +31,7 @@
         android:id="@+id/jid"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/conference_address_example"
+        android:hint=""
         android:inputType="textEmailAddress"
         android:textColor="@color/primarytext"
         android:textColorHint="@color/secondarytext" />
