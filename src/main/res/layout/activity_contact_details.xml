@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/secondarybackground" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:background="@drawable/infocard_border"
+            android:padding="@dimen/infocard_padding" >
+
+            <QuickContactBadge
+                android:id="@+id/details_contact_badge"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_alignParentTop="true"
+                android:scaleType="centerCrop" />
+
+            <LinearLayout
+                android:id="@+id/details_jidbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_toRightOf="@+id/details_contact_badge"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/details_contactjid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/account_settings_example_jabber_id"
+                    android:textColor="@color/primarytext"
+                    android:textSize="?attr/TextSizeHeadline"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" >
+
+                    <LinearLayout
+                        android:id="@+id/tags"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="4dp"
+                        android:orientation="horizontal">
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/details_lastseen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/secondarytext"
+                        android:textSize="?attr/TextSizeBody" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/add_contact_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/add_contact"/>
+
+                <CheckBox
+                    android:id="@+id/details_send_presence"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/send_presence_updates"
+                    android:textColor="@color/primarytext"
+                    android:textSize="?attr/TextSizeBody" />
+
+                <CheckBox
+                    android:id="@+id/details_receive_presence"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/receive_presence_updates"
+                    android:textColor="@color/primarytext"
+                    android:textSize="?attr/TextSizeBody" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/details_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/details_jidbox"
+                android:layout_marginTop="32dp"
+                android:text="@string/using_account"
+                android:textColor="@color/secondarytext"
+                android:textSize="?attr/TextSizeInfo" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/details_contact_keys"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:background="@drawable/infocard_border"
+            android:divider="?android:dividerHorizontal"
+            android:orientation="vertical"
+            android:padding="@dimen/infocard_padding"
+            android:showDividers="middle" >
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

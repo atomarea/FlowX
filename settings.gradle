@@ -1,0 +1,4 @@
+include ':libs:MemorizingTrustManager'
+include ':libs:openpgp-api-lib'
+
+rootProject.name = 'Conversations'
