@@ -199,16 +199,7 @@ public class UIHelper {
 		if (message.getType() == Message.TYPE_IMAGE) {
 			return context.getString(R.string.image);
 		}
-		final String path = message.getRelativeFilePath();
-		if (path == null) {
-			return "";
-		}
-		final String mime;
-		try {
-			mime = URLConnection.guessContentTypeFromName(path.replace("#",""));
-		} catch (final StringIndexOutOfBoundsException ignored) {
-			return context.getString(R.string.file);
-		}
+		final String mime = message.getMimeType();
 		if (mime == null) {
 			return context.getString(R.string.file);
 		} else if (mime.startsWith("audio/")) {
@@ -230,10 +221,14 @@ public class UIHelper {
 
 	public static String getMessageDisplayName(final Message message) {
 		if (message.getStatus() == Message.STATUS_RECEIVED) {
+			final Contact contact = message.getContact();
 			if (message.getConversation().getMode() == Conversation.MODE_MULTI) {
-				return getDisplayedMucCounterpart(message.getCounterpart());
+				if (contact != null) {
+					return contact.getDisplayName();
+				} else {
+					return getDisplayedMucCounterpart(message.getCounterpart());
+				}
 			} else {
-				final Contact contact = message.getContact();
 				return contact != null ? contact.getDisplayName() : "";
 			}
 		} else {

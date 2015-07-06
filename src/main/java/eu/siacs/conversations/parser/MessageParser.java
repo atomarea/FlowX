@@ -233,24 +233,27 @@ public class MessageParser extends AbstractParser implements
 		}
 		final String body = packet.getBody();
 		final String encrypted = packet.findChildContent("x", "jabber:x:encrypted");
+		final Element mucUserElement = packet.findChild("x","http://jabber.org/protocol/muc#user");
 		int status;
 		final Jid counterpart;
 		final Jid to = packet.getTo();
 		final Jid from = packet.getFrom();
 		final String remoteMsgId = packet.getId();
+
+		if (from == null || to == null) {
+			Log.d(Config.LOGTAG,"no to or from in: "+packet.toString());
+			return;
+		}
+		
 		boolean isTypeGroupChat = packet.getType() == MessagePacket.TYPE_GROUPCHAT;
-		boolean properlyAddressed = !to.isBareJid() || account.countPresences() == 1;
+		boolean isProperlyAddressed = !to.isBareJid() || account.countPresences() == 1;
+		boolean isMucStatusMessage = from.isBareJid() && mucUserElement != null && mucUserElement.hasChild("status");
 		if (packet.fromAccount(account)) {
 			status = Message.STATUS_SEND;
 			counterpart = to;
 		} else {
 			status = Message.STATUS_RECEIVED;
 			counterpart = from;
-		}
-
-		if (from == null || to == null) {
-			Log.d(Config.LOGTAG,"no to or from in: "+packet.toString());
-			return;
 		}
 
 		Invite invite = extractInvite(packet);
@@ -262,7 +265,7 @@ public class MessageParser extends AbstractParser implements
 			mXmppConnectionService.updateConversationUi();
 		}
 
-		if (body != null || encrypted != null) {
+		if ((body != null || encrypted != null) && !isMucStatusMessage) {
 			Conversation conversation = mXmppConnectionService.findOrCreateConversation(account, counterpart.toBareJid(), isTypeGroupChat);
 			if (isTypeGroupChat) {
 				if (counterpart.getResourcepart().equals(conversation.getMucOptions().getActualNick())) {
@@ -283,7 +286,7 @@ public class MessageParser extends AbstractParser implements
 			}
 			Message message;
 			if (body != null && body.startsWith("?OTR")) {
-				if (!isForwarded && !isTypeGroupChat && properlyAddressed) {
+				if (!isForwarded && !isTypeGroupChat && isProperlyAddressed) {
 					message = parseOtrChat(body, from, remoteMsgId, conversation);
 					if (message == null) {
 						return;
@@ -358,19 +361,30 @@ public class MessageParser extends AbstractParser implements
 				mXmppConnectionService.databaseBackend.createMessage(message);
 			}
 			final HttpConnectionManager manager = this.mXmppConnectionService.getHttpConnectionManager();
-			if (message.trusted() && message.bodyContainsDownloadable() && manager.getAutoAcceptFileSize() > 0) {
+			if (message.trusted() && message.treatAsDownloadable() != Message.Decision.NEVER && manager.getAutoAcceptFileSize() > 0) {
 				manager.createNewConnection(message);
 			} else if (!message.isRead()) {
 				mXmppConnectionService.getNotificationService().push(message);
 			}
 		} else { //no body
-			if (packet.hasChild("subject") && isTypeGroupChat) {
+			if (isTypeGroupChat) {
 				Conversation conversation = mXmppConnectionService.find(account, from.toBareJid());
-				if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI) {
-					conversation.setHasMessagesLeftOnServer(conversation.countMessages() > 0);
-					conversation.getMucOptions().setSubject(packet.findChildContent("subject"));
-					mXmppConnectionService.updateConversationUi();
-					return;
+				if (packet.hasChild("subject")) {
+					if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI) {
+						conversation.setHasMessagesLeftOnServer(conversation.countMessages() > 0);
+						conversation.getMucOptions().setSubject(packet.findChildContent("subject"));
+						mXmppConnectionService.updateConversationUi();
+						return;
+					}
+				}
+
+				if (conversation != null && isMucStatusMessage) {
+					for (Element child : mucUserElement.getChildren()) {
+						if (child.getName().equals("status")
+								&& MucOptions.STATUS_CODE_ROOM_CONFIG_CHANGED.equals(child.getAttribute("code"))) {
+							mXmppConnectionService.fetchConferenceConfiguration(conversation);
+						}
+					}
 				}
 			}
 		}
