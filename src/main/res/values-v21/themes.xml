@@ -2,9 +2,12 @@
 <resources>
 
     <style name="ConversationsTheme" parent="@android:style/Theme.Material.Light.DarkActionBar">
-        <item name="android:colorPrimary">#086FB5</item>
-        <item name="android:colorPrimaryDark">#0866A5</item>
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
         <item name="android:colorAccent">@color/accent</item>
+
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:actionModeBackground">@color/accent</item>
 
         <item name="TextSizeInfo">12sp</item>
         <item name="TextSizeBody">14sp</item>
@@ -18,8 +21,10 @@
         <item name="attr/icon_download">@drawable/ic_file_download_white_24dp</item>
         <item name="attr/icon_edit">@drawable/ic_edit_white_24dp</item>
         <item name="attr/icon_edit_dark">@drawable/ic_edit_grey600_24dp</item>
+        <item name="attr/icon_done">@drawable/ic_done_black_24dp</item>
         <item name="attr/icon_group">@drawable/ic_group_white_24dp</item>
         <item name="attr/icon_new">@drawable/ic_add_white_24dp</item>
+        <item name="attr/icon_refresh">@drawable/ic_refresh_grey600_24dp</item>
         <item name="attr/icon_new_attachment">@drawable/ic_attach_file_white_24dp</item>
         <item name="attr/icon_not_secure">@drawable/ic_lock_open_white_24dp</item>
         <item name="attr/icon_remove">@drawable/ic_delete_grey600_24dp</item>
@@ -28,6 +33,16 @@
         <item name="attr/icon_settings">@drawable/ic_settings_grey600_24dp</item>
         <item name="attr/icon_import_export">@drawable/ic_import_export_white_24dp</item>
 
+    </style>
+
+    <style name="ConversationsDialog" parent="@android:style/Theme.Material.Light.Dialog">
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="TextSizeInfo">12sp</item>
+        <item name="TextSizeBody">14sp</item>
+        <item name="TextSizeHeadline">20sp</item>
     </style>
 
 </resources>

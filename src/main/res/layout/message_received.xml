@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingBottom="4dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    android:paddingTop="4dp" >
+		        xmlns:emojicon="http://schemas.android.com/apk/res-auto"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="3dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="3dp">
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/message_photo"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_profile"
+        app:riv_corner_radius="30dp" />
 
     <LinearLayout
         android:id="@+id/message_box"
@@ -14,51 +26,75 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/message_photo"
-        android:background="@drawable/message_border"
-        android:minHeight="48dp"
+        android:background="@drawable/message_bubble_received"
+        android:minHeight="53dp"
+        android:layout_marginTop="-2dp"
+        android:layout_marginRight="-4dp"
         android:longClickable="true">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:background="@color/primarybackground"
             android:gravity="center_vertical"
             android:orientation="vertical"
-            android:paddingBottom="4dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:paddingTop="4dp" >
+            android:padding="2dp">
 
             <ImageView
                 android:id="@+id/message_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp"
                 android:adjustViewBounds="true"
-                android:background="@color/primarytext"
-                android:paddingBottom="2dp"
+                android:background="@color/black87"
                 android:scaleType="centerCrop" />
 
-            <TextView
+            <github.ankushsachdeva.emojicon.EmojiconTextView
                 android:id="@+id/message_body"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:autoLink="web"
-                android:textColor="@color/primarytext"
+                android:autoLink="all"
+                android:textColorLink="@color/white"
+                android:textColor="@color/white"
+		        android:textColorHighlight="@color/grey800"
+		        emojicon:emojiconSize="23sp"
                 android:textSize="?attr/TextSizeBody" />
 
-            <Button
+            <com.beardedhen.androidbootstrap.BootstrapButton
                 android:id="@+id/download_button"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/download_image"
+                android:layout_height="40dp"
+                app:roundedCorners="true"
+                app:bootstrapBrand="success"
+                app:bootstrapSize="sm"
+                app:buttonMode="regular"
                 android:visibility="gone" />
+
+            <RelativeLayout
+                android:id="@+id/aw_player"
+                android:visibility="gone"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="left"
                 android:orientation="horizontal"
-                android:paddingTop="1dp" >
+                android:paddingBottom="2dp">
+
+                <TextView
+                    android:id="@+id/message_encryption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center_vertical"
+                    android:layout_marginRight="4sp"
+                    android:textColor="@color/white70"
+                    android:textStyle="bold"
+                    android:textSize="?attr/TextSizeInfo" />
 
                 <ImageView
                     android:id="@+id/security_indicator"
@@ -66,32 +102,20 @@
                     android:layout_height="?attr/TextSizeInfo"
                     android:layout_gravity="center_vertical"
                     android:layout_marginRight="4sp"
-                    android:alpha="0.54"
+                    android:alpha="0.70"
                     android:gravity="center_vertical"
-                    android:src="@drawable/ic_secure_indicator" />
+                    android:src="@drawable/ic_secure_indicator_white" />
 
-                <TextView
+                <github.ankushsachdeva.emojicon.EmojiconTextView
                     android:id="@+id/message_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:gravity="center_vertical"
                     android:text="@string/sending"
-                    android:textColor="@color/secondarytext"
+                    android:textColor="@color/white70"
                     android:textSize="?attr/TextSizeInfo" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/message_photo"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="-1.5dp"
-        android:padding="0dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/ic_profile" />
-
 </RelativeLayout>

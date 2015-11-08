@@ -19,6 +19,7 @@
         android:title="@string/join_conference" />
     <item
         android:id="@+id/action_scan_qr_code"
+        android:visible="false"
         android:showAsAction="never"
         android:title="@string/scan_qr_code" />
 

@@ -76,10 +76,11 @@
 	<string name="clear_conversation_history">Clear Conversation History</string>
 	<string name="clear_histor_msg">Do you want to delete all messages within this Conversation?\n\n<b>Warning:</b> This will not influence messages stored on other devices or servers.</string>
 	<string name="delete_messages">Delete messages</string>
-	<string name="also_end_conversation">End this conversations afterwards</string>
+	<string name="also_end_conversation">End this conversation afterwards</string>
 	<string name="choose_presence">Choose presence to contact</string>
-	<string name="send_plain_text_message">Send plain text message</string>
+	<string name="send_unencrypted_message">Send unencrypted message</string>
 	<string name="send_otr_message">Send OTR encrypted message</string>
+	<string name="send_omemo_message">Send OMEMO encrypted message</string>
 	<string name="send_pgp_message">Send OpenPGP encrypted message</string>
 	<string name="your_nick_has_been_changed">Your nickname has been changed</string>
 	<string name="send_unencrypted">Send unencrypted</string>
@@ -107,8 +108,8 @@
 	<string name="pref_vibrate_summary">Also vibrate when a new message arrives</string>
 	<string name="pref_sound">Sound</string>
 	<string name="pref_sound_summary">Play ringtone with notification</string>
-	<string name="pref_conference_notifications">Conference notifications</string>
-	<string name="pref_conference_notifications_summary">Always notify when a new conference message arrives instead of only when highlighted</string>
+	<string name="pref_conference_notifications">Notifications in Public Conferences</string>
+	<string name="pref_conference_notifications_summary">Always notify when a message arrives in a public conference instead of only when highlighted</string>
 	<string name="pref_notification_grace_period">Notification grace period</string>
 	<string name="pref_notification_grace_period_summary">Disable notifications for a short time after a carbon copy was received</string>
 	<string name="pref_advanced_options">Advanced Options</string>
@@ -151,9 +152,10 @@
 	<string name="account_status_regis_not_sup">Server does not support registration</string>
 	<string name="account_status_security_error">Security error</string>
 	<string name="account_status_incompatible_server">Incompatible server</string>
-	<string name="encryption_choice_none">Plain text</string>
+	<string name="encryption_choice_unencrypted">Unencrypted</string>
 	<string name="encryption_choice_otr">OTR</string>
 	<string name="encryption_choice_pgp">OpenPGP</string>
+	<string name="encryption_choice_omemo">OMEMO</string>
 	<string name="mgmt_account_edit">Edit account</string>
 	<string name="mgmt_account_delete">Delete account</string>
 	<string name="mgmt_account_disable">Temporarily disable</string>
@@ -188,7 +190,8 @@
 	<string name="server_info_blocking">XEP-0191: Blocking Command</string>
 	<string name="server_info_roster_version">XEP-0237: Roster Versioning</string>
 	<string name="server_info_stream_management">XEP-0198: Stream Management</string>
-	<string name="server_info_pep">XEP-0163: PEP (Avatars)</string>
+	<string name="server_info_pep">XEP-0163: PEP (Avatars / OMEMO)</string>
+	<string name="server_info_http_upload">XEP-0363: HTTP File Upload</string>
 	<string name="server_info_available">available</string>
 	<string name="server_info_unavailable">unavailable</string>
 	<string name="missing_public_keys">Missing public key announcements</string>
@@ -206,6 +209,13 @@
 	<string name="reception_failed">Reception failed</string>
 	<string name="your_fingerprint">Your fingerprint</string>
 	<string name="otr_fingerprint">OTR fingerprint</string>
+	<string name="omemo_fingerprint">OMEMO fingerprint</string>
+	<string name="omemo_fingerprint_selected_message">OMEMO fingerprint of message</string>
+	<string name="this_device_omemo_fingerprint">Own OMEMO fingerprint</string>
+	<string name="other_devices">Other devices</string>
+	<string name="trust_omemo_fingerprints">Trust OMEMO Fingerprints</string>
+	<string name="fetching_keys">Fetching keys...</string>
+	<string name="done">Done</string>
 	<string name="verify">Verify</string>
 	<string name="decrypt">Decrypt</string>
 	<string name="conferences">Conferences</string>
@@ -256,6 +266,8 @@
 	<string name="conference_requires_password">Conference requires password</string>
 	<string name="enter_password">Enter password</string>
 	<string name="missing_presence_updates">Missing presence updates from contact</string>
+	<string name="omemo_fingerprint_x509">OMEMO fingerprint (X.509 verified)</string>
+	<string name="omemo_fingerprint_x509_selected_message">OMEMO fingerprint (X.509 verified) of message</string>
 	<string name="request_presence_updates">Please request presence updates from your contact first.\n\n<small>This will be used to determine what client(s) your contact is using.</small></string>
 	<string name="request_now">Request now</string>
 	<string name="delete_fingerprint">Delete Fingerprint</string>
@@ -269,11 +281,12 @@
 	<string name="pref_dont_save_encrypted_summary">Warning: This could lead to message loss</string>
 	<string name="pref_expert_options">Expert options</string>
 	<string name="pref_expert_options_summary">Please be careful with these</string>
-	<string name="title_activity_about">About Conversations</string>
+	<string name="title_activity_about">About FlowX</string>
+	<string name="send_omemo_x509_message">Send OMEMO (X.509 verified) encrypted message</string>
 	<string name="pref_about_conversations_summary">Build and licensing information</string>
 	<string name="pref_about_message" translatable="false">
-			Conversations • the very last word in instant messaging.
-			\n\nCopyright © 2014 Daniel Gultsch
+			FlowX • Instant Messenger.
+			\n\nCopyright © 2014-2015 Dominic Schubert | Steven Burghardt | Daniel Gultsch
 			\n\nThis program is free software: you can redistribute it and/or modify
 			it under the terms of the GNU General Public License as published by
 			the Free Software Foundation, either version 3 of the License, or
@@ -296,6 +309,10 @@
 			\n\nhttps://github.com/zxing/zxing\n(Apache License, Version 2.0)
 			\n\nhttps://github.com/google/material-design-icons\n(CC BY 4.0)
 			\n\nhttps://github.com/timroes/EnhancedListView\n(Apache License, Version 2.0)
+			\n\nhttps://github.com/leolin310148/ShortcutBadger\n(Apache License, Version 2.0)
+			\n\nhttps://github.com/kyleduo/SwitchButton\n(Apache License, Version 2.0)
+			\n\nhttps://github.com/WhisperSystems/libaxolotl-java\n(GPLv3)
+			\n\nhttps://github.com/vinc3m1/RoundedImageView\n(Apache License, Version 2.0)
 	</string>
 	<string name="title_pref_quiet_hours">Quiet Hours</string>
 	<string name="title_pref_quiet_hours_start_time">Start time</string>
@@ -312,12 +329,12 @@
 	<string name="pref_conference_name">Conference name</string>
 	<string name="pref_conference_name_summary">Use room’s subject instead of JID to identify conferences</string>
 	<string name="toast_message_otr_fingerprint">OTR fingerprint copied to clipboard!</string>
+	<string name="toast_message_omemo_fingerprint">OMEMO fingerprint copied to clipboard!</string>
 	<string name="conference_banned">You are banned from this conference</string>
 	<string name="conference_members_only">This conference is members only</string>
 	<string name="conference_kicked">You have been kicked from this conference</string>
 	<string name="using_account">using account %s</string>
-	<string name="checking_image">Checking image on HTTP host</string>
-	<string name="image_file_deleted">The image file has been deleted</string>
+	<string name="checking_x">Checking %s on HTTP host</string>
 	<string name="not_connected_try_again">You are not connected. Try again later</string>
 	<string name="check_x_filesize">Check %s size</string>
 	<string name="message_options">Message options</string>
@@ -350,9 +367,12 @@
 	<string name="verified">Verified!</string>
 	<string name="smp_requested">Contact requested SMP verification</string>
 	<string name="no_otr_session_found">No valid OTR session has been found!</string>
-	<string name="conversations_foreground_service">Conversations</string>
+	<string name="conversations_foreground_service">FlowX</string>
 	<string name="pref_keep_foreground_service">Keep service in foreground</string>
 	<string name="pref_keep_foreground_service_summary">Prevents the operating system from killing your connection</string>
+	<string name="pref_export_logs">Export Logs</string>
+	<string name="pref_export_logs_summary">Write logs to SD card</string>
+	<string name="notification_export_logs_title">Writing logs to SD card</string>
 	<string name="choose_file">Choose file</string>
 	<string name="receiving_x_file">Receiving %1$s (%2$d%% completed)</string>
 	<string name="download_x_file">Download %s</string>
@@ -379,6 +399,16 @@
 	<string name="reset">Reset</string>
 	<string name="account_image_description">Account avatar</string>
 	<string name="copy_otr_clipboard_description">Copy OTR fingerprint to clipboard</string>
+	<string name="copy_omemo_clipboard_description">Copy OMEMO fingerprint to clipboard</string>
+	<string name="regenerate_omemo_key">Regenerate OMEMO key</string>
+	<string name="wipe_omemo_pep">Wipe other devices from PEP</string>
+	<string name="clear_other_devices">Clear devices</string>
+	<string name="clear_other_devices_desc">Are you sure you want to clear all other devices from the OMEMO announcement? The next time your devices connect, they will reannounce themselves, but they might not receive messages sent in the meantime.</string>
+	<string name="purge_key">Purge key</string>
+	<string name="purge_key_desc_part1">Are you sure you want to purge this key?</string>
+	<string name="purge_key_desc_part2">It will irreversibly be considered compromised, and you can never build a session with it again.</string>
+	<string name="error_no_keys_to_trust">There are no usable keys available for this contact. If you have purged any of their keys, they need to generate new ones.</string>
+	<string name="error_trustkeys_title">Error</string>
 	<string name="fetching_history_from_server">Fetching history from server</string>
 	<string name="no_more_history_on_server">No more history on server</string>
 	<string name="updating">Updating…</string>
@@ -416,8 +446,10 @@
 	<string name="public_conference">Publicly accessible conference</string>
 	<string name="private_conference">Private, members only conference</string>
 	<string name="conference_options">Conference options</string>
-	<string name="members_only">Private (Members only)</string>
+	<string name="members_only">Private, members only</string>
 	<string name="non_anonymous">Non-anonymous</string>
+	<string name="moderated">Moderated</string>
+	<string name="you_are_not_participating">You are not participating</string>
 	<string name="modified_conference_options">Modified conference options!</string>
 	<string name="could_not_modify_conference_options">Could not modify conference options</string>
 	<string name="never">Never</string>
@@ -456,7 +488,6 @@
 	<string name="received_location">Received location</string>
 	<string name="title_undo_swipe_out_conversation">Conversation closed</string>
 	<string name="title_undo_swipe_out_muc">Left conference</string>
-	<string name="pref_certificate_options">Certificate options</string>
 	<string name="pref_dont_trust_system_cas_title">Don’t trust system CAs</string>
 	<string name="pref_dont_trust_system_cas_summary">All certificates must be manually approved</string>
 	<string name="pref_remove_trusted_certificates_title">Remove certificates</string>
@@ -478,4 +509,40 @@
 	<string name="none">None</string>
 	<string name="recently_used">Most recently used</string>
 	<string name="choose_quick_action">Choose quick action</string>
+	<string name="search_for_contacts_or_groups">Search for contacts or groups</string>
+	<string name="send_private_message">Send private message</string>
+	<string name="user_has_left_conference">%s has left the conference!</string>
+	<string name="username">Username</string>
+	<string name="username_hint">Username</string>
+	<string name="invalid_username">This is not a valid username</string>
+	<string name="download_failed_server_not_found">Download failed: Server not found</string>
+	<string name="download_failed_file_not_found">Download failed: File not found</string>
+	<string name="download_failed_could_not_connect">Download failed: Could not connect to host</string>
+	<string name="pref_use_white_background">Use white background</string>
+	<string name="pref_use_white_background_summary">Show received messages as black text on a white background</string>
+	<string name="account_status_dns_timeout">Timeout in DNS</string>
+	<string name="server_info_broken">Broken</string>
+	<string name="pref_presence_settings">Presence settings</string>
+	<string name="pref_away_when_screen_off">Away when screen is off</string>
+	<string name="pref_away_when_screen_off_summary">Marks your resource as away when the screen is turned off</string>
+	<string name="pref_xa_on_silent_mode">Not available in silent mode</string>
+	<string name="pref_xa_on_silent_mode_summary">Marks your resource as not available when phone is in silent mode</string>
+	<string name="action_add_account_with_certificate">Add account with certificate</string>
+	<string name="unable_to_parse_certificate">Unable to parse certificate</string>
+	<string name="authenticate_with_certificate">Leave empty to authenticate w/ certificate</string>
+	<string name="captcha_ocr">Captcha text</string>
+	<string name="captcha_required">Captcha required</string>
+	<string name="captcha_hint">enter the text from the image</string>
+	<string name="certificate_chain_is_not_trusted">Certificate chain is not trusted</string>
+	<string name="jid_does_not_match_certificate">Jabber ID does not match certificate</string>
+	<string name="action_renew_certificate">Renew certificate</string>
+	<string name="share_location_plugin">Share Location Plugin</string>
+	<string name="share_location">Share Location</string>
+	<string name="share">Share</string>
+	<string name="locating">Locating&#8230;</string>
+	<string name="location_sharing_disabled">Location sharing is disabled in settings</string>
+	<string name="google_maps_api_key">AIzaSyApX59dwVODjXl10IWac9RMlHIw0bDsTBo</string>
+	<string name="error_fetching_omemo_key">Error fetching OMEMO key!</string>
+	<string name="verified_omemo_key_with_certificate">Verified OMEMO key with certificate!</string>
+
 </resources>

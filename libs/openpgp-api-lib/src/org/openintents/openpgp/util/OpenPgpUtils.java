@@ -16,14 +16,14 @@
 
 package org.openintents.openpgp.util;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ResolveInfo;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ResolveInfo;
 
 public class OpenPgpUtils {
 

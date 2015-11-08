@@ -24,15 +24,16 @@
 package de.duenndns.ssl;
 
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.*;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MemorizingActivity extends Activity
 		implements OnClickListener,OnCancelListener {

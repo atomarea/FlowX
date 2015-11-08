@@ -1,5 +1,7 @@
 package de.duenndns.mtmexample;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -11,8 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-
-import android.util.Log;
 
 /**
  * A <code>java.util.logging</code> (JUL) Handler for Android.

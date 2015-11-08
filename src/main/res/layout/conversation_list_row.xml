@@ -1,7 +1,9 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:descendantFocusability="blocksDescendants">
+			xmlns:emojicon="http://schemas.android.com/apk/res-auto"
+			 xmlns:app="http://schemas.android.com/apk/res-auto"
+			 android:layout_width="fill_parent"
+			 android:layout_height="wrap_content"
+			 android:descendantFocusability="blocksDescendants">
 
 	<View
 		android:layout_width="fill_parent"
@@ -12,7 +14,7 @@
 		android:id="@+id/swipeable_item"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:background="@color/primarybackground">
+		android:background="@color/grey50">
 
 	<RelativeLayout
 		android:layout_width="fill_parent"
@@ -21,12 +23,13 @@
 		android:orientation="horizontal"
 		android:padding="8dp" >
 
-		<ImageView
+		<com.makeramen.roundedimageview.RoundedImageView
 			android:id="@+id/conversation_image"
-			android:layout_width="56dp"
-			android:layout_height="56dp"
+			android:layout_width="66dp"
+			android:layout_height="66dp"
 			android:layout_alignParentLeft="true"
-			android:scaleType="centerCrop" />
+			android:scaleType="centerCrop"
+			app:riv_corner_radius="40dp" />
 
 		<RelativeLayout
 			android:layout_width="fill_parent"
@@ -35,14 +38,15 @@
 			android:layout_toRightOf="@+id/conversation_image"
 			android:paddingLeft="8dp" >
 
-			<TextView
+			<github.ankushsachdeva.emojicon.EmojiconTextView
 				android:id="@+id/conversation_name"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignLeft="@+id/conversation_lastwrapper"
 				android:layout_toLeftOf="@+id/conversation_lastupdate"
 				android:singleLine="true"
-				android:textColor="@color/primarytext"
+				emojicon:emojiconSize="28sp"
+				android:textColor="@color/black87"
 				android:textSize="?attr/TextSizeHeadline"
 				android:typeface="sans" />
 
@@ -54,31 +58,32 @@
 				android:orientation="vertical"
 				android:paddingTop="3dp" >
 
-				<TextView
+				<github.ankushsachdeva.emojicon.EmojiconTextView
 					android:id="@+id/conversation_lastmsg"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
 					android:scrollHorizontally="false"
 					android:singleLine="true"
-					android:textColor="@color/primarytext"
+					android:textColor="@color/black87"
+					emojicon:emojiconSize="25sp"
 					android:textSize="?attr/TextSizeBody" />
 
 				<ImageView
 					android:id="@+id/conversation_lastimage"
 					android:layout_width="fill_parent"
 					android:layout_height="36dp"
-					android:background="@color/primarytext"
+					android:background="@color/black87"
 					android:scaleType="centerCrop" />
 			</LinearLayout>
 
-			<TextView
+			<github.ankushsachdeva.emojicon.EmojiconTextView
 				android:id="@+id/conversation_lastupdate"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignBaseline="@+id/conversation_name"
 				android:layout_alignParentRight="true"
 				android:gravity="right"
-				android:textColor="@color/secondarytext"
+				android:textColor="@color/black54"
 				android:textSize="?attr/TextSizeInfo" />
 		</RelativeLayout>
 	</RelativeLayout>

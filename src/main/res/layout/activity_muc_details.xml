@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:background="@color/secondarybackground">
+			xmlns:app="http://schemas.android.com/apk/res-auto"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:background="@color/grey200">
 
 	<LinearLayout
+		android:id="@+id/muc_main_layout"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical">
@@ -26,7 +28,8 @@
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="16dp"
 				android:text="@string/account_settings_example_jabber_id"
-				android:textColor="@color/primarytext"
+				android:textColor="@color/black87"
+				android:visibility="gone"
 				android:textSize="?attr/TextSizeHeadline"
 				android:textStyle="bold"/>
 
@@ -35,13 +38,13 @@
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="32dp">
 
-				<ImageView
+				<com.makeramen.roundedimageview.RoundedImageView
 					android:id="@+id/your_photo"
-					android:layout_width="48dp"
-					android:layout_height="48dp"
+					android:layout_width="58dp"
+					android:layout_height="58dp"
 					android:layout_alignParentLeft="true"
-					android:src="@drawable/ic_profile">
-				</ImageView>
+					android:src="@drawable/ic_profile"
+					app:riv_corner_radius="30dp" />
 
 				<LinearLayout
 					android:layout_width="fill_parent"
@@ -56,7 +59,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:singleLine="true"
-						android:textColor="@color/primarytext"
+						android:textColor="@color/black87"
 						android:textSize="?attr/TextSizeHeadline"/>
 
 					<TextView
@@ -64,7 +67,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:singleLine="true"
-						android:textColor="@color/primarytext"
+						android:textColor="@color/black87"
 						android:textSize="?attr/TextSizeBody"/>
 				</LinearLayout>
 
@@ -86,9 +89,9 @@
 				android:id="@+id/muc_conference_type"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-			    android:text="@string/private_conference"
+			    	android:text="@string/private_conference"
 				android:layout_centerVertical="true"
-				android:textColor="@color/primarytext"
+				android:textColor="@color/black87"
 				android:textSize="?attr/TextSizeBody"
 				android:layout_alignParentLeft="true"
 				android:layout_toLeftOf="@+id/change_conference_button"
@@ -106,6 +109,35 @@
 				android:src="?attr/icon_settings"/>
 				</RelativeLayout>
 
+			<TableLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/muc_info_more"
+				android:stretchColumns="1"
+				android:visibility="gone">
+
+				<TableRow
+					android:layout_width="fill_parent"
+					android:layout_height="match_parent">
+
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/server_info_mam"
+						android:textColor="@color/black87"
+						android:textSize="?attr/TextSizeBody" />
+
+					<TextView
+						android:id="@+id/muc_info_mam"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="right"
+						android:textColor="@color/black87"
+						android:textSize="?attr/TextSizeBody" />
+				</TableRow>
+
+			</TableLayout>
+
 			<TextView
 				android:id="@+id/details_account"
 				android:layout_width="wrap_content"
@@ -113,7 +145,8 @@
 				android:layout_gravity="right"
 				android:layout_marginTop="32dp"
 				android:text="@string/using_account"
-				android:textColor="@color/secondarytext"
+				android:visibility="gone"
+				android:textColor="@color/black54"
 				android:textSize="?attr/TextSizeInfo"/>
 		</LinearLayout>
 
@@ -140,14 +173,15 @@
 				android:showDividers="middle">
 			</LinearLayout>
 
-			<Button
+			<com.beardedhen.androidbootstrap.BootstrapButton
 				android:id="@+id/invite"
-				style="?android:attr/buttonStyleSmall"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
+				android:layout_height="fill_parent"
 				android:layout_gravity="center_horizontal"
 				android:layout_marginTop="24dp"
-				android:text="@string/invite_contact"/>
+				android:text="@string/invite_contact"
+				app:bootstrapBrand="success"
+				app:roundedCorners="true"/>
 		</LinearLayout>
 
 	</LinearLayout>

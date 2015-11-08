@@ -6,7 +6,7 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:1.2.3'
+		classpath 'com.android.tools.build:gradle:1.3.1'
 	}
 }
 
@@ -14,6 +14,9 @@ allprojects {
 	repositories {
 		jcenter()
 		mavenCentral()
+		maven {
+			url 'http://lorenzo.villani.me/android-cropimage/'
+		}
 	}
 }
 
@@ -27,33 +30,44 @@ repositories {
 dependencies {
 	compile project(':libs:openpgp-api-lib')
 	compile project(':libs:MemorizingTrustManager')
-	compile 'com.android.support:support-v13:21.0.3'
-	compile 'org.bouncycastle:bcprov-jdk15on:1.51'
+	compile project(':libs:emojicon')
+	compile project(':libs:audiowife')
+	compile 'com.android.support:support-v13:23.0.1'
+	compile 'org.bouncycastle:bcprov-jdk15on:1.52'
+	compile 'org.bouncycastle:bcmail-jdk15on:1.52'
 	compile 'org.jitsi:org.otr4j:0.22'
 	compile 'org.gnu.inet:libidn:1.15'
-	compile 'com.google.zxing:core:3.1.0'
-	compile 'com.google.zxing:android-integration:3.1.0'
-	compile 'de.measite.minidns:minidns:0.1.3'
+	compile 'com.google.zxing:core:3.2.1'
+	compile 'com.google.zxing:android-integration:3.2.1'
+	compile 'de.measite.minidns:minidns:0.1.7'
 	compile 'de.timroes.android:EnhancedListView:0.3.4'
-	compile 'me.leolin:ShortcutBadger:1.1.1@aar'
+	compile 'me.leolin:ShortcutBadger:1.1.3@aar'
+	compile 'com.kyleduo.switchbutton:library:1.2.8'
+	compile 'org.whispersystems:axolotl-android:1.3.4'
+	compile 'com.makeramen:roundedimageview:2.2.0'
+	compile 'com.beardedhen:androidbootstrap:2.0.0'
+	compile 'com.soundcloud.android:android-crop:1.0.1@aar'
+	compile 'com.github.manuelpeinado.fadingactionbar:fadingactionbar:3.1.2'
 }
 
 android {
-	compileSdkVersion 22
-	buildToolsVersion "22.0.1"
-
+	signingConfigs {
+		config {
+		}
+	}
+	compileSdkVersion 23
+	buildToolsVersion "23.0.1"
 	defaultConfig {
 		minSdkVersion 14
 		targetSdkVersion 21
-		versionCode 1357
-		versionName "1341"
+		versionCode 1370
+		versionName "1353"
+		project.ext.set(archivesBaseName, archivesBaseName + "-" + versionName);
 	}
-
 	compileOptions {
 		sourceCompatibility JavaVersion.VERSION_1_7
 		targetCompatibility JavaVersion.VERSION_1_7
 	}
-
 	//
 	// To sign release builds, create the file `gradle.properties` in
 	// $HOME/.gradle or in your project directory with this content:
@@ -70,32 +84,27 @@ android {
 		signingConfigs {
 			release {
 				storeFile file(mStoreFile)
-					storePassword mStorePassword
-					keyAlias mKeyAlias
-					keyPassword mKeyPassword
+				storePassword mStorePassword
+				keyAlias mKeyAlias
+				keyPassword mKeyPassword
 			}
 		}
 		buildTypes.release.signingConfig = signingConfigs.release
 	} else {
 		buildTypes.release.signingConfig = null
 	}
-
 	applicationVariants.all { variant ->
 		if (variant.name.equals('release')) {
 			variant.outputs.each { output ->
 				if (output.zipAlign != null) {
 					output.zipAlign.outputFile = new File(output.outputFile.parent, rootProject.name + "-${variant.versionName}.apk")
 				}
-				output.packageApplication.outputFile = new File(output.outputFile.parent, output.packageApplication.outputFile.name
-					.replace(".apk", "-${variant.versionName}.apk"))
 			}
 		}
 	}
-
 	lintOptions {
-		disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'MissingQuantity'
+		disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource'
 	}
-
 	subprojects {
 
 		afterEvaluate {

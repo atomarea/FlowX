@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?android:attr/activatedBackgroundIndicator"
-    android:paddingLeft="8dp"
-    android:paddingBottom="8dp"
-    android:paddingTop="8dp">
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/activatedBackgroundIndicator"
+                android:paddingLeft="8dp"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp">
 
-    <ImageView
+    <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/account_image"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentLeft="true"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_alignParentTop="true"
         android:src="@drawable/ic_profile"
-        android:contentDescription="@string/account_image_description">
-    </ImageView>
+        android:contentDescription="@string/account_image_description"
+        app:riv_corner_radius="100dp"
+        android:layout_alignParentBottom="false"
+        android:layout_alignWithParentIfMissing="false"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -32,26 +37,33 @@
             android:layout_height="wrap_content"
             android:scrollHorizontally="false"
             android:singleLine="true"
-            android:textColor="@color/primarytext"
+            android:textColor="@color/black87"
+            android:visibility="gone"
             android:textSize="?attr/TextSizeHeadline" />
 
-        <TextView
-            android:id="@+id/account_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/account_status_unknown"
-            android:textColor="@color/secondarytext"
-            android:textSize="?attr/TextSizeBody"
-            android:textStyle="bold" />
     </LinearLayout>
 
-    <Switch
+    <net.atomarea.flowx.ui.widget.Switch
+        style="@style/MD"
         android:id="@+id/tgl_account_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:padding="8dp"
+        android:visibility="gone"
+        android:padding="16dp"
         android:focusable="false"/>
+
+    <TextView
+        android:id="@+id/account_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/account_status_unknown"
+        android:textColor="@color/black54"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:layout_alignWithParentIfMissing="false"
+        android:layout_below="@+id/account_image"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

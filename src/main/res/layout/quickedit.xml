@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:emojicon="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp" >
 
-    <EditText
+    <github.ankushsachdeva.emojicon.EmojiconEditText
         android:id="@+id/editor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
+        emojicon:emojiconSize="28sp"
         android:inputType="textPersonName"
-        android:textColor="@color/primarytext" >
+        android:textColor="@color/black87" >
 
         <requestFocus />
-    </EditText>
+    </github.ankushsachdeva.emojicon.EmojiconEditText>
 
 </LinearLayout>

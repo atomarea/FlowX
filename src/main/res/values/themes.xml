@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="ConversationsTheme.ContactDetail" parent="ConversationsTheme">
+
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
+
     <style name="ConversationsTheme" parent="@android:style/Theme.Holo.Light.DarkActionBar">
         <item name="android:actionBarStyle">@style/ConversationsActionBar</item>
         <item name="android:actionBarWidgetTheme">@style/ConversationsActionBarWidget</item>
@@ -18,6 +23,7 @@
         <item name="attr/icon_download">@drawable/ic_action_download</item>
         <item name="attr/icon_edit">@drawable/ic_action_edit</item>
         <item name="attr/icon_edit_dark">@drawable/ic_action_edit_dark</item>
+        <item name="attr/icon_done">@drawable/ic_action_done</item>
 
         <item name="attr/icon_group">@drawable/ic_action_group</item>
         <item name="attr/icon_new">@drawable/ic_action_new</item>
@@ -38,8 +44,8 @@
     </style>
 
     <style name="ConversationsActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">#086FB5</item>
-        <item name="android:backgroundStacked">#086FB5</item>
+        <item name="android:background">@color/primary</item>
+        <item name="android:backgroundStacked">@color/primary_dark</item>
         <item name="android:displayOptions">showHome|homeAsUp|showTitle</item>
         <item name="android:icon">@android:color/transparent</item>
     </style>
@@ -51,6 +57,12 @@
 
     <style name="ConversationsActionBarTabs" parent="@android:style/Widget.Holo.ActionBar.TabView">
         <item name="android:background">@drawable/actionbar_tab_indicator</item>
+    </style>
+    <style name="ConversationsDialog" parent="@android:style/Theme.Holo.Light.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="TextSizeInfo">12sp</item>
+        <item name="TextSizeBody">14sp</item>
+        <item name="TextSizeHeadline">20sp</item>
     </style>
 
 </resources>

@@ -9,6 +9,7 @@
         android:title="@string/mgmt_account_publish_avatar"/>
     <item
         android:id="@+id/mgmt_account_announce_pgp"
+        android:visible="false"
         android:title="@string/mgmt_account_publish_pgp"/>
     <item
         android:id="@+id/mgmt_account_disable"
@@ -16,6 +17,7 @@
         android:title="@string/mgmt_account_disable"/>
     <item
         android:id="@+id/mgmt_account_delete"
+        android:visible="false"
         android:title="@string/mgmt_account_delete"/>
 
 </menu>

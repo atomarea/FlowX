@@ -1,2 +1,7 @@
 .gradle/
 build/
+
+build
+.gradle
+art
+.idea
