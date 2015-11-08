@@ -4,21 +4,17 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -31,8 +27,6 @@ import net.atomarea.flowx.ui.adapter.AccountAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import github.ankushsachdeva.emojicon.EmojiconTextView;
 
 public class ManageAccountActivity extends XmppActivity implements OnAccountUpdate, KeyChainAliasCallback, XmppConnectionService.OnAccountCreated {
 
@@ -76,17 +70,6 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
             }
         });
         registerForContextMenu(accountListView);
-        getActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        ((ImageView)findViewById(R.id.iv_contact)).setImageBitmap(avatarService().get(contact, size.x));
-        (findViewById(R.id.iv_contact)).setOnClickListener(onBadgeClick);
-
-        invalidateOptionsMenu();
-        this.getActionBar().setDisplayShowCustomEnabled(true);
-        this.getActionBar().setDisplayShowTitleEnabled(false);
-        LayoutInflater inflator = LayoutInflater.from(this);
-        View v = inflator.inflate(R.layout.actionbar, null);
-        ((EmojiconTextView)v.findViewById(R.id.title)).setText(this.contact.getDisplayName());
-        this.getActionBar().setCustomView(v);
     }
 
     @Override
@@ -105,6 +88,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
             menu.findItem(R.id.mgmt_account_enable).setVisible(false);
             menu.findItem(R.id.mgmt_account_announce_pgp).setVisible(!Config.HIDE_PGP_IN_UI);
         }
+        menu.setHeaderTitle(this.selectedAccount.getJid().toBareJid().toString());
     }
 
     @Override
