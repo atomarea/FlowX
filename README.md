@@ -4,22 +4,22 @@
 
 [![Google Play](http://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=net.atomarea.flowx)
 
-mit FlowX erhälst du einen kostenfreien und sicheren Instant Message Dienst der es dir Erlaubt, Nachrichten auszutauschen, ohne für SMS zahlen zu müssen.
+mit FlowX erhÃ¤lst du einen kostenfreien und sicheren Instant Message Dienst der es dir Erlaubt, Nachrichten auszutauschen, ohne fÃ¼r SMS zahlen zu mÃ¼ssen.
 
-Für diesen Dienst, fallen keine Kosten an.
+FÃ¼r diesen Dienst, fallen keine Kosten an.
 
-Zusätzlich zum normalen Nachrichtenaustausch können FlowX- Nutzer Gruppen erstellen und sich gegenseitig unbegrenzt Bilder/Audionachrichen etc. zuschicken.
+ZusÃ¤tzlich zum normalen Nachrichtenaustausch kÃ¶nnen FlowX- Nutzer Gruppen erstellen und sich gegenseitig unbegrenzt Bilder/Audionachrichen etc. zuschicken.
 
 Original Code from https://github.com/siacs/Conversations
 
 ### Features
 * Avatar Bilder (PEP/Crop)
 * Offline Nachrichten (Smacks)
-* Konnektivität Management (WLAN/GSM switching)
+* KonnektivitÃ¤t Management (WLAN/GSM switching)
 * Emoji Support
 * Gruppenchats (MUC)
-* Datenübertragung (VoiceRecorder/Player für Audios / Bilder usw.)
-* Einfache Benutzeroberfläche
+* DatenÃ¼bertragung (VoiceRecorder/Player fÃ¼r Audios / Bilder usw.)
+* Einfache BenutzeroberflÃ¤che
 * keine Handynummern, nur Loginname & Passwort erforderlich
 * Akku schonend
 
@@ -27,6 +27,7 @@ Original Code from https://github.com/siacs/Conversations
 
 * Dominic Schubert
 * Dominik Wagner
+* Tom Janke
 * Daniel Gultsch
 
 #### Code Contributions
