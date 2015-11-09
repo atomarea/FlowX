@@ -47,7 +47,6 @@ dependencies {
 	compile 'com.makeramen:roundedimageview:2.2.0'
 	compile 'com.beardedhen:androidbootstrap:2.0.0'
 	compile 'com.soundcloud.android:android-crop:1.0.1@aar'
-	compile 'com.github.manuelpeinado.fadingactionbar:fadingactionbar:3.1.2'
 }
 
 android {
