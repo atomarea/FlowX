@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 ﻿![screenshots](http://git.dom1nic.eu/FlowX.git/raw/master/Screenshots/front-img.png)
+=======
+﻿### FlowX
+
+![screenshots](http://git.dom1nic.eu/FlowX.git/raw/master/Screenshots/front-img.png)
+>>>>>>> b80b3d007cf8bab305b020b93bee381e0c218a2e
 
 [![Google Play](http://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=net.atomarea.flowx)
 
