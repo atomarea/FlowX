@@ -1,8 +1,8 @@
-﻿# FlowX
-
-![screenshots](http://git.dom1nic.eu/FlowX.git/raw/master/Screenshots/front-img.png)
+﻿![screenshots](http://git.dom1nic.eu/FlowX.git/raw/master/Screenshots/front-img.png)
 
 [![Google Play](http://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=net.atomarea.flowx)
+
+# FlowX
 
 mit FlowX erhälst du einen kostenfreien und sicheren Instant Message Dienst der es dir Erlaubt, Nachrichten auszutauschen, ohne für SMS zahlen zu müssen.
 
