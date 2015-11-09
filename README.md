@@ -1,6 +1,6 @@
-# FlowX
+﻿# FlowX
 
-![screenshots](https://raw.githubusercontent.com/DoM1niC/FlowX/e8ebffedf5a2eafbb901c81099973cfec0b7928c/Screenshots/front-img.png)
+![screenshots](http://git.dom1nic.eu/FlowX.git/raw/master/Screenshots/front-img.png)
 
 [![Google Play](http://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=net.atomarea.flowx)
 
