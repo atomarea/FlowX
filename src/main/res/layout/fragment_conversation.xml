@@ -41,8 +41,8 @@
 
             <ImageButton
                 android:id="@+id/emojiButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
                 android:layout_gravity="center_vertical"
                 android:background="?android:selectableItemBackground"
                 android:src="@drawable/emoji_button" />
