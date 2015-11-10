@@ -58,9 +58,11 @@ android {
 	buildToolsVersion "23.0.1"
 	defaultConfig {
 		minSdkVersion 14
-		targetSdkVersion 21
-		versionCode 1372
-		versionName "1355"
+
+		targetSdkVersion 23
+		versionCode 1373
+		versionName "1356"
+		
 		project.ext.set(archivesBaseName, archivesBaseName + "-" + versionName);
 	}
 	compileOptions {
