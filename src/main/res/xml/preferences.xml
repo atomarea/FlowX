@@ -68,11 +68,6 @@
             android:key="use_larger_font"
             android:summary="@string/pref_use_larger_font_summary"
             android:title="@string/pref_use_larger_font" />
-         <CheckBoxPreference 
-             android:defaultValue="false"
-            android:key="use_white_background"
-            android:title="@string/pref_use_white_background"
-            android:summary="@string/pref_use_white_background_summary"/>
         </PreferenceScreen>
 
 	        <PreferenceScreen android:title="@string/pref_input_options"
@@ -143,17 +138,12 @@
             android:summary="@string/pref_xmpp_resource_summary"
             android:title="@string/pref_xmpp_resource" />	
 <ListPreference
-            android:defaultValue="10485760"
+            android:defaultValue="9999485760"
             android:entries="@array/filesizes"
             android:entryValues="@array/filesizes_values"
             android:key="auto_accept_file_size"
             android:summary="@string/pref_accept_files_summary"
             android:title="@string/pref_accept_files" />
-	<CheckBoxPreference
-            android:defaultValue="true"
-            android:key="never_send"
-            android:summary="@string/pref_never_send_crash_summary"
-            android:title="@string/pref_never_send_crash" />
         <CheckBoxPreference
                     android:defaultValue="true"
                     android:key="keep_foreground_service"
@@ -163,17 +153,6 @@
                                         android:key="export_logs"
                                         android:title="@string/pref_export_logs"
                                         android:summary="@string/pref_export_logs_summary"/>
-				<CheckBoxPreference
-					android:defaultValue="false"
-					android:key="dont_trust_system_cas"
-					android:title="@string/pref_dont_trust_system_cas_title"
-
-					android:summary="@string/pref_dont_trust_system_cas_summary" />
-				<Preference
-					android:key="remove_trusted_certificates"
-
-					android:title="@string/pref_remove_trusted_certificates_title"
-					android:summary="@string/pref_remove_trusted_certificates_summary" />
         </PreferenceScreen>
     <net.atomarea.flowx.ui.AboutPreference android:title="@string/title_activity_about"
         android:icon="@android:drawable/ic_menu_help"/>
