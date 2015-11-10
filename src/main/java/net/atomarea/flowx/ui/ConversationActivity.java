@@ -1384,10 +1384,6 @@ public class ConversationActivity extends XmppActivity
         return getPreferences().getBoolean("indicate_received", true);
     }
 
-    public boolean useWhiteBackground() {
-        return getPreferences().getBoolean("use_white_background", false);
-    }
-
     protected boolean trustKeysIfNeeded(int requestCode) {
         return trustKeysIfNeeded(requestCode, ATTACHMENT_CHOICE_INVALID);
     }

@@ -43,7 +43,7 @@ public class AbstractConnectionManager {
 
     public long getAutoAcceptFileSize() {
         String config = this.mXmppConnectionService.getPreferences().getString(
-                "auto_accept_file_size", "10485760");
+                "auto_accept_file_size", "9999485760");
         try {
             return Long.parseLong(config);
         } catch (NumberFormatException e) {

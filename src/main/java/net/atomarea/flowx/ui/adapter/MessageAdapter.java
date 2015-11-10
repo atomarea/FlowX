@@ -679,7 +679,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     public void updatePreferences() {
         this.mIndicateReceived = activity.indicateReceived();
-        this.mUseWhiteBackground = activity.useWhiteBackground();
     }
 
     public interface OnContactPictureClicked {
