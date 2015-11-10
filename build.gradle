@@ -58,7 +58,7 @@ android {
 	buildToolsVersion "23.0.1"
 	defaultConfig {
 		minSdkVersion 14
-		targetSdkVersion 21
+		targetSdkVersion 23
 		versionCode 1372
 		versionName "1355"
 		project.ext.set(archivesBaseName, archivesBaseName + "-" + versionName);
