@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,16 +18,19 @@ import android.provider.MediaStore;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SlidingPaneLayout.PanelSlideListener;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Surface;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.Toast;
@@ -120,6 +124,7 @@ public class ConversationActivity extends XmppActivity
     public void showConversationsOverview() {
         if (mContentView instanceof SlidingPaneLayout) {
             SlidingPaneLayout mSlidingPaneLayout = (SlidingPaneLayout) mContentView;
+
             mSlidingPaneLayout.openPane();
         }
     }
@@ -241,7 +246,10 @@ public class ConversationActivity extends XmppActivity
                                     .reInit(getSelectedConversation());
                         }
                         swipedConversation = null;
-                        listView.setSelectionFromTop(index + (listView.getChildCount() < position ? 1 : 0), top);
+                        if (Build.VERSION.SDK_INT >= 21)
+                            listView.setSelectionFromTop(index + (listView.getChildCount() < position ? 1 : 0), top);
+                        else
+                            Toast.makeText(getApplicationContext(), "TODO! Blame the devs :D", Toast.LENGTH_SHORT).show(); // TODO: !
                     }
 
                     @Override
@@ -273,9 +281,9 @@ public class ConversationActivity extends XmppActivity
         listView.setRequireTouchBeforeDismiss(false);
 
         mContentView = findViewById(R.id.content_view_spl);
-        if (mContentView == null) {
+        /*if (mContentView == null) {
             mContentView = findViewById(R.id.content_view_ll);
-        }
+        }*/
         if (mContentView instanceof SlidingPaneLayout) {
             SlidingPaneLayout mSlidingPaneLayout = (SlidingPaneLayout) mContentView;
             mSlidingPaneLayout.setParallaxDistance(150);
@@ -341,14 +349,14 @@ public class ConversationActivity extends XmppActivity
                 ab.setDisplayHomeAsUpEnabled(true);
                 ab.setHomeButtonEnabled(true);
                 if (conversation.getMode() == Conversation.MODE_SINGLE || useSubjectToIdentifyConference()) {
-                    ((EmojiconTextView)v.findViewById(R.id.title)).setText(conversation.getName());
+                    ((EmojiconTextView) v.findViewById(R.id.title)).setText(conversation.getName());
                 } else {
                     ab.setTitle(conversation.getJid().toBareJid().toString());
                 }
             } else {
                 ab.setDisplayHomeAsUpEnabled(false);
                 ab.setHomeButtonEnabled(false);
-                ((EmojiconTextView)v.findViewById(R.id.title)).setText(R.string.app_name);
+                ((EmojiconTextView) v.findViewById(R.id.title)).setText(R.string.app_name);
             }
         }
     }
