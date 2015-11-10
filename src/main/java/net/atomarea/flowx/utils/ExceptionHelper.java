@@ -107,7 +107,7 @@ public class ExceptionHelper {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            preferences.edit().putBoolean("never_send", true)
+                            preferences.edit().putBoolean("never_send", false)
                                     .apply();
                         }
                     });
