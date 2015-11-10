@@ -3,5 +3,5 @@ build/
 
 art
 .idea
-.iml
 *.iml
+*.properties
