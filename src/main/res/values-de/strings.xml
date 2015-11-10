@@ -481,4 +481,14 @@
     <string name="locating">Standort ermitteln&#8230;</string>
     <string name="location_sharing_disabled">Standort-Freigabe ist in den Einstellungen deaktiviert</string>
     <string name="touch_to_open_conversations">Touch um FlowX zu öffnen</string>
+    <string name="clear_other_devices">Fingerabdrücke löschen</string>
+    <string name="clear_other_devices_desc">Löscht alle Fingerabdrücke von FlowX, dadurch müssen alle verschlüsselten Chats neu verifiziert werden.</string>
+    <string name="done">Fertig</string>
+    <string name="purge_key">Purge key</string>
+    <string name="purge_key_desc_part1">Bist du sicher den Fingerabdruck zu löschen?</string>
+    <string name="purge_key_desc_part2">Wenn du den Fingerabdruck löschst, kannst du nie wieder ein verschlüsselten Chat mit dem Kontakt aufbauen!</string>
+    <string name="error_no_keys_to_trust">Du hast kein Fingerabdruck für den Kontakt, du musst einen neuen Fingerabdruck generieren!</string>
+    <string name="error_trustkeys_title">Fehler</string>
+    <string name="pref_export_logs">Chatverlauf exportieren</string>
+    <string name="pref_export_logs_summary">Speichert den Chatverlauf auf deinen Speicher</string>
 </resources>

@@ -52,9 +52,9 @@ import java.util.Set;
 public class EditAccountActivity extends XmppActivity implements OnAccountUpdate,
 		OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast {
 
+	private LinearLayout mMainLayout;
 	private AutoCompleteTextView mAccountJid;
 	private EditText mPassword;
-	private LinearLayout mMainLayout;
 	private EditText mPasswordConfirm;
 	private CheckBox mRegisterNew;
 	private Button mCancelButton;
@@ -335,9 +335,9 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_edit_account);
+		this.mMainLayout = (LinearLayout) findViewById(R.id.account_main_layout);
 		this.mAccountJid = (AutoCompleteTextView) findViewById(R.id.account_jid);
 		this.mAccountJid.addTextChangedListener(this.mTextWatcher);
-		this.mMainLayout = (LinearLayout) findViewById(R.id.account_main_layout);
 		this.mAccountJidLabel = (TextView) findViewById(R.id.account_jid_label);
 		if (Config.DOMAIN_LOCK != null) {
 			this.mAccountJidLabel.setText(R.string.username);
@@ -484,11 +484,11 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 
 	@Override
 	public void onConfigurationChanged (Configuration newConfig) {
-				super.onConfigurationChanged(newConfig);
-				UIHelper.resetChildMargins(mMainLayout);
-			}
+		super.onConfigurationChanged(newConfig);
+		UIHelper.resetChildMargins(mMainLayout);
+	}
 
-				@Override
+	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_show_block_list:

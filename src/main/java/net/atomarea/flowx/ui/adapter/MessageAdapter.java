@@ -498,6 +498,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                             .findViewById(R.id.message_time);
                     viewHolder.indicatorReceived = (ImageView) view
                             .findViewById(R.id.indicator_received);
+                    viewHolder.encryption = (TextView) view.findViewById(R.id.message_encryption);
                     break;
                 case STATUS:
                     view = activity.getLayoutInflater().inflate(R.layout.message_status, parent, false);
@@ -616,6 +617,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 } else {
                     viewHolder.message_box.setBackgroundResource(R.drawable.message_bubble_received);
                 }
+                viewHolder.encryption.setVisibility(View.GONE);
             } else {
                 viewHolder.message_box.setBackgroundResource(R.drawable.message_bubble_received_warning);
                 viewHolder.encryption.setVisibility(View.VISIBLE);
