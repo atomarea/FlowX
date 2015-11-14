@@ -103,6 +103,7 @@
 		    android:label="@string/change_password_on_server" />
         <activity
             android:name="net.atomarea.flowx.ui.ManageAccountActivity"
+            android:theme="@style/ConversationsTheme.ContactDetail"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_manage_accounts" />
         <activity

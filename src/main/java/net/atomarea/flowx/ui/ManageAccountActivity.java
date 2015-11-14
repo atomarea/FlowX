@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
@@ -61,15 +63,17 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
         accountListView = (ListView) findViewById(R.id.account_list);
         this.mAccountAdapter = new AccountAdapter(this, accountList);
         accountListView.setAdapter(this.mAccountAdapter);
-        accountListView.setOnItemClickListener(new OnItemClickListener() {
+        /*accountListView.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> arg0, View view,
                                     int position, long arg3) {
-                switchToAccount(accountList.get(position));
+                //switchToAccount(accountList.get(position));
             }
-        });
+        });*/
         registerForContextMenu(accountListView);
+
+        getActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
     }
 
     @Override
@@ -100,6 +104,8 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.manageaccounts, menu);
+
+        getMenuInflater().inflate(R.menu.edit_account_menu, menu);
         MenuItem enableAll = menu.findItem(R.id.action_enable_all);
         MenuItem addAccount = menu.findItem(R.id.action_add_account);
 
@@ -155,6 +161,11 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
                 break;
             case R.id.action_enable_all:
                 enableAllAccounts();
+                break;
+            case R.id.action_edit_account:
+                if (accountList.size() > 0) {
+                    switchToAccount(accountList.get(0));
+                }
                 break;
             default:
                 break;
