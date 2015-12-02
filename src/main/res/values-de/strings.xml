@@ -491,4 +491,12 @@
     <string name="error_trustkeys_title">Fehler</string>
     <string name="pref_export_logs">Chatverlauf exportieren</string>
     <string name="pref_export_logs_summary">Speichert den Chatverlauf auf deinen Speicher</string>
+    <string name="pref_use_tor">Verbinde via Tor</string>
+    <string name="pref_use_tor_summary">Gesamten Datenverkehr über Tor tunneln. Benötigt Orbot</string>
+    <string name="account_settings_hostname">Hostname</string>
+    <string name="account_settings_port">Port</string>
+    <string name="hostname_or_onion">Server- oder .onion-Addresse</string>
+    <string name="not_a_valid_port">Port Nummer ist falsch</string>
+    <string name="not_valid_hostname">Hostadresse ist falsch</string>
+    <string name="account_status_tor_unavailable">TOR Netzwerk nicht erreichbar</string>
 </resources>

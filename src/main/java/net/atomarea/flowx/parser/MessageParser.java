@@ -3,9 +3,11 @@ package net.atomarea.flowx.parser;
 import android.util.Log;
 import android.util.Pair;
 
+import net.atomarea.flowx.crypto.PgpDecryptionService;
 import net.java.otr4j.session.Session;
 import net.java.otr4j.session.SessionStatus;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import net.atomarea.flowx.Config;
@@ -112,6 +114,13 @@ public class MessageParser extends AbstractParser implements
 		}
 
 		return finishedMessage;
+	}
+
+	private Message parsePGPChat(final Conversation conversation, String pgpEncrypted, int status) {
+		final Message message = new Message(conversation, pgpEncrypted, Message.ENCRYPTION_PGP, status);
+		PgpDecryptionService pgpDecryptionService = conversation.getAccount().getPgpDecryptionService();
+		pgpDecryptionService.add(message);
+		return message;
 	}
 
 	private class Invite {
@@ -287,7 +296,7 @@ public class MessageParser extends AbstractParser implements
 			Log.d(Config.LOGTAG,"no to or from in: "+packet.toString());
 			return;
 		}
-
+		
 		boolean isTypeGroupChat = packet.getType() == MessagePacket.TYPE_GROUPCHAT;
 		boolean isProperlyAddressed = !to.isBareJid() || account.countPresences() == 1;
 		boolean isMucStatusMessage = from.isBareJid() && mucUserElement != null && mucUserElement.hasChild("status");
@@ -337,7 +346,7 @@ public class MessageParser extends AbstractParser implements
 					message = new Message(conversation, body, Message.ENCRYPTION_NONE, status);
 				}
 			} else if (pgpEncrypted != null) {
-				message = new Message(conversation, pgpEncrypted, Message.ENCRYPTION_PGP, status);
+				message = parsePGPChat(conversation, pgpEncrypted, status);
 			} else if (axolotlEncrypted != null) {
 				message = parseAxolotlChat(axolotlEncrypted, from, remoteMsgId, conversation, status);
 				if (message == null) {
@@ -385,17 +394,17 @@ public class MessageParser extends AbstractParser implements
 			}
 
 			if (mXmppConnectionService.confirmMessages() && remoteMsgId != null && !isForwarded && !isTypeGroupChat) {
+				ArrayList<String> receiptsNamespaces = new ArrayList<>();
 				if (packet.hasChild("markable", "urn:xmpp:chat-markers:0")) {
-					MessagePacket receipt = mXmppConnectionService.getMessageGenerator().received(account,
-							packet,
-							"urn:xmpp:chat-markers:0",
-							MessagePacket.TYPE_CHAT);
-					mXmppConnectionService.sendMessagePacket(account, receipt);
+					receiptsNamespaces.add("urn:xmpp:chat-markers:0");
 				}
 				if (packet.hasChild("request", "urn:xmpp:receipts")) {
+					receiptsNamespaces.add("urn:xmpp:receipts");
+				}
+				if (receiptsNamespaces.size() > 0) {
 					MessagePacket receipt = mXmppConnectionService.getMessageGenerator().received(account,
 							packet,
-							"urn:xmpp:receipts",
+							receiptsNamespaces,
 							packet.getType());
 					mXmppConnectionService.sendMessagePacket(account, receipt);
 				}

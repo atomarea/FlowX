@@ -56,7 +56,6 @@ public class PresenceGenerator extends AbstractGenerator {
 		packet.setFrom(account.getJid());
 		String sig = account.getPgpSignature();
 		if (sig != null) {
-			packet.addChild("status").setContent("online");
 			packet.addChild("x", "jabber:x:signed").setContent(sig);
 		}
 		String capHash = getCapHash();
@@ -64,7 +63,7 @@ public class PresenceGenerator extends AbstractGenerator {
 			Element cap = packet.addChild("c",
 					"http://jabber.org/protocol/caps");
 			cap.setAttribute("hash", "sha-1");
-			cap.setAttribute("node", "http://flowx.im");
+			cap.setAttribute("node", "http://conversations.im");
 			cap.setAttribute("ver", capHash);
 		}
 		return packet;

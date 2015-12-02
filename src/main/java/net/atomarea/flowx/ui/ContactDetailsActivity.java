@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
@@ -108,7 +107,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     };
     private Jid accountJid;
     private Jid contactJid;
-    private LinearLayout mainLayout;
     private TextView contactJidTv;
     private TextView accountJidTv;
     private TextView lastseen;
@@ -196,7 +194,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
 
         this.messageFingerprint = getIntent().getStringExtra("fingerprint");
         setContentView(R.layout.activity_contact_details);
-        mainLayout = (LinearLayout) findViewById(R.id.details_main_layout);
 
         getActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -298,11 +295,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         }
         return true;
     }
-    @Override
-    	public void onConfigurationChanged (Configuration newConfig) {
-        		super.onConfigurationChanged(newConfig);
-        		UIHelper.resetChildMargins(mainLayout);
-        	}
 
     private void populateView() {
         Point size =new Point();

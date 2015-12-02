@@ -59,26 +59,30 @@ public class FileBackend {
         final boolean encrypted = !decrypted
                 && (message.getEncryption() == Message.ENCRYPTION_PGP
                 || message.getEncryption() == Message.ENCRYPTION_DECRYPTED);
-        if (encrypted) {
-            return new DownloadableFile(getConversationsFileDirectory() + message.getUuid() + ".pgp");
+        final DownloadableFile file;
+        String path = message.getRelativeFilePath();
+        if (path == null) {
+            path = message.getUuid();
+        }
+        if (path.startsWith("/")) {
+            file = new DownloadableFile(path);
         } else {
-            String path = message.getRelativeFilePath();
-            if (path == null) {
-                path = message.getUuid();
-            } else if (path.startsWith("/")) {
-                return new DownloadableFile(path);
-            }
             String mime = message.getMimeType();
             if (mime != null && mime.startsWith("image")) {
-                return new DownloadableFile(getConversationsImageDirectory() + path);
+                file = new DownloadableFile(getConversationsImageDirectory() + path);
             } else {
-                return new DownloadableFile(getConversationsFileDirectory() + path);
+                file = new DownloadableFile(getConversationsFileDirectory() + path);
             }
+        }
+        if (encrypted) {
+            return new DownloadableFile(getConversationsFileDirectory() + file.getName() + ".pgp");
+        } else {
+            return file;
         }
     }
 
     public static String getConversationsFileDirectory() {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlowX/";
+        return  Environment.getExternalStorageDirectory().getAbsolutePath()+"/FlowX/";
     }
 
     public static String getConversationsImageDirectory() {
@@ -129,7 +133,7 @@ public class FileBackend {
         }
         File file = new File(path);
         long size = file.length();
-        if (size == 0 || size >= 524288) {
+        if (size == 0 || size >= 524288 ) {
             return false;
         }
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -146,8 +150,8 @@ public class FileBackend {
     }
 
     public String getOriginalPath(Uri uri) {
-        Log.d(Config.LOGTAG, "get original path for uri: " + uri.toString());
-        return FileUtils.getPath(mXmppConnectionService, uri);
+        Log.d(Config.LOGTAG,"get original path for uri: "+uri.toString());
+        return FileUtils.getPath(mXmppConnectionService,uri);
     }
 
     public DownloadableFile copyFileToPrivateStorage(Message message, Uri uri) throws FileCopyException {
@@ -169,7 +173,7 @@ public class FileBackend {
                 os.write(buffer, 0, length);
             }
             os.flush();
-        } catch (FileNotFoundException e) {
+        } catch(FileNotFoundException e) {
             throw new FileCopyException(R.string.error_file_not_found);
         } catch (IOException e) {
             e.printStackTrace();
@@ -187,16 +191,16 @@ public class FileBackend {
         return this.copyImageToPrivateStorage(message, image, 0);
     }
 
-    private DownloadableFile copyImageToPrivateStorage(Message message, Uri image, int sampleSize) throws FileCopyException {
-        switch (Config.IMAGE_FORMAT) {
+    private DownloadableFile copyImageToPrivateStorage(Message message,Uri image, int sampleSize) throws FileCopyException {
+        switch(Config.IMAGE_FORMAT) {
             case JPEG:
-                message.setRelativeFilePath(message.getUuid() + ".jpg");
+                message.setRelativeFilePath(message.getUuid()+".jpg");
                 break;
             case PNG:
-                message.setRelativeFilePath(message.getUuid() + ".png");
+                message.setRelativeFilePath(message.getUuid()+".png");
                 break;
             case WEBP:
-                message.setRelativeFilePath(message.getUuid() + ".webp");
+                message.setRelativeFilePath(message.getUuid()+".webp");
                 break;
         }
         DownloadableFile file = getFile(message);
@@ -256,7 +260,7 @@ public class FileBackend {
     }
 
     private int getRotation(File file) {
-        return getRotation(Uri.parse("file://" + file.getAbsolutePath()));
+        return getRotation(Uri.parse("file://"+file.getAbsolutePath()));
     }
 
     private int getRotation(Uri image) {
@@ -278,7 +282,7 @@ public class FileBackend {
             File file = getFile(message);
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inSampleSize = calcSampleSize(file, size);
-            Bitmap fullsize = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+            Bitmap fullsize = BitmapFactory.decodeFile(file.getAbsolutePath(),options);
             if (fullsize == null) {
                 throw new FileNotFoundException();
             }
@@ -287,7 +291,7 @@ public class FileBackend {
             if (rotation > 0) {
                 thumbnail = rotate(thumbnail, rotation);
             }
-            this.mXmppConnectionService.getBitmapCache().put(message.getUuid(), thumbnail);
+            this.mXmppConnectionService.getBitmapCache().put(message.getUuid(),thumbnail);
         }
         return thumbnail;
     }
@@ -375,7 +379,7 @@ public class FileBackend {
     }
 
     public String getAvatarPath(String avatar) {
-        return mXmppConnectionService.getFilesDir().getAbsolutePath() + "/avatars/" + avatar;
+        return mXmppConnectionService.getFilesDir().getAbsolutePath()+ "/avatars/" + avatar;
     }
 
     public Uri getAvatarUri(String avatar) {
@@ -418,7 +422,7 @@ public class FileBackend {
         InputStream is = null;
         try {
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = calcSampleSize(image, Math.max(newHeight, newWidth));
+            options.inSampleSize = calcSampleSize(image,Math.max(newHeight, newWidth));
             is = mXmppConnectionService.getContentResolver().openInputStream(image);
             if (is == null) {
                 return null;
@@ -480,14 +484,14 @@ public class FileBackend {
         return calcSampleSize(options, size);
     }
 
-    private int calcSampleSize(File image, int size) {
+    private static int calcSampleSize(File image, int size) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(image.getAbsolutePath(), options);
         return calcSampleSize(options, size);
     }
 
-    private int calcSampleSize(BitmapFactory.Options options, int size) {
+    public static int calcSampleSize(BitmapFactory.Options options, int size) {
         int height = options.outHeight;
         int width = options.outWidth;
         int inSampleSize = 1;
@@ -510,7 +514,7 @@ public class FileBackend {
     }
 
     public void updateFileParams(Message message) {
-        updateFileParams(message, null);
+        updateFileParams(message,null);
     }
 
     public void updateFileParams(Message message, URL url) {
@@ -526,11 +530,11 @@ public class FileBackend {
             if (url == null) {
                 message.setBody(Long.toString(file.getSize()) + '|' + imageWidth + '|' + imageHeight);
             } else {
-                message.setBody(url.toString() + "|" + Long.toString(file.getSize()) + '|' + imageWidth + '|' + imageHeight);
+                message.setBody(url.toString()+"|"+Long.toString(file.getSize()) + '|' + imageWidth + '|' + imageHeight);
             }
         } else {
             if (url != null) {
-                message.setBody(url.toString() + "|" + Long.toString(file.getSize()));
+                message.setBody(url.toString()+"|"+Long.toString(file.getSize()));
             } else {
                 message.setBody(Long.toString(file.getSize()));
             }

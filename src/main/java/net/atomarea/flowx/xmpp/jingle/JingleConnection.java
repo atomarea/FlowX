@@ -114,6 +114,8 @@ public class JingleConnection implements Transferable {
 				Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
 				intent.setData(Uri.fromFile(file));
 				mXmppConnectionService.sendBroadcast(intent);
+			} else {
+				account.getPgpDecryptionService().add(message);
 			}
 		}
 
@@ -219,7 +221,11 @@ public class JingleConnection implements Transferable {
 			conversation.getAccount().getAxolotlService().prepareKeyTransportMessage(conversation.getContact(), new OnMessageCreatedCallback() {
 				@Override
 				public void run(XmppAxolotlMessage xmppAxolotlMessage) {
-					init(message, xmppAxolotlMessage);
+					if (xmppAxolotlMessage != null) {
+						init(message, xmppAxolotlMessage);
+					} else {
+						fail();
+					}
 				}
 			});
 		} else {

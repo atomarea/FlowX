@@ -7,7 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
@@ -19,6 +21,7 @@ import net.atomarea.flowx.Config;
 import net.atomarea.flowx.entities.DownloadableFile;
 import net.atomarea.flowx.persistance.FileBackend;
 import net.atomarea.flowx.utils.CryptoHelper;
+import net.atomarea.flowx.utils.SocksSocketFactory;
 
 public class JingleSocks5Transport extends JingleTransport {
 	private JingleCandidate candidate;
@@ -59,34 +62,19 @@ public class JingleSocks5Transport extends JingleTransport {
 			@Override
 			public void run() {
 				try {
-					socket = new Socket();
-					SocketAddress address = new InetSocketAddress(candidate.getHost(),candidate.getPort());
-					socket.connect(address,Config.SOCKET_TIMEOUT * 1000);
+					final boolean useTor = connection.getAccount().isOnion() || connection.getConnectionManager().getXmppConnectionService().useTorToConnect();
+					if (useTor) {
+						socket = SocksSocketFactory.createSocketOverTor(candidate.getHost(),candidate.getPort());
+					} else {
+						socket = new Socket();
+						SocketAddress address = new InetSocketAddress(candidate.getHost(),candidate.getPort());
+						socket.connect(address,Config.SOCKET_TIMEOUT * 1000);
+					}
 					inputStream = socket.getInputStream();
 					outputStream = socket.getOutputStream();
-					byte[] login = { 0x05, 0x01, 0x00 };
-					byte[] expectedReply = { 0x05, 0x00 };
-					byte[] reply = new byte[2];
-					outputStream.write(login);
-					inputStream.read(reply);
-					final String connect = Character.toString('\u0005')
-							+ '\u0001' + '\u0000' + '\u0003' + '\u0028'
-							+ destination + '\u0000' + '\u0000';
-					if (Arrays.equals(reply, expectedReply)) {
-						outputStream.write(connect.getBytes());
-						byte[] result = new byte[2];
-						inputStream.read(result);
-						int status = result[1];
-						if (status == 0) {
-							isEstablished = true;
-							callback.established();
-						} else {
-							callback.failed();
-						}
-					} else {
-						socket.close();
-						callback.failed();
-					}
+					SocksSocketFactory.createSocksConnection(socket,destination,0);
+					isEstablished = true;
+					callback.established();
 				} catch (UnknownHostException e) {
 					callback.failed();
 				} catch (IOException e) {
@@ -158,7 +146,7 @@ public class JingleSocks5Transport extends JingleTransport {
 					wakeLock.acquire();
 					MessageDigest digest = MessageDigest.getInstance("SHA-1");
 					digest.reset();
-					inputStream.skip(45);
+					//inputStream.skip(45);
 					socket.setSoTimeout(30000);
 					file.getParentFile().mkdirs();
 					file.createNewFile();

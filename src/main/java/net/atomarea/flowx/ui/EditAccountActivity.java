@@ -30,13 +30,15 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Set;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.services.XmppConnectionService.OnCaptchaRequested;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.services.XmppConnectionService.OnAccountUpdate;
-import net.atomarea.flowx.services.XmppConnectionService.OnCaptchaRequested;
 import net.atomarea.flowx.ui.adapter.KnownHostsAdapter;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.UIHelper;
@@ -46,8 +48,6 @@ import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
-
-import java.util.Set;
 
 public class EditAccountActivity extends XmppActivity implements OnAccountUpdate,
 		OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast {
@@ -82,10 +82,14 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 	private ImageButton mRegenerateAxolotlKeyButton;
 	private LinearLayout keys;
 	private LinearLayout keysCard;
+	private LinearLayout mNamePort;
+	private EditText mHostname;
+	private EditText mPort;
 	private AlertDialog mCaptchaDialog = null;
 
 	private Jid jidToEdit;
 	private boolean mInitMode = false;
+	private boolean mUseTor = false;
 	private Account mAccount;
 	private String messageFingerprint;
 
@@ -125,6 +129,31 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 				mAccountJid.requestFocus();
 				return;
 			}
+			String hostname = null;
+			int numericPort = 5222;
+			if (mUseTor) {
+				hostname = mHostname.getText().toString();
+				final String port = mPort.getText().toString();
+				if (hostname.contains(" ")) {
+					mHostname.setError(getString(R.string.not_valid_hostname));
+					mHostname.requestFocus();
+					return;
+				}
+				try {
+					numericPort = Integer.parseInt(port);
+					if (numericPort < 0 || numericPort > 65535) {
+						mPort.setError(getString(R.string.not_a_valid_port));
+						mPort.requestFocus();
+						return;
+					}
+
+				} catch (NumberFormatException e) {
+					mPort.setError(getString(R.string.not_a_valid_port));
+					mPort.requestFocus();
+					return;
+				}
+			}
+
 			if (jid.isDomainJid()) {
 				if (Config.DOMAIN_LOCK != null) {
 					mAccountJid.setError(getString(R.string.invalid_username));
@@ -145,6 +174,8 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 			}
 			if (mAccount != null) {
 				mAccount.setJid(jid);
+				mAccount.setPort(numericPort);
+				mAccount.setHostname(hostname);
 				mAccountJid.setError(null);
 				mPasswordConfirm.setError(null);
 				mAccount.setPassword(password);
@@ -157,11 +188,15 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 					return;
 				}
 				mAccount = new Account(jid.toBareJid(), password);
+				mAccount.setPort(numericPort);
+				mAccount.setHostname(hostname);
 				mAccount.setOption(Account.OPTION_USETLS, true);
 				mAccount.setOption(Account.OPTION_USECOMPRESSION, true);
 				mAccount.setOption(Account.OPTION_REGISTER, registerNewAccount);
 				xmppConnectionService.createAccount(mAccount);
 			}
+			mHostname.setError(null);
+			mPort.setError(null);
 			if (!mAccount.isOptionSet(Account.OPTION_DISABLED)
 					&& !registerNewAccount
 					&& !mInitMode) {
@@ -319,7 +354,9 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 			unmodified = this.mAccount.getJid().toBareJid().toString();
 		}
 		return !unmodified.equals(this.mAccountJid.getText().toString()) ||
-				!this.mAccount.getPassword().equals(this.mPassword.getText().toString());
+				!this.mAccount.getPassword().equals(this.mPassword.getText().toString()) ||
+				!this.mAccount.getHostname().equals(this.mHostname.getText().toString()) ||
+				!String.valueOf(this.mAccount.getPort()).equals(this.mPort.getText().toString());
 	}
 
 	@Override
@@ -368,6 +405,12 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 		this.mRegenerateAxolotlKeyButton = (ImageButton) findViewById(R.id.action_regenerate_axolotl_key);
 		this.keysCard = (LinearLayout) findViewById(R.id.other_device_keys_card);
 		this.keys = (LinearLayout) findViewById(R.id.other_device_keys);
+		this.mNamePort = (LinearLayout) findViewById(R.id.name_port);
+		this.mHostname = (EditText) findViewById(R.id.hostname);
+		this.mHostname.addTextChangedListener(mTextWatcher);
+		this.mPort = (EditText) findViewById(R.id.port);
+		this.mPort.setText("5222");
+		this.mPort.addTextChangedListener(mTextWatcher);
 		this.mSaveButton = (Button) findViewById(R.id.save_button);
 		this.mCancelButton = (Button) findViewById(R.id.cancel_button);
 		this.mSaveButton.setOnClickListener(this.mSaveButtonClickListener);
@@ -448,6 +491,8 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 				}
 			}
 		}
+		this.mUseTor = getPreferences().getBoolean("use_tor", false);
+		this.mNamePort.setVisibility(mUseTor ? View.VISIBLE : View.GONE);
 	}
 
 	@Override
@@ -480,12 +525,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 		}
 		updateSaveButton();
 		invalidateOptionsMenu();
-	}
-
-	@Override
-	public void onConfigurationChanged (Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		UIHelper.resetChildMargins(mMainLayout);
 	}
 
 	@Override
@@ -535,6 +574,12 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 				this.mAccountJid.getEditableText().append(this.mAccount.getJid().toBareJid().toString());
 			}
 			this.mPassword.setText(this.mAccount.getPassword());
+			this.mHostname.setText("");
+			this.mHostname.getEditableText().append(this.mAccount.getHostname());
+			this.mPort.setText("");
+			this.mPort.getEditableText().append(String.valueOf(this.mAccount.getPort()));
+			this.mNamePort.setVisibility(mUseTor ? View.VISIBLE : View.GONE);
+
 		}
 		if (!mInitMode) {
 			this.mAvatar.setVisibility(View.VISIBLE);

@@ -4,15 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.SystemClock;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.OtrService;
 import net.atomarea.flowx.crypto.PgpDecryptionService;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.xmpp.XmppConnection;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.crypto.OtrCryptoException;
 
@@ -26,6 +18,15 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.crypto.OtrService;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.xmpp.XmppConnection;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
+
 public class Account extends AbstractEntity {
 
 	public static final String TABLENAME = "accounts";
@@ -38,6 +39,8 @@ public class Account extends AbstractEntity {
 	public static final String KEYS = "keys";
 	public static final String AVATAR = "avatar";
 	public static final String DISPLAY_NAME = "display_name";
+	public static final String HOSTNAME = "hostname";
+	public static final String PORT = "port";
 
 	public static final String PINNED_MECHANISM_KEY = "pinned_mechanism";
 
@@ -66,7 +69,7 @@ public class Account extends AbstractEntity {
 		}
 	}
 
-	public static enum State {
+	public enum State {
 		DISABLED,
 		OFFLINE,
 		CONNECTING,
@@ -80,7 +83,7 @@ public class Account extends AbstractEntity {
 		REGISTRATION_NOT_SUPPORTED(true),
 		SECURITY_ERROR(true),
 		INCOMPATIBLE_SERVER(true),
-		DNS_TIMEOUT(true);
+		TOR_NOT_AVAILABLE(true);
 
 		private final boolean isError;
 
@@ -124,8 +127,8 @@ public class Account extends AbstractEntity {
 					return R.string.account_status_security_error;
 				case INCOMPATIBLE_SERVER:
 					return R.string.account_status_incompatible_server;
-				case DNS_TIMEOUT:
-					return R.string.account_status_dns_timeout;
+				case TOR_NOT_AVAILABLE:
+					return R.string.account_status_tor_unavailable;
 				default:
 					return R.string.account_status_unknown;
 			}
@@ -134,6 +137,10 @@ public class Account extends AbstractEntity {
 
 	public List<Conversation> pendingConferenceJoins = new CopyOnWriteArrayList<>();
 	public List<Conversation> pendingConferenceLeaves = new CopyOnWriteArrayList<>();
+
+	private static final String KEY_PGP_SIGNATURE = "pgp_signature";
+	private static final String KEY_PGP_ID = "pgp_id";
+
 	protected Jid jid;
 	protected String password;
 	protected int options = 0;
@@ -142,6 +149,8 @@ public class Account extends AbstractEntity {
 	protected JSONObject keys = new JSONObject();
 	protected String avatar;
 	protected String displayName = null;
+	protected String hostname = null;
+	protected int port = 5222;
 	protected boolean online = false;
 	private OtrService mOtrService = null;
 	private AxolotlService axolotlService = null;
@@ -159,12 +168,12 @@ public class Account extends AbstractEntity {
 
 	public Account(final Jid jid, final String password) {
 		this(java.util.UUID.randomUUID().toString(), jid,
-				password, 0, null, "", null, null);
+				password, 0, null, "", null, null, null, 5222);
 	}
 
 	public Account(final String uuid, final Jid jid,
-				   final String password, final int options, final String rosterVersion, final String keys,
-				   final String avatar, String displayName) {
+			final String password, final int options, final String rosterVersion, final String keys,
+			final String avatar, String displayName, String hostname, int port) {
 		this.uuid = uuid;
 		this.jid = jid;
 		if (jid.isBareJid()) {
@@ -180,6 +189,8 @@ public class Account extends AbstractEntity {
 		}
 		this.avatar = avatar;
 		this.displayName = displayName;
+		this.hostname = hostname;
+		this.port = port;
 	}
 
 	public static Account fromCursor(final Cursor cursor) {
@@ -196,7 +207,9 @@ public class Account extends AbstractEntity {
 				cursor.getString(cursor.getColumnIndex(ROSTERVERSION)),
 				cursor.getString(cursor.getColumnIndex(KEYS)),
 				cursor.getString(cursor.getColumnIndex(AVATAR)),
-				cursor.getString(cursor.getColumnIndex(DISPLAY_NAME)));
+				cursor.getString(cursor.getColumnIndex(DISPLAY_NAME)),
+				cursor.getString(cursor.getColumnIndex(HOSTNAME)),
+				cursor.getInt(cursor.getColumnIndex(PORT)));
 	}
 
 	public boolean isOptionSet(final int option) {
@@ -229,6 +242,26 @@ public class Account extends AbstractEntity {
 
 	public void setPassword(final String password) {
 		this.password = password;
+	}
+
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+
+	public String getHostname() {
+		return this.hostname == null ? "" : this.hostname;
+	}
+
+	public boolean isOnion() {
+		return getServer().toString().toLowerCase().endsWith(".onion");
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public int getPort() {
+		return this.port;
 	}
 
 	public State getStatus() {
@@ -309,6 +342,8 @@ public class Account extends AbstractEntity {
 		values.put(ROSTERVERSION, rosterVersion);
 		values.put(AVATAR, avatar);
 		values.put(DISPLAY_NAME, displayName);
+		values.put(HOSTNAME, hostname);
+		values.put(PORT, port);
 		return values;
 	}
 
@@ -378,15 +413,45 @@ public class Account extends AbstractEntity {
 	}
 
 	public String getPgpSignature() {
-		if (keys.has("pgp_signature")) {
+		if (keys.has(KEY_PGP_SIGNATURE)) {
 			try {
-				return keys.getString("pgp_signature");
+				return keys.getString(KEY_PGP_SIGNATURE);
 			} catch (final JSONException e) {
 				return null;
 			}
 		} else {
 			return null;
 		}
+	}
+
+	public boolean setPgpSignature(String signature) {
+		try {
+			keys.put(KEY_PGP_SIGNATURE, signature);
+		} catch (JSONException e) {
+			return false;
+		}
+		return true;
+	}
+
+	public long getPgpId() {
+		if (keys.has(KEY_PGP_ID)) {
+			try {
+				return keys.getLong(KEY_PGP_ID);
+			} catch (JSONException e) {
+				return -1;
+			}
+		} else {
+			return -1;
+		}
+	}
+
+	public boolean setPgpSignId(long pgpID) {
+		try {
+			keys.put(KEY_PGP_ID, pgpID);
+		} catch (JSONException e) {
+			return false;
+		}
+		return true;
 	}
 
 	public Roster getRoster() {
@@ -426,7 +491,7 @@ public class Account extends AbstractEntity {
 
 	public void activateGracePeriod() {
 		this.mEndGracePeriod = SystemClock.elapsedRealtime()
-				+ (Config.CARBON_GRACE_PERIOD * 1000);
+			+ (Config.CARBON_GRACE_PERIOD * 1000);
 	}
 
 	public void deactivateGracePeriod() {
