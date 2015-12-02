@@ -149,6 +149,11 @@
                     android:key="keep_foreground_service"
                     android:title="@string/pref_keep_foreground_service"
                     android:summary="@string/pref_keep_foreground_service_summary" />
+        <CheckBoxPreference
+                            android:defaultValue="false"
+        android:key="use_tor"
+        android:title="@string/pref_use_tor"
+                            android:summary="@string/pref_use_tor_summary"/>
         <net.atomarea.flowx.ui.ExportLogsPreference
                                         android:key="export_logs"
                                         android:title="@string/pref_export_logs"

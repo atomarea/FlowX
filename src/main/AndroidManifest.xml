@@ -107,17 +107,14 @@
             android:label="@string/title_activity_manage_accounts" />
         <activity
             android:name="net.atomarea.flowx.ui.EditAccountActivity"
-            android:configChanges="orientation|screenSize"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="net.atomarea.flowx.ui.ConferenceDetailsActivity"
-            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_conference_details"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:theme="@style/ConversationsTheme.ContactDetail"
             android:name="net.atomarea.flowx.ui.ContactDetailsActivity"
-            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_contact_details"
             android:windowSoftInputMode="stateHidden" />
         <activity

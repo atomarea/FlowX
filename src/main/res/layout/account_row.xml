@@ -1,35 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/activatedBackgroundIndicator"
-                android:paddingLeft="8dp"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/activatedBackgroundIndicator"
+    android:orientation="vertical">
 
-    <com.makeramen.roundedimageview.RoundedImageView
+    <ImageView
         android:id="@+id/account_image"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_alignParentTop="true"
-        android:src="@drawable/ic_profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:contentDescription="@string/account_image_description"
-        app:riv_corner_radius="100dp"
-        android:layout_alignParentBottom="false"
-        android:layout_alignWithParentIfMissing="false"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true" />
+        android:src="@drawable/ic_profile" />
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/account_image"
         android:orientation="vertical"
-        android:paddingLeft="8dp"
-        android:layout_toLeftOf="@+id/tgl_account_status"
-        android:layout_toStartOf="@+id/tgl_account_status">
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/account_jid"
@@ -38,32 +25,29 @@
             android:scrollHorizontally="false"
             android:singleLine="true"
             android:textColor="@color/black87"
-            android:visibility="gone"
-            android:textSize="?attr/TextSizeHeadline" />
+            android:textSize="?attr/TextSizeHeadline"
+            android:visibility="gone" />
 
     </LinearLayout>
 
     <net.atomarea.flowx.ui.widget.Switch
-        style="@style/MD"
         android:id="@+id/tgl_account_status"
+        style="@style/MD"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:visibility="gone"
+        android:focusable="false"
         android:padding="16dp"
-        android:focusable="false"/>
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/account_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
         android:text="@string/account_status_unknown"
         android:textColor="@color/black54"
-        android:textSize="20dp"
-        android:textStyle="bold"
-        android:layout_alignWithParentIfMissing="false"
-        android:layout_below="@+id/account_image"
-        android:layout_centerHorizontal="true" />
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
-</RelativeLayout>
+</LinearLayout>

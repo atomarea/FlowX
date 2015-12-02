@@ -1,5 +1,4 @@
 include ':libs:MemorizingTrustManager'
-include ':libs:openpgp-api-lib'
 include ':libs:emojicon'
 include ':libs:audiowife'
 rootProject.name = 'FlowX'

@@ -4,9 +4,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.entities.Account;
-
 import org.whispersystems.libaxolotl.AxolotlAddress;
 import org.whispersystems.libaxolotl.DuplicateMessageException;
 import org.whispersystems.libaxolotl.InvalidKeyException;
@@ -23,6 +20,9 @@ import org.whispersystems.libaxolotl.protocol.WhisperMessage;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.entities.Account;
 
 public class XmppAxolotlSession {
 	private final SessionCipher cipher;

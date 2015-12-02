@@ -28,7 +28,6 @@ repositories {
 }
 
 dependencies {
-	compile project(':libs:openpgp-api-lib')
 	compile project(':libs:MemorizingTrustManager')
 	compile project(':libs:emojicon')
 	compile project(':libs:audiowife')
@@ -47,6 +46,7 @@ dependencies {
 	compile 'com.makeramen:roundedimageview:2.2.0'
 	compile 'com.beardedhen:androidbootstrap:2.0.0'
 	compile 'com.soundcloud.android:android-crop:1.0.1@aar'
+	compile 'org.sufficientlysecure:openpgp-api:9.0'
 }
 
 android {
@@ -58,9 +58,9 @@ android {
 	buildToolsVersion "23.0.1"
 	defaultConfig {
 		minSdkVersion 14
-		targetSdkVersion 23
-		versionCode 1372
-		versionName "1355"
+		targetSdkVersion 22
+		versionCode 1374
+		versionName "1356"
 		project.ext.set(archivesBaseName, archivesBaseName + "-" + versionName);
 	}
 	compileOptions {

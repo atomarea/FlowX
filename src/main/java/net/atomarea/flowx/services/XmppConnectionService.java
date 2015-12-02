@@ -31,33 +31,6 @@ import android.util.Log;
 import android.util.LruCache;
 import android.util.Pair;
 
-import net.java.otr4j.OtrException;
-import net.java.otr4j.session.Session;
-import net.java.otr4j.session.SessionID;
-import net.java.otr4j.session.SessionImpl;
-import net.java.otr4j.session.SessionStatus;
-
-import org.openintents.openpgp.IOpenPgpService;
-import org.openintents.openpgp.util.OpenPgpApi;
-import org.openintents.openpgp.util.OpenPgpServiceConnection;
-
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import de.duenndns.ssl.MemorizingTrustManager;
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.PgpEngine;
@@ -114,6 +87,33 @@ import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
 import net.atomarea.flowx.xmpp.stanzas.MessagePacket;
 import net.atomarea.flowx.xmpp.stanzas.PresencePacket;
+import net.java.otr4j.OtrException;
+import net.java.otr4j.session.Session;
+import net.java.otr4j.session.SessionID;
+import net.java.otr4j.session.SessionImpl;
+import net.java.otr4j.session.SessionStatus;
+
+import org.openintents.openpgp.IOpenPgpService2;
+import org.openintents.openpgp.util.OpenPgpApi;
+import org.openintents.openpgp.util.OpenPgpServiceConnection;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import de.duenndns.ssl.MemorizingTrustManager;
 import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class XmppConnectionService extends Service implements OnPhoneContactsLoadedListener {
@@ -581,11 +581,11 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	}
 
 	private boolean xaOnSilentMode() {
-		return getPreferences().getBoolean("xa_on_silent_mode", true);
+		return getPreferences().getBoolean("xa_on_silent_mode", false);
 	}
 
 	private boolean awayWhenScreenOff() {
-		return getPreferences().getBoolean("away_when_screen_off", true);
+		return getPreferences().getBoolean("away_when_screen_off", false);
 	}
 
 	private int getTargetPresence() {
@@ -662,7 +662,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 
 		this.pgpServiceConnection = new OpenPgpServiceConnection(getApplicationContext(), "org.sufficientlysecure.keychain", new OpenPgpServiceConnection.OnBound() {
 			@Override
-			public void onBound(IOpenPgpService service) {
+			public void onBound(IOpenPgpService2 service) {
 				for (Account account : accounts) {
 					if (account.getPgpDecryptionService() != null) {
 						account.getPgpDecryptionService().onOpenPgpServiceBound();
@@ -1692,16 +1692,16 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		List<Conversation> conversations = getConversations();
 		for (Conversation conversation : conversations) {
 			if (conversation.getMode() == Conversation.MODE_MULTI && conversation.getAccount() == account) {
-				joinMuc(conversation, true);
+				joinMuc(conversation, true, null);
 			}
 		}
 	}
 
 	public void joinMuc(Conversation conversation) {
-		joinMuc(conversation, false);
+		joinMuc(conversation, false, null);
 	}
 
-	private void joinMuc(Conversation conversation, boolean now) {
+	private void joinMuc(Conversation conversation, boolean now, final OnConferenceJoined onConferenceJoined) {
 		Account account = conversation.getAccount();
 		account.pendingConferenceJoins.remove(conversation);
 		account.pendingConferenceLeaves.remove(conversation);
@@ -1734,11 +1734,12 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 					}
 					String sig = account.getPgpSignature();
 					if (sig != null) {
-						packet.addChild("status").setContent("online");
 						packet.addChild("x", "jabber:x:signed").setContent(sig);
 					}
 					sendPresencePacket(account, packet);
-					fetchConferenceConfiguration(conversation);
+					if (onConferenceJoined != null) {
+						onConferenceJoined.onConferenceJoined(conversation);
+					}
 					if (!joinJid.equals(conversation.getJid())) {
 						conversation.setContactJid(joinJid);
 						databaseBackend.updateConversation(conversation);
@@ -1756,18 +1757,8 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 
 				@Override
 				public void onFetchFailed(final Conversation conversation, Element error) {
-					conversation.getMucOptions().setOnJoinListener(new MucOptions.OnJoinListener() {
-						@Override
-						public void onSuccess() {
-							fetchConferenceConfiguration(conversation);
-						}
-
-						@Override
-						public void onFailure() {
-
-						}
-					});
 					join(conversation);
+					fetchConferenceConfiguration(conversation);
 				}
 			});
 
@@ -1893,34 +1884,37 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 				String name = new BigInteger(75, getRNG()).toString(32);
 				Jid jid = Jid.fromParts(name, server, null);
 				final Conversation conversation = findOrCreateConversation(account, jid, true);
-				joinMuc(conversation);
-				Bundle options = new Bundle();
-				options.putString("muc#roomconfig_persistentroom", "1");
-				options.putString("muc#roomconfig_membersonly", "1");
-				options.putString("muc#roomconfig_publicroom", "0");
-				options.putString("muc#roomconfig_whois", "anyone");
-				pushConferenceConfiguration(conversation, options, new OnConferenceOptionsPushed() {
+				joinMuc(conversation, true, new OnConferenceJoined() {
 					@Override
-					public void onPushSucceeded() {
-						for (Jid invite : jids) {
-							invite(conversation, invite);
-						}
-						if (account.countPresences() > 1) {
-							directInvite(conversation, account.getJid().toBareJid());
-						}
-						if (callback != null) {
-							callback.success(conversation);
-						}
-					}
+					public void onConferenceJoined(final Conversation conversation) {
+						Bundle options = new Bundle();
+						options.putString("muc#roomconfig_persistentroom", "1");
+						options.putString("muc#roomconfig_membersonly", "1");
+						options.putString("muc#roomconfig_publicroom", "0");
+						options.putString("muc#roomconfig_whois", "anyone");
+						pushConferenceConfiguration(conversation, options, new OnConferenceOptionsPushed() {
+							@Override
+							public void onPushSucceeded() {
+								for (Jid invite : jids) {
+									invite(conversation, invite);
+								}
+								if (account.countPresences() > 1) {
+									directInvite(conversation, account.getJid().toBareJid());
+								}
+								if (callback != null) {
+									callback.success(conversation);
+								}
+							}
 
-					@Override
-					public void onPushFailed() {
-						if (callback != null) {
-							callback.error(R.string.conference_creation_failed, conversation);
-						}
+							@Override
+							public void onPushFailed() {
+								if (callback != null) {
+									callback.error(R.string.conference_creation_failed, conversation);
+								}
+							}
+						});
 					}
 				});
-
 			} catch (InvalidJidException e) {
 				if (callback != null) {
 					callback.error(R.string.conference_creation_failed, null);
@@ -1946,13 +1940,18 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 			public void onIqPacketReceived(Account account, IqPacket packet) {
 				if (packet.getType() == IqPacket.TYPE.RESULT) {
 					ArrayList<String> features = new ArrayList<>();
-					for (Element child : packet.query().getChildren()) {
+					Element query = packet.query();
+					for (Element child : query.getChildren()) {
 						if (child != null && child.getName().equals("feature")) {
 							String var = child.getAttribute("var");
 							if (var != null) {
 								features.add(var);
 							}
 						}
+					}
+					Element form = query.findChild("x","jabber:x:data");
+					if (form != null) {
+						conversation.getMucOptions().updateFormData(Data.parse(form));
 					}
 					conversation.getMucOptions().updateFeatures(features);
 					if (callback != null) {
@@ -2107,8 +2106,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	}
 
 	public void createContact(Contact contact) {
-		SharedPreferences sharedPref = getPreferences();
-		boolean autoGrant = sharedPref.getBoolean("grant_new_contacts", true);
+		boolean autoGrant = getPreferences().getBoolean("grant_new_contacts", true);
 		if (autoGrant) {
 			contact.setOption(Contact.Options.PREEMPTIVE_GRANT);
 			contact.setOption(Contact.Options.ASKING);
@@ -2535,10 +2533,6 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 				.getDefaultSharedPreferences(getApplicationContext());
 	}
 
-	public boolean forceEncryption() {
-		return getPreferences().getBoolean("force_encryption", false);
-	}
-
 	public boolean confirmMessages() {
 		return getPreferences().getBoolean("confirm_messages", true);
 	}
@@ -2553,6 +2547,10 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 
 	public boolean indicateReceived() {
 		return getPreferences().getBoolean("indicate_received", true);
+	}
+
+	public boolean useTorToConnect() {
+		return Config.PARANOID_MODE || getPreferences().getBoolean("use_tor", false);
 	}
 
 	public int unreadCount() {
@@ -2978,6 +2976,10 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		void onConferenceConfigurationFetched(Conversation conversation);
 
 		void onFetchFailed(Conversation conversation, Element error);
+	}
+
+	public interface OnConferenceJoined {
+		void onConferenceJoined(Conversation conversation);
 	}
 
 	public interface OnConferenceOptionsPushed {

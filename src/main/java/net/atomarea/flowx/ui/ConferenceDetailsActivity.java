@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentSender.SendIntentException;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,7 +36,6 @@ import net.atomarea.flowx.entities.MucOptions.User;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.services.XmppConnectionService.OnConversationUpdate;
 import net.atomarea.flowx.services.XmppConnectionService.OnMucRosterUpdate;
-import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.jid.Jid;
 
 import org.openintents.openpgp.util.OpenPgpUtils;
@@ -58,7 +56,6 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             inviteToConversation(mConversation);
         }
     };
-    private LinearLayout mMainLayout;
     private TextView mYourNick;
     private ImageView mYourPhoto;
     private ImageButton mEditNickButton;
@@ -193,7 +190,6 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_muc_details);
-        mMainLayout = (LinearLayout) findViewById(R.id.muc_main_layout);
         mYourNick = (TextView) findViewById(R.id.muc_your_nick);
         mYourPhoto = (ImageView) findViewById(R.id.your_photo);
         mEditNickButton = (ImageButton) findViewById(R.id.edit_nick_button);
@@ -274,6 +270,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         MenuItem menuItemSaveBookmark = menu.findItem(R.id.action_save_as_bookmark);
         MenuItem menuItemDeleteBookmark = menu.findItem(R.id.action_delete_bookmark);
         MenuItem menuItemAdvancedMode = menu.findItem(R.id.action_advanced_mode);
+        MenuItem menuItemChangeSubject = menu.findItem(R.id.action_edit_subject);
         menuItemAdvancedMode.setChecked(mAdvancedMode);
         if (mConversation == null) {
             return true;
@@ -286,6 +283,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             menuItemDeleteBookmark.setVisible(false);
             menuItemSaveBookmark.setVisible(true);
         }
+        menuItemChangeSubject.setVisible(mConversation.getMucOptions().canChangeSubject());
         return true;
     }
 
@@ -456,12 +454,6 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             }
         }
     }
-    @Override
-    public void onConfigurationChanged (Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        UIHelper.resetChildMargins(mMainLayout);
-    }
-
     private void updateView() {
         final MucOptions mucOptions = mConversation.getMucOptions();
         final User self = mucOptions.getSelf();

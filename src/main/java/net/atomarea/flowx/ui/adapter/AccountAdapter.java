@@ -1,10 +1,12 @@
 package net.atomarea.flowx.ui.adapter;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,10 +23,12 @@ import java.util.List;
 public class AccountAdapter extends ArrayAdapter<Account> {
 
     private XmppActivity activity;
+    private List<Account> accounts;
 
     public AccountAdapter(XmppActivity activity, List<Account> objects) {
         super(activity, 0, objects);
         this.activity = activity;
+        accounts = objects;
     }
 
     @Override
@@ -43,7 +47,11 @@ public class AccountAdapter extends ArrayAdapter<Account> {
         }
         TextView statusView = (TextView) view.findViewById(R.id.account_status);
         ImageView imageView = (ImageView) view.findViewById(R.id.account_image);
-        imageView.setImageBitmap(activity.avatarService().get(account, activity.getPixel(200)));
+
+        Point size = new Point();
+        activity.getWindowManager().getDefaultDisplay().getSize(size);
+
+        imageView.setImageBitmap(activity.avatarService().get(account, size.x));
         statusView.setText(getContext().getString(account.getStatus().getReadableId()));
         switch (account.getStatus()) {
             case ONLINE:
@@ -68,6 +76,7 @@ public class AccountAdapter extends ArrayAdapter<Account> {
                 }
             }
         });
+
         return view;
     }
 }

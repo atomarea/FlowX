@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package net.atomarea.flowx.utils;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,7 +21,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
 /**
  * Utilities for dealing with MIME types.
  * Used to implement java.net.URLConnection and android.webkit.MimeTypeMap.
@@ -30,7 +28,6 @@ import java.util.Properties;
 public final class MimeUtils {
     private static final Map<String, String> mimeTypeToExtensionMap = new HashMap<String, String>();
     private static final Map<String, String> extensionToMimeTypeMap = new HashMap<String, String>();
-
     static {
         // The following table is based on /etc/mime.types data minus
         // chemical/* MIME types and MIME types that don't map to any
@@ -376,7 +373,6 @@ public final class MimeUtils {
         add("x-epoc/x-sisx-app", "sisx");
         applyOverrides();
     }
-
     private static void add(String mimeType, String extension) {
         // If we have an existing x -> y mapping, we do not want to
         // override it with another mapping x -> y2.
@@ -390,7 +386,6 @@ public final class MimeUtils {
             extensionToMimeTypeMap.put(extension, mimeType);
         }
     }
-
     private static InputStream getContentTypesPropertiesStream() {
         // User override?
         String userTable = System.getProperty("content.types.user.table");
@@ -413,7 +408,6 @@ public final class MimeUtils {
         }
         return null;
     }
-
     /**
      * This isn't what the RI does. The RI doesn't have hard-coded defaults, so supplying your
      * own "content.types.user.table" means you don't get any of the built-ins, and the built-ins
@@ -442,13 +436,10 @@ public final class MimeUtils {
         } catch (IOException ignored) {
         }
     }
-
     private MimeUtils() {
     }
-
     /**
      * Returns true if the given MIME type has an entry in the map.
-     *
      * @param mimeType A MIME type (i.e. text/plain)
      * @return True iff there is a mimeType entry in the map.
      */
@@ -458,10 +449,8 @@ public final class MimeUtils {
         }
         return mimeTypeToExtensionMap.containsKey(mimeType);
     }
-
     /**
      * Returns the MIME type for the given extension.
-     *
      * @param extension A file extension without the leading '.'
      * @return The MIME type for the given extension or null iff there is none.
      */
@@ -471,10 +460,8 @@ public final class MimeUtils {
         }
         return extensionToMimeTypeMap.get(extension.toLowerCase());
     }
-
     /**
      * Returns true if the given extension has a registered MIME type.
-     *
      * @param extension A file extension without the leading '.'
      * @return True iff there is an extension entry in the map.
      */
@@ -484,12 +471,10 @@ public final class MimeUtils {
         }
         return extensionToMimeTypeMap.containsKey(extension);
     }
-
     /**
      * Returns the registered extension for the given MIME type. Note that some
      * MIME types map to multiple extensions. This call will return the most
      * common extension for the given MIME type.
-     *
      * @param mimeType A MIME type (i.e. text/plain)
      * @return The extension for the given MIME type or null iff there is none.
      */

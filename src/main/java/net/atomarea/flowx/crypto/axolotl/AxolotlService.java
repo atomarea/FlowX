@@ -276,8 +276,8 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 	}
 
 	private void setTrustOnSessions(final Jid jid, @NonNull final Set<Integer> deviceIds,
-									final XmppAxolotlSession.Trust from,
-									final XmppAxolotlSession.Trust to) {
+	                                final XmppAxolotlSession.Trust from,
+	                                final XmppAxolotlSession.Trust to) {
 		for (Integer deviceId : deviceIds) {
 			AxolotlAddress address = new AxolotlAddress(jid.toBareJid().toString(), deviceId);
 			XmppAxolotlSession session = sessions.get(address);
@@ -890,7 +890,7 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 		IdentityKey identityKey = axolotlStore.loadSession(address).getSessionState().getRemoteIdentityKey();
 		return (identityKey != null)
 				? new XmppAxolotlSession(account, axolotlStore, address,
-				identityKey.getFingerprint().replaceAll("\\s", ""))
+						identityKey.getFingerprint().replaceAll("\\s", ""))
 				: null;
 	}
 
