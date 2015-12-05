@@ -163,13 +163,24 @@ public class MessageParser extends AbstractParser implements
 		return null;
 	}
 
+	private static String extractStanzaId(Element packet, Jid by) {
+		for(Element child : packet.getChildren()) {
+			if (child.getName().equals("stanza-id")
+					&& "urn:xmpp:sid:0".equals(child.getNamespace())
+					&& by.equals(child.getAttributeAsJid("by"))) {
+				return child.getAttribute("id");
+			}
+		}
+		return null;
+	}
+
 	private void parseEvent(final Element event, final Jid from, final Account account) {
 		Element items = event.findChild("items");
 		String node = items == null ? null : items.getAttribute("node");
 		if ("urn:xmpp:avatar:metadata".equals(node)) {
 			Avatar avatar = Avatar.parseMetadata(items);
 			if (avatar != null) {
-				avatar.owner = from;
+				avatar.owner = from.toBareJid();
 				if (mXmppConnectionService.getFileBackend().isAvatarCached(avatar)) {
 					if (account.getJid().toBareJid().equals(from)) {
 						if (account.setAvatar(avatar.getFilename())) {
@@ -355,6 +366,11 @@ public class MessageParser extends AbstractParser implements
 			} else {
 				message = new Message(conversation, body, Message.ENCRYPTION_NONE, status);
 			}
+
+			if (serverMsgId == null) {
+				serverMsgId = extractStanzaId(packet, isTypeGroupChat ? conversation.getJid().toBareJid() : account.getServer());
+			}
+
 			message.setCounterpart(counterpart);
 			message.setRemoteMsgId(remoteMsgId);
 			message.setServerMsgId(serverMsgId);
@@ -372,18 +388,18 @@ public class MessageParser extends AbstractParser implements
 				}
 			}
 			updateLastseen(packet,account,true);
-			boolean checkForDuplicates = serverMsgId != null
+			boolean checkForDuplicates = query != null
 					|| (isTypeGroupChat && packet.hasChild("delay","urn:xmpp:delay"))
 					|| message.getType() == Message.TYPE_PRIVATE;
 			if (checkForDuplicates && conversation.hasDuplicateMessage(message)) {
 				Log.d(Config.LOGTAG,"skipping duplicate message from "+message.getCounterpart().toString()+" "+message.getBody());
 				return;
 			}
+
+			conversation.add(message);
 			if (query != null) {
 				query.incrementMessageCount();
-			}
-			conversation.add(message);
-			if (serverMsgId == null) {
+			} else {
 				if (status == Message.STATUS_SEND || status == Message.STATUS_SEND_RECEIVED) {
 					mXmppConnectionService.markRead(conversation);
 					account.activateGracePeriod();

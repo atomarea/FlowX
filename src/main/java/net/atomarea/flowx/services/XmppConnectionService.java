@@ -581,11 +581,11 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	}
 
 	private boolean xaOnSilentMode() {
-		return getPreferences().getBoolean("xa_on_silent_mode", false);
+		return getPreferences().getBoolean("xa_on_silent_mode", true);
 	}
 
 	private boolean awayWhenScreenOff() {
-		return getPreferences().getBoolean("away_when_screen_off", false);
+		return getPreferences().getBoolean("away_when_screen_off", true);
 	}
 
 	private int getTargetPresence() {
@@ -1322,6 +1322,13 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 				leaveMuc(conversation);
 			} else {
 				conversation.endOtrIfNeeded();
+				if (conversation.getContact().getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
+					Log.d(Config.LOGTAG, "Canceling presence request from " + conversation.getJid().toString());
+					sendPresencePacket(
+							conversation.getAccount(),
+							mPresenceGenerator.stopPresenceUpdatesTo(conversation.getContact())
+					);
+				}
 			}
 			this.databaseBackend.updateConversation(conversation);
 			this.conversations.remove(conversation);
@@ -1713,9 +1720,6 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 					Account account = conversation.getAccount();
 					final String nick = conversation.getMucOptions().getProposedNick();
 					final Jid joinJid = conversation.getMucOptions().createJoinJid(nick);
-					if (joinJid == null) {
-						return; //safety net
-					}
 					Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": joining conversation " + joinJid.toString());
 					PresencePacket packet = new PresencePacket();
 					packet.setFrom(conversation.getAccount().getJid());
@@ -2351,12 +2355,26 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 						if (getFileBackend().save(avatar)) {
 							Log.d(Config.LOGTAG, account.getJid().toBareJid()
 									+ ": successfully fetched vCard avatar for " + avatar.owner);
-							Contact contact = account.getRoster()
-									.getContact(avatar.owner);
-							contact.setAvatar(avatar);
-							getAvatarService().clear(contact);
-							updateConversationUi();
-							updateRosterUi();
+							if (avatar.owner.isBareJid()) {
+								Contact contact = account.getRoster()
+										.getContact(avatar.owner);
+								contact.setAvatar(avatar);
+								getAvatarService().clear(contact);
+								updateConversationUi();
+								updateRosterUi();
+							} else {
+								Conversation conversation = find(account, avatar.owner.toBareJid());
+								if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI) {
+									MucOptions.User user = conversation.getMucOptions().findUser(avatar.owner.getResourcepart());
+									if (user != null) {
+										if (user.setAvatar(avatar)) {
+											getAvatarService().clear(user);
+											updateConversationUi();
+											updateMucRosterUi();
+										}
+									}
+								}
+							}
 						}
 					}
 				}

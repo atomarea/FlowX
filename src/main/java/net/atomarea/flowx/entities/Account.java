@@ -4,7 +4,15 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.SystemClock;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.crypto.OtrService;
 import net.atomarea.flowx.crypto.PgpDecryptionService;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.xmpp.XmppConnection;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
 import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.crypto.OtrCryptoException;
 
@@ -17,15 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.OtrService;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.xmpp.XmppConnection;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class Account extends AbstractEntity {
 
@@ -413,13 +412,13 @@ public class Account extends AbstractEntity {
 	}
 
 	public String getPgpSignature() {
-		if (keys.has(KEY_PGP_SIGNATURE)) {
-			try {
+		try {
+			if (keys.has(KEY_PGP_SIGNATURE) && !"null".equals(keys.getString(KEY_PGP_SIGNATURE))) {
 				return keys.getString(KEY_PGP_SIGNATURE);
-			} catch (final JSONException e) {
+			} else {
 				return null;
 			}
-		} else {
+		} catch (final JSONException e) {
 			return null;
 		}
 	}
@@ -427,6 +426,15 @@ public class Account extends AbstractEntity {
 	public boolean setPgpSignature(String signature) {
 		try {
 			keys.put(KEY_PGP_SIGNATURE, signature);
+		} catch (JSONException e) {
+			return false;
+		}
+		return true;
+	}
+
+	public boolean unsetPgpSignature() {
+		try {
+			keys.put(KEY_PGP_SIGNATURE, JSONObject.NULL);
 		} catch (JSONException e) {
 			return false;
 		}
