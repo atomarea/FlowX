@@ -499,4 +499,9 @@
     <string name="not_a_valid_port">Port Nummer ist falsch</string>
     <string name="not_valid_hostname">Hostadresse ist falsch</string>
     <string name="account_status_tor_unavailable">TOR Netzwerk nicht erreichbar</string>
+    <string name="shared_file_with_x">Teile Datei mit %s</string>
+    <string name="shared_image_with_x">Teile Bild mit %s</string><string name="sync_with_contacts">Synchronisiert mit Kontakte</string>
+    <string name="sync_with_contacts_long">Conversations wants to match your XMPP roster with your contacts to show their full names and avatars.\n\nConversations will only read your contacts and match them locally without uploading them to your server.</string>
+    <string name="sync_now">Synchronisiert gerade</string>
+    <string name="no_storage_permission">FlowX benötigt Zugriff auf Speicher</string>
 </resources>

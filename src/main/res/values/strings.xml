@@ -554,6 +554,13 @@
 	<string name="not_valid_hostname">This is not a valid hostname</string>
 	<string name="account_status_tor_unavailable">TOR network unavailable</string>
 	<string name="connected_accounts">%1$d of %2$d accounts connected</string>
+	<string name="no_storage_permission">Conversations need access to external storage</string>
+	<string name="openkeychain_not_installed">Please install OpenKeychain</string>
+	<string name="shared_file_with_x">Shared file with %s</string>
+	<string name="shared_image_with_x">Shared image with %s</string><string name="sync_with_contacts">Synchronize with contacts</string>
+	<string name="sync_with_contacts_long">Conversations wants to match your XMPP roster with your contacts to show their full names and avatars.\n\nConversations will only read your contacts and match them locally without uploading them to your server.</string>
+	<string name="sync_now">Synchronize now</string>
+
 	<plurals name="x_messages">
 		<item quantity="one">%d message</item>
 		<item quantity="other">%d messages</item>

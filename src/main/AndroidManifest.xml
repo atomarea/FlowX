@@ -149,6 +149,9 @@
 
                 <data android:mimeType="image/*" />
             </intent-filter>
+            <meta-data
+                            android:name="android.service.chooser.chooser_target_service"
+                            android:value=".services.ContactChooserTargetService" />
         </activity>
         <activity
             android:name="net.atomarea.flowx.ui.TrustKeysActivity"
@@ -167,6 +170,12 @@
                 android:value="net.atomarea.flowx.ui.SettingsActivity" />
         </activity>
         <service android:name="net.atomarea.flowx.services.ExportLogsService" />
+        <service android:name=".services.ContactChooserTargetService"
+                         android:permission="android.permission.BIND_CHOOSER_TARGET_SERVICE">
+                    <intent-filter>
+                        <action android:name="android.service.chooser.ChooserTargetService" />
+                    </intent-filter>
+                </service>
     </application>
 
 </manifest>

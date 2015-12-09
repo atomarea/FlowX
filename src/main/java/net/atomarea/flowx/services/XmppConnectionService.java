@@ -31,6 +31,33 @@ import android.util.Log;
 import android.util.LruCache;
 import android.util.Pair;
 
+import net.java.otr4j.OtrException;
+import net.java.otr4j.session.Session;
+import net.java.otr4j.session.SessionID;
+import net.java.otr4j.session.SessionImpl;
+import net.java.otr4j.session.SessionStatus;
+
+import org.openintents.openpgp.IOpenPgpService2;
+import org.openintents.openpgp.util.OpenPgpApi;
+import org.openintents.openpgp.util.OpenPgpServiceConnection;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import de.duenndns.ssl.MemorizingTrustManager;
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.PgpEngine;
@@ -87,33 +114,6 @@ import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
 import net.atomarea.flowx.xmpp.stanzas.MessagePacket;
 import net.atomarea.flowx.xmpp.stanzas.PresencePacket;
-import net.java.otr4j.OtrException;
-import net.java.otr4j.session.Session;
-import net.java.otr4j.session.SessionID;
-import net.java.otr4j.session.SessionImpl;
-import net.java.otr4j.session.SessionStatus;
-
-import org.openintents.openpgp.IOpenPgpService2;
-import org.openintents.openpgp.util.OpenPgpApi;
-import org.openintents.openpgp.util.OpenPgpServiceConnection;
-
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import de.duenndns.ssl.MemorizingTrustManager;
 import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class XmppConnectionService extends Service implements OnPhoneContactsLoadedListener {
@@ -468,9 +468,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 					break;
 				case ACTION_MERGE_PHONE_CONTACTS:
 					if (mRestoredFromDatabase) {
-						PhoneHelper.loadPhoneContacts(getApplicationContext(),
-								new CopyOnWriteArrayList<Bundle>(),
-								this);
+						loadPhoneContacts();
 					}
 					return START_STICKY;
 				case Intent.ACTION_SHUTDOWN:
@@ -1097,9 +1095,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 					}
 					getBitmapCache().evictAll();
 					Looper.prepare();
-					PhoneHelper.loadPhoneContacts(getApplicationContext(),
-							new CopyOnWriteArrayList<Bundle>(),
-							XmppConnectionService.this);
+					loadPhoneContacts();
 					Log.d(Config.LOGTAG, "restoring messages");
 					for (Conversation conversation : conversations) {
 						conversation.addAll(0, databaseBackend.getMessages(conversation, Config.PAGE_SIZE));
@@ -1119,6 +1115,12 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 			};
 			mDatabaseExecutor.execute(runnable);
 		}
+	}
+
+	public void loadPhoneContacts() {
+		PhoneHelper.loadPhoneContacts(getApplicationContext(),
+				new CopyOnWriteArrayList<Bundle>(),
+				XmppConnectionService.this);
 	}
 
 	public List<Conversation> getConversations() {
@@ -2363,7 +2365,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 								updateConversationUi();
 								updateRosterUi();
 							} else {
-								Conversation conversation = find(account, avatar.owner.toBareJid());
+								Conversation conversation = find(account,avatar.owner.toBareJid());
 								if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI) {
 									MucOptions.User user = conversation.getMucOptions().findUser(avatar.owner.getResourcepart());
 									if (user != null) {

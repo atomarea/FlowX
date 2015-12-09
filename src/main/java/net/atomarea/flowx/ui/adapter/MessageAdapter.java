@@ -361,7 +361,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
             @Override
             public void onClick(View v) {
-                startDownloadable(message);
+                activity.startDownloadable(message);
             }
         });
         viewHolder.download_button.setOnLongClickListener(openContextMenu);
@@ -630,17 +630,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         return view;
     }
 
-    public void startDownloadable(Message message) {
-        Transferable transferable = message.getTransferable();
-        if (transferable != null) {
-            if (!transferable.start()) {
-                Toast.makeText(activity, R.string.not_connected_try_again,
-                        Toast.LENGTH_SHORT).show();
-            }
-        } else if (message.treatAsDownloadable() != Message.Decision.NEVER) {
-            activity.xmppConnectionService.getHttpConnectionManager().createNewDownloadConnection(message, true);
-        }
-    }
 
     public void openDownloadable(Message message) {
         DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);

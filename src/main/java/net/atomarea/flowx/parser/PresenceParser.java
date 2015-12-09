@@ -110,7 +110,10 @@ public class PresenceParser extends AbstractParser implements
 						mucOptions.setError(MucOptions.ERROR_UNKNOWN);
 					}
 				} else if (!from.isBareJid()){
-					mucOptions.deleteUser(from.getResourcepart());
+					MucOptions.User user = mucOptions.deleteUser(from.getResourcepart());
+					if (user != null) {
+						mXmppConnectionService.getAvatarService().clear(user);
+					}
 				}
 			} else if (type.equals("error")) {
 				Element error = packet.findChild("error");
@@ -197,10 +200,12 @@ public class PresenceParser extends AbstractParser implements
 						mPresenceGenerator.sendPresenceUpdatesTo(contact));
 			} else {
 				contact.setOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST);
+				final Conversation conversation = mXmppConnectionService.findOrCreateConversation(
+						account, contact.getJid().toBareJid(), false);
 				final String statusMessage = packet.findChildContent("status");
-				if (statusMessage != null && !statusMessage.isEmpty()) {
-					final Conversation conversation = mXmppConnectionService.findOrCreateConversation(
-							account, contact.getJid().toBareJid(), false);
+				if (statusMessage != null
+						&& !statusMessage.isEmpty()
+						&& conversation.countMessages() == 0) {
 					conversation.add(new Message(
 							conversation,
 							statusMessage,
