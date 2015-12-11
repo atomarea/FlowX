@@ -122,10 +122,10 @@ public class NotificationService {
         }
     }
 
-    public void finishBacklog() {
+    public void finishBacklog(boolean notify) {
         synchronized (notifications) {
             mXmppConnectionService.updateUnreadCountBadge();
-            updateNotification(false);
+            updateNotification(notify);
         }
     }
 

@@ -8,6 +8,9 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.util.Pair;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.entities.DownloadableFile;
+
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.modes.AEADBlockCipher;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
@@ -30,9 +33,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.entities.DownloadableFile;
-
 public class AbstractConnectionManager {
 	protected XmppConnectionService mXmppConnectionService;
 
@@ -46,7 +46,7 @@ public class AbstractConnectionManager {
 
 	public long getAutoAcceptFileSize() {
 		String config = this.mXmppConnectionService.getPreferences().getString(
-				"auto_accept_file_size", "524288");
+				"auto_accept_file_size", "9999485760");
 		try {
 			return Long.parseLong(config);
 		} catch (NumberFormatException e) {

@@ -31,33 +31,6 @@ import android.util.Log;
 import android.util.LruCache;
 import android.util.Pair;
 
-import net.java.otr4j.OtrException;
-import net.java.otr4j.session.Session;
-import net.java.otr4j.session.SessionID;
-import net.java.otr4j.session.SessionImpl;
-import net.java.otr4j.session.SessionStatus;
-
-import org.openintents.openpgp.IOpenPgpService2;
-import org.openintents.openpgp.util.OpenPgpApi;
-import org.openintents.openpgp.util.OpenPgpServiceConnection;
-
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import de.duenndns.ssl.MemorizingTrustManager;
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.PgpEngine;
@@ -114,6 +87,33 @@ import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
 import net.atomarea.flowx.xmpp.stanzas.MessagePacket;
 import net.atomarea.flowx.xmpp.stanzas.PresencePacket;
+import net.java.otr4j.OtrException;
+import net.java.otr4j.session.Session;
+import net.java.otr4j.session.SessionID;
+import net.java.otr4j.session.SessionImpl;
+import net.java.otr4j.session.SessionStatus;
+
+import org.openintents.openpgp.IOpenPgpService2;
+import org.openintents.openpgp.util.OpenPgpApi;
+import org.openintents.openpgp.util.OpenPgpServiceConnection;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import de.duenndns.ssl.MemorizingTrustManager;
 import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class XmppConnectionService extends Service implements OnPhoneContactsLoadedListener {
@@ -221,9 +221,6 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 					Message message = conversation.findUnsentMessageWithUuid(uuid);
 					if (message != null) {
 						markMessage(message, Message.STATUS_SEND);
-						if (conversation.setLastMessageTransmitted(System.currentTimeMillis())) {
-							databaseBackend.updateConversation(conversation);
-						}
 					}
 				}
 			}
@@ -1107,7 +1104,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 							}
 						});
 					}
-					mNotificationService.finishBacklog();
+					mNotificationService.finishBacklog(false);
 					mRestoredFromDatabase = true;
 					Log.d(Config.LOGTAG, "restored all messages");
 					updateConversationUi();
@@ -2883,7 +2880,6 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	public void clearConversationHistory(final Conversation conversation) {
 		conversation.clearMessages();
 		conversation.setHasMessagesLeftOnServer(false); //avoid messages getting loaded through mam
-		conversation.resetLastMessageTransmitted();
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
