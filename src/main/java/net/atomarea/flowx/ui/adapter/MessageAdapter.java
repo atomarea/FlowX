@@ -113,9 +113,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     private int getMessageTextColor(boolean onDark, boolean primary) {
         if (onDark) {
-            return activity.getResources().getColor(primary ? R.color.white : R.color.white70);
-        } else {
             return activity.getResources().getColor(primary ? R.color.black87 : R.color.black54);
+        } else {
+            return activity.getResources().getColor(primary ? R.color.white : R.color.white70);
         }
     }
 
@@ -529,7 +529,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }
             return view;
         } else {
-            			loadAvatar(message,viewHolder.contact_picture);
+            loadAvatar(message,viewHolder.contact_picture);
         }
 
         viewHolder.contact_picture
@@ -639,20 +639,20 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         Intent openIntent = new Intent(Intent.ACTION_VIEW);
         String mime = file.getMimeType();
-        		if (mime == null) {
-            			mime = "*/*";
-            		}
+        if (mime == null) {
+            mime = "*/*";
+        }
         openIntent.setDataAndType(Uri.fromFile(file), mime);
         PackageManager manager = activity.getPackageManager();
         List<ResolveInfo> infos = manager.queryIntentActivities(openIntent, 0);
         if (infos.size() == 0) {
-            			openIntent.setDataAndType(Uri.fromFile(file),"*/*");
-            		}
-        		try {
-            			getContext().startActivity(openIntent);
-            			return;
-            		}  catch (ActivityNotFoundException e) {
-            }
+            openIntent.setDataAndType(Uri.fromFile(file),"*/*");
+        }
+        try {
+            getContext().startActivity(openIntent);
+            return;
+        }  catch (ActivityNotFoundException e) {
+        }
         Toast.makeText(activity, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
     }
 

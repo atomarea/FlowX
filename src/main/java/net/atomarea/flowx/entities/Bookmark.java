@@ -1,12 +1,12 @@
 package net.atomarea.flowx.entities;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class Bookmark extends Element implements ListItem {
 
@@ -136,6 +136,16 @@ public class Bookmark extends Element implements ListItem {
 
 	public String getBookmarkName() {
 		return this.getAttribute("name");
+	}
+
+	public boolean setBookmarkName(String name) {
+		String before = getBookmarkName();
+		if (name != null && !name.equals(before)) {
+			this.setAttribute("name", name);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public void unregisterConversation() {

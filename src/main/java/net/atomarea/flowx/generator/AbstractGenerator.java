@@ -2,6 +2,10 @@ package net.atomarea.flowx.generator;
 
 import android.util.Base64;
 
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.PhoneHelper;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -11,10 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.PhoneHelper;
 
 public abstract class AbstractGenerator {
 	private final String[] FEATURES = {
@@ -37,7 +37,7 @@ public abstract class AbstractGenerator {
 			"urn:xmpp:receipts"
 	};
 	private String mVersion = null;
-	protected final String IDENTITY_NAME = "Conversations";
+	protected final String IDENTITY_NAME = "FlowX";
 	protected final String IDENTITY_TYPE = "phone";
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
