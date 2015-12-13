@@ -2,6 +2,7 @@
 <resources>
 
 	<string-array name="resources">
+		<item>FlowX</item>
 		<item>Mobile</item>
 		<item>Tablet</item>
 	</string-array>

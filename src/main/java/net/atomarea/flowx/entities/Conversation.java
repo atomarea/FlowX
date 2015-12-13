@@ -3,6 +3,10 @@ package net.atomarea.flowx.entities;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.xmpp.chatstate.ChatState;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
 import net.java.otr4j.OtrException;
 import net.java.otr4j.crypto.OtrCryptoException;
 import net.java.otr4j.session.SessionID;
@@ -18,11 +22,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.xmpp.chatstate.ChatState;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class Conversation extends AbstractEntity implements Blockable {
 	public static final String TABLENAME = "conversations";
@@ -366,6 +365,18 @@ public class Conversation extends AbstractEntity implements Blockable {
 			return this.getContact().getDisplayName();
 		}
 	}
+	public String getParticipants() {
+				if (getMode() == MODE_MULTI) {
+						String generatedName = getMucOptions().createNameFromParticipants();
+						if (generatedName != null) {
+								return generatedName;
+							} else {
+								return null;
+							}
+					} else {
+						return null;
+					}
+			}
 
 	public String getAccountUuid() {
 		return this.accountUuid;

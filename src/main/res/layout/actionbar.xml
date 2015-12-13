@@ -1,21 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:emojicon="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/actionbar_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/actionbar_background"
-    android:background="@android:color/transparent" >
+    android:background="@android:color/transparent">
 
     <github.ankushsachdeva.emojicon.EmojiconTextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text=""
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        android:textStyle="bold" />
+
+    <github.ankushsachdeva.emojicon.EmojiconTextView
+        android:id="@+id/subtitle"
+        android:layout_below="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginLeft="10dp"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        android:textSize="20dp"
-        android:maxLines="1"
         android:ellipsize="end"
-        android:text="" />
+        android:maxLines="1"
+        android:text=""
+        android:textColor="@color/white70"
+        android:textSize="15dp"
+        android:textStyle="normal" />
 </RelativeLayout>
