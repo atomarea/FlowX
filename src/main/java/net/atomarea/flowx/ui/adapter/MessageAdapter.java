@@ -251,7 +251,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.messageBody.setText(text);
         viewHolder.messageBody.setTextColor(getMessageTextColor(darkBackground, false));
         viewHolder.messageBody.setTypeface(null, Typeface.ITALIC);
-        viewHolder.messageBody.setTextIsSelectable(false);
     }
 
     private void displayDecryptionFailed(ViewHolder viewHolder, boolean darkBackground) {
@@ -265,7 +264,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 R.string.decryption_failed));
         viewHolder.messageBody.setTextColor(getMessageTextColor(darkBackground, false));
         viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
-        viewHolder.messageBody.setTextIsSelectable(false);
     }
 
     private void displayHeartMessage(final ViewHolder viewHolder, final String body) {
@@ -349,7 +347,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.messageBody.setLinkTextColor(this.getMessageTextColor(darkBackground, true));
         viewHolder.messageBody.setHighlightColor(activity.getResources().getColor(darkBackground ? R.color.grey800 : R.color.grey500));
         viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
-        viewHolder.messageBody.setTextIsSelectable(true);
     }
 
     private void displayDownloadableMessage(ViewHolder viewHolder,

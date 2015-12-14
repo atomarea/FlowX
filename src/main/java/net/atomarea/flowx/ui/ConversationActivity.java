@@ -33,6 +33,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import net.atomarea.flowx.Config;
@@ -366,7 +367,7 @@ public class ConversationActivity extends XmppActivity
                             ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().lastseen.time));
                         }
                     } else if (useSubjectToIdentifyConference()){
-                        ( (EmojiconTextView) v.findViewById(R.id.subtitle)).setText(conversation.getParticipants());
+                        ( (TextView) v.findViewById(R.id.subtitle_muc)).setText(conversation.getParticipants());
                                             }
                     } else {
                         ab.setTitle(conversation.getJid().toBareJid().toString());
@@ -894,7 +895,7 @@ public class ConversationActivity extends XmppActivity
             MenuItem pgp = popup.getMenu().findItem(R.id.encryption_choice_pgp);
             MenuItem axolotl = popup.getMenu().findItem(R.id.encryption_choice_axolotl);
             pgp.setVisible(!Config.HIDE_PGP_IN_UI);
-            none.setVisible(!Config.PARANOID_MODE);
+            none.setVisible(!Config.FORCE_ENCRYPTION);
             if (conversation.getMode() == Conversation.MODE_MULTI) {
                 otr.setVisible(false);
                 axolotl.setVisible(false);
