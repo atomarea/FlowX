@@ -11,6 +11,7 @@ import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.jid.Jid;
+import net.atomarea.flowx.xmpp.stanzas.AbstractStanza;
 
 public abstract class AbstractParser {
 
@@ -47,14 +48,13 @@ public abstract class AbstractParser {
 		return dateFormat.parse(timestamp);
 	}
 
-	protected void updateLastseen(final Element packet, final Account account, final boolean presenceOverwrite) {
-		updateLastseen(packet, account, packet.getAttributeAsJid("from"), presenceOverwrite);
+	protected void updateLastseen(final AbstractStanza packet, final Account account, final boolean presenceOverwrite) {
+		updateLastseen(getTimestamp(packet), account, packet.getFrom(), presenceOverwrite);
 	}
 
-	protected void updateLastseen(final Element packet, final Account account, final Jid from, final boolean presenceOverwrite) {
+	protected void updateLastseen(long timestamp, final Account account, final Jid from, final boolean presenceOverwrite) {
 		final String presence = from == null || from.isBareJid() ? "" : from.getResourcepart();
 		final Contact contact = account.getRoster().getContact(from);
-		final long timestamp = getTimestamp(packet);
 		if (timestamp >= contact.lastseen.time) {
 			contact.lastseen.time = timestamp;
 			if (!presence.isEmpty() && presenceOverwrite) {

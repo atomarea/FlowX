@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import net.atomarea.flowx.Config;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
@@ -104,7 +105,9 @@ public class Contact implements ListItem, Blockable {
 	}
 
 	public String getDisplayName() {
-		if (this.systemName != null) {
+		if (this.presenceName != null && Config.X509_VERIFICATION) {
+			return this.presenceName;
+		} else if (this.systemName != null) {
 			return this.systemName;
 		} else if (this.serverName != null) {
 			return this.serverName;

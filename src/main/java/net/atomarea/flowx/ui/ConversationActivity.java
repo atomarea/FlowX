@@ -440,7 +440,7 @@ public class ConversationActivity extends XmppActivity
                     menuContactDetails.setVisible(false);
                     menuAttach.setVisible(getSelectedConversation().getAccount().httpUploadAvailable() && getSelectedConversation().getMucOptions().participating());
                     menuInviteContact.setVisible(getSelectedConversation().getMucOptions().canInvite());
-                    menuSecure.setVisible(!Config.HIDE_PGP_IN_UI); //if pgp is hidden conferences have no choice of encryption
+                    menuSecure.setVisible(!Config.HIDE_PGP_IN_UI && !Config.X509_VERIFICATION);
                 } else {
                     menuMucDetails.setVisible(false);
                 }
@@ -856,10 +856,6 @@ public class ConversationActivity extends XmppActivity
                             conversation.setNextEncryption(Message.ENCRYPTION_NONE);
                             item.setChecked(true);
                             break;
-                        case R.id.encryption_choice_otr:
-                            conversation.setNextEncryption(Message.ENCRYPTION_OTR);
-                            item.setChecked(true);
-                            break;
                         case R.id.encryption_choice_pgp:
                             if (hasPgp()) {
                                 if (conversation.getAccount().getPgpSignature() != null) {
@@ -890,14 +886,12 @@ public class ConversationActivity extends XmppActivity
                 }
             });
             popup.inflate(R.menu.encryption_choices);
-            MenuItem otr = popup.getMenu().findItem(R.id.encryption_choice_otr);
             MenuItem none = popup.getMenu().findItem(R.id.encryption_choice_none);
             MenuItem pgp = popup.getMenu().findItem(R.id.encryption_choice_pgp);
             MenuItem axolotl = popup.getMenu().findItem(R.id.encryption_choice_axolotl);
-            pgp.setVisible(!Config.HIDE_PGP_IN_UI);
+            pgp.setVisible(!Config.HIDE_PGP_IN_UI && !Config.X509_VERIFICATION);
             none.setVisible(!Config.FORCE_ENCRYPTION);
             if (conversation.getMode() == Conversation.MODE_MULTI) {
-                otr.setVisible(false);
                 axolotl.setVisible(false);
             } else if (!conversation.getAccount().getAxolotlService().isContactAxolotlCapable(conversation.getContact())) {
                 axolotl.setEnabled(false);
@@ -905,9 +899,6 @@ public class ConversationActivity extends XmppActivity
             switch (conversation.getNextEncryption()) {
                 case Message.ENCRYPTION_NONE:
                     none.setChecked(true);
-                    break;
-                case Message.ENCRYPTION_OTR:
-                    otr.setChecked(true);
                     break;
                 case Message.ENCRYPTION_PGP:
                     pgp.setChecked(true);

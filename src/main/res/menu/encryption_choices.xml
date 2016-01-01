@@ -6,10 +6,6 @@
             android:id="@+id/encryption_choice_none"
             android:title="@string/encryption_choice_unencrypted"/>
         <item
-            android:id="@+id/encryption_choice_otr"
-        android:visible="false"
-            android:title="@string/encryption_choice_otr"/>
-        <item
             android:id="@+id/encryption_choice_pgp"
         android:visible="false"
             android:title="@string/encryption_choice_pgp"/>

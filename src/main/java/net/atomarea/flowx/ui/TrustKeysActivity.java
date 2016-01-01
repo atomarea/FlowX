@@ -10,6 +10,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.whispersystems.libaxolotl.IdentityKey;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
@@ -18,12 +24,6 @@ import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
-
-import org.whispersystems.libaxolotl.IdentityKey;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdated {
 	private Jid accountJid;
@@ -126,6 +126,7 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 							// own fingerprints have no impact on locked status.
 						}
 					},
+					null,
 					null
 			);
 		}
@@ -140,6 +141,7 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 							lockOrUnlockAsNeeded();
 						}
 					},
+					null,
 					null
 			);
 		}

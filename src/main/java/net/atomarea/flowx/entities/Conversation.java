@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import net.atomarea.flowx.Config;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
@@ -125,7 +126,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 				if ((message.getType() == Message.TYPE_IMAGE || message.getType() == Message.TYPE_FILE)
 						&& message.getEncryption() != Message.ENCRYPTION_PGP) {
 					onMessageFound.onMessageFound(message);
-						}
+				}
 			}
 		}
 	}
@@ -204,7 +205,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 				if (message.getType() != Message.TYPE_IMAGE
 						&& message.getStatus() == Message.STATUS_UNSEND) {
 					onMessageFound.onMessageFound(message);
-						}
+				}
 			}
 		}
 	}
@@ -279,16 +280,16 @@ public class Conversation extends AbstractEntity implements Blockable {
 	}
 
 	public Conversation(final String name, final Account account, final Jid contactJid,
-			final int mode) {
+						final int mode) {
 		this(java.util.UUID.randomUUID().toString(), name, null, account
-				.getUuid(), contactJid, System.currentTimeMillis(),
+						.getUuid(), contactJid, System.currentTimeMillis(),
 				STATUS_AVAILABLE, mode, "");
 		this.account = account;
 	}
 
 	public Conversation(final String uuid, final String name, final String contactUuid,
-			final String accountUuid, final Jid contactJid, final long created, final int status,
-			final int mode, final String attributes) {
+						final String accountUuid, final Jid contactJid, final long created, final int status,
+						final int mode, final String attributes) {
 		this.uuid = uuid;
 		this.name = name;
 		this.contactUuid = contactUuid;
@@ -330,7 +331,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 				} else {
 					return this.messages.get(i);
 				}
-					}
+			}
 		}
 		return null;
 	}
@@ -366,18 +367,17 @@ public class Conversation extends AbstractEntity implements Blockable {
 		}
 	}
 	public String getParticipants() {
-				if (getMode() == MODE_MULTI) {
-						String generatedName = getMucOptions().createNameFromParticipants();
-						if (generatedName != null) {
-								return generatedName;
-							} else {
-								return null;
-							}
-					} else {
-						return null;
-					}
+		if (getMode() == MODE_MULTI) {
+			String generatedName = getMucOptions().createNameFromParticipants();
+			if (generatedName != null) {
+				return generatedName;
+			} else {
+				return null;
 			}
-
+		} else {
+			return null;
+		}
+	}
 	public String getAccountUuid() {
 		return this.accountUuid;
 	}
@@ -497,7 +497,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 			} catch (OtrException e) {
 				this.resetOtrSession();
 			}
-				}
+		}
 	}
 
 	public boolean endOtrIfNeeded() {
@@ -618,8 +618,16 @@ public class Conversation extends AbstractEntity implements Blockable {
 	}
 
 	public int getNextEncryption() {
+		final AxolotlService axolotlService = getAccount().getAxolotlService();
 		int next = this.getIntAttribute(ATTRIBUTE_NEXT_ENCRYPTION, -1);
 		if (next == -1) {
+			if (Config.X509_VERIFICATION && mode == MODE_SINGLE) {
+								if (axolotlService != null && axolotlService.isContactAxolotlCapable(getContact())) {
+										return Message.ENCRYPTION_AXOLOTL;
+									} else {
+										return Message.ENCRYPTION_NONE;
+									}
+							}
 			int outgoing = this.getMostRecentlyUsedOutgoingEncryption();
 			if (outgoing == Message.ENCRYPTION_NONE) {
 				next = this.getMostRecentlyUsedIncomingEncryption();
@@ -628,7 +636,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 			}
 		}
 		if (Config.FORCE_ENCRYPTION && mode == MODE_SINGLE && next <= 0) {
-			if (getAccount().getAxolotlService().isContactAxolotlCapable(getContact())) {
+			if (axolotlService != null && axolotlService.isContactAxolotlCapable(getContact())) {
 				return Message.ENCRYPTION_AXOLOTL;
 			} else {
 				return Message.ENCRYPTION_OTR;

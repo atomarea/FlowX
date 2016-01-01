@@ -19,7 +19,12 @@ import org.whispersystems.libaxolotl.state.PreKeyRecord;
 import org.whispersystems.libaxolotl.state.SessionRecord;
 import org.whispersystems.libaxolotl.state.SignedPreKeyRecord;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -44,7 +49,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 	private static DatabaseBackend instance = null;
 
 	private static final String DATABASE_NAME = "history";
-	private static final int DATABASE_VERSION = 21;
+	private static final int DATABASE_VERSION = 22;
 
 	private static String CREATE_CONTATCS_STATEMENT = "create table "
 			+ Contact.TABLENAME + "(" + Contact.ACCOUNT + " TEXT, "
@@ -102,6 +107,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 			+ SQLiteAxolotlStore.NAME + " TEXT, "
 			+ SQLiteAxolotlStore.OWN + " INTEGER, "
 			+ SQLiteAxolotlStore.FINGERPRINT + " TEXT, "
+			+ SQLiteAxolotlStore.CERTIFICATE + " BLOB, "
 			+ SQLiteAxolotlStore.TRUSTED + " INTEGER, "
 			+ SQLiteAxolotlStore.KEY + " TEXT, FOREIGN KEY("
 			+ SQLiteAxolotlStore.ACCOUNT
@@ -344,6 +350,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 				db.update(Account.TABLENAME, account.getContentValues(), Account.UUID
 						+ "=?", new String[]{account.getUuid()});
 			}
+		}
+
+		if (oldVersion < 22 && newVersion >= 22) {
+			db.execSQL("ALTER TABLE " + SQLiteAxolotlStore.IDENTITIES_TABLENAME + " ADD COLUMN " + SQLiteAxolotlStore.CERTIFICATE);
 		}
 	}
 
@@ -592,16 +602,16 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 		db.delete(Message.TABLENAME, Message.CONVERSATION + "=?", args);
 	}
 
-	public Pair<Long,String> getLastMessageReceived(Account account) {
+	public Pair<Long, String> getLastMessageReceived(Account account) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		String sql = "select messages.timeSent,messages.serverMsgId from accounts join conversations on accounts.uuid=conversations.accountUuid join messages on conversations.uuid=messages.conversationUuid where accounts.uuid=? and (messages.status=0 or messages.carbon=1 or messages.serverMsgId not null) order by messages.timesent desc limit 1";
 		String[] args = {account.getUuid()};
-		Cursor cursor = db.rawQuery(sql,args);
-		if (cursor.getCount() ==0) {
+		Cursor cursor = db.rawQuery(sql, args);
+		if (cursor.getCount() == 0) {
 			return null;
 		} else {
 			cursor.moveToFirst();
-			return new Pair<>(cursor.getLong(0),cursor.getString(1));
+			return new Pair<>(cursor.getLong(0), cursor.getString(1));
 		}
 	}
 
@@ -1048,6 +1058,52 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 						+ SQLiteAxolotlStore.FINGERPRINT + " = ? ",
 				selectionArgs);
 		return rows == 1;
+	}
+
+	public boolean setIdentityKeyCertificate(Account account, String fingerprint, X509Certificate x509Certificate) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		String[] selectionArgs = {
+				account.getUuid(),
+				fingerprint
+		};
+		try {
+			ContentValues values = new ContentValues();
+			values.put(SQLiteAxolotlStore.CERTIFICATE, x509Certificate.getEncoded());
+			return db.update(SQLiteAxolotlStore.IDENTITIES_TABLENAME, values,
+					SQLiteAxolotlStore.ACCOUNT + " = ? AND "
+							+ SQLiteAxolotlStore.FINGERPRINT + " = ? ",
+					selectionArgs) == 1;
+		} catch (CertificateEncodingException e) {
+			Log.d(Config.LOGTAG, "could not encode certificate");
+			return false;
+		}
+	}
+
+	public X509Certificate getIdentityKeyCertifcate(Account account, String fingerprint) {
+		SQLiteDatabase db = this.getReadableDatabase();
+		String[] selectionArgs = {
+				account.getUuid(),
+				fingerprint
+		};
+		String[] colums = {SQLiteAxolotlStore.CERTIFICATE};
+		String selection = SQLiteAxolotlStore.ACCOUNT + " = ? AND " + SQLiteAxolotlStore.FINGERPRINT + " = ? ";
+		Cursor cursor = db.query(SQLiteAxolotlStore.IDENTITIES_TABLENAME, colums, selection, selectionArgs, null, null, null);
+		if (cursor.getCount() < 1) {
+			return null;
+		} else {
+			cursor.moveToFirst();
+			byte[] certificate = cursor.getBlob(cursor.getColumnIndex(SQLiteAxolotlStore.CERTIFICATE));
+			if (certificate == null || certificate.length == 0) {
+				return null;
+			}
+			try {
+				CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+				return (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(certificate));
+			} catch (CertificateException e) {
+				Log.d(Config.LOGTAG,"certificate exception "+e.getMessage());
+				return null;
+			}
+		}
 	}
 
 	public void storeIdentityKey(Account account, String name, IdentityKey identityKey) {

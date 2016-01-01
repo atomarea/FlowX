@@ -116,7 +116,9 @@ public class XmppConnection implements Runnable {
 	private long lastPingSent = 0;
 	private long lastConnect = 0;
 	private long lastSessionStarted = 0;
+	private long lastDiscoStarted = 0;
 	private int mPendingServiceDiscoveries = 0;
+	private final ArrayList<String> mPendingServiceDiscoveriesIds = new ArrayList<>();
 	private boolean mInteractive = false;
 	private int attempt = 0;
 	private final Hashtable<String, Pair<IqPacket, OnIqPacketReceived>> packetCallbacks = new Hashtable<>();
@@ -225,6 +227,7 @@ public class XmppConnection implements Runnable {
 		features.encryptionEnabled = false;
 		lastConnect = SystemClock.elapsedRealtime();
 		lastPingSent = SystemClock.elapsedRealtime();
+		lastDiscoStarted = Long.MAX_VALUE;
 		this.attempt++;
 		if (account.getJid().getDomainpart().equals("chat.facebook.com")) {
 			mServerIdentity = Identity.FACEBOOK;
@@ -354,135 +357,129 @@ public class XmppConnection implements Runnable {
 	}
 
 	private void processStream() throws XmlPullParserException, IOException, NoSuchAlgorithmException {
-						Tag nextTag = tagReader.readTag();
-						while (nextTag != null && !nextTag.isEnd("stream")) {
-							if (nextTag.isStart("error")) {
-								processStreamError(nextTag);
-							} else if (nextTag.isStart("features")) {
-								processStreamFeatures(nextTag);
-							} else if (nextTag.isStart("proceed")) {
-								switchOverToTls(nextTag);
-							} else if (nextTag.isStart("success")) {
-								final String challenge = tagReader.readElement(nextTag).getContent();
-								try {
-									saslMechanism.getResponse(challenge);
-								} catch (final SaslMechanism.AuthenticationException e) {
-									disconnect(true);
-									Log.e(Config.LOGTAG, String.valueOf(e));
-								}
-								Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": logged in");
-								account.setKey(Account.PINNED_MECHANISM_KEY,
-										String.valueOf(saslMechanism.getPriority()));
-								tagReader.reset();
-								sendStartStream();
-								final Tag tag = tagReader.readTag();
-								if (tag != null && tag.isStart("stream")) {
-									processStream();
-								} else {
-									throw new IOException("server didn't restart stream after successful auth");
-								}
-								break;
-							} else if (nextTag.isStart("failure")) {
-								throw new UnauthorizedException();
-							} else if (nextTag.isStart("challenge")) {
-								final String challenge = tagReader.readElement(nextTag).getContent();
-								final Element response = new Element("response");
-								response.setAttribute("xmlns",
-										"urn:ietf:params:xml:ns:xmpp-sasl");
-								try {
-									response.setContent(saslMechanism.getResponse(challenge));
-								} catch (final SaslMechanism.AuthenticationException e) {
-									// TODO: Send auth abort tag.
-									Log.e(Config.LOGTAG, e.toString());
-								}
-								tagWriter.writeElement(response);
-							} else if (nextTag.isStart("enabled")) {
-								final Element enabled = tagReader.readElement(nextTag);
-								if ("true".equals(enabled.getAttribute("resume"))) {
-									this.streamId = enabled.getAttribute("id");
-									Log.d(Config.LOGTAG, account.getJid().toBareJid().toString()
-											+ ": stream managment(" + smVersion
-											+ ") enabled (resumable)");
-								} else {
-									Log.d(Config.LOGTAG, account.getJid().toBareJid().toString()
-											+ ": stream management(" + smVersion + ") enabled");
-								}
-								this.stanzasReceived = 0;
-								final RequestPacket r = new RequestPacket(smVersion);
-								tagWriter.writeStanzaAsync(r);
-							} else if (nextTag.isStart("resumed")) {
-								lastPacketReceived = SystemClock.elapsedRealtime();
-								final Element resumed = tagReader.readElement(nextTag);
-								final String h = resumed.getAttribute("h");
-								try {
-									final int serverCount = Integer.parseInt(h);
-									if (serverCount != stanzasSent) {
-										Log.d(Config.LOGTAG, account.getJid().toBareJid().toString()
-												+ ": session resumed with lost packages");
-										stanzasSent = serverCount;
-									} else {
-										Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": session resumed");
-									}
-									acknowledgeStanzaUpTo(serverCount);
-									ArrayList<AbstractAcknowledgeableStanza> failedStanzas = new ArrayList<>();
-									for(int i = 0; i < this.mStanzaQueue.size(); ++i) {
-										failedStanzas.add(mStanzaQueue.valueAt(i));
-									}
-									mStanzaQueue.clear();
-									Log.d(Config.LOGTAG,"resending "+failedStanzas.size()+" stanzas");
-									for(AbstractAcknowledgeableStanza packet : failedStanzas) {
-										if (packet instanceof MessagePacket) {
-											MessagePacket message = (MessagePacket) packet;
-											mXmppConnectionService.markMessage(account,
-													message.getTo().toBareJid(),
-													message.getId(),
-													Message.STATUS_UNSEND);
-										}
-										sendPacket(packet);
-									}
-								} catch (final NumberFormatException ignored) {
-								}
-								Log.d(Config.LOGTAG, account.getJid().toBareJid()+ ": online with resource " + account.getResource());
-								changeStatus(Account.State.ONLINE);
-							} else if (nextTag.isStart("r")) {
-								tagReader.readElement(nextTag);
-								if (Config.EXTENDED_SM_LOGGING) {
-									Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": acknowledging stanza #" + this.stanzasReceived);
-								}
-								final AckPacket ack = new AckPacket(this.stanzasReceived, smVersion);
-								tagWriter.writeStanzaAsync(ack);
-							} else if (nextTag.isStart("a")) {
-								final Element ack = tagReader.readElement(nextTag);
-								lastPacketReceived = SystemClock.elapsedRealtime();
-								try {
-									final int serverSequence = Integer.parseInt(ack.getAttribute("h"));
-									acknowledgeStanzaUpTo(serverSequence);
-								} catch (NumberFormatException e) {
-									Log.d(Config.LOGTAG,account.getJid().toBareJid()+": server send ack without sequence number");
-								}
-							} else if (nextTag.isStart("failed")) {
-								tagReader.readElement(nextTag);
-								Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": resumption failed");
-								streamId = null;
-								if (account.getStatus() != Account.State.ONLINE) {
-									sendBindRequest();
-								}
-							} else if (nextTag.isStart("iq")) {
-								processIq(nextTag);
-							} else if (nextTag.isStart("message")) {
-								processMessage(nextTag);
-							} else if (nextTag.isStart("presence")) {
-								processPresence(nextTag);
-							}
-							nextTag = tagReader.readTag();
+		Tag nextTag = tagReader.readTag();
+		while (nextTag != null && !nextTag.isEnd("stream")) {
+			if (nextTag.isStart("error")) {
+				processStreamError(nextTag);
+			} else if (nextTag.isStart("features")) {
+				processStreamFeatures(nextTag);
+			} else if (nextTag.isStart("proceed")) {
+				switchOverToTls(nextTag);
+			} else if (nextTag.isStart("success")) {
+				final String challenge = tagReader.readElement(nextTag).getContent();
+				try {
+					saslMechanism.getResponse(challenge);
+				} catch (final SaslMechanism.AuthenticationException e) {
+					disconnect(true);
+					Log.e(Config.LOGTAG, String.valueOf(e));
+				}
+				Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": logged in");
+				account.setKey(Account.PINNED_MECHANISM_KEY,
+						String.valueOf(saslMechanism.getPriority()));
+				tagReader.reset();
+				sendStartStream();
+				final Tag tag = tagReader.readTag();
+				if (tag != null && tag.isStart("stream")) {
+					processStream();
+				} else {
+					throw new IOException("server didn't restart stream after successful auth");
+				}
+				break;
+			} else if (nextTag.isStart("failure")) {
+				throw new UnauthorizedException();
+			} else if (nextTag.isStart("challenge")) {
+				final String challenge = tagReader.readElement(nextTag).getContent();
+				final Element response = new Element("response");
+				response.setAttribute("xmlns",
+						"urn:ietf:params:xml:ns:xmpp-sasl");
+				try {
+					response.setContent(saslMechanism.getResponse(challenge));
+				} catch (final SaslMechanism.AuthenticationException e) {
+					// TODO: Send auth abort tag.
+					Log.e(Config.LOGTAG, e.toString());
+				}
+				tagWriter.writeElement(response);
+			} else if (nextTag.isStart("enabled")) {
+				final Element enabled = tagReader.readElement(nextTag);
+				if ("true".equals(enabled.getAttribute("resume"))) {
+					this.streamId = enabled.getAttribute("id");
+					Log.d(Config.LOGTAG, account.getJid().toBareJid().toString()
+							+ ": stream managment(" + smVersion
+							+ ") enabled (resumable)");
+				} else {
+					Log.d(Config.LOGTAG, account.getJid().toBareJid().toString()
+							+ ": stream management(" + smVersion + ") enabled");
+				}
+				this.stanzasReceived = 0;
+				final RequestPacket r = new RequestPacket(smVersion);
+				tagWriter.writeStanzaAsync(r);
+			} else if (nextTag.isStart("resumed")) {
+				lastPacketReceived = SystemClock.elapsedRealtime();
+				final Element resumed = tagReader.readElement(nextTag);
+				final String h = resumed.getAttribute("h");
+				try {
+					final int serverCount = Integer.parseInt(h);
+					if (serverCount != stanzasSent) {
+						Log.d(Config.LOGTAG, account.getJid().toBareJid().toString()
+								+ ": session resumed with lost packages");
+						stanzasSent = serverCount;
+					} else {
+						Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": session resumed");
+					}
+					acknowledgeStanzaUpTo(serverCount);
+					ArrayList<AbstractAcknowledgeableStanza> failedStanzas = new ArrayList<>();
+					for(int i = 0; i < this.mStanzaQueue.size(); ++i) {
+						failedStanzas.add(mStanzaQueue.valueAt(i));
+					}
+					mStanzaQueue.clear();
+					Log.d(Config.LOGTAG,"resending "+failedStanzas.size()+" stanzas");
+					for(AbstractAcknowledgeableStanza packet : failedStanzas) {
+						if (packet instanceof MessagePacket) {
+							MessagePacket message = (MessagePacket) packet;
+							mXmppConnectionService.markMessage(account,
+									message.getTo().toBareJid(),
+									message.getId(),
+									Message.STATUS_UNSEND);
 						}
-						Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": last tag was " + nextTag);
-						if (account.getStatus() == Account.State.ONLINE) {
-							account. setStatus(Account.State.OFFLINE);
-							if (statusListener != null) {
-								statusListener.onStatusChanged(account);
-							}
-						}
+						sendPacket(packet);
+					}
+				} catch (final NumberFormatException ignored) {
+				}
+				Log.d(Config.LOGTAG, account.getJid().toBareJid()+ ": online with resource " + account.getResource());
+				changeStatus(Account.State.ONLINE);
+			} else if (nextTag.isStart("r")) {
+				tagReader.readElement(nextTag);
+				if (Config.EXTENDED_SM_LOGGING) {
+					Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": acknowledging stanza #" + this.stanzasReceived);
+				}
+				final AckPacket ack = new AckPacket(this.stanzasReceived, smVersion);
+				tagWriter.writeStanzaAsync(ack);
+			} else if (nextTag.isStart("a")) {
+				final Element ack = tagReader.readElement(nextTag);
+				lastPacketReceived = SystemClock.elapsedRealtime();
+				try {
+					final int serverSequence = Integer.parseInt(ack.getAttribute("h"));
+					acknowledgeStanzaUpTo(serverSequence);
+				} catch (NumberFormatException e) {
+					Log.d(Config.LOGTAG,account.getJid().toBareJid()+": server send ack without sequence number");
+				}
+			} else if (nextTag.isStart("failed")) {
+				tagReader.readElement(nextTag);
+				Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": resumption failed");
+				streamId = null;
+				if (account.getStatus() != Account.State.ONLINE) {
+					sendBindRequest();
+				}
+			} else if (nextTag.isStart("iq")) {
+				processIq(nextTag);
+			} else if (nextTag.isStart("message")) {
+				processMessage(nextTag);
+			} else if (nextTag.isStart("presence")) {
+				processPresence(nextTag);
+			}
+			nextTag = tagReader.readTag();
+		}
+		throw new IOException("reached end of stream. last tag was "+nextTag);
 	}
 
 	private void acknowledgeStanzaUpTo(int serverCount) {
@@ -893,6 +890,29 @@ public class XmppConnection implements Runnable {
 		Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": done clearing iq callbacks. " + this.packetCallbacks.size() + " left");
 	}
 
+	public void sendDiscoTimeout() {
+		final IqPacket failurePacket = new IqPacket(IqPacket.TYPE.ERROR); //don't use timeout
+		final ArrayList<OnIqPacketReceived> callbacks = new ArrayList<>();
+		synchronized (this.mPendingServiceDiscoveriesIds) {
+			for(String id : mPendingServiceDiscoveriesIds) {
+				synchronized (this.packetCallbacks) {
+					Pair<IqPacket, OnIqPacketReceived> pair = this.packetCallbacks.remove(id);
+					if (pair != null) {
+						callbacks.add(pair.second);
+					}
+				}
+			}
+			this.mPendingServiceDiscoveriesIds.clear();
+		}
+		if (callbacks.size() > 0) {
+			Log.d(Config.LOGTAG,account.getJid().toBareJid()+": sending disco timeout");
+			resetStreamId(); //we don't want to live with this for ever
+		}
+		for(OnIqPacketReceived callback : callbacks) {
+			callback.onIqPacketReceived(account,failurePacket);
+		}
+	}
+
 	private void sendStartSession() {
 		final IqPacket startSession = new IqPacket(IqPacket.TYPE.SET);
 		startSession.addChild("session", "urn:ietf:params:xml:ns:xmpp-session");
@@ -928,10 +948,12 @@ public class XmppConnection implements Runnable {
 			this.disco.clear();
 		}
 		mPendingServiceDiscoveries = 0;
+		lastDiscoStarted = SystemClock.elapsedRealtime();
+		Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": starting service discovery");
+		mXmppConnectionService.scheduleWakeUpCall(Config.CONNECT_DISCO_TIMEOUT, account.getUuid().hashCode());
 		sendServiceDiscoveryItems(account.getServer());
 		sendServiceDiscoveryInfo(account.getServer());
 		sendServiceDiscoveryInfo(account.getJid().toBareJid());
-		Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": online with resource " + account.getResource());
 		this.lastSessionStarted = SystemClock.elapsedRealtime();
 	}
 
@@ -940,7 +962,7 @@ public class XmppConnection implements Runnable {
 		final IqPacket iq = new IqPacket(IqPacket.TYPE.GET);
 		iq.setTo(jid);
 		iq.query("http://jabber.org/protocol/disco#info");
-		this.sendIqPacket(iq, new OnIqPacketReceived() {
+		String id = this.sendIqPacket(iq, new OnIqPacketReceived() {
 
 			@Override
 			public void onIqPacketReceived(final Account account, final IqPacket packet) {
@@ -991,6 +1013,7 @@ public class XmppConnection implements Runnable {
 					mPendingServiceDiscoveries--;
 					if (mPendingServiceDiscoveries <= 0) {
 						Log.d(Config.LOGTAG,account.getJid().toBareJid()+": done with service discovery");
+						Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": online with resource " + account.getResource());
 						changeStatus(Account.State.ONLINE);
 						if (bindListener != null) {
 							bindListener.onBind(account);
@@ -999,6 +1022,9 @@ public class XmppConnection implements Runnable {
 				}
 			}
 		});
+		synchronized (this.mPendingServiceDiscoveriesIds) {
+			this.mPendingServiceDiscoveriesIds.add(id);
+		}
 	}
 
 	private void enableAdvancedStreamFeatures() {
@@ -1033,7 +1059,7 @@ public class XmppConnection implements Runnable {
 						}
 					}
 				} else {
-					Log.d(Config.LOGTAG,account.getJid().toBareJid()+": could not query disco items of "+server);
+					Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": could not query disco items of " + server);
 				}
 			}
 		});
@@ -1086,13 +1112,12 @@ public class XmppConnection implements Runnable {
 		return new BigInteger(50, mXmppConnectionService.getRNG()).toString(32);
 	}
 
-	public void sendIqPacket(final IqPacket packet, final OnIqPacketReceived callback) {
+	public String sendIqPacket(final IqPacket packet, final OnIqPacketReceived callback) {
 		packet.setFrom(account.getJid());
-		this.sendUnmodifiedIqPacket(packet, callback);
-
+		return this.sendUnmodifiedIqPacket(packet, callback);
 	}
 
-	private synchronized void sendUnmodifiedIqPacket(final IqPacket packet, final OnIqPacketReceived callback) {
+	private synchronized String sendUnmodifiedIqPacket(final IqPacket packet, final OnIqPacketReceived callback) {
 		if (packet.getId() == null) {
 			final String id = nextRandomId();
 			packet.setAttribute("id", id);
@@ -1103,6 +1128,7 @@ public class XmppConnection implements Runnable {
 			}
 		}
 		this.sendPacket(packet);
+		return packet.getId();
 	}
 
 	public void sendMessagePacket(final MessagePacket packet) {
@@ -1293,6 +1319,9 @@ public class XmppConnection implements Runnable {
 		return this.lastPingSent;
 	}
 
+	public long getLastDiscoStarted() {
+		return this.lastDiscoStarted;
+	}
 	public long getLastPacketReceived() {
 		return this.lastPacketReceived;
 	}

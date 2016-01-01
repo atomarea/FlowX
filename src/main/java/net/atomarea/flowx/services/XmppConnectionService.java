@@ -106,6 +106,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -547,12 +548,18 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 					} else if (account.getStatus() == Account.State.OFFLINE) {
 						reconnectAccount(account, true, interactive);
 					} else if (account.getStatus() == Account.State.CONNECTING) {
-						long timeout = Config.CONNECT_TIMEOUT - ((SystemClock.elapsedRealtime() - account.getXmppConnection().getLastConnect()) / 1000);
+						long secondsSinceLastConnect = (SystemClock.elapsedRealtime() - account.getXmppConnection().getLastConnect()) / 1000;
+						long secondsSinceLastDisco = (SystemClock.elapsedRealtime() - account.getXmppConnection().getLastDiscoStarted()) / 1000;
+						long discoTimeout = Config.CONNECT_DISCO_TIMEOUT - secondsSinceLastDisco;
+						long timeout = Config.CONNECT_TIMEOUT - secondsSinceLastConnect;
 						if (timeout < 0) {
 							Log.d(Config.LOGTAG, account.getJid() + ": time out during connect reconnecting");
 							reconnectAccount(account, true, interactive);
+						} else if (discoTimeout < 0) {
+							account.getXmppConnection().sendDiscoTimeout();
+							scheduleWakeUpCall((int) Math.min(timeout,discoTimeout), account.getUuid().hashCode());
 						} else {
-							scheduleWakeUpCall((int) timeout, account.getUuid().hashCode());
+							scheduleWakeUpCall((int) Math.min(timeout,discoTimeout), account.getUuid().hashCode());
 						}
 					} else {
 						if (account.getXmppConnection().getTimeToNextAttempt() <= 0) {
@@ -748,7 +755,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		stopSelf();
 	}
 
-	protected void scheduleWakeUpCall(int seconds, int requestCode) {
+	public void scheduleWakeUpCall(int seconds, int requestCode) {
 		final long timeToWake = SystemClock.elapsedRealtime() + (seconds < 0 ? 1 : seconds + 1) * 1000;
 
 		Context context = getApplicationContext();
@@ -986,13 +993,16 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 			public void onIqPacketReceived(final Account account, final IqPacket packet) {
 				if (packet.getType() == IqPacket.TYPE.RESULT) {
 					final Element query = packet.query();
-					final List<Bookmark> bookmarks = new CopyOnWriteArrayList<>();
+					final HashMap<Jid, Bookmark> bookmarks = new HashMap<>();
 					final Element storage = query.findChild("storage", "storage:bookmarks");
 					if (storage != null) {
 						for (final Element item : storage.getChildren()) {
 							if (item.getName().equals("conference")) {
 								final Bookmark bookmark = Bookmark.parse(item, account);
-								bookmarks.add(bookmark);
+								Bookmark old = bookmarks.put(bookmark.getJid(), bookmark);
+								if (old != null && old.getBookmarkName() != null && bookmark.getBookmarkName() == null) {
+									bookmark.setBookmarkName(old.getBookmarkName());
+								}
 								Conversation conversation = find(bookmark);
 								if (conversation != null) {
 									conversation.setBookmark(bookmark);
@@ -1005,7 +1015,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 							}
 						}
 					}
-					account.setBookmarks(bookmarks);
+					account.setBookmarks(new ArrayList<>(bookmarks.values()));
 				} else {
 					Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": could not fetch bookmarks");
 				}

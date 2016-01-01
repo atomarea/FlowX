@@ -304,17 +304,17 @@ public class MessageParser extends AbstractParser implements
 		final Jid from = packet.getFrom();
 		final String remoteMsgId = packet.getId();
 
-		if (from == null || to == null) {
-			Log.d(Config.LOGTAG,"no to or from in: "+packet.toString());
+		if (from == null) {
+			Log.d(Config.LOGTAG,"no from in: "+packet.toString());
 			return;
 		}
 		
 		boolean isTypeGroupChat = packet.getType() == MessagePacket.TYPE_GROUPCHAT;
-		boolean isProperlyAddressed = !to.isBareJid() || account.countPresences() == 1;
+		boolean isProperlyAddressed = (to != null ) && (!to.isBareJid() || account.countPresences() == 1);
 		boolean isMucStatusMessage = from.isBareJid() && mucUserElement != null && mucUserElement.hasChild("status");
 		if (packet.fromAccount(account)) {
 			status = Message.STATUS_SEND;
-			counterpart = to;
+			counterpart = to != null ? to : account.getJid();
 		} else {
 			status = Message.STATUS_RECEIVED;
 			counterpart = from;
@@ -382,13 +382,14 @@ public class MessageParser extends AbstractParser implements
 				Jid trueCounterpart = conversation.getMucOptions().getTrueCounterpart(counterpart.getResourcepart());
 				message.setTrueCounterpart(trueCounterpart);
 				if (trueCounterpart != null) {
-					updateLastseen(packet,account,trueCounterpart,false);
+					updateLastseen(timestamp, account, trueCounterpart, false);
 				}
 				if (!isTypeGroupChat) {
 					message.setType(Message.TYPE_PRIVATE);
 				}
+			} else {
+				updateLastseen(timestamp, account, packet.getFrom(), true);
 			}
-			updateLastseen(packet, account, true);
 			boolean checkForDuplicates = query != null
 					|| (isTypeGroupChat && packet.hasChild("delay","urn:xmpp:delay"))
 					|| message.getType() == Message.TYPE_PRIVATE;
@@ -498,7 +499,7 @@ public class MessageParser extends AbstractParser implements
 					mXmppConnectionService.markRead(conversation);
 				}
 			} else {
-				updateLastseen(packet, account, true);
+				updateLastseen(timestamp, account, packet.getFrom(), true);
 				final Message displayedMessage = mXmppConnectionService.markMessage(account, from.toBareJid(), displayed.getAttribute("id"), Message.STATUS_SEND_DISPLAYED);
 				Message message = displayedMessage == null ? null : displayedMessage.prev();
 				while (message != null

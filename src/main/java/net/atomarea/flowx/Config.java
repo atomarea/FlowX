@@ -14,6 +14,7 @@ public final class Config {
     public static final boolean LEGACY_NAMESPACE_HTTP_UPLOAD = false;
     public static final int PING_MAX_INTERVAL = 300;
     public static final int PING_MIN_INTERVAL = 30;
+    public static final int CONNECT_DISCO_TIMEOUT = 20;
     public static final int PING_TIMEOUT = 10;
     public static final int SOCKET_TIMEOUT = 15;
     public static final int CONNECT_TIMEOUT = 60;

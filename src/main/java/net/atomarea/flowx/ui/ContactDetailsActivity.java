@@ -17,6 +17,7 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Intents;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,6 +37,7 @@ import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.PgpEngine;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.ListItem;
@@ -51,6 +53,7 @@ import net.atomarea.flowx.xmpp.jid.Jid;
 
 import org.openintents.openpgp.util.OpenPgpUtils;
 
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 import github.ankushsachdeva.emojicon.EmojiconTextView;
@@ -403,8 +406,12 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         }
         for (final String fingerprint : contact.getAccount().getAxolotlService().getFingerprintsForContact(contact)) {
             boolean highlight = fingerprint.equals(messageFingerprint);
-            hasKeys |= addFingerprintRow(keys, contact.getAccount(), fingerprint, highlight);
-        }
+            hasKeys |= addFingerprintRow(keys, contact.getAccount(), fingerprint, highlight, new OnClickListener() {
+                				@Override
+                				public void onClick(View v) {
+                                    					onOmemoKeyClicked(contact.getAccount(), fingerprint);
+                    				}
+                			});        }
         if (contact.getPgpKeyId() != 0) {
             hasKeys = true;
             View view = inflater.inflate(R.layout.contact_key, keys, false);
@@ -453,6 +460,40 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
                 tags.addView(tv);
             }
         }
+    }
+
+    private void onOmemoKeyClicked(Account account, String fingerprint) {
+        Log.d(Config.LOGTAG, "on omemo key clicked");
+        final XmppAxolotlSession.Trust trust = account.getAxolotlService().getFingerprintTrust(fingerprint);
+        if (trust != null) {
+            X509Certificate x509Certificate = account.getAxolotlService().getFingerprintCertificate(fingerprint);
+            if (x509Certificate != null) {
+                Log.d(Config.LOGTAG, "certificate for fingerprint " + fingerprint + " was not null");
+                showCertificateInformationDialog(CryptoHelper.extractCertificateInformation(x509Certificate));
+            }
+        }
+    }
+
+    private void showCertificateInformationDialog(Bundle bundle) {
+        View view = getLayoutInflater().inflate(R.layout.certificate_information, null);
+        final String not_available = getString(R.string.certicate_info_not_available);
+        TextView subject_cn = (TextView) view.findViewById(R.id.subject_cn);
+        TextView subject_o = (TextView) view.findViewById(R.id.subject_o);
+        TextView issuer_cn = (TextView) view.findViewById(R.id.issuer_cn);
+        TextView issuer_o = (TextView) view.findViewById(R.id.issuer_o);
+        TextView sha1 = (TextView) view.findViewById(R.id.sha1);
+
+        subject_cn.setText(bundle.getString("subject_cn", not_available));
+        subject_o.setText(bundle.getString("subject_o", not_available));
+        issuer_cn.setText(bundle.getString("issuer_cn", not_available));
+        issuer_o.setText(bundle.getString("issuer_o", not_available));
+        sha1.setText(bundle.getString("sha1", not_available));
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.certificate_information);
+        builder.setView(view);
+        builder.setPositiveButton(R.string.ok, null);
+        builder.create().show();
     }
 
     protected void confirmToDeleteFingerprint(final String fingerprint) {

@@ -19,6 +19,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -48,6 +49,7 @@ import net.atomarea.flowx.utils.UIHelper;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.regex.Matcher;
 
 import nl.changer.audiowife.AudioWife;
 
@@ -251,6 +253,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.messageBody.setText(text);
         viewHolder.messageBody.setTextColor(getMessageTextColor(darkBackground, false));
         viewHolder.messageBody.setTypeface(null, Typeface.ITALIC);
+        viewHolder.messageBody.setTextIsSelectable(false);
     }
 
     private void displayDecryptionFailed(ViewHolder viewHolder, boolean darkBackground) {
@@ -264,6 +267,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 R.string.decryption_failed));
         viewHolder.messageBody.setTextColor(getMessageTextColor(darkBackground, false));
         viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
+        viewHolder.messageBody.setTextIsSelectable(false);
     }
 
     private void displayHeartMessage(final ViewHolder viewHolder, final String body) {
@@ -279,6 +283,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         span.setSpan(new ForegroundColorSpan(activity.getWarningTextColor()), 0, body.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         viewHolder.messageBody.setText(span);
     }
+
 
     private void displayTextMessage(final ViewHolder viewHolder, final Message message, boolean darkBackground) {
         viewHolder.aw_player.setVisibility(View.GONE);
@@ -340,13 +345,21 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 }
                 viewHolder.messageBody.setText(span);
             }
+            int urlCount = 0;
+            			Matcher matcher = Patterns.WEB_URL.matcher(body);
+            			while (matcher.find()) {
+                				urlCount++;
+                			}
+            			viewHolder.messageBody.setTextIsSelectable(urlCount <= 1);
         } else {
             viewHolder.messageBody.setText("");
+            viewHolder.messageBody.setTextIsSelectable(false);
         }
         viewHolder.messageBody.setTextColor(this.getMessageTextColor(darkBackground, true));
         viewHolder.messageBody.setLinkTextColor(this.getMessageTextColor(darkBackground, true));
         viewHolder.messageBody.setHighlightColor(activity.getResources().getColor(darkBackground ? R.color.grey800 : R.color.grey500));
         viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
+        viewHolder.messageBody.setOnLongClickListener(openContextMenu);
     }
 
     private void displayDownloadableMessage(ViewHolder viewHolder,
