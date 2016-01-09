@@ -46,6 +46,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 	public static final String ATTRIBUTE_NEXT_ENCRYPTION = "next_encryption";
 	public static final String ATTRIBUTE_MUC_PASSWORD = "muc_password";
 	public static final String ATTRIBUTE_MUTED_TILL = "muted_till";
+	public static final String ATTRIBUTE_ALWAYS_NOTIFY = "always_notify";
 
 	private String name;
 	private String contactUuid;
@@ -126,7 +127,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 				if ((message.getType() == Message.TYPE_IMAGE || message.getType() == Message.TYPE_FILE)
 						&& message.getEncryption() != Message.ENCRYPTION_PGP) {
 					onMessageFound.onMessageFound(message);
-				}
+						}
 			}
 		}
 	}
@@ -205,7 +206,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 				if (message.getType() != Message.TYPE_IMAGE
 						&& message.getStatus() == Message.STATUS_UNSEND) {
 					onMessageFound.onMessageFound(message);
-				}
+						}
 			}
 		}
 	}
@@ -280,16 +281,16 @@ public class Conversation extends AbstractEntity implements Blockable {
 	}
 
 	public Conversation(final String name, final Account account, final Jid contactJid,
-						final int mode) {
+			final int mode) {
 		this(java.util.UUID.randomUUID().toString(), name, null, account
-						.getUuid(), contactJid, System.currentTimeMillis(),
+				.getUuid(), contactJid, System.currentTimeMillis(),
 				STATUS_AVAILABLE, mode, "");
 		this.account = account;
 	}
 
 	public Conversation(final String uuid, final String name, final String contactUuid,
-						final String accountUuid, final Jid contactJid, final long created, final int status,
-						final int mode, final String attributes) {
+			final String accountUuid, final Jid contactJid, final long created, final int status,
+			final int mode, final String attributes) {
 		this.uuid = uuid;
 		this.name = name;
 		this.contactUuid = contactUuid;
@@ -331,7 +332,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 				} else {
 					return this.messages.get(i);
 				}
-			}
+					}
 		}
 		return null;
 	}
@@ -497,7 +498,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 			} catch (OtrException e) {
 				this.resetOtrSession();
 			}
-		}
+				}
 	}
 
 	public boolean endOtrIfNeeded() {
@@ -556,7 +557,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 	/**
 	 * short for is Private and Non-anonymous
 	 */
-	public boolean isPnNA() {
+	private boolean isPnNA() {
 		return mode == MODE_SINGLE || (getMucOptions().membersOnly() && getMucOptions().nonanonymous());
 	}
 
@@ -622,12 +623,12 @@ public class Conversation extends AbstractEntity implements Blockable {
 		int next = this.getIntAttribute(ATTRIBUTE_NEXT_ENCRYPTION, -1);
 		if (next == -1) {
 			if (Config.X509_VERIFICATION && mode == MODE_SINGLE) {
-								if (axolotlService != null && axolotlService.isContactAxolotlCapable(getContact())) {
-										return Message.ENCRYPTION_AXOLOTL;
-									} else {
-										return Message.ENCRYPTION_NONE;
-									}
-							}
+				if (axolotlService != null && axolotlService.isContactAxolotlCapable(getContact())) {
+					return Message.ENCRYPTION_AXOLOTL;
+				} else {
+					return Message.ENCRYPTION_NONE;
+				}
+			}
 			int outgoing = this.getMostRecentlyUsedOutgoingEncryption();
 			if (outgoing == Message.ENCRYPTION_NONE) {
 				next = this.getMostRecentlyUsedIncomingEncryption();
@@ -703,8 +704,16 @@ public class Conversation extends AbstractEntity implements Blockable {
 		synchronized (this.messages) {
 			for (int i = this.messages.size() - 1; i >= 0; --i) {
 				Message message = this.messages.get(i);
-				if ((message.getStatus() == Message.STATUS_UNSEND || message.getStatus() == Message.STATUS_SEND) && message.getBody() != null && message.getBody().equals(body)) {
-					return message;
+				if (message.getStatus() == Message.STATUS_UNSEND || message.getStatus() == Message.STATUS_SEND) {
+					String otherBody;
+					if (message.hasFileOnRemoteHost()) {
+						otherBody = message.getFileParams().url.toString();
+					} else {
+						otherBody = message.body;
+					}
+					if (otherBody != null && otherBody.equals(body)) {
+						return message;
+					}
 				}
 			}
 			return null;
@@ -729,6 +738,10 @@ public class Conversation extends AbstractEntity implements Blockable {
 
 	public boolean isMuted() {
 		return System.currentTimeMillis() < this.getLongAttribute(ATTRIBUTE_MUTED_TILL, 0);
+	}
+
+	public boolean alwaysNotify() {
+		return mode == MODE_SINGLE || getBooleanAttribute(ATTRIBUTE_ALWAYS_NOTIFY,Config.ALWAYS_NOTIFY_BY_DEFAULT || isPnNA());
 	}
 
 	public boolean setAttribute(String key, String value) {
@@ -771,6 +784,15 @@ public class Conversation extends AbstractEntity implements Blockable {
 			} catch (NumberFormatException e) {
 				return defaultValue;
 			}
+		}
+	}
+
+	public boolean getBooleanAttribute(String key, boolean defaultValue) {
+		String value = this.getAttribute(key);
+		if (value == null) {
+			return defaultValue;
+		} else {
+			return Boolean.parseBoolean(value);
 		}
 	}
 

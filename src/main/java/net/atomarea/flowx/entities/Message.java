@@ -3,10 +3,6 @@ package net.atomarea.flowx.entities;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
 import net.atomarea.flowx.utils.GeoHelper;
@@ -14,6 +10,10 @@ import net.atomarea.flowx.utils.MimeUtils;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
 
 public class Message extends AbstractEntity {
 
@@ -171,7 +171,7 @@ public class Message extends AbstractEntity {
 	}
 
 	public static Message createStatusMessage(Conversation conversation, String body) {
-		Message message = new Message();
+		final Message message = new Message();
 		message.setType(Message.TYPE_STATUS);
 		message.setConversation(conversation);
 		message.setBody(body);
@@ -361,7 +361,9 @@ public class Message extends AbstractEntity {
 			if (message.getRemoteMsgId() != null) {
 				return (message.getRemoteMsgId().equals(this.remoteMsgId) || message.getRemoteMsgId().equals(this.uuid))
 						&& this.counterpart.equals(message.getCounterpart())
-						&& body.equals(otherBody);
+						&& (body.equals(otherBody)
+						||(message.getEncryption() == Message.ENCRYPTION_PGP
+						&&  message.getRemoteMsgId().matches("[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"))) ;
 			} else {
 				return this.remoteMsgId == null
 						&& this.counterpart.equals(message.getCounterpart())

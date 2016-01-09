@@ -40,9 +40,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public class FileBackend {
-
-	private static int IMAGE_SIZE = 1920;
-
 	private final SimpleDateFormat imageDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
 
 	private XmppConnectionService mXmppConnectionService;
@@ -114,7 +111,10 @@ public class FileBackend {
 		}
 	}
 
-	public Bitmap rotate(Bitmap bitmap, int degree) {
+	public static Bitmap rotate(Bitmap bitmap, int degree) {
+		if (degree == 0) {
+			return bitmap;
+		}
 		int w = bitmap.getWidth();
 		int h = bitmap.getHeight();
 		Matrix mtx = new Matrix();
@@ -133,7 +133,7 @@ public class FileBackend {
 		}
 		File file = new File(path);
 		long size = file.length();
-		if (size == 0 || size >= 524288 ) {
+		if (size == 0 || size >= Config.IMAGE_MAX_SIZE ) {
 			return false;
 		}
 		BitmapFactory.Options options = new BitmapFactory.Options();
@@ -150,7 +150,6 @@ public class FileBackend {
 	}
 
 	public String getOriginalPath(Uri uri) {
-		Log.d(Config.LOGTAG,"get original path for uri: "+uri.toString());
 		return FileUtils.getPath(mXmppConnectionService,uri);
 	}
 
@@ -210,8 +209,6 @@ public class FileBackend {
 		try {
 			file.createNewFile();
 			is = mXmppConnectionService.getContentResolver().openInputStream(image);
-			os = new FileOutputStream(file);
-
 			Bitmap originalBitmap;
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			int inSampleSize = (int) Math.pow(2, sampleSize);
@@ -224,15 +221,21 @@ public class FileBackend {
 			}
 			Bitmap scaledBitmap = resize(originalBitmap, Config.IMAGE_SIZE);
 			int rotation = getRotation(image);
-			if (rotation > 0) {
-				scaledBitmap = rotate(scaledBitmap, rotation);
+			scaledBitmap = rotate(scaledBitmap, rotation);
+			boolean targetSizeReached = false;
+			long size = 0;
+			int quality = Config.IMAGE_QUALITY;
+			while(!targetSizeReached) {
+				os = new FileOutputStream(file);
+				boolean success = scaledBitmap.compress(Config.IMAGE_FORMAT, quality, os);
+				if (!success) {
+					throw new FileCopyException(R.string.error_compressing_image);
+				}
+				os.flush();
+				size = file.getSize();
+				targetSizeReached = size <= Config.IMAGE_MAX_SIZE || quality <= 50;
+				quality -= 5;
 			}
-			boolean success = scaledBitmap.compress(Config.IMAGE_FORMAT, Config.IMAGE_QUALITY, os);
-			if (!success) {
-				throw new FileCopyException(R.string.error_compressing_image);
-			}
-			os.flush();
-			long size = file.getSize();
 			int width = scaledBitmap.getWidth();
 			int height = scaledBitmap.getHeight();
 			message.setBody(Long.toString(size) + '|' + width + '|' + height);
@@ -287,10 +290,7 @@ public class FileBackend {
 				throw new FileNotFoundException();
 			}
 			thumbnail = resize(fullsize, size);
-			int rotation = getRotation(file);
-			if (rotation > 0) {
-				thumbnail = rotate(thumbnail, rotation);
-			}
+			thumbnail = rotate(thumbnail, getRotation(file));
 			this.mXmppConnectionService.getBitmapCache().put(message.getUuid(),thumbnail);
 		}
 		return thumbnail;
@@ -402,10 +402,7 @@ public class FileBackend {
 			if (input == null) {
 				return null;
 			} else {
-				int rotation = getRotation(image);
-				if (rotation > 0) {
-					input = rotate(input, rotation);
-				}
+				input = rotate(input, getRotation(image));
 				return cropCenterSquare(input, size);
 			}
 		} catch (SecurityException e) {

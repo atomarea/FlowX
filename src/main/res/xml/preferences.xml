@@ -46,12 +46,11 @@
             android:summary="@string/pref_sound_summary"
             android:title="@string/pref_sound" />
 
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:dependency="show_notification"
-            android:key="always_notify_in_conference"
-            android:summary="@string/pref_conference_notifications_summary"
-            android:title="@string/pref_conference_notifications" />
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:key="use_subject"
+                android:summary="@string/pref_conference_name_summary"
+                android:title="@string/pref_conference_name" />
         </PreferenceScreen>
 
     <PreferenceScreen android:title="@string/pref_ui_options" 

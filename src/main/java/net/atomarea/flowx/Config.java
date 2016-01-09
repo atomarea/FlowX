@@ -26,12 +26,14 @@ public final class Config {
     public static final boolean DISABLE_PROXY_LOOKUP = false; //useful to debug ibb
     public static final boolean DISABLE_HTTP_UPLOAD = false;
     public static final boolean EXTENDED_SM_LOGGING = false; // log stanza counts
+    public static final boolean ALWAYS_NOTIFY_BY_DEFAULT = false;
     public static final int AVATAR_SIZE = 1920;
     public static final Bitmap.CompressFormat AVATAR_FORMAT = Bitmap.CompressFormat.JPEG;
 
     public static final int IMAGE_SIZE = 1920;
     public static final Bitmap.CompressFormat IMAGE_FORMAT = Bitmap.CompressFormat.JPEG;
     public static final int IMAGE_QUALITY = 80;
+    public static final int IMAGE_MAX_SIZE = 524288; //512KiB
 
     public static final int MESSAGE_MERGE_WINDOW = 20;
 

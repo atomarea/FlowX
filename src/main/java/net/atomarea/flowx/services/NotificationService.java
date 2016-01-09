@@ -65,9 +65,7 @@ public class NotificationService {
         return (message.getStatus() == Message.STATUS_RECEIVED)
                 && notificationsEnabled()
                 && !message.getConversation().isMuted()
-                && (message.getConversation().isPnNA()
-                || conferenceNotificationsEnabled()
-                || wasHighlightedOrPrivate(message)
+                && (message.getConversation().alwaysNotify() || wasHighlightedOrPrivate(message)
         );
     }
 
@@ -112,13 +110,11 @@ public class NotificationService {
         }
     }
 
-    public boolean conferenceNotificationsEnabled() {
-        return mXmppConnectionService.getPreferences().getBoolean("always_notify_in_conference", false);
-    }
-
     public void pushFromBacklog(final Message message) {
         if (notify(message)) {
-            pushToStack(message);
+            synchronized (notifications) {
+                				pushToStack(message);
+                			}
         }
     }
 

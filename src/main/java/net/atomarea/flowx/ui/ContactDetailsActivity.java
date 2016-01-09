@@ -56,8 +56,6 @@ import org.openintents.openpgp.util.OpenPgpUtils;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-import github.ankushsachdeva.emojicon.EmojiconTextView;
-
 public class ContactDetailsActivity extends XmppActivity implements OnAccountUpdate, OnRosterUpdate, OnUpdateBlocklist, OnKeyStatusUpdated {
     public static final String ACTION_VIEW_CONTACT = "view_contact";
 
@@ -311,7 +309,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         this.getActionBar().setDisplayShowTitleEnabled(false);
         LayoutInflater inflator = LayoutInflater.from(this);
         View v = inflator.inflate(R.layout.actionbar, null);
-        ((EmojiconTextView)v.findViewById(R.id.title)).setText(this.contact.getDisplayName());
         this.getActionBar().setCustomView(v);
 
         if (contact.showInRoster()) {

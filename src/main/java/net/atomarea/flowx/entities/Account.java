@@ -280,7 +280,7 @@ public class Account extends AbstractEntity {
 	}
 
 	public boolean hasErrorStatus() {
-		return getXmppConnection() != null && getStatus().isError() && getXmppConnection().getAttempt() >= 2;
+		return getXmppConnection() != null && getStatus().isError() && getXmppConnection().getAttempt() >= 3;
 	}
 
 	public String getResource() {

@@ -5,6 +5,7 @@ import android.app.AlertDialog.Builder;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.security.KeyChain;
@@ -29,13 +30,15 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Set;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.services.XmppConnectionService.OnCaptchaRequested;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.services.XmppConnectionService.OnAccountUpdate;
-import net.atomarea.flowx.services.XmppConnectionService.OnCaptchaRequested;
 import net.atomarea.flowx.ui.adapter.KnownHostsAdapter;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.UIHelper;
@@ -45,8 +48,6 @@ import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
-
-import java.util.Set;
 
 public class EditAccountActivity extends XmppActivity implements OnAccountUpdate,
 		OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast {
@@ -669,7 +670,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 			final String axolotlFingerprint = this.mAccount.getAxolotlService().getOwnFingerprint();
 			if (axolotlFingerprint != null) {
 				this.mAxolotlFingerprintBox.setVisibility(View.VISIBLE);
-				this.mAxolotlFingerprint.setText(CryptoHelper.prettifyFingerprint(axolotlFingerprint));
+				this.mAxolotlFingerprint.setText(CryptoHelper.prettifyFingerprint(axolotlFingerprint.substring(2)));
 				this.mAxolotlFingerprintToClipboardButton
 						.setVisibility(View.VISIBLE);
 				this.mAxolotlFingerprintToClipboardButton
@@ -678,7 +679,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 							@Override
 							public void onClick(final View v) {
 
-								if (copyTextToClipboard(axolotlFingerprint, R.string.omemo_fingerprint)) {
+								if (copyTextToClipboard(axolotlFingerprint.substring(2), R.string.omemo_fingerprint)) {
 									Toast.makeText(
 											EditAccountActivity.this,
 											R.string.toast_message_omemo_fingerprint,
