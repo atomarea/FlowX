@@ -508,4 +508,8 @@
     <string name="notify_only_when_highlighted">Benachrichtige nur hervorgerufene Nachrichten</string>
     <string name="notify_never">Benachrichtigungen abschalten</string>
     <string name="notify_paused">Benachrichtigungen pausieren</string>
+    <string name="battery_optimizations_enabled">Stromsparmodus deaktivieren</string>
+    <string name="battery_optimizations_enabled_explained">Durch den Stromsparmodus kann FlowX Nachrichten verlieren oder verzögert zugestellt bekommen. Wir empfehlen den Modus zu deaktivieren!</string>
+    <string name="battery_optimizations_enabled_dialog">Durch den Stromsparmodus kann FlowX Nachrichten verlieren oder verzögert zugestellt bekommen.\n\nMöchtest du den Modus deaktivieren?</string>
+    <string name="disable">Deaktivieren</string>
 </resources>

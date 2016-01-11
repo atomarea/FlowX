@@ -161,6 +161,48 @@
                         android:textSize="?attr/TextSizeBody" />
                 </LinearLayout>
             </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/battery_optimization"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:background="@drawable/infocard_border"
+                android:orientation="vertical"
+                android:padding="@dimen/infocard_padding"
+                android:visibility="gone">
+                <TextView
+                    android:id="@+id/batt_op_headline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/battery_optimizations_enabled"
+                    android:textColor="@color/black87"
+                    android:textSize="?attr/TextSizeHeadline"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/batt_op_body"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/batt_op_headline"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/battery_optimizations_enabled_explained"
+                    android:textColor="@color/black87"
+                    android:textSize="?attr/TextSizeBody"/>
+                <Button
+                    android:id="@+id/batt_op_disable"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_marginRight="-8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true" android:layout_below="@+id/batt_op_body"
+                    android:text="@string/disable" android:textColor="@color/accent"/>
+            </RelativeLayout>
+
 
             <LinearLayout
                 android:id="@+id/stats"

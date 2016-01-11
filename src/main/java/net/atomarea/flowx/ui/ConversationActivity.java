@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SlidingPaneLayout.PanelSlideListener;
 import android.util.Log;
@@ -1214,6 +1215,7 @@ public class ConversationActivity extends XmppActivity
         forbidProcessingPendings = false;
 
         ExceptionHelper.checkForCrash(this, this.xmppConnectionService);
+        openBatteryOptimizationDialogIfNeeded();
         setIntent(new Intent());
     }
 
@@ -1361,6 +1363,39 @@ public class ConversationActivity extends XmppActivity
             if (requestCode == ConversationActivity.REQUEST_DECRYPT_PGP) {
                 mConversationFragment.onActivityResult(requestCode, resultCode, data);
             }
+            if (requestCode == REQUEST_BATTERY_OP) {
+                setNeverAskForBatteryOptimizationsAgain();
+            }
+        }
+    }
+
+    private void setNeverAskForBatteryOptimizationsAgain() {
+        getPreferences().edit().putBoolean("show_battery_optimization", false).commit();
+    }
+
+    private void openBatteryOptimizationDialogIfNeeded() {
+        if (showBatteryOptimizationWarning() && getPreferences().getBoolean("show_battery_optimization", true)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.battery_optimizations_enabled);
+            builder.setMessage(R.string.battery_optimizations_enabled_dialog);
+            builder.setPositiveButton(R.string.next, new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                    Uri uri = Uri.parse("package:" + getPackageName());
+                    intent.setData(uri);
+                    startActivityForResult(intent, REQUEST_BATTERY_OP);
+                }
+            });
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        setNeverAskForBatteryOptimizationsAgain();
+                    }
+                });
+            }
+            builder.create().show();
         }
     }
 
