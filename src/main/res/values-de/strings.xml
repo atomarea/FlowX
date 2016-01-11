@@ -512,4 +512,6 @@
     <string name="battery_optimizations_enabled_explained">Durch den Stromsparmodus kann FlowX Nachrichten verlieren oder verzögert zugestellt bekommen. Wir empfehlen den Modus zu deaktivieren!</string>
     <string name="battery_optimizations_enabled_dialog">Durch den Stromsparmodus kann FlowX Nachrichten verlieren oder verzögert zugestellt bekommen.\n\nMöchtest du den Modus deaktivieren?</string>
     <string name="disable">Deaktivieren</string>
+    <string name="select">Auswählen</string>
+    <string name="enter_contact">Kontakt eingeben</string>
 </resources>
