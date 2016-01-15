@@ -11,6 +11,18 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.crypto.axolotl.SQLiteAxolotlStore;
+import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
+import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.entities.Contact;
+import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.entities.Roster;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
+
 import org.whispersystems.libaxolotl.AxolotlAddress;
 import org.whispersystems.libaxolotl.IdentityKey;
 import org.whispersystems.libaxolotl.IdentityKeyPair;
@@ -31,18 +43,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.crypto.axolotl.SQLiteAxolotlStore;
-import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
-import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.entities.Contact;
-import net.atomarea.flowx.entities.Conversation;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.entities.Roster;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class DatabaseBackend extends SQLiteOpenHelper {
 
@@ -577,6 +577,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 	public void writeRoster(final Roster roster) {
 		final Account account = roster.getAccount();
 		final SQLiteDatabase db = this.getWritableDatabase();
+		db.beginTransaction();
 		for (Contact contact : roster.getContacts()) {
 			if (contact.getOption(Contact.Options.IN_ROSTER)) {
 				db.insert(Contact.TABLENAME, null, contact.getContentValues());
@@ -586,6 +587,8 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 				db.delete(Contact.TABLENAME, where, whereArgs);
 			}
 		}
+		db.setTransactionSuccessful();
+		db.endTransaction();
 		account.setRosterVersion(roster.getVersion());
 		updateAccount(account);
 	}

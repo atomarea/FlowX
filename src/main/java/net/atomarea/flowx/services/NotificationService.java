@@ -340,20 +340,25 @@ public class NotificationService {
         }
     }
 
-    	private void modifyForConference(Builder builder, Conversation conversation, List<Message> messages, boolean notify) {
-        		final Message first = messages.get(0);
-        		final Message last = messages.get(messages.size() - 1);
-        		final NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
-        		style.setBigContentTitle(conversation.getName());
-        		for(Message message : messages) {
-            			style.addLine(Html.fromHtml("<b>"+UIHelper.getMessageDisplayName(message)+"</b> "+UIHelper.getMessagePreview(mXmppConnectionService,message).first));
-            		}
-        		builder.setContentText(UIHelper.getMessageDisplayName(first)+ ": " +UIHelper.getMessagePreview(mXmppConnectionService, messages.get(0)).first);
-        		builder.setStyle(style);
-        		if (notify) {
-            			builder.setTicker(UIHelper.getMessageDisplayName(last) + ": " + UIHelper.getMessagePreview(mXmppConnectionService,last).first);
-            		}
-        	}
+    private void modifyForConference(Builder builder, Conversation conversation, List<Message> messages, boolean notify) {
+        final Message first = messages.get(0);
+        final Message last = messages.get(messages.size() - 1);
+        final NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
+        style.setBigContentTitle(conversation.getName());
+
+        for(Message message : messages) {
+            if (message.hasMeCommand()) {
+                style.addLine(UIHelper.getMessagePreview(mXmppConnectionService,message).first);
+            } else {
+                style.addLine(Html.fromHtml("<b>" + UIHelper.getMessageDisplayName(message) + "</b>: " + UIHelper.getMessagePreview(mXmppConnectionService, message).first));
+            }
+        }
+        builder.setContentText((first.hasMeCommand() ? "" :UIHelper.getMessageDisplayName(first)+ ": ") +UIHelper.getMessagePreview(mXmppConnectionService, first).first);
+        builder.setStyle(style);
+        if (notify) {
+            builder.setTicker((last.hasMeCommand() ? "" : UIHelper.getMessageDisplayName(last) + ": ") + UIHelper.getMessagePreview(mXmppConnectionService,last).first);
+        }
+    }
 
     private Message getImage(final Iterable<Message> messages) {
         for (final Message message : messages) {
