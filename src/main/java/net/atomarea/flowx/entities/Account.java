@@ -4,15 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.SystemClock;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.OtrService;
 import net.atomarea.flowx.crypto.PgpDecryptionService;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.xmpp.XmppConnection;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.crypto.OtrCryptoException;
 
@@ -25,6 +17,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.crypto.OtrService;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.xmpp.XmppConnection;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class Account extends AbstractEntity {
 
@@ -161,16 +162,12 @@ public class Account extends AbstractEntity {
 	private List<Bookmark> bookmarks = new CopyOnWriteArrayList<>();
 	private final Collection<Jid> blocklist = new CopyOnWriteArraySet<>();
 
-	public Account() {
-		this.uuid = "0";
-	}
-
 	public Account(final Jid jid, final String password) {
 		this(java.util.UUID.randomUUID().toString(), jid,
 				password, 0, null, "", null, null, null, 5222);
 	}
 
-	public Account(final String uuid, final Jid jid,
+	private Account(final String uuid, final Jid jid,
 			final String password, final int options, final String rosterVersion, final String keys,
 			final String avatar, String displayName, String hostname, int port) {
 		this.uuid = uuid;

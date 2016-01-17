@@ -46,7 +46,7 @@ dependencies {
 	compile 'com.makeramen:roundedimageview:2.2.0'
 	compile 'com.beardedhen:androidbootstrap:2.0.0'
 	compile 'com.soundcloud.android:android-crop:1.0.1@aar'
-	compile 'org.sufficientlysecure:openpgp-api:9.0'
+	compile 'org.sufficientlysecure:openpgp-api:10.0'
 }
 
 android {
@@ -59,8 +59,8 @@ android {
 	defaultConfig {
 		minSdkVersion 14
 		targetSdkVersion 23
-		versionCode 1387
-		versionName "1369"
+		versionCode 1388
+		versionName "1370"
 		project.ext.set(archivesBaseName, archivesBaseName + "-" + versionName);
 	}
 	compileOptions {

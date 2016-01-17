@@ -514,4 +514,5 @@
     <string name="disable">Deaktivieren</string>
     <string name="select">Auswählen</string>
     <string name="enter_contact">Kontakt eingeben</string>
+    <string name="selection_too_large">Die Markierung ist zu groß</string>
 </resources>
