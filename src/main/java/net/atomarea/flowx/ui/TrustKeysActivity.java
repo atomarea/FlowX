@@ -83,7 +83,7 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_trust_keys);
 		try {
-			this.accountJid = Jid.fromString(getIntent().getExtras().getString("account"));
+			this.accountJid = Jid.fromString(getIntent().getExtras().getString(EXTRA_ACCOUNT));
 		} catch (final InvalidJidException ignored) {
 		}
 		try {
@@ -162,7 +162,8 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 		} else {
 			if (!hasForeignKeys && hasNoOtherTrustedKeys()) {
 				keyErrorMessageCard.setVisibility(View.VISIBLE);
-				if (lastFetchReport == AxolotlService.FetchStatus.ERROR) {
+				if (lastFetchReport == AxolotlService.FetchStatus.ERROR
+						|| contact.getAccount().getAxolotlService().fetchMapHasErrors(contact)) {
 					keyErrorMessage.setText(R.string.error_no_keys_to_trust_server_error);
 				} else {
 					keyErrorMessage.setText(R.string.error_no_keys_to_trust);

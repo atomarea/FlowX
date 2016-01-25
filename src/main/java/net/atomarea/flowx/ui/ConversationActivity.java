@@ -805,7 +805,7 @@ public class ConversationActivity extends XmppActivity
                 Intent intent = new Intent(ConversationActivity.this, VerifyOTRActivity.class);
                 intent.setAction(VerifyOTRActivity.ACTION_VERIFY_CONTACT);
                 intent.putExtra("contact", conversation.getContact().getJid().toBareJid().toString());
-                intent.putExtra("account", conversation.getAccount().getJid().toBareJid().toString());
+                intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().toBareJid().toString());
                 switch (menuItem.getItemId()) {
                     case R.id.scan_fingerprint:
                         intent.putExtra("mode", VerifyOTRActivity.MODE_SCAN_FINGERPRINT);
@@ -876,7 +876,7 @@ public class ConversationActivity extends XmppActivity
             MenuItem pgp = popup.getMenu().findItem(R.id.encryption_choice_pgp);
             MenuItem axolotl = popup.getMenu().findItem(R.id.encryption_choice_axolotl);
             pgp.setVisible(!Config.HIDE_PGP_IN_UI && !Config.X509_VERIFICATION);
-            none.setVisible(!Config.FORCE_ENCRYPTION);
+            none.setVisible(!Config.FORCE_E2E_ENCRYPTION);
             if (conversation.getMode() == Conversation.MODE_MULTI) {
                 axolotl.setVisible(false);
             } else if (!conversation.getAccount().getAxolotlService().isContactAxolotlCapable(conversation.getContact())) {
@@ -1550,7 +1550,7 @@ public class ConversationActivity extends XmppActivity
             axolotlService.createSessionsIfNeeded(mSelectedConversation);
             Intent intent = new Intent(getApplicationContext(), TrustKeysActivity.class);
             intent.putExtra("contact", mSelectedConversation.getContact().getJid().toBareJid().toString());
-            intent.putExtra("account", mSelectedConversation.getAccount().getJid().toBareJid().toString());
+            intent.putExtra(EXTRA_ACCOUNT, mSelectedConversation.getAccount().getJid().toBareJid().toString());
             intent.putExtra("choice", attachmentChoice);
             intent.putExtra("has_no_trusted", hasNoTrustedKeys);
             startActivityForResult(intent, requestCode);

@@ -59,6 +59,15 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
+import net.java.otr4j.session.SessionID;
+
+import java.io.FileNotFoundException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
@@ -78,14 +87,6 @@ import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
 import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
-import net.java.otr4j.session.SessionID;
-
-import java.io.FileNotFoundException;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
 
 public abstract class XmppActivity extends Activity {
 
@@ -93,6 +94,8 @@ public abstract class XmppActivity extends Activity {
 	protected static final int REQUEST_INVITE_TO_CONVERSATION = 0x0102;
 	protected static final int REQUEST_CHOOSE_PGP_ID = 0x0103;
 	protected static final int REQUEST_BATTERY_OP = 0x13849ff;
+
+	public static final String EXTRA_ACCOUNT = "account";
 
 	public XmppConnectionService xmppConnectionService;
 	public boolean xmppConnectionServiceBound = false;
@@ -373,14 +376,16 @@ public abstract class XmppActivity extends Activity {
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
 	}
+
 	protected boolean showBatteryOptimizationWarning() {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-						PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-						return !pm.isIgnoringBatteryOptimizations(getPackageName());
-					} else {
-						return false;
-					}
-			}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+			return !pm.isIgnoringBatteryOptimizations(getPackageName());
+		} else {
+			return false;
+		}
+	}
+
 	protected boolean usingEnterKey() {
 		return getPreferences().getBoolean("display_enter_key", false);
 	}
@@ -444,7 +449,7 @@ public abstract class XmppActivity extends Activity {
 	public void switchToContactDetails(Contact contact, String messageFingerprint) {
 		Intent intent = new Intent(this, ContactDetailsActivity.class);
 		intent.setAction(ContactDetailsActivity.ACTION_VIEW_CONTACT);
-		intent.putExtra("account", contact.getAccount().getJid().toBareJid().toString());
+		intent.putExtra(EXTRA_ACCOUNT, contact.getAccount().getJid().toBareJid().toString());
 		intent.putExtra("contact", contact.getJid().toString());
 		intent.putExtra("fingerprint", messageFingerprint);
 		startActivity(intent);
@@ -479,7 +484,7 @@ public abstract class XmppActivity extends Activity {
 		intent.putExtra("conversation", conversation.getUuid());
 		intent.putExtra("multiple", true);
 		intent.putExtra("show_enter_jid", true);
-		intent.putExtra("account", conversation.getAccount().getJid().toBareJid().toString());
+		intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().toBareJid().toString());
 		startActivityForResult(intent, REQUEST_INVITE_TO_CONVERSATION);
 	}
 
@@ -790,6 +795,7 @@ public abstract class XmppActivity extends Activity {
 				});
 		builder.create().show();
 	}
+
 	public boolean hasStoragePermission(int requestCode) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -802,6 +808,7 @@ public abstract class XmppActivity extends Activity {
 			return true;
 		}
 	}
+
 	public void selectPresence(final Conversation conversation,
 			final OnPresenceSelected listener) {
 		final Contact contact = conversation.getContact();
@@ -972,7 +979,7 @@ public abstract class XmppActivity extends Activity {
 				@Override
 				public NdefMessage createNdefMessage(NfcEvent nfcEvent) {
 					return new NdefMessage(new NdefRecord[]{
-						NdefRecord.createUri(getShareableUri()),
+							NdefRecord.createUri(getShareableUri()),
 							NdefRecord.createApplicationRecord("net.atomarea.flowx")
 					});
 				}
@@ -1049,6 +1056,15 @@ public abstract class XmppActivity extends Activity {
 			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
 			return bitmap;
 		} catch (final WriterException e) {
+			return null;
+		}
+	}
+
+	protected Account extractAccount(Intent intent) {
+		String jid = intent != null ? intent.getStringExtra(EXTRA_ACCOUNT) : null;
+		try {
+			return jid != null ? xmppConnectionService.findAccountByJid(Jid.fromString(jid)) : null;
+		} catch (InvalidJidException e) {
 			return null;
 		}
 	}

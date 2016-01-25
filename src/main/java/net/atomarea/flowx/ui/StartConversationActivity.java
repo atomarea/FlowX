@@ -38,16 +38,22 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
@@ -59,18 +65,13 @@ import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.ListItem;
 import net.atomarea.flowx.entities.Presences;
 import net.atomarea.flowx.services.XmppConnectionService.OnRosterUpdate;
+import net.atomarea.flowx.ui.adapter.KnownHostsAdapter;
 import net.atomarea.flowx.ui.adapter.ListItemAdapter;
 import net.atomarea.flowx.utils.XmppUri;
 import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
 import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StartConversationActivity extends XmppActivity implements OnRosterUpdate, OnUpdateBlocklist {
 
@@ -387,11 +388,11 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 		builder.setTitle(R.string.join_conference);
 		final View dialogView = getLayoutInflater().inflate(R.layout.join_conference_dialog, null);
 		final Spinner spinner = (Spinner) dialogView.findViewById(R.id.account);
-		final TextView jid = (TextView) dialogView.findViewById(R.id.jid);
+		final EditText jid = (EditText) dialogView.findViewById(R.id.jid);
 		if (prefilledJid != null) {
 			jid.append(prefilledJid);
 		}
-		populateAccountSpinner(spinner);
+		populateAccountSpinner(this, mActivatedAccounts, spinner);
 		final Checkable bookmarkCheckBox = (CheckBox) dialogView
 			.findViewById(R.id.bookmark);
 		builder.setView(dialogView);
@@ -407,14 +408,8 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 						if (!xmppConnectionServiceBound) {
 							return;
 						}
-						final Jid accountJid;
-						try {
-							if (Config.DOMAIN_LOCK != null) {
-								accountJid = Jid.fromParts((String) spinner.getSelectedItem(), Config.DOMAIN_LOCK, null);
-							} else {
-								accountJid = Jid.fromString((String) spinner.getSelectedItem());
-							}
-						} catch (final InvalidJidException e) {
+						final Account account = getSelectedAccount(spinner);
+						if (account == null) {
 							return;
 						}
 						final Jid conferenceJid;
@@ -424,12 +419,7 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 							jid.setError(getString(R.string.invalid_jid));
 							return;
 						}
-						final Account account = xmppConnectionService
-								.findAccountByJid(accountJid);
-						if (account == null) {
-							dialog.dismiss();
-							return;
-						}
+
 						if (bookmarkCheckBox.isChecked()) {
 							if (account.hasBookmarkFor(conferenceJid)) {
 								jid.setError(getString(R.string.bookmark_already_exists));
@@ -466,6 +456,23 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 				});
 	}
 
+	private Account getSelectedAccount(Spinner spinner) {
+		if (!spinner.isEnabled()) {
+			return null;
+		}
+		Jid jid;
+		try {
+			if (Config.DOMAIN_LOCK != null) {
+				jid = Jid.fromParts((String) spinner.getSelectedItem(), Config.DOMAIN_LOCK, null);
+			} else {
+				jid = Jid.fromString((String) spinner.getSelectedItem());
+			}
+		} catch (final InvalidJidException e) {
+			return null;
+		}
+		return xmppConnectionService.findAccountByJid(jid);
+	}
+
 	protected void switchToConversation(Contact contact) {
 		Conversation conversation = xmppConnectionService
 			.findOrCreateConversation(contact.getAccount(),
@@ -473,11 +480,21 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 		switchToConversation(conversation);
 	}
 
-	private void populateAccountSpinner(Spinner spinner) {
-		ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-				android.R.layout.simple_spinner_item, mActivatedAccounts);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinner.setAdapter(adapter);
+	public static void populateAccountSpinner(Context context, List<String> accounts, Spinner spinner) {
+		if (accounts.size() > 0) {
+			ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
+					android.R.layout.simple_spinner_item, accounts);
+			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+			spinner.setAdapter(adapter);
+			spinner.setEnabled(true);
+		} else {
+			ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
+					android.R.layout.simple_spinner_item,
+					Arrays.asList(new String[]{context.getString(R.string.no_accounts)}));
+			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+			spinner.setAdapter(adapter);
+			spinner.setEnabled(false);
+		}
 	}
 
 	@Override

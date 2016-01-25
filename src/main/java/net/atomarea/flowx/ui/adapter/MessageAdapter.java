@@ -617,7 +617,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 displayLocationMessage(viewHolder, message);
             } else if (message.bodyIsHeart()) {
                 displayHeartMessage(viewHolder, message.getBody().trim());
-            } else if (message.treatAsDownloadable() == Message.Decision.MUST) {
+            } else if (message.treatAsDownloadable() == Message.Decision.MUST || message.treatAsDownloadable() == Message.Decision.SHOULD) {
                 displayDownloadableMessage(viewHolder, message, activity.getString(R.string.check_x_filesize, UIHelper.getFileDescriptionString(activity, message)));
             } else {
                 displayTextMessage(viewHolder, message, darkBackground);

@@ -13,18 +13,18 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.ListItem;
 import net.atomarea.flowx.xmpp.jid.Jid;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class ChooseContactActivity extends AbstractSearchableListItemActivity {
 	private List<String> mActivatedAccounts = new ArrayList<String>();
@@ -113,11 +113,11 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity {
 				final Intent data = new Intent();
 				final ListItem mListItem = getListItems().get(position);
 				data.putExtra("contact", mListItem.getJid().toString());
-				String account = request.getStringExtra("account");
+				String account = request.getStringExtra(EXTRA_ACCOUNT);
 				if (account == null && mListItem instanceof Contact) {
 					account = ((Contact) mListItem).getAccount().getJid().toBareJid().toString();
 				}
-				data.putExtra("account", account);
+				data.putExtra(EXTRA_ACCOUNT, account);
 				data.putExtra("conversation",
 						request.getStringExtra("conversation"));
 				data.putExtra("multiple", false);
@@ -181,7 +181,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity {
 		EnterJidDialog dialog = new EnterJidDialog(
 			this, mKnownHosts, mActivatedAccounts,
 			getString(R.string.enter_contact), getString(R.string.select),
-			null, getIntent().getStringExtra("account"), true
+			null, getIntent().getStringExtra(EXTRA_ACCOUNT), true
 		);
 
 		dialog.setOnEnterJidDialogPositiveListener(new EnterJidDialog.OnEnterJidDialogPositiveListener() {
@@ -190,7 +190,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity {
 				final Intent request = getIntent();
 				final Intent data = new Intent();
 				data.putExtra("contact", contactJid.toString());
-				data.putExtra("account", accountJid.toString());
+				data.putExtra(EXTRA_ACCOUNT, accountJid.toString());
 				data.putExtra("conversation",
 						request.getStringExtra("conversation"));
 				data.putExtra("multiple", false);
