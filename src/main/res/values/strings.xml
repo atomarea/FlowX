@@ -586,6 +586,9 @@
 	<string name="selection_too_large">The selected area is too large</string>
 	<string name="no_accounts">(No activated accounts)</string>
 	<string name="this_field_is_required">This field is required</string>
+	<string name="pref_show_connection_options">Extended connection options</string>
+	<string name="pref_show_connection_options_summary">Show hostname and port options when setting up an account</string>
+	<string name="hostname_example">xmpp.example.com</string>
 	<plurals name="x_messages">
 		<item quantity="one">%d message</item>
 		<item quantity="other">%d messages</item>

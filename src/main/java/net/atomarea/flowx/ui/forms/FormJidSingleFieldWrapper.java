@@ -3,6 +3,8 @@ package net.atomarea.flowx.ui.forms;
 import android.content.Context;
 import android.text.InputType;
 
+import java.util.List;
+
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.xmpp.forms.Field;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
@@ -29,5 +31,14 @@ public class FormJidSingleFieldWrapper extends FormTextFieldWrapper {
 			}
 		}
 		return super.validates();
+	}
+
+	@Override
+	protected void setValues(List<String> values) {
+		StringBuilder builder = new StringBuilder("");
+		for(String value : values) {
+			builder.append(value);
+		}
+		editText.setText(builder.toString());
 	}
 }

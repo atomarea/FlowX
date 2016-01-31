@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
+    xmlns:emojicon="http://schemas.android.com/tools"
     android:id="@+id/scrollview_contact_detail"
     android:layout_height="wrap_content">
 
@@ -39,12 +40,12 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
 
 
                <github.ankushsachdeva.emojicon.EmojiconTextView
-
 		    android:id="@+id/details_contactjid"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/account_settings_example_jabber_id"
                     android:textColor="@color/black87"
+                    emojicon:emojiconSize="28sp"
                     android:textSize="?attr/TextSizeHeadline"
                     android:textStyle="bold" />
 

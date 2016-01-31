@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:emojicon="http://schemas.android.com/apk/res-auto"
     android:id="@+id/actionbar_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,6 +14,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:text=""
+        emojicon:emojiconSize="28sp"
         android:textColor="@color/white"
         android:textSize="20dp"
         android:textStyle="bold" />

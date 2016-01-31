@@ -21,6 +21,7 @@ package github.ankushsachdeva.emojicon.emoji;
  */
 public class Symbols {
     public static final Emojicon[] DATA = new Emojicon[]{
+            Emojicon.fromChars("\u0002\u20e3"),
             Emojicon.fromChars("\u0031\u20e3"),
             Emojicon.fromChars("\u0032\u20e3"),
             Emojicon.fromChars("\u0033\u20e3"),
@@ -60,6 +61,9 @@ public class Symbols {
             Emojicon.fromChar((char) 0x23e9),
             Emojicon.fromChar((char) 0x23eb),
             Emojicon.fromChar((char) 0x23ec),
+            Emojicon.fromChar((char) 0x23ed),
+            Emojicon.fromChar((char) 0x23ee),
+            Emojicon.fromChar((char) 0x23ef),
             Emojicon.fromChar((char) 0x2935),
             Emojicon.fromChar((char) 0x2934),
             Emojicon.fromCodePoint(0x1f197),
@@ -84,6 +88,7 @@ public class Symbols {
             Emojicon.fromCodePoint(0x1f23a),
             Emojicon.fromCodePoint(0x1f236),
             Emojicon.fromCodePoint(0x1f21a),
+            Emojicon.fromChar((char) 0x23f8),
             Emojicon.fromCodePoint(0x1f6bb),
             Emojicon.fromCodePoint(0x1f6b9),
             Emojicon.fromCodePoint(0x1f6ba),
@@ -111,6 +116,10 @@ public class Symbols {
             Emojicon.fromCodePoint(0x1f6ab),
             Emojicon.fromCodePoint(0x1f51e),
             Emojicon.fromCodePoint(0x1f4f5),
+            Emojicon.fromChar((char) 0x269b),
+            Emojicon.fromChar((char) 0x262a),
+            Emojicon.fromChar((char) 0x262e),
+            Emojicon.fromChar((char) 0x262f),
             Emojicon.fromCodePoint(0x1f6af),
             Emojicon.fromCodePoint(0x1f6b1),
             Emojicon.fromCodePoint(0x1f6b3),
@@ -146,6 +155,9 @@ public class Symbols {
             Emojicon.fromChar((char) 0x2652),
             Emojicon.fromChar((char) 0x2653),
             Emojicon.fromChar((char) 0x26ce),
+            Emojicon.fromChar((char) 0x2623),
+            Emojicon.fromChar((char) 0x2622),
+            Emojicon.fromChar((char) 0x2620),
             Emojicon.fromCodePoint(0x1f52f),
             Emojicon.fromCodePoint(0x1f3e7),
             Emojicon.fromCodePoint(0x1f4b9),
@@ -174,6 +186,7 @@ public class Symbols {
             Emojicon.fromCodePoint(0x1f55b),
             Emojicon.fromCodePoint(0x1f567),
             Emojicon.fromCodePoint(0x1f550),
+            Emojicon.fromChar((char) 0x2721),
             Emojicon.fromCodePoint(0x1f55c),
             Emojicon.fromCodePoint(0x1f551),
             Emojicon.fromCodePoint(0x1f55d),
@@ -233,5 +246,7 @@ public class Symbols {
             Emojicon.fromCodePoint(0x1f537),
             Emojicon.fromCodePoint(0x1f538),
             Emojicon.fromCodePoint(0x1f539),
+            Emojicon.fromChar((char) 0x23f9),
+            Emojicon.fromChar((char) 0x23fa),
     };
 }

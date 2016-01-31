@@ -12,16 +12,6 @@ import android.util.Base64OutputStream;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.entities.DownloadableFile;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.CryptoHelper;
-import net.atomarea.flowx.utils.ExifHelper;
-import net.atomarea.flowx.utils.FileUtils;
-import net.atomarea.flowx.xmpp.pep.Avatar;
-
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -36,8 +26,20 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
+
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.entities.DownloadableFile;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.entities.Transferable;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.CryptoHelper;
+import net.atomarea.flowx.utils.ExifHelper;
+import net.atomarea.flowx.utils.FileUtils;
+import net.atomarea.flowx.xmpp.pep.Avatar;
 
 public class FileBackend {
 	private final SimpleDateFormat imageDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
@@ -84,7 +86,7 @@ public class FileBackend {
 
 	public static String getConversationsImageDirectory() {
 		return Environment.getExternalStoragePublicDirectory(
-			Environment.DIRECTORY_PICTURES).getAbsolutePath()
+				Environment.DIRECTORY_PICTURES).getAbsolutePath()
 			+ "/FlowX/";
 	}
 
@@ -153,12 +155,7 @@ public class FileBackend {
 		return FileUtils.getPath(mXmppConnectionService,uri);
 	}
 
-	public DownloadableFile copyFileToPrivateStorage(Message message, Uri uri) throws FileCopyException {
-		Log.d(Config.LOGTAG, "copy " + uri.toString() + " to private storage");
-		String mime = mXmppConnectionService.getContentResolver().getType(uri);
-		String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime);
-		message.setRelativeFilePath(message.getUuid() + "." + extension);
-		DownloadableFile file = mXmppConnectionService.getFileBackend().getFile(message);
+	public void copyFileToPrivateStorage(File file, Uri uri) throws FileCopyException {
 		file.getParentFile().mkdirs();
 		OutputStream os = null;
 		InputStream is = null;
@@ -181,28 +178,18 @@ public class FileBackend {
 			close(os);
 			close(is);
 		}
-		Log.d(Config.LOGTAG, "output file name " + mXmppConnectionService.getFileBackend().getFile(message));
-		return file;
+		Log.d(Config.LOGTAG, "output file name " + file.getAbsolutePath());
 	}
 
-	public DownloadableFile copyImageToPrivateStorage(Message message, Uri image)
-			throws FileCopyException {
-		return this.copyImageToPrivateStorage(message, image, 0);
+	public void copyFileToPrivateStorage(Message message, Uri uri) throws FileCopyException {
+		Log.d(Config.LOGTAG, "copy " + uri.toString() + " to private storage");
+		String mime = mXmppConnectionService.getContentResolver().getType(uri);
+		String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime);
+		message.setRelativeFilePath(message.getUuid() + "." + extension);
+		copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
 	}
 
-	private DownloadableFile copyImageToPrivateStorage(Message message,Uri image, int sampleSize) throws FileCopyException {
-		switch(Config.IMAGE_FORMAT) {
-			case JPEG:
-				message.setRelativeFilePath(message.getUuid()+".jpg");
-				break;
-			case PNG:
-				message.setRelativeFilePath(message.getUuid()+".png");
-				break;
-			case WEBP:
-				message.setRelativeFilePath(message.getUuid()+".webp");
-				break;
-		}
-		DownloadableFile file = getFile(message);
+	private void copyImageToPrivateStorage(File file, Uri image, int sampleSize) throws FileCopyException {
 		file.getParentFile().mkdirs();
 		InputStream is = null;
 		OutputStream os = null;
@@ -223,7 +210,6 @@ public class FileBackend {
 			int rotation = getRotation(image);
 			scaledBitmap = rotate(scaledBitmap, rotation);
 			boolean targetSizeReached = false;
-			long size = 0;
 			int quality = Config.IMAGE_QUALITY;
 			while(!targetSizeReached) {
 				os = new FileOutputStream(file);
@@ -232,14 +218,11 @@ public class FileBackend {
 					throw new FileCopyException(R.string.error_compressing_image);
 				}
 				os.flush();
-				size = file.getSize();
-				targetSizeReached = size <= Config.IMAGE_MAX_SIZE || quality <= 50;
+				targetSizeReached = file.length() <= Config.IMAGE_MAX_SIZE || quality <= 50;
 				quality -= 5;
 			}
-			int width = scaledBitmap.getWidth();
-			int height = scaledBitmap.getHeight();
-			message.setBody(Long.toString(size) + '|' + width + '|' + height);
-			return file;
+			scaledBitmap.recycle();
+			return;
 		} catch (FileNotFoundException e) {
 			throw new FileCopyException(R.string.error_file_not_found);
 		} catch (IOException e) {
@@ -250,7 +233,7 @@ public class FileBackend {
 		} catch (OutOfMemoryError e) {
 			++sampleSize;
 			if (sampleSize <= 3) {
-				return copyImageToPrivateStorage(message, image, sampleSize);
+				copyImageToPrivateStorage(file, image, sampleSize);
 			} else {
 				throw new FileCopyException(R.string.error_out_of_memory);
 			}
@@ -260,6 +243,26 @@ public class FileBackend {
 			close(os);
 			close(is);
 		}
+	}
+
+	public void copyImageToPrivateStorage(File file, Uri image) throws FileCopyException {
+		copyImageToPrivateStorage(file, image, 0);
+	}
+
+	public void copyImageToPrivateStorage(Message message, Uri image) throws FileCopyException {
+		switch(Config.IMAGE_FORMAT) {
+			case JPEG:
+				message.setRelativeFilePath(message.getUuid()+".jpg");
+				break;
+			case PNG:
+				message.setRelativeFilePath(message.getUuid()+".png");
+				break;
+			case WEBP:
+				message.setRelativeFilePath(message.getUuid()+".webp");
+				break;
+		}
+		copyImageToPrivateStorage(getFile(message), image);
+		updateFileParams(message);
 	}
 
 	private int getRotation(File file) {

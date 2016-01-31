@@ -37,7 +37,7 @@
             android:id="@+id/contact_jid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"
+            android:visibility="invisible"
             android:singleLine="true"
             android:textColor="@color/black87"
             android:textSize="?attr/TextSizeBody" />

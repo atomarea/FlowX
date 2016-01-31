@@ -58,7 +58,7 @@
                 android:textColorLink="@color/black87"
                 android:textColor="@color/black87"
 		        android:textColorHighlight="@color/grey500"
-		        emojicon:emojiconSize="23sp"
+                emojicon:emojiconSize="25sp"
                 android:textSize="?attr/TextSizeBody" />
 
             <com.beardedhen.androidbootstrap.BootstrapButton
