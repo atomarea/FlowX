@@ -1528,7 +1528,7 @@ public class ConversationActivity extends XmppActivity
     }
 
     public boolean useSendButtonToIndicateStatus() {
-        return getPreferences().getBoolean("send_button_status", false);
+        return getPreferences().getBoolean("send_button_status", true);
     }
 
     public boolean indicateReceived() {
