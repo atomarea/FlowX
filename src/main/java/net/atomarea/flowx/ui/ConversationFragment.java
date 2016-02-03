@@ -44,6 +44,7 @@ import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.DownloadableFile;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.MucOptions;
+import net.atomarea.flowx.entities.Presence;
 import net.atomarea.flowx.entities.Presences;
 import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.entities.TransferablePlaceholder;
@@ -846,7 +847,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 case MucOptions.ERROR_NICK_IN_USE:
                     showSnackbar(R.string.nick_in_use, R.string.edit, clickToMuc);
                     break;
-                case MucOptions.ERROR_UNKNOWN:
+                case MucOptions.ERROR_NO_RESPONSE:
                     showSnackbar(R.string.conference_not_found, R.string.leave, leaveMuc);
                     break;
                 case MucOptions.ERROR_PASSWORD_REQUIRED:
@@ -861,6 +862,9 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 case MucOptions.KICKED_FROM_ROOM:
                     showSnackbar(R.string.conference_kicked, R.string.join, joinMuc);
                     break;
+                case MucOptions.ERROR_UNKNOWN:
+                    					showSnackbar(R.string.conference_unknown_error, R.string.try_again, joinMuc);
+                    					break;
                 default:
                     break;
             }
@@ -965,82 +969,82 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
 
     enum SendButtonAction {TEXT, TAKE_PHOTO, SEND_LOCATION, RECORD_VOICE, CANCEL, CHOOSE_PICTURE}
 
-    private int getSendButtonImageResource(SendButtonAction action, int status) {
+    private int getSendButtonImageResource(SendButtonAction action, Presence.Status status) {
         switch (action) {
             case TEXT:
                 switch (status) {
-                    case Presences.CHAT:
-                    case Presences.ONLINE:
+                    case CHAT:
+                    case ONLINE:
                         return R.drawable.ic_send_text_online;
-                    case Presences.AWAY:
+                    case AWAY:
                         return R.drawable.ic_send_text_away;
-                    case Presences.XA:
-                    case Presences.DND:
+                    case XA:
+                    case DND:
                         return R.drawable.ic_send_text_dnd;
                     default:
                         return R.drawable.ic_send_text_offline;
                 }
             case TAKE_PHOTO:
                 switch (status) {
-                    case Presences.CHAT:
-                    case Presences.ONLINE:
+                    case CHAT:
+                    case ONLINE:
                         return R.drawable.ic_send_photo_online;
-                    case Presences.AWAY:
+                    case AWAY:
                         return R.drawable.ic_send_photo_away;
-                    case Presences.XA:
-                    case Presences.DND:
+                    case XA:
+                    case DND:
                         return R.drawable.ic_send_photo_dnd;
                     default:
                         return R.drawable.ic_send_photo_offline;
                 }
             case RECORD_VOICE:
                 switch (status) {
-                    case Presences.CHAT:
-                    case Presences.ONLINE:
+                    case CHAT:
+                    case ONLINE:
                         return R.drawable.ic_send_voice_online;
-                    case Presences.AWAY:
+                    case AWAY:
                         return R.drawable.ic_send_voice_away;
-                    case Presences.XA:
-                    case Presences.DND:
+                    case XA:
+                    case DND:
                         return R.drawable.ic_send_voice_dnd;
                     default:
                         return R.drawable.ic_send_voice_offline;
                 }
             case SEND_LOCATION:
                 switch (status) {
-                    case Presences.CHAT:
-                    case Presences.ONLINE:
+                    case CHAT:
+                    case ONLINE:
                         return R.drawable.ic_send_location_online;
-                    case Presences.AWAY:
+                    case AWAY:
                         return R.drawable.ic_send_location_away;
-                    case Presences.XA:
-                    case Presences.DND:
+                    case XA:
+                    case DND:
                         return R.drawable.ic_send_location_dnd;
                     default:
                         return R.drawable.ic_send_location_offline;
                 }
             case CANCEL:
                 switch (status) {
-                    case Presences.CHAT:
-                    case Presences.ONLINE:
+                    case CHAT:
+                    case ONLINE:
                         return R.drawable.ic_send_cancel_online;
-                    case Presences.AWAY:
+                    case AWAY:
                         return R.drawable.ic_send_cancel_away;
-                    case Presences.XA:
-                    case Presences.DND:
+                    case XA:
+                    case DND:
                         return R.drawable.ic_send_cancel_dnd;
                     default:
                         return R.drawable.ic_send_cancel_offline;
                 }
             case CHOOSE_PICTURE:
                 switch (status) {
-                    case Presences.CHAT:
-                    case Presences.ONLINE:
+                    case CHAT:
+                    case ONLINE:
                         return R.drawable.ic_send_picture_online;
-                    case Presences.AWAY:
+                    case AWAY:
                         return R.drawable.ic_send_picture_away;
-                    case Presences.XA:
-                    case Presences.DND:
+                    case XA:
+                    case DND:
                         return R.drawable.ic_send_picture_dnd;
                     default:
                         return R.drawable.ic_send_picture_offline;
@@ -1052,7 +1056,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
     public void updateSendButton() {
         final Conversation c = this.conversation;
         final SendButtonAction action;
-        final int status;
+        final Presence.Status status;
         final boolean empty = this.mEditMessage == null || this.mEditMessage.getText().length() == 0;
         final boolean conference = c.getMode() == Conversation.MODE_MULTI;
         if (conference && !c.getAccount().httpUploadAvailable()) {
@@ -1066,7 +1070,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 if (conference && c.getNextCounterpart() != null) {
                     action = SendButtonAction.CANCEL;
                 } else {
-                    String setting = activity.getPreferences().getString("quick_action", "recent");
+                    String setting = activity.getPreferences().getString("quick_action", "voice");
                     if (!setting.equals("none") && UIHelper.receivedLocationQuestion(conversation.getLatestMessage())) {
                         setting = "location";
                     } else if (setting.equals("recent")) {
@@ -1099,10 +1103,10 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             if (c.getMode() == Conversation.MODE_SINGLE) {
                 status = c.getContact().getMostAvailableStatus();
             } else {
-                status = c.getMucOptions().online() ? Presences.ONLINE : Presences.OFFLINE;
+                status = c.getMucOptions().online() ? Presence.Status.ONLINE : Presence.Status.OFFLINE;
             }
         } else {
-            status = Presences.OFFLINE;
+            status = Presence.Status.OFFLINE;
         }
         this.mSendButton.setTag(action);
         this.mSendButton.setImageResource(getSendButtonImageResource(action, status));

@@ -31,34 +31,6 @@ import android.util.Log;
 import android.util.LruCache;
 import android.util.Pair;
 
-import net.java.otr4j.OtrException;
-import net.java.otr4j.session.Session;
-import net.java.otr4j.session.SessionID;
-import net.java.otr4j.session.SessionImpl;
-import net.java.otr4j.session.SessionStatus;
-
-import org.openintents.openpgp.IOpenPgpService2;
-import org.openintents.openpgp.util.OpenPgpApi;
-import org.openintents.openpgp.util.OpenPgpServiceConnection;
-
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import de.duenndns.ssl.MemorizingTrustManager;
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.PgpEngine;
@@ -72,7 +44,9 @@ import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.MucOptions;
 import net.atomarea.flowx.entities.MucOptions.OnRenameListener;
-import net.atomarea.flowx.entities.Presences;
+import net.atomarea.flowx.entities.Presence;
+import net.atomarea.flowx.entities.Roster;
+import net.atomarea.flowx.entities.ServiceDiscoveryResult;
 import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.entities.TransferablePlaceholder;
 import net.atomarea.flowx.generator.IqGenerator;
@@ -115,6 +89,34 @@ import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
 import net.atomarea.flowx.xmpp.stanzas.MessagePacket;
 import net.atomarea.flowx.xmpp.stanzas.PresencePacket;
+import net.java.otr4j.OtrException;
+import net.java.otr4j.session.Session;
+import net.java.otr4j.session.SessionID;
+import net.java.otr4j.session.SessionImpl;
+import net.java.otr4j.session.SessionStatus;
+
+import org.openintents.openpgp.IOpenPgpService2;
+import org.openintents.openpgp.util.OpenPgpApi;
+import org.openintents.openpgp.util.OpenPgpServiceConnection;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import de.duenndns.ssl.MemorizingTrustManager;
 import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class XmppConnectionService extends Service implements OnPhoneContactsLoadedListener {
@@ -244,6 +246,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	private OnKeyStatusUpdated mOnKeyStatusUpdated = null;
 	private int keyStatusUpdatedListenerCount = 0;
 	private SecureRandom mRandom;
+	private LruCache<Pair<String,String>,ServiceDiscoveryResult> discoCache = new LruCache<>(20);
 	private final OnBindListener mOnBindListener = new OnBindListener() {
 
 		@Override
@@ -334,7 +337,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	}
 
 	public PgpEngine getPgpEngine() {
-		if (pgpServiceConnection.isBound()) {
+		if (pgpServiceConnection != null && pgpServiceConnection.isBound()) {
 			if (this.mPgpEngine == null) {
 				this.mPgpEngine = new PgpEngine(new OpenPgpApi(
 						getApplicationContext(),
@@ -596,13 +599,13 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		return getPreferences().getString("picture_compression", "auto");
 	}
 
-	private int getTargetPresence() {
+	private Presence.Status getTargetPresence() {
 		if (xaOnSilentMode() && isPhoneSilenced()) {
-			return Presences.XA;
+			return Presence.Status.XA;
 		} else if (awayWhenScreenOff() && !isInteractive()) {
-			return Presences.AWAY;
+			return Presence.Status.AWAY;
 		} else {
-			return Presences.ONLINE;
+			return Presence.Status.ONLINE;
 		}
 	}
 
@@ -1001,6 +1004,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 					final Element query = packet.query();
 					final HashMap<Jid, Bookmark> bookmarks = new HashMap<>();
 					final Element storage = query.findChild("storage", "storage:bookmarks");
+					final boolean autojoin = respectAutojoin();
 					if (storage != null) {
 						for (final Element item : storage.getChildren()) {
 							if (item.getName().equals("conference")) {
@@ -1012,7 +1016,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 								Conversation conversation = find(bookmark);
 								if (conversation != null) {
 									conversation.setBookmark(bookmark);
-								} else if (bookmark.autojoin() && bookmark.getJid() != null) {
+								} else if (bookmark.autojoin() && bookmark.getJid() != null && autojoin) {
 									conversation = findOrCreateConversation(
 											account, bookmark.getJid(), true);
 									conversation.setBookmark(bookmark);
@@ -1330,7 +1334,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
 				if (conversation.getAccount().getStatus() == Account.State.ONLINE) {
 					Bookmark bookmark = conversation.getBookmark();
-					if (bookmark != null && bookmark.autojoin()) {
+					if (bookmark != null && bookmark.autojoin() && respectAutojoin()) {
 						bookmark.setAutojoin(false);
 						pushBookmarks(bookmark.getAccount());
 					}
@@ -1791,7 +1795,9 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		if (conversation.getMode() == Conversation.MODE_MULTI) {
 			conversation.getMucOptions().setPassword(password);
 			if (conversation.getBookmark() != null) {
-				conversation.getBookmark().setAutojoin(true);
+				if (respectAutojoin()) {
+					conversation.getBookmark().setAutojoin(true);
+				}
 				pushBookmarks(conversation.getAccount());
 			}
 			databaseBackend.updateConversation(conversation);
@@ -2578,6 +2584,10 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		return !getPreferences().getBoolean("dont_save_encrypted", false);
 	}
 
+	private boolean respectAutojoin() {
+		return getPreferences().getBoolean("autojoin", true);
+	}
+
 	public boolean indicateReceived() {
 		return getPreferences().getBoolean("indicate_received", true);
 	}
@@ -2948,10 +2958,64 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 				@Override
 				public void onIqPacketReceived(Account account, IqPacket packet) {
 					if (packet.getType() == IqPacket.TYPE.ERROR) {
-						Log.d(Config.LOGTAG,account.getJid().toBareJid()+": could not publish nick");
+						Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": could not publish nick");
 					}
 				}
 			});
+		}
+	}
+
+	private ServiceDiscoveryResult getCachedServiceDiscoveryResult(Pair<String,String> key) {
+		ServiceDiscoveryResult result = discoCache.get(key);
+		if (result != null) {
+			return result;
+		} else {
+			result = databaseBackend.findDiscoveryResult(key.first, key.second);
+			if (result != null) {
+				discoCache.put(key, result);
+			}
+			return result;
+		}
+	}
+
+	public void fetchCaps(Account account, final Jid jid, final Presence presence) {
+		final Pair<String,String> key = new Pair<>(presence.getHash(), presence.getVer());
+		ServiceDiscoveryResult disco = getCachedServiceDiscoveryResult(key);
+		if (disco != null) {
+			presence.setServiceDiscoveryResult(disco);
+		} else {
+			if (!account.inProgressDiscoFetches.contains(key)) {
+				account.inProgressDiscoFetches.add(key);
+				IqPacket request = new IqPacket(IqPacket.TYPE.GET);
+				request.setTo(jid);
+				request.query("http://jabber.org/protocol/disco#info");
+				Log.d(Config.LOGTAG,account.getJid().toBareJid()+": making disco request for "+key.second+" to "+jid);
+				sendIqPacket(account, request, new OnIqPacketReceived() {
+					@Override
+					public void onIqPacketReceived(Account account, IqPacket discoPacket) {
+						if (discoPacket.getType() == IqPacket.TYPE.RESULT) {
+							ServiceDiscoveryResult disco = new ServiceDiscoveryResult(discoPacket);
+							if (presence.getVer().equals(disco.getVer())) {
+								databaseBackend.insertDiscoveryResult(disco);
+								injectServiceDiscorveryResult(account.getRoster(), presence.getHash(), presence.getVer(), disco);
+							} else {
+								Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": mismatch in caps for contact " + jid+" "+presence.getVer()+" vs "+disco.getVer());
+							}
+						}
+						account.inProgressDiscoFetches.remove(key);
+					}
+				});
+			}
+		}
+	}
+
+	private void injectServiceDiscorveryResult(Roster roster, String hash, String ver, ServiceDiscoveryResult disco) {
+		for(Contact contact : roster.getContacts()) {
+			for(Presence presence : contact.getPresences().getPresences().values()) {
+				if (hash.equals(presence.getHash()) && ver.equals(presence.getVer())) {
+					presence.setServiceDiscoveryResult(disco);
+				}
+			}
 		}
 	}
 

@@ -5,13 +5,11 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.LinkProperties;
 import android.net.Network;
+import android.net.RouteInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -20,9 +18,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import de.measite.minidns.Client;
@@ -35,6 +33,8 @@ import de.measite.minidns.record.AAAA;
 import de.measite.minidns.record.Data;
 import de.measite.minidns.record.SRV;
 import de.measite.minidns.util.NameUtil;
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class DNSHelper {
 
@@ -76,13 +76,27 @@ public class DNSHelper {
 		for(int i = 0; i < networks.length; ++i) {
 			LinkProperties linkProperties = connectivityManager.getLinkProperties(networks[i]);
 			if (linkProperties != null) {
-				servers.addAll(linkProperties.getDnsServers());
+				if (hasDefaultRoute(linkProperties)) {
+					servers.addAll(0, linkProperties.getDnsServers());
+				} else {
+					servers.addAll(linkProperties.getDnsServers());
+				}
 			}
 		}
 		if (servers.size() > 0) {
-			Log.d(Config.LOGTAG,"used lollipop variant to discover dns servers in "+networks.length+" networks");
+			Log.d(Config.LOGTAG, "used lollipop variant to discover dns servers in " + networks.length + " networks");
 		}
 		return servers.size() > 0 ? servers : getDnsServersPreLollipop();
+	}
+
+	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+	private static boolean hasDefaultRoute(LinkProperties linkProperties) {
+		for(RouteInfo route: linkProperties.getRoutes()) {
+			if (route.isDefaultRoute()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static List<InetAddress> getDnsServersPreLollipop() {

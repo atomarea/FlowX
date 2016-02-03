@@ -23,6 +23,7 @@ import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.services.AbstractConnectionManager;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.utils.CryptoHelper;
+import net.atomarea.flowx.utils.SSLSocketHelper;
 
 public class HttpConnectionManager extends AbstractConnectionManager {
 
@@ -76,7 +77,7 @@ public class HttpConnectionManager extends AbstractConnectionManager {
 							new StrictHostnameVerifier());
 		}
 		try {
-			final SSLContext sc = SSLContext.getInstance("TLS");
+			final SSLContext sc = SSLSocketHelper.getSSLContext();
 			sc.init(null, new X509TrustManager[]{trustManager},
 					mXmppConnectionService.getRNG());
 

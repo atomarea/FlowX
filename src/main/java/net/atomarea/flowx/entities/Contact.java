@@ -38,6 +38,7 @@ public class Contact implements ListItem, Blockable {
 	protected String systemName;
 	protected String serverName;
 	protected String presenceName;
+	protected String commonName;
 	protected Jid jid;
 	protected int subscription = 0;
 	protected String systemAccount;
@@ -105,8 +106,8 @@ public class Contact implements ListItem, Blockable {
 	}
 
 	public String getDisplayName() {
-		if (this.presenceName != null && Config.X509_VERIFICATION) {
-			return this.presenceName;
+		if (this.commonName != null && Config.X509_VERIFICATION) {
+			return this.commonName;
 		} else if (this.systemName != null) {
 			return this.systemName;
 		} else if (this.serverName != null) {
@@ -135,17 +136,17 @@ public class Contact implements ListItem, Blockable {
 			tags.add(new Tag(group, UIHelper.getColorForName(group)));
 		}
 		switch (getMostAvailableStatus()) {
-			case Presences.CHAT:
-			case Presences.ONLINE:
+			case CHAT:
+			case ONLINE:
 				tags.add(new Tag("online", 0xff259b24));
 				break;
-			case Presences.AWAY:
+			case AWAY:
 				tags.add(new Tag("away", 0xffff9800));
 				break;
-			case Presences.XA:
+			case XA:
 				tags.add(new Tag("not available", 0xfff44336));
 				break;
-			case Presences.DND:
+			case DND:
 				tags.add(new Tag("dnd", 0xfff44336));
 				break;
 		}
@@ -225,8 +226,8 @@ public class Contact implements ListItem, Blockable {
 		this.presences = pres;
 	}
 
-	public void updatePresence(final String resource, final int status) {
-		this.presences.updatePresence(resource, status);
+	public void updatePresence(final String resource, final Presence presence) {
+		this.presences.updatePresence(resource, presence);
 	}
 
 	public void removePresence(final String resource) {
@@ -238,8 +239,13 @@ public class Contact implements ListItem, Blockable {
 		this.resetOption(Options.PENDING_SUBSCRIPTION_REQUEST);
 	}
 
-	public int getMostAvailableStatus() {
-		return this.presences.getMostAvailableStatus();
+	public Presence.Status getMostAvailableStatus() {
+		Presence p = this.presences.getMostAvailablePresence();
+		if (p == null) {
+			return Presence.Status.OFFLINE;
+		}
+
+		return p.getStatus();
 	}
 
 	public boolean setPhotoUri(String uri) {
@@ -508,6 +514,10 @@ public class Contact implements ListItem, Blockable {
 
 	public boolean isSelf() {
 		return account.getJid().toBareJid().equals(getJid().toBareJid());
+	}
+
+	public void setCommonName(String cn) {
+		this.commonName = cn;
 	}
 
 	public static class Lastseen {

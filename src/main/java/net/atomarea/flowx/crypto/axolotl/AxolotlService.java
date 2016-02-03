@@ -1,5 +1,6 @@
 package net.atomarea.flowx.crypto.axolotl;
 
+import android.os.Bundle;
 import android.security.KeyChain;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -39,6 +40,7 @@ import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.parser.IqParser;
 import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.SerialSingleThreadExecutor;
 import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.OnAdvancedStreamFeaturesLoaded;
@@ -160,6 +162,20 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 				AxolotlAddress axolotlAddress = new AxolotlAddress(bareJid, deviceId);
 				Log.d(Config.LOGTAG, AxolotlService.getLogprefix(account) + "Building session for remote address: " + axolotlAddress.toString());
 				IdentityKey identityKey = store.loadSession(axolotlAddress).getSessionState().getRemoteIdentityKey();
+				if(Config.X509_VERIFICATION) {
+					X509Certificate certificate = store.getFingerprintCertificate(identityKey.getFingerprint().replaceAll("\\s", ""));
+					if (certificate != null) {
+						Bundle information = CryptoHelper.extractCertificateInformation(certificate);
+						try {
+							final String cn = information.getString("subject_cn");
+							final Jid jid = Jid.fromString(bareJid);
+							Log.d(Config.LOGTAG,"setting common name for "+jid+" to "+cn);
+							account.getRoster().getContact(jid).setCommonName(cn);
+						} catch (final InvalidJidException ignored) {
+							//ignored
+						}
+					}
+				}
 				this.put(axolotlAddress, new XmppAxolotlSession(account, store, axolotlAddress, identityKey));
 			}
 		}
@@ -619,6 +635,15 @@ public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 									setFingerprintTrust(fingerprint, XmppAxolotlSession.Trust.TRUSTED_X509);
 									axolotlStore.setFingerprintCertificate(fingerprint, verification.first[0]);
 									fetchStatusMap.put(address, FetchStatus.SUCCESS_VERIFIED);
+									Bundle information = CryptoHelper.extractCertificateInformation(verification.first[0]);
+									try {
+										final String cn = information.getString("subject_cn");
+										final Jid jid = Jid.fromString(address.getName());
+										Log.d(Config.LOGTAG,"setting common name for "+jid+" to "+cn);
+										account.getRoster().getContact(jid).setCommonName(cn);
+									} catch (final InvalidJidException ignored) {
+										//ignored
+									}
 									finishBuildingSessionsFromPEP(address);
 									return;
 								} catch (Exception e) {

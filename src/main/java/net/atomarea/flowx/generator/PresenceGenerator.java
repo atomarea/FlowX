@@ -2,7 +2,7 @@ package net.atomarea.flowx.generator;
 
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
-import net.atomarea.flowx.entities.Presences;
+import net.atomarea.flowx.entities.Presence;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.stanzas.PresencePacket;
@@ -37,21 +37,10 @@ public class PresenceGenerator extends AbstractGenerator {
 		return subscription("subscribed", contact);
 	}
 
-	public PresencePacket selfPresence(Account account, int presence) {
+	public PresencePacket selfPresence(Account account, Presence.Status status) {
 		PresencePacket packet = new PresencePacket();
-		switch(presence) {
-			case Presences.AWAY:
-				packet.addChild("show").setContent("away");
-				break;
-			case Presences.XA:
-				packet.addChild("show").setContent("xa");
-				break;
-			case Presences.CHAT:
-				packet.addChild("show").setContent("chat");
-				break;
-			case Presences.DND:
-				packet.addChild("show").setContent("dnd");
-				break;
+		if(status.toShowString() != null) {
+			packet.addChild("show").setContent(status.toShowString());
 		}
 		packet.setFrom(account.getJid());
 		String sig = account.getPgpSignature();

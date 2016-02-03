@@ -1,21 +1,28 @@
 package net.atomarea.flowx.parser;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
+
+import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.PgpEngine;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.MucOptions;
-import net.atomarea.flowx.entities.Presences;
+import net.atomarea.flowx.entities.Presence;
+import net.atomarea.flowx.entities.ServiceDiscoveryResult;
 import net.atomarea.flowx.generator.PresenceGenerator;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.xml.Element;
+import net.atomarea.flowx.xmpp.OnIqPacketReceived;
 import net.atomarea.flowx.xmpp.OnPresencePacketReceived;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
+import net.atomarea.flowx.xmpp.stanzas.IqPacket;
 import net.atomarea.flowx.xmpp.stanzas.PresencePacket;
 
 public class PresenceParser extends AbstractParser implements
@@ -35,6 +42,7 @@ public class PresenceParser extends AbstractParser implements
 			processConferencePresence(packet, mucOptions);
 			final List<MucOptions.User> tileUserAfter = mucOptions.getUsers(5);
 			if (!tileUserAfter.equals(tileUserBefore)) {
+				Log.d(Config.LOGTAG,account.getJid().toBareJid()+": update tiles for "+conversation.getName());
 				mXmppConnectionService.getAvatarService().clear(mucOptions);
 			}
 			if (before != mucOptions.online() || (mucOptions.online() && count != mucOptions.getUserCount())) {
@@ -56,12 +64,13 @@ public class PresenceParser extends AbstractParser implements
 				if (x != null) {
 					Element item = x.findChild("item");
 					if (item != null && !from.isBareJid()) {
+						mucOptions.setError(MucOptions.ERROR_NO_ERROR);
 						MucOptions.User user = new MucOptions.User(mucOptions,from);
 						user.setAffiliation(item.getAttribute("affiliation"));
 						user.setRole(item.getAttribute("role"));
 						user.setJid(item.getAttributeAsJid("jid"));
 						if (codes.contains(MucOptions.STATUS_CODE_SELF_PRESENCE) || packet.getFrom().equals(mucOptions.getConversation().getJid())) {
-							mucOptions.setError(MucOptions.ERROR_NO_ERROR);
+							mucOptions.setOnline();
 							mucOptions.setSelf(user);
 							if (mucOptions.mNickChangingInProgress) {
 								if (mucOptions.onRenameListener != null) {
@@ -108,6 +117,7 @@ public class PresenceParser extends AbstractParser implements
 						mucOptions.setError(MucOptions.ERROR_MEMBERS_ONLY);
 					} else {
 						mucOptions.setError(MucOptions.ERROR_UNKNOWN);
+						Log.d(Config.LOGTAG, "unknown error in conference: " + packet);
 					}
 				} else if (!from.isBareJid()){
 					MucOptions.User user = mucOptions.deleteUser(from.getResourcepart());
@@ -160,7 +170,7 @@ public class PresenceParser extends AbstractParser implements
 		final String type = packet.getAttribute("type");
 		final Contact contact = account.getRoster().getContact(from);
 		if (type == null) {
-			String presence = from.isBareJid() ? "" : from.getResourcepart();
+			final String resource = from.isBareJid() ? "" : from.getResourcepart();
 			contact.setPresenceName(packet.findChildContent("nick", "http://jabber.org/protocol/nick"));
 			Avatar avatar = Avatar.parsePresence(packet.findChild("x", "vcard-temp:x:update"));
 			if (avatar != null && !contact.isSelf()) {
@@ -176,7 +186,15 @@ public class PresenceParser extends AbstractParser implements
 				}
 			}
 			int sizeBefore = contact.getPresences().size();
-			contact.updatePresence(presence, Presences.parseShow(packet.findChild("show")));
+
+			final Element show = packet.findChild("show");
+			final Element caps = packet.findChild("c", "http://jabber.org/protocol/caps");
+			final Presence presence = Presence.parse(show, caps);
+			contact.updatePresence(resource, presence);
+			if (presence.hasCaps() && Config.REQUEST_DISCO) {
+				mXmppConnectionService.fetchCaps(account, from, presence);
+			}
+
 			PgpEngine pgp = mXmppConnectionService.getPgpEngine();
 			Element x = packet.findChild("x", "jabber:x:signed");
 			if (pgp != null && x != null) {
