@@ -1,37 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <PreferenceScreen android:title="@string/pref_notification_settings"
-            android:icon="@android:drawable/ic_menu_info_details">
+    <PreferenceScreen
+        android:title="@string/pref_notification_settings"
+        android:icon="@android:drawable/ic_menu_info_details">
 
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="show_notification"
             android:summary="@string/pref_notifications_summary"
             android:title="@string/pref_notifications" />
-          <PreferenceScreen
+        <PreferenceScreen
             android:dependency="show_notification"
             android:summary="@string/pref_quiet_hours_summary"
             android:title="@string/title_pref_quiet_hours">
             <CheckBoxPreference
-              android:defaultValue="false"
-              android:key="enable_quiet_hours"
-              android:summary="@string/pref_quiet_hours_summary"
-              android:title="@string/title_pref_enable_quiet_hours" />
+                android:defaultValue="false"
+                android:key="enable_quiet_hours"
+                android:summary="@string/pref_quiet_hours_summary"
+                android:title="@string/title_pref_enable_quiet_hours" />
             <net.atomarea.flowx.ui.TimePreference
-              android:dependency="enable_quiet_hours"
-              android:key="quiet_hours_start"
-              android:negativeButtonText="@string/cancel"
-              android:positiveButtonText="@string/set"
-              android:title="@string/title_pref_quiet_hours_start_time" />
+                android:dependency="enable_quiet_hours"
+                android:key="quiet_hours_start"
+                android:negativeButtonText="@string/cancel"
+                android:positiveButtonText="@string/set"
+                android:title="@string/title_pref_quiet_hours_start_time" />
             <net.atomarea.flowx.ui.TimePreference
-              android:dependency="enable_quiet_hours"
-              android:key="quiet_hours_end"
-              android:negativeButtonText="@string/cancel"
-              android:positiveButtonText="@string/set"
-              android:title="@string/title_pref_quiet_hours_end_time" />
-          </PreferenceScreen>
-          <CheckBoxPreference
+                android:dependency="enable_quiet_hours"
+                android:key="quiet_hours_end"
+                android:negativeButtonText="@string/cancel"
+                android:positiveButtonText="@string/set"
+                android:title="@string/title_pref_quiet_hours_end_time" />
+        </PreferenceScreen>
+        <CheckBoxPreference
             android:defaultValue="true"
             android:dependency="show_notification"
             android:key="vibrate_on_notification"
@@ -45,10 +46,11 @@
             android:ringtoneType="notification"
             android:summary="@string/pref_sound_summary"
             android:title="@string/pref_sound" />
-        </PreferenceScreen>
+    </PreferenceScreen>
 
-    <PreferenceScreen android:title="@string/pref_ui_options" 
-                android:icon="@android:drawable/ic_menu_gallery">
+    <PreferenceScreen
+        android:title="@string/pref_ui_options"
+        android:icon="@android:drawable/ic_menu_gallery">
 
         <CheckBoxPreference
             android:defaultValue="true"
@@ -61,35 +63,37 @@
             android:key="use_larger_font"
             android:summary="@string/pref_use_larger_font_summary"
             android:title="@string/pref_use_larger_font" />
-        </PreferenceScreen>
+    </PreferenceScreen>
 
-	        <PreferenceScreen android:title="@string/pref_input_options"
-               android:icon="@android:drawable/ic_menu_edit">
+    <PreferenceScreen
+        android:title="@string/pref_input_options"
+        android:icon="@android:drawable/ic_menu_edit">
 
-		        <CheckBoxPreference
-			        android:defaultValue="false"
-			        android:key="enter_is_send"
-			        android:title="@string/pref_enter_is_send"
-			        android:summary="@string/pref_enter_is_send_summary" />
-		        <CheckBoxPreference
-			        android:defaultValue="false"
-			        android:key="display_enter_key"
-			        android:title="@string/pref_display_enter_key"
-			        android:summary="@string/pref_display_enter_key_summary" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="enter_is_send"
+            android:title="@string/pref_enter_is_send"
+            android:summary="@string/pref_enter_is_send_summary" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="display_enter_key"
+            android:title="@string/pref_display_enter_key"
+            android:summary="@string/pref_display_enter_key_summary" />
         <ListPreference
             android:key="quick_action"
-            android:defaultValue="recent"
+            android:defaultValue="voice"
             android:entries="@array/quick_actions"
             android:entryValues="@array/quick_action_values"
             android:summary="@string/pref_quick_action_summary"
             android:title="@string/pref_quick_action"
-            android:dialogTitle="@string/choose_quick_action"/>
-        </PreferenceScreen>
+            android:dialogTitle="@string/choose_quick_action" />
+    </PreferenceScreen>
 
-           <PreferenceScreen android:title="@string/pref_presence_settings"
-                android:icon="@android:drawable/ic_menu_view">
+    <PreferenceScreen
+        android:title="@string/pref_presence_settings"
+        android:icon="@android:drawable/ic_menu_view">
 
-	<CheckBoxPreference
+        <CheckBoxPreference
             android:defaultValue="true"
             android:key="grant_new_contacts"
             android:summary="@string/pref_grant_presence_updates_summary"
@@ -99,38 +103,39 @@
             android:key="confirm_messages"
             android:summary="@string/pref_confirm_messages_summary"
             android:title="@string/pref_confirm_messages" />
-         <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="indicate_received"
-                    android:summary="@string/pref_use_indicate_received_summary"
-                    android:title="@string/pref_use_indicate_received" />
-	 <CheckBoxPreference
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="indicate_received"
+            android:summary="@string/pref_use_indicate_received_summary"
+            android:title="@string/pref_use_indicate_received" />
+        <CheckBoxPreference
             android:defaultValue="true"
             android:key="send_button_status"
             android:summary="@string/pref_use_send_button_to_indicate_status_summary"
             android:title="@string/pref_use_send_button_to_indicate_status" />
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="away_when_screen_off"
-                    android:summary="@string/pref_away_when_screen_off_summary"
-                    android:title="@string/pref_away_when_screen_off"/>
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="xa_on_silent_mode"
-                    android:summary="@string/pref_xa_on_silent_mode_summary"
-                    android:title="@string/pref_xa_on_silent_mode"/>
-        </PreferenceScreen>
-  
-    <PreferenceScreen android:title="@string/pref_advanced_options" 
-                android:icon="@android:drawable/ic_menu_manage">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="away_when_screen_off"
+            android:summary="@string/pref_away_when_screen_off_summary"
+            android:title="@string/pref_away_when_screen_off" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="xa_on_silent_mode"
+            android:summary="@string/pref_xa_on_silent_mode_summary"
+            android:title="@string/pref_xa_on_silent_mode" />
+    </PreferenceScreen>
+
+    <PreferenceScreen
+        android:title="@string/pref_advanced_options"
+        android:icon="@android:drawable/ic_menu_manage">
         <ListPreference
-            android:defaultValue="FlowX"
+            android:defaultValue="Mobile"
             android:entries="@array/resources"
             android:entryValues="@array/resources"
             android:key="resource"
             android:summary="@string/pref_xmpp_resource_summary"
-            android:title="@string/pref_xmpp_resource" />	
-<ListPreference
+            android:title="@string/pref_xmpp_resource" />
+        <ListPreference
             android:defaultValue="9999485760"
             android:entries="@array/filesizes"
             android:entryValues="@array/filesizes_values"
@@ -138,20 +143,21 @@
             android:summary="@string/pref_accept_files_summary"
             android:title="@string/pref_accept_files" />
         <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="keep_foreground_service"
-                    android:title="@string/pref_keep_foreground_service"
-                    android:summary="@string/pref_keep_foreground_service_summary" />
+            android:defaultValue="true"
+            android:key="keep_foreground_service"
+            android:title="@string/pref_keep_foreground_service"
+            android:summary="@string/pref_keep_foreground_service_summary" />
         <CheckBoxPreference
-                            android:defaultValue="false"
-        android:key="use_tor"
-        android:title="@string/pref_use_tor"
-                            android:summary="@string/pref_use_tor_summary"/>
+            android:defaultValue="false"
+            android:key="use_tor"
+            android:title="@string/pref_use_tor"
+            android:summary="@string/pref_use_tor_summary" />
         <net.atomarea.flowx.ui.ExportLogsPreference
-                                        android:key="export_logs"
-                                        android:title="@string/pref_export_logs"
-                                        android:summary="@string/pref_export_logs_summary"/>
-        </PreferenceScreen>
-    <net.atomarea.flowx.ui.AboutPreference android:title="@string/title_activity_about"
-        android:icon="@android:drawable/ic_menu_help"/>
+            android:key="export_logs"
+            android:title="@string/pref_export_logs"
+            android:summary="@string/pref_export_logs_summary" />
+    </PreferenceScreen>
+    <net.atomarea.flowx.ui.AboutPreference
+        android:title="@string/title_activity_about"
+        android:icon="@android:drawable/ic_menu_help" />
 </PreferenceScreen>

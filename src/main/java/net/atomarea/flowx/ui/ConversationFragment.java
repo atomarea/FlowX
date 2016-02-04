@@ -45,7 +45,6 @@ import net.atomarea.flowx.entities.DownloadableFile;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.MucOptions;
 import net.atomarea.flowx.entities.Presence;
-import net.atomarea.flowx.entities.Presences;
 import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.entities.TransferablePlaceholder;
 import net.atomarea.flowx.services.XmppConnectionService;
@@ -863,8 +862,8 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                     showSnackbar(R.string.conference_kicked, R.string.join, joinMuc);
                     break;
                 case MucOptions.ERROR_UNKNOWN:
-                    					showSnackbar(R.string.conference_unknown_error, R.string.try_again, joinMuc);
-                    					break;
+                    showSnackbar(R.string.conference_unknown_error, R.string.try_again, joinMuc);
+                    break;
                 default:
                     break;
             }
@@ -1126,8 +1125,8 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                             return;
                         } else {
                             if (this.messageList.get(i).getStatus() == Message.STATUS_SEND_DISPLAYED) {
-                              //  this.messageList.add(i + 1,
-                               //         Message.createStatusMessage(conversation, getString(R.string.contact_has_read_up_to_this_point, conversation.getName())));
+                                //  this.messageList.add(i + 1,
+                                //         Message.createStatusMessage(conversation, getString(R.string.contact_has_read_up_to_this_point, conversation.getName())));
                                 //return;
                             }
                         }

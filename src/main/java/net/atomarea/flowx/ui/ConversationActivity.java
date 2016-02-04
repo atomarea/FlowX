@@ -70,7 +70,7 @@ import de.timroes.android.listview.EnhancedListView;
 import github.ankushsachdeva.emojicon.EmojiconTextView;
 
 public class ConversationActivity extends XmppActivity
-        implements OnAccountUpdate, OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast {
+        implements OnAccountUpdate, OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, View.OnClickListener {
 
     public static final String ACTION_DOWNLOAD = "net.atomarea.flowx.action.DOWNLOAD";
 
@@ -356,29 +356,32 @@ public class ConversationActivity extends XmppActivity
                 ab.setHomeButtonEnabled(true);
                 if (conversation.getMode() == Conversation.MODE_SINGLE || useSubjectToIdentifyConference()) {
                     ((EmojiconTextView) v.findViewById(R.id.title)).setText(conversation.getName());
+                    v.setOnClickListener(this);
                     if (conversation.getMode() == Conversation.MODE_SINGLE) {
                         ChatState state = conversation.getIncomingChatState();
                         if (state == ChatState.COMPOSING) {
                             ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(getString(R.string.contact_is_typing));
+                            v.setOnClickListener(this);
                         } else if (state == ChatState.PAUSED) {
                             ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(getString(R.string.contact_has_stopped_typing));
-                        } else{
+                            v.setOnClickListener(this);
+                        } else {
                             ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().lastseen.time));
                         }
-                    } else if (useSubjectToIdentifyConference()){
-                        ( (TextView) v.findViewById(R.id.subtitle_muc)).setText(conversation.getParticipants());
-                                            }
-                    } else {
-                        ab.setTitle(conversation.getJid().toBareJid().toString());
+                    } else if (useSubjectToIdentifyConference()) {
+                        ((TextView) v.findViewById(R.id.subtitle_muc)).setText(conversation.getParticipants());
                     }
                 } else {
-                    ab.setDisplayHomeAsUpEnabled(false);
-                ab.setHomeButtonEnabled(false);
-                    ((EmojiconTextView) v.findViewById(R.id.title)).setText(R.string.app_name);
-                    ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText("");
+                    ab.setTitle(conversation.getJid().toBareJid().toString());
                 }
+            } else {
+                ab.setDisplayHomeAsUpEnabled(false);
+                ab.setHomeButtonEnabled(false);
+                ((EmojiconTextView) v.findViewById(R.id.title2)).setText(R.string.app_name);
+                ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText("");
             }
         }
+    }
 
     private void openConversation() {
         this.updateActionBarTitle();
@@ -876,7 +879,7 @@ public class ConversationActivity extends XmppActivity
             MenuItem pgp = popup.getMenu().findItem(R.id.encryption_choice_pgp);
             MenuItem axolotl = popup.getMenu().findItem(R.id.encryption_choice_axolotl);
             pgp.setVisible(!Config.HIDE_PGP_IN_UI && !Config.X509_VERIFICATION);
-            none.setVisible(!Config.FORCE_E2E_ENCRYPTION || conversation.getMode() == Conversation.MODE_MULTI);
+            none.setVisible(!Config.FORCE_E2E_ENCRYPTION);
             if (conversation.getMode() == Conversation.MODE_MULTI) {
                 axolotl.setVisible(false);
             } else if (!conversation.getAccount().getAxolotlService().isContactAxolotlCapable(conversation.getContact())) {
@@ -1265,8 +1268,8 @@ public class ConversationActivity extends XmppActivity
     private static List<Uri> extractUriFromIntent(final Intent intent) {
         List<Uri> uris = new ArrayList<>();
         if (intent == null) {
-            			return uris;
-            		}
+            return uris;
+        }
         Uri uri = intent.getData();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && uri == null) {
             ClipData clipData = intent.getClipData();
@@ -1345,11 +1348,12 @@ public class ConversationActivity extends XmppActivity
             } else if (requestCode == REQUEST_TRUST_KEYS_TEXT || requestCode == REQUEST_TRUST_KEYS_MENU) {
                 this.forbidProcessingPendings = !xmppConnectionServiceBound;
                 if (xmppConnectionServiceBound) {
-                    					mConversationFragment.onActivityResult(requestCode, resultCode, data);
-                    					this.mPostponedActivityResult = null;
-                    				} else {
-                    					this.mPostponedActivityResult = new Pair<>(requestCode, data);
-                    				}            }
+                    mConversationFragment.onActivityResult(requestCode, resultCode, data);
+                    this.mPostponedActivityResult = null;
+                } else {
+                    this.mPostponedActivityResult = new Pair<>(requestCode, data);
+                }
+            }
         } else {
             mPendingImageUris.clear();
             mPendingFileUris.clear();
@@ -1419,7 +1423,7 @@ public class ConversationActivity extends XmppActivity
         if (conversation == null) {
             return;
         }
-        final Toast prepareFileToast = Toast.makeText(getApplicationContext(),getText(R.string.preparing_file), Toast.LENGTH_LONG);
+        final Toast prepareFileToast = Toast.makeText(getApplicationContext(), getText(R.string.preparing_file), Toast.LENGTH_LONG);
         prepareFileToast.show();
         xmppConnectionService.attachFileToConversation(conversation, uri, new UiCallback<Message>() {
             @Override
@@ -1445,14 +1449,14 @@ public class ConversationActivity extends XmppActivity
         if (conversation == null) {
             return;
         }
-        final Toast prepareFileToast = Toast.makeText(getApplicationContext(),getText(R.string.preparing_image), Toast.LENGTH_LONG);
+        final Toast prepareFileToast = Toast.makeText(getApplicationContext(), getText(R.string.preparing_image), Toast.LENGTH_LONG);
         prepareFileToast.show();
         xmppConnectionService.attachImageToConversation(conversation, uri,
                 new UiCallback<Message>() {
 
                     @Override
                     public void userInputRequried(PendingIntent pi, Message object) {
-                        						hidePrepareFileToast(prepareFileToast);
+                        hidePrepareFileToast(prepareFileToast);
                     }
 
 
@@ -1470,8 +1474,8 @@ public class ConversationActivity extends XmppActivity
                 });
     }
 
-    private void hidePrepareFileToast(final Toast prepareFileToast)
-    {        if (prepareFileToast != null) {
+    private void hidePrepareFileToast(final Toast prepareFileToast) {
+        if (prepareFileToast != null) {
             runOnUiThread(new Runnable() {
 
                 @Override
@@ -1542,11 +1546,11 @@ public class ConversationActivity extends XmppActivity
     protected boolean trustKeysIfNeeded(int requestCode, int attachmentChoice) {
         AxolotlService axolotlService = mSelectedConversation.getAccount().getAxolotlService();
         Contact contact = mSelectedConversation.getContact();
-        		boolean hasUndecidedOwn = !axolotlService.getKeysWithTrust(XmppAxolotlSession.Trust.UNDECIDED).isEmpty();
-        		boolean hasUndecidedContact = !axolotlService.getKeysWithTrust(XmppAxolotlSession.Trust.UNDECIDED,contact).isEmpty();
-        		boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(mSelectedConversation).isEmpty();
+        boolean hasUndecidedOwn = !axolotlService.getKeysWithTrust(XmppAxolotlSession.Trust.UNDECIDED).isEmpty();
+        boolean hasUndecidedContact = !axolotlService.getKeysWithTrust(XmppAxolotlSession.Trust.UNDECIDED, contact).isEmpty();
+        boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(mSelectedConversation).isEmpty();
         boolean hasNoTrustedKeys = axolotlService.getNumTrustedKeys(mSelectedConversation.getContact()) == 0;
-        if(hasUndecidedOwn || hasUndecidedContact || hasPendingKeys || hasNoTrustedKeys) {
+        if (hasUndecidedOwn || hasUndecidedContact || hasPendingKeys || hasNoTrustedKeys) {
             axolotlService.createSessionsIfNeeded(mSelectedConversation);
             Intent intent = new Intent(getApplicationContext(), TrustKeysActivity.class);
             intent.putExtra("contact", mSelectedConversation.getContact().getJid().toBareJid().toString());
@@ -1611,4 +1615,18 @@ public class ConversationActivity extends XmppActivity
     public boolean highlightSelectedConversations() {
         return !isConversationsOverviewHideable() || this.conversationWasSelectedByKeyboard;
     }
+    @Override
+    public void onClick(View view) {
+        final Conversation conversation = getSelectedConversation();
+        Log.e("Con","Clicked Title");
+        if (conversation.getMode() == Conversation.MODE_SINGLE) {
+            switchToContactDetails(getSelectedConversation().getContact());
+        } else if (conversation.getMode() == Conversation.MODE_MULTI) {
+            Intent intent = new Intent(this,
+                    ConferenceDetailsActivity.class);
+            intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
+            intent.putExtra("uuid", getSelectedConversation().getUuid());
+            startActivity(intent);
+        }
+}
 }

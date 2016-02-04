@@ -286,7 +286,7 @@
 	<string name="pref_about_conversations_summary">Build and licensing information</string>
 	<string name="pref_about_message" translatable="false">
 			FlowX • Instant Messenger.
-			\n\nCopyright © 2014-2015 Dominic Schubert | Steven Burghardt | Daniel Gultsch
+			\n\nCopyright © 2014-2016 Dominic Schubert | Steven Burghardt | Daniel Gultsch
 			\n\nThis program is free software: you can redistribute it and/or modify
 			it under the terms of the GNU General Public License as published by
 			the Free Software Foundation, either version 3 of the License, or
@@ -297,22 +297,7 @@
 			GNU General Public License for more details.
 			\n\nYou should have received a copy of the GNU General Public License
 			along with this program. If not, see https://www.gnu.org/licenses
-			\n\nDownload the full source code at https://github.com/siacs/Conversations
-			\n\n\nLibraries
-			\n\nhttps://www.bouncycastle.org\n(The MIT License (MIT))
-			\n\nhttps://www.gnu.org/software/libidn\n(Apache License, Version 2.0)
-			\n\nhttps://github.com/ge0rg/MemorizingTrustManager\n(The MIT License (MIT))
-			\n\nhttps://github.com/rtreffer/minidns\n(WTFPL)
-			\n\nhttps://github.com/open-keychain/openkeychain-api-lib\n(Apache License, Version 2.0)
-			\n\nhttps://github.com/jitsi/otr4j\n(LGPL-3.0)
-			\n\nhttps://developer.android.com/tools/support-library\n(Apache License, Version 2.0)
-			\n\nhttps://github.com/zxing/zxing\n(Apache License, Version 2.0)
-			\n\nhttps://github.com/google/material-design-icons\n(CC BY 4.0)
-			\n\nhttps://github.com/timroes/EnhancedListView\n(Apache License, Version 2.0)
-			\n\nhttps://github.com/leolin310148/ShortcutBadger\n(Apache License, Version 2.0)
-			\n\nhttps://github.com/kyleduo/SwitchButton\n(Apache License, Version 2.0)
-			\n\nhttps://github.com/WhisperSystems/libaxolotl-java\n(GPLv3)
-			\n\nhttps://github.com/vinc3m1/RoundedImageView\n(Apache License, Version 2.0)
+			\n\nDownload the full original source code at https://github.com/siacs/Conversations
 	</string>
 	<string name="title_pref_quiet_hours">Quiet Hours</string>
 	<string name="title_pref_quiet_hours_start_time">Start time</string>
@@ -589,6 +574,9 @@
 	<string name="pref_show_connection_options">Extended connection options</string>
 	<string name="pref_show_connection_options_summary">Show hostname and port options when setting up an account</string>
 	<string name="hostname_example">xmpp.example.com</string>
+	<string name="conference_unknown_error">Unknown error received</string>
+	<string name="pref_autojoin">Automatically join conferences</string>
+	<string name="pref_autojoin_summary">Respect the autojoin flag in conference bookmarks</string>
 	<plurals name="x_messages">
 		<item quantity="one">%d message</item>
 		<item quantity="other">%d messages</item>

@@ -20,6 +20,17 @@
         android:textStyle="bold" />
 
     <github.ankushsachdeva.emojicon.EmojiconTextView
+        android:id="@+id/title2"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="10dp"
+        android:gravity="center"
+        emojicon:emojiconSize="28sp"
+        android:textColor="@color/white"
+        android:textSize="21dp"
+        android:textStyle="bold" />
+
+    <github.ankushsachdeva.emojicon.EmojiconTextView
         android:id="@+id/subtitle"
         android:layout_below="@+id/title"
         android:layout_width="wrap_content"
