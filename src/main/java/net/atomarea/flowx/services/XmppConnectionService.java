@@ -31,6 +31,34 @@ import android.util.Log;
 import android.util.LruCache;
 import android.util.Pair;
 
+import net.java.otr4j.OtrException;
+import net.java.otr4j.session.Session;
+import net.java.otr4j.session.SessionID;
+import net.java.otr4j.session.SessionImpl;
+import net.java.otr4j.session.SessionStatus;
+
+import org.openintents.openpgp.IOpenPgpService2;
+import org.openintents.openpgp.util.OpenPgpApi;
+import org.openintents.openpgp.util.OpenPgpServiceConnection;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import de.duenndns.ssl.MemorizingTrustManager;
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.PgpEngine;
@@ -45,6 +73,7 @@ import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.MucOptions;
 import net.atomarea.flowx.entities.MucOptions.OnRenameListener;
 import net.atomarea.flowx.entities.Presence;
+import net.atomarea.flowx.entities.Presences;
 import net.atomarea.flowx.entities.Roster;
 import net.atomarea.flowx.entities.ServiceDiscoveryResult;
 import net.atomarea.flowx.entities.Transferable;
@@ -89,34 +118,6 @@ import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
 import net.atomarea.flowx.xmpp.stanzas.MessagePacket;
 import net.atomarea.flowx.xmpp.stanzas.PresencePacket;
-import net.java.otr4j.OtrException;
-import net.java.otr4j.session.Session;
-import net.java.otr4j.session.SessionID;
-import net.java.otr4j.session.SessionImpl;
-import net.java.otr4j.session.SessionStatus;
-
-import org.openintents.openpgp.IOpenPgpService2;
-import org.openintents.openpgp.util.OpenPgpApi;
-import org.openintents.openpgp.util.OpenPgpServiceConnection;
-
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import de.duenndns.ssl.MemorizingTrustManager;
 import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class XmppConnectionService extends Service implements OnPhoneContactsLoadedListener {
@@ -1214,6 +1215,8 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	public void loadMoreMessages(final Conversation conversation, final long timestamp, final OnMoreMessagesLoaded callback) {
 		if (XmppConnectionService.this.getMessageArchiveService().queryInProgress(conversation, callback)) {
 			return;
+		} else if (timestamp == 0) {
+			return;
 		}
 		Log.d(Config.LOGTAG, "load more messages for " + conversation.getName() + " prior to " + MessageGenerator.getTimestamp(timestamp));
 		Runnable runnable = new Runnable() {
@@ -1226,10 +1229,11 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 					checkDeletedFiles(conversation);
 					callback.onMoreMessagesLoaded(messages.size(), conversation);
 				} else if (conversation.hasMessagesLeftOnServer()
-						&& account.isOnlineAndConnected()) {
+						&& account.isOnlineAndConnected()
+						&& conversation.getLastClearHistory() == 0) {
 					if ((conversation.getMode() == Conversation.MODE_SINGLE && account.getXmppConnection().getFeatures().mam())
 							|| (conversation.getMode() == Conversation.MODE_MULTI && conversation.getMucOptions().mamSupport())) {
-						MessageArchiveService.Query query = getMessageArchiveService().query(conversation, 0, timestamp - 1);
+						MessageArchiveService.Query query = getMessageArchiveService().query(conversation, 0, timestamp);
 						if (query != null) {
 							query.setCallback(callback);
 						}
@@ -2910,6 +2914,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	public void clearConversationHistory(final Conversation conversation) {
 		conversation.clearMessages();
 		conversation.setHasMessagesLeftOnServer(false); //avoid messages getting loaded through mam
+		conversation.setLastClearHistory(System.currentTimeMillis());
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {

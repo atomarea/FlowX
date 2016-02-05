@@ -1615,10 +1615,17 @@ public class ConversationActivity extends XmppActivity
     public boolean highlightSelectedConversations() {
         return !isConversationsOverviewHideable() || this.conversationWasSelectedByKeyboard;
     }
+
+    public void setMessagesLoaded() {
+        if (mConversationFragment != null) {
+            mConversationFragment.setMessagesLoaded();
+        }
+    }
+
     @Override
     public void onClick(View view) {
         final Conversation conversation = getSelectedConversation();
-        Log.e("Con","Clicked Title");
+        Log.e("Con", "Clicked Title");
         if (conversation.getMode() == Conversation.MODE_SINGLE) {
             switchToContactDetails(getSelectedConversation().getContact());
         } else if (conversation.getMode() == Conversation.MODE_MULTI) {
@@ -1628,5 +1635,5 @@ public class ConversationActivity extends XmppActivity
             intent.putExtra("uuid", getSelectedConversation().getUuid());
             startActivity(intent);
         }
-}
+    }
 }
