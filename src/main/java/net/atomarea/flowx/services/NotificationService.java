@@ -531,49 +531,4 @@ public class NotificationService {
     private PendingIntent createOpenConversationsIntent() {
         return PendingIntent.getActivity(mXmppConnectionService, 0, new Intent(mXmppConnectionService, ConversationActivity.class), 0);
     }
-
-    public void updateErrorNotification() {
-        final NotificationManager mNotificationManager = (NotificationManager) mXmppConnectionService.getSystemService(Context.NOTIFICATION_SERVICE);
-        final List<Account> errors = new ArrayList<>();
-        for (final Account account : mXmppConnectionService.getAccounts()) {
-            if (account.hasErrorStatus()) {
-                errors.add(account);
-            }
-        }
-        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService);
-        if (errors.size() == 0) {
-            mNotificationManager.cancel(ERROR_NOTIFICATION_ID);
-            return;
-        } else if (errors.size() == 1) {
-            mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.problem_connecting_to_account));
-            mBuilder.setContentText(errors.get(0).getJid().toBareJid().toString());
-        } else {
-            mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.problem_connecting_to_accounts));
-            mBuilder.setContentText(mXmppConnectionService.getString(R.string.touch_to_fix));
-        }
-        mBuilder.addAction(R.drawable.ic_autorenew_white_24dp,
-                mXmppConnectionService.getString(R.string.try_again),
-                createTryAgainIntent());
-        if (errors.size() == 1) {
-            mBuilder.addAction(R.drawable.ic_block_white_24dp,
-                    mXmppConnectionService.getString(R.string.disable_account),
-                    createDisableAccountIntent(errors.get(0)));
-        }
-        mBuilder.setOngoing(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mBuilder.setSmallIcon(R.drawable.ic_warning_white_24dp);
-        } else {
-            mBuilder.setSmallIcon(R.drawable.ic_stat_alert_warning);
-        }
-        final TaskStackBuilder stackBuilder = TaskStackBuilder.create(mXmppConnectionService);
-        stackBuilder.addParentStack(ConversationActivity.class);
-
-        final Intent manageAccountsIntent = new Intent(mXmppConnectionService, ManageAccountActivity.class);
-        stackBuilder.addNextIntent(manageAccountsIntent);
-
-        final PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        mBuilder.setContentIntent(resultPendingIntent);
-        mNotificationManager.notify(ERROR_NOTIFICATION_ID, mBuilder.build());
-    }
 }
