@@ -316,7 +316,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 					scheduleWakeUpCall(next, account.getUuid().hashCode());
 				}
 			}
-			getNotificationService().updateErrorNotification();
+			getNotificationService();
 		}
 	};
 	private OpenPgpServiceConnection pgpServiceConnection;
@@ -1431,7 +1431,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		databaseBackend.updateAccount(account);
 		reconnectAccountInBackground(account);
 		updateAccountUi();
-		getNotificationService().updateErrorNotification();
+		getNotificationService();
 	}
 
 	public void updateAccountPasswordOnServer(final Account account, final String newPassword, final OnAccountPasswordChanged callback) {
@@ -1474,7 +1474,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 			mDatabaseExecutor.execute(runnable);
 			this.accounts.remove(account);
 			updateAccountUi();
-			getNotificationService().updateErrorNotification();
+			getNotificationService();
 		}
 	}
 
