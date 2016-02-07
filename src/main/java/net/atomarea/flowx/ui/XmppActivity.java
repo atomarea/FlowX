@@ -486,7 +486,7 @@ public abstract class XmppActivity extends Activity {
 		intent.putExtra("filter_contacts", contacts.toArray(new String[contacts.size()]));
 		intent.putExtra("conversation", conversation.getUuid());
 		intent.putExtra("multiple", true);
-		intent.putExtra("show_enter_jid", true);
+		intent.putExtra("show_enter_jid", false);
 		intent.putExtra(EXTRA_ACCOUNT, conversation.getAccount().getJid().toBareJid().toString());
 		startActivityForResult(intent, REQUEST_INVITE_TO_CONVERSATION);
 	}

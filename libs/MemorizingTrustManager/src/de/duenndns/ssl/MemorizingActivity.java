@@ -59,20 +59,9 @@ public class MemorizingActivity extends Activity
 		String cert = i.getStringExtra(MemorizingTrustManager.DECISION_INTENT_CERT);
 		LOGGER.log(Level.FINE, "onResume with " + i.getExtras() + " decId=" + decisionId + " data: " + i.getData());
 		dialog = new AlertDialog.Builder(this).setTitle(titleId)
-			.setMessage(cert)
 			.setPositiveButton(R.string.mtm_decision_always, this)
-			.setNeutralButton(R.string.mtm_decision_once, this)
-			.setNegativeButton(R.string.mtm_decision_abort, this)
-			.setOnCancelListener(this)
 			.create();
 		dialog.show();
-	}
-
-	@Override
-	protected void onPause() {
-		if (dialog.isShowing())
-			dialog.dismiss();
-		super.onPause();
 	}
 
 	void sendDecision(int decision) {
@@ -86,14 +75,8 @@ public class MemorizingActivity extends Activity
 		int decision;
 		dialog.dismiss();
 		switch (btnId) {
-		case DialogInterface.BUTTON_POSITIVE:
-			decision = MTMDecision.DECISION_ALWAYS;
-			break;
-		case DialogInterface.BUTTON_NEUTRAL:
-			decision = MTMDecision.DECISION_ONCE;
-			break;
 		default:
-			decision = MTMDecision.DECISION_ABORT;
+			decision = MTMDecision.DECISION_ALWAYS;
 		}
 		sendDecision(decision);
 	}
