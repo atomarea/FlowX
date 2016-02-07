@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:text="@string/your_account"
         android:textColor="@color/black87"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:textSize="?attr/TextSizeBody" />
 
     <Spinner

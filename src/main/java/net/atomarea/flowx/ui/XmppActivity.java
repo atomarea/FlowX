@@ -110,7 +110,6 @@ public abstract class XmppActivity extends Activity {
 	protected int mColorOrange;
 	protected int mColorGreen;
 	protected int mPrimaryColor;
-
 	protected boolean mUseSubject = true;
 
 	private DisplayMetrics metrics;
@@ -341,7 +340,11 @@ public abstract class XmppActivity extends Activity {
 				startActivity(new Intent(this, SettingsActivity.class));
 				break;
 			case R.id.action_accounts:
-				startActivity(new Intent(this, ManageAccountActivity.class));
+				final Intent intent = new Intent(getApplicationContext(), EditAccountActivity.class);
+				Account mAccount = xmppConnectionService.getAccounts().get(0);
+				intent.putExtra("jid", mAccount.getJid().toBareJid().toString());
+				intent.putExtra("init", false);
+				startActivity(intent);
 				break;
 			case android.R.id.home:
 				finish();
@@ -1010,7 +1013,7 @@ public abstract class XmppActivity extends Activity {
 		if (getPreferences().getBoolean("use_larger_font", true)) {
 			return R.style.ConversationsTheme_LargerText;
 		} else {
-			return R.style.ConversationsTheme;
+			return R.style.ConversationsTheme_LargerText;
 		}
 	}
 

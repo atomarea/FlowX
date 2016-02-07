@@ -12,8 +12,8 @@
     <string name="action_edit_contact">Name bearbeiten</string>
     <string name="action_add_phone_book">Zum Telefonbuch hinzufügen</string>
     <string name="action_delete_contact">Aus Kontaktliste entfernen</string>
-    <string name="action_block_contact">Kontakt sperren</string>
-    <string name="action_unblock_contact">Kontakt entsperren</string>
+    <string name="action_block_contact">Kontakt blockieren</string>
+    <string name="action_unblock_contact">Kontakt freigeben</string>
     <string name="action_block_domain">Domain sperren</string>
     <string name="action_unblock_domain">Domain entsperren</string>
     <string name="title_activity_manage_accounts">Mein Account</string>
@@ -23,7 +23,7 @@
     <string name="title_activity_sharewith">Mit Unterhaltung teilen</string>
     <string name="title_activity_start_conversation">Beginne Unterhaltung</string>
     <string name="title_activity_choose_contact">Kontakt auswählen</string>
-    <string name="title_activity_block_list">Sperrliste</string>
+    <string name="title_activity_block_list">Blacklist</string>
     <string name="just_now">gerade</string>
     <string name="minute_ago">vor einer Minute</string>
     <string name="minutes_ago">vor %d Minuten</string>
@@ -37,11 +37,11 @@
     <string name="participant">Teilnehmer</string>
     <string name="visitor">Besucher</string>
     <string name="remove_contact_text">Möchtest du den Benutzer von deiner Kontaktliste entfernen? Die Unterhaltung mit diesem Kontakt wird dabei nicht entfernt.</string>
-    <string name="block_contact_text">Möchtest du den Benutzer sperren und keine Nachrichten mehr erhalten?</string>
-    <string name="unblock_contact_text">Möchtest du den Benutzer entsperren und wieder Nachrichten empfangen?</string>
+    <string name="block_contact_text">Möchtest du den Benutzer blockieren und keine Nachrichten mehr erhalten?</string>
+    <string name="unblock_contact_text">Möchtest du den Benutzer freigeben und wieder Nachrichten empfangen?</string>
     <string name="block_domain_text">Sperre alle Kontakte von %s?</string>
     <string name="unblock_domain_text">Entsperre alle Kontakte %s?</string>
-    <string name="contact_blocked">Kontakt gesperrt</string>
+    <string name="contact_blocked">Kontakt blockiert</string>
     <string name="remove_bookmark_text">Möchtest du das Lesezeichen %s entfernen? Die Unterhaltung mit diesem Lesezeichen wird dabei nicht entfernt.</string>
     <string name="register_account">Account registrieren</string>
     <string name="share_with">Teile mit&#8230;</string>
@@ -53,8 +53,8 @@
     <string name="add">Hinzufügen</string>
     <string name="edit">Bearbeiten</string>
     <string name="delete">Entfernen</string>
-    <string name="block">Sperren</string>
-    <string name="unblock">Entsperren</string>
+    <string name="block">Blockieren</string>
+    <string name="unblock">Freigeben</string>
     <string name="save">Speichern</string>
     <string name="ok">OK</string>
     <string name="crash_report_title">FlowX ist abgestürzt</string>
@@ -204,7 +204,7 @@
     <string name="last_seen_hours">vor %d Stunden gesehen</string>
     <string name="last_seen_day">vor einem Tag gesehen</string>
     <string name="last_seen_days">vor %d Tagen gesehen</string>
-    <string name="never_seen">noch nie gesehen</string>
+    <string name="never_seen">Offline</string>
     <string name="install_openkeychain">Verschlüsselte Nachricht. Bitte installiere OpenKeychain zur Entschlüsselung.</string>
     <string name="unknown_otr_fingerprint">Unbekannter OTR-Fingerabdruck</string>
     <string name="openpgp_messages_found">Verschlüsselte OpenPGP-Nachricht gefunden</string>
@@ -219,8 +219,8 @@
     <string name="join_conference">Gruppe beitreten</string>
     <string name="delete_contact">Kontakt löschen</string>
     <string name="view_contact_details">Kontaktdetails anzeigen</string>
-    <string name="block_contact">Kontakt sperren</string>
-    <string name="unblock_contact">Kontakte entsperren</string>
+    <string name="block_contact">Kontakt blockieren</string>
+    <string name="unblock_contact">Kontakte freigeben</string>
     <string name="create">Hinzufügen</string>
     <string name="contact_already_exists">Der Kontakt existiert bereits</string>
     <string name="join">Beitreten</string>
@@ -251,7 +251,7 @@
     <string name="connect">Verbinden</string>
     <string name="account_already_exists">Das Account existiert bereits</string>
     <string name="next">Weiter</string>
-    <string name="server_info_session_established">Aktuelle Sitzung wiederhergestellt</string>
+    <string name="server_info_session_established">Verbindungsabfrage</string>
     <string name="additional_information">Zusätzliche Informationen</string>
     <string name="skip">Überspringen</string>
     <string name="disable_notifications">Benachrichtigungen abschalten</string>
@@ -283,8 +283,8 @@
     <string name="title_pref_quiet_hours_end_time">Ende</string>
     <string name="title_pref_enable_quiet_hours">Aktiviere ruhige Stunden</string>
     <string name="pref_quiet_hours_summary">Benachrichtigungen sind während der ruhigen Stunden stumm.</string>
-    <string name="pref_use_larger_font">Schrift vergrößern</string>
-    <string name="pref_use_larger_font_summary">Größere Schrift verwenden</string>
+    <string name="pref_use_larger_font">Schrift verkleinern</string>
+    <string name="pref_use_larger_font_summary">Kleinere Schrift verwenden</string>
     <string name="pref_use_send_button_to_indicate_status">Absende-Knopf zeigt Online-Status an</string>
     <string name="pref_use_send_button_to_indicate_status_summary">Absende-Knopf einfärben, um den Online-Status des Kontakts zu signalisieren</string>
     <string name="pref_use_indicate_received">Anfrage für Nachrichten Empfang</string>
@@ -312,8 +312,8 @@
   <string name="image_transmission_failed">Bild-Übertragung fehlgeschlagen</string>
   <string name="scan_qr_code">Scanne QR-Code</string>
   <string name="show_qr_code">QR-Code</string>
-  <string name="show_block_list">Zeige Sperrliste</string>
-  <string name="account_details">Zugangsdaten</string>
+  <string name="show_block_list">Blacklist</string>
+  <string name="account_details">Mein Account</string>
   <string name="verify_otr">Prüfe OTR</string>
   <string name="remote_fingerprint">Fingerabdruck der Gegenseite</string>
   <string name="scan">Scanne</string>
@@ -515,4 +515,6 @@
     <string name="select">Auswählen</string>
     <string name="enter_contact">Kontakt eingeben</string>
     <string name="selection_too_large">Die Markierung ist zu groß</string>
+    <string name="check_x_filesize">%s annehmen</string>
+
 </resources>

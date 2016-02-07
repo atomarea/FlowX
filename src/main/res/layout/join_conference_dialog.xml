@@ -47,6 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:checked="true"
+        android:visibility="gone"
         android:text="@string/save_as_bookmark" />
 
 </LinearLayout>

@@ -49,23 +49,6 @@
     </PreferenceScreen>
 
     <PreferenceScreen
-        android:title="@string/pref_ui_options"
-        android:icon="@android:drawable/ic_menu_gallery">
-
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="use_subject"
-            android:summary="@string/pref_conference_name_summary"
-            android:title="@string/pref_conference_name" />
-        <CheckBoxPreference
-            android:enabled="true"
-            android:defaultValue="true"
-            android:key="use_larger_font"
-            android:summary="@string/pref_use_larger_font_summary"
-            android:title="@string/pref_use_larger_font" />
-    </PreferenceScreen>
-
-    <PreferenceScreen
         android:title="@string/pref_input_options"
         android:icon="@android:drawable/ic_menu_edit">
 
@@ -74,11 +57,6 @@
             android:key="enter_is_send"
             android:title="@string/pref_enter_is_send"
             android:summary="@string/pref_enter_is_send_summary" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="display_enter_key"
-            android:title="@string/pref_display_enter_key"
-            android:summary="@string/pref_display_enter_key_summary" />
         <ListPreference
             android:key="quick_action"
             android:defaultValue="voice"

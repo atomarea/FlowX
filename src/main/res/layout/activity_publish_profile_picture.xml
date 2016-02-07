@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey50" >
+    android:background="@color/grey50">
 
     <LinearLayout
         android:id="@+id/account_image_wrapper"
@@ -13,11 +13,12 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="8dp"
         android:layout_marginTop="24dp">
-               <com.makeramen.roundedimageview.RoundedImageView
+
+        <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/account_image"
-            android:layout_width="180dp"
-            android:layout_height="180dp"         
-app:riv_corner_radius="100dp" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:riv_corner_radius="300dp" />
 
     </LinearLayout>
 
@@ -45,7 +46,7 @@ app:riv_corner_radius="100dp" />
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true" >
+        android:layout_alignParentRight="true">
 
         <Button
             android:id="@+id/cancel_button"
@@ -84,14 +85,14 @@ app:riv_corner_radius="100dp" />
         android:gravity="center_vertical"
         android:orientation="vertical"
         android:paddingLeft="8dp"
-        android:paddingRight="8dp" >
+        android:paddingRight="8dp">
 
         <TextView
             android:id="@+id/account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black87"
- android:visibility="gone"
+            android:visibility="gone"
             android:textSize="?attr/TextSizeHeadline" />
 
         <TextView
@@ -100,7 +101,7 @@ app:riv_corner_radius="100dp" />
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:minLines="3"
- android:visibility="gone"
+            android:visibility="gone"
             android:text="@string/publish_avatar_explanation"
             android:textColor="@color/black87"
             android:textSize="?attr/TextSizeBody" />

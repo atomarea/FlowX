@@ -524,13 +524,6 @@ public class NotificationService {
         mBuilder.setContentIntent(createOpenConversationsIntent());
         mBuilder.setWhen(0);
         mBuilder.setPriority(NotificationCompat.PRIORITY_MIN);
-        final int cancelIcon;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mBuilder.setCategory(Notification.CATEGORY_SERVICE);
-            cancelIcon = R.drawable.ic_cancel_white_24dp;
-        } else {
-            cancelIcon = R.drawable.ic_action_cancel;
-        }
         mBuilder.setSmallIcon(R.drawable.ic_link_white_24dp);
         return mBuilder.build();
     }
@@ -567,7 +560,6 @@ public class NotificationService {
                     createDisableAccountIntent(errors.get(0)));
         }
         mBuilder.setOngoing(true);
-        //mBuilder.setLights(0xffffffff, 2000, 4000);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mBuilder.setSmallIcon(R.drawable.ic_warning_white_24dp);
         } else {

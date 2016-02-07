@@ -1,8 +1,10 @@
 package net.atomarea.flowx.ui;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -563,6 +565,20 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 				mMoreTable.setVisibility(item.isChecked() ? View.GONE : View.VISIBLE);
 				item.setChecked(!item.isChecked());
 				break;
+			case R.id.action_PublishProfilePictureActivity:
+					final Intent intent = new Intent(getApplicationContext(), PublishProfilePictureActivity.class);
+					intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toBareJid().toString());
+					startActivity(intent);
+				break;
+			case R.id.action_restart:
+				if (xmppConnectionServiceBound) {
+					unbindService(mConnection);
+					xmppConnectionServiceBound = false;
+				}
+				stopService(new Intent(EditAccountActivity.this,
+						XmppConnectionService.class));
+				finish();
+			break;
 			case R.id.action_change_password_on_server:
 				final Intent changePasswordIntent = new Intent(this, ChangePasswordActivity.class);
 				changePasswordIntent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toString());

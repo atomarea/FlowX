@@ -178,7 +178,7 @@ public class PublishProfilePictureActivity extends XmppActivity {
 						source = Uri.parse("file://"+original);
 					}
 					Uri destination = Uri.fromFile(new File(getCacheDir(), "croppedAvatar"));
-					final int size = getPixel(192);
+					final int size = getPixel(300);
 					Crop.of(source, destination).asSquare().withMaxSize(size, size).start(this);
 					break;
 				case Crop.REQUEST_CROP:
@@ -206,7 +206,7 @@ public class PublishProfilePictureActivity extends XmppActivity {
 			if (this.avatarUri == null) {
 				if (this.account.getAvatar() != null
 						|| this.defaultUri == null) {
-					this.avatar.setImageBitmap(avatarService().get(account, getPixel(192)));
+					this.avatar.setImageBitmap(avatarService().get(account, getPixel(300)));
 					if (this.defaultUri != null) {
 						this.avatar
 								.setOnLongClickListener(this.backToDefaultListener);
@@ -262,7 +262,7 @@ public class PublishProfilePictureActivity extends XmppActivity {
 	protected void loadImageIntoPreview(Uri uri) {
 		Bitmap bm = null;
 		try {
-			bm = loadScaledBitmap(uri, getPixel(192));
+			bm = loadScaledBitmap(uri, getPixel(300));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
