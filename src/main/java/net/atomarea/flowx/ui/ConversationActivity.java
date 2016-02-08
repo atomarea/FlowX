@@ -35,7 +35,6 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import net.atomarea.flowx.Config;
@@ -495,7 +494,8 @@ public class ConversationActivity extends XmppActivity
                             if (hasMicPerm == PackageManager.PERMISSION_GRANTED) {
                                 intent.setAction(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
                                 intent.setPackage("net.atomarea.flowx");
-                            } else Toast.makeText(getApplicationContext(), "No perm 4 mic... -> change in settings of phone", Toast.LENGTH_SHORT).show(); // TODO: !Txt in strings.xml
+                            } else
+                                Toast.makeText(getApplicationContext(), "No perm 4 mic... -> change in settings of phone", Toast.LENGTH_SHORT).show(); // TODO: !Txt in strings.xml
                         } else {
                             intent.setAction(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
                             intent.setPackage("net.atomarea.flowx");
@@ -847,75 +847,21 @@ public class ConversationActivity extends XmppActivity
         if (menuItemView == null) {
             return;
         }
-        PopupMenu popup = new PopupMenu(this, menuItemView);
+        if (conversation.getNextEncryption() == Message.ENCRYPTION_NONE) {
+            Log.d(Config.LOGTAG, AxolotlService.getLogprefix(conversation.getAccount())
+                    + "Enabled axolotl for Contact " + conversation.getContact().getJid());
+            conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL);
+        } else if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL) {
+            Log.d(Config.LOGTAG, AxolotlService.getLogprefix(conversation.getAccount())
+                    + "Disabled axolotl (enabled none) for Contact " + conversation.getContact().getJid());
+            conversation.setNextEncryption(Message.ENCRYPTION_NONE);
+        }
         final ConversationFragment fragment = (ConversationFragment) getFragmentManager()
                 .findFragmentByTag("conversation");
-        if (fragment != null) {
-            popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    switch (item.getItemId()) {
-                        case R.id.encryption_choice_none:
-                            conversation.setNextEncryption(Message.ENCRYPTION_NONE);
-                            item.setChecked(true);
-                            break;
-                        case R.id.encryption_choice_pgp:
-                            if (hasPgp()) {
-                                if (conversation.getAccount().getPgpSignature() != null) {
-                                    conversation.setNextEncryption(Message.ENCRYPTION_PGP);
-                                    item.setChecked(true);
-                                } else {
-                                    announcePgp(conversation.getAccount(), conversation);
-                                }
-                            } else {
-                                showInstallPgpDialog();
-                            }
-                            break;
-                        case R.id.encryption_choice_axolotl:
-                            Log.d(Config.LOGTAG, AxolotlService.getLogprefix(conversation.getAccount())
-                                    + "Enabled axolotl for Contact " + conversation.getContact().getJid());
-                            conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL);
-                            item.setChecked(true);
-                            break;
-                        default:
-                            conversation.setNextEncryption(Message.ENCRYPTION_NONE);
-                            break;
-                    }
-                    xmppConnectionService.databaseBackend.updateConversation(conversation);
-                    fragment.updateChatMsgHint();
-                    invalidateOptionsMenu();
-                    refreshUi();
-                    return true;
-                }
-            });
-            popup.inflate(R.menu.encryption_choices);
-            MenuItem none = popup.getMenu().findItem(R.id.encryption_choice_none);
-            MenuItem pgp = popup.getMenu().findItem(R.id.encryption_choice_pgp);
-            MenuItem axolotl = popup.getMenu().findItem(R.id.encryption_choice_axolotl);
-            pgp.setVisible(false); // !Config.HIDE_PGP_IN_UI && !Config.X509_VERIFICATION <- eigtl Sinnfrei, ändert sich nicht
-            none.setVisible(true); // !Config.FORCE_E2E_ENCRYPTION <- eigtl Sinnfrei, ändert sich nicht
-            if (conversation.getMode() == Conversation.MODE_MULTI) {
-                axolotl.setVisible(false);
-            } else if (!conversation.getAccount().getAxolotlService().isContactAxolotlCapable(conversation.getContact())) {
-                axolotl.setEnabled(false);
-            }
-            switch (conversation.getNextEncryption()) {
-                case Message.ENCRYPTION_NONE:
-                    none.setChecked(true);
-                    break;
-                case Message.ENCRYPTION_PGP:
-                    pgp.setChecked(true);
-                    break;
-                case Message.ENCRYPTION_AXOLOTL:
-                    axolotl.setChecked(true);
-                    break;
-                default:
-                    none.setChecked(true);
-                    break;
-            }
-            popup.show();
-        }
+        xmppConnectionService.databaseBackend.updateConversation(conversation);
+        fragment.updateChatMsgHint();
+        invalidateOptionsMenu();
+        refreshUi();
     }
 
     protected void muteConversationDialog(final Conversation conversation) {
