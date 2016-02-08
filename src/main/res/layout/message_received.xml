@@ -54,8 +54,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:autoLink="all"
-                android:textColorLink="@color/white"
-                android:textColor="@color/white"
+                android:textColorLink="@color/black12"
+                android:textColor="@color/black12"
 		        android:textColorHighlight="@color/grey800"
 		        emojicon:emojiconSize="25sp"
                 android:textSize="?attr/TextSizeBody" />

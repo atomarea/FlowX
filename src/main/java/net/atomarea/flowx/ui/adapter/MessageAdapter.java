@@ -569,7 +569,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         if (viewHolder == null) return view;
 
-        boolean darkBackground = (type == RECEIVED && (!isInValidSession));
+        boolean darkBackground = (type == RECEIVED);
 
         if (type == STATUS) {
             if ("LOAD_MORE".equals(message.getBody())) {
