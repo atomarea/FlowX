@@ -75,8 +75,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import de.timroes.android.listview.EnhancedListView;
 import github.ankushsachdeva.emojicon.EmojiconTextView;
 
-public class ConversationActivity extends XmppActivity
-        implements OnAccountUpdate, OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, View.OnClickListener {
+public class ConversationActivity extends XmppActivity implements OnAccountUpdate, OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, View.OnClickListener {
 
     public static final String ACTION_DOWNLOAD = "net.atomarea.flowx.action.DOWNLOAD";
 
@@ -128,11 +127,11 @@ public class ConversationActivity extends XmppActivity
     private Pair<Integer, Intent> mPostponedActivityResult;
 
     public Conversation getSelectedConversation() {
-        return this.mSelectedConversation;
+        return mSelectedConversation;
     }
 
     public void setSelectedConversation(Conversation conversation) {
-        this.mSelectedConversation = conversation;
+        mSelectedConversation = conversation;
     }
 
     public void showConversationsOverview() {
@@ -160,7 +159,7 @@ public class ConversationActivity extends XmppActivity
     }
 
     public boolean isConversationsOverviewHideable() {
-        return (mContentView instanceof SlidingPaneLayout); // besser zu lesen und einfacher
+        return (mContentView instanceof SlidingPaneLayout);
     }
 
     public boolean isConversationsOverviewVisable() {
@@ -374,7 +373,7 @@ public class ConversationActivity extends XmppActivity
                             ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().lastseen.time));
                         }
                     } else if (useSubjectToIdentifyConference()) {
-                        ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(conversation.getParticipants());
+                        ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText((conversation.getParticipants() == null ? "none" : conversation.getParticipants()));
                     }
                 } else {
                     ab.setTitle(conversation.getJid().toBareJid().toString());
@@ -389,8 +388,8 @@ public class ConversationActivity extends XmppActivity
     }
 
     private void openConversation() {
-        this.updateActionBarTitle();
-        this.invalidateOptionsMenu();
+        updateActionBarTitle();
+        invalidateOptionsMenu();
         if (xmppConnectionServiceBound) {
             final Conversation conversation = getSelectedConversation();
             xmppConnectionService.getNotificationService().setOpenConversation(conversation);
