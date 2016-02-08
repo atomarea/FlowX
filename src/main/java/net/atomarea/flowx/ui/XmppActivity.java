@@ -39,6 +39,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -88,7 +89,7 @@ import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 
-public abstract class XmppActivity extends Activity {
+public abstract class XmppActivity extends FragmentActivity {
 
 	protected static final int REQUEST_ANNOUNCE_PGP = 0x0101;
 	protected static final int REQUEST_INVITE_TO_CONVERSATION = 0x0102;

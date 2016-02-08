@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SlidingPaneLayout.PanelSlideListener;
 import android.util.Log;
@@ -36,6 +37,10 @@ import android.widget.CheckBox;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.Toast;
+
+import com.yalantis.contextmenu.lib.ContextMenuDialogFragment;
+import com.yalantis.contextmenu.lib.MenuObject;
+import com.yalantis.contextmenu.lib.MenuParams;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
@@ -772,7 +777,50 @@ public class ConversationActivity extends XmppActivity
         if (menuAttachFile == null) {
             return;
         }
-        PopupMenu attachFilePopup = new PopupMenu(this, menuAttachFile);
+        List<MenuObject> lst = new ArrayList<>();
+        lst.add(new MenuObject());
+        lst.get(0).setResource(android.R.drawable.ic_menu_close_clear_cancel);
+        lst.add(new MenuObject("Choose Image"));
+        lst.get(1).setResource(R.drawable.ic_send_photo_online);
+        lst.add(new MenuObject("Take Photo"));
+        lst.get(2).setResource(R.drawable.ic_send_photo_online);
+        lst.add(new MenuObject("Choose File"));
+        lst.get(3).setResource(R.drawable.ic_attach_file_white_24dp);
+        lst.add(new MenuObject("Record Voice"));
+        lst.get(4).setResource(R.drawable.ic_send_voice_online);
+        if (new Intent("net.atomarea.flowx.location.request").resolveActivity(getPackageManager()) == null) {
+            lst.add(new MenuObject("Choose Location"));
+            lst.get(5).setResource(R.drawable.ic_send_location_online);
+        }
+        MenuParams mp = new MenuParams();
+        if (getActionBar() != null) mp.setActionBarSize(getActionBar().getHeight());
+        mp.setMenuObjects(lst);
+        mp.setClosableOutside(true);
+        ContextMenuDialogFragment cmdf = ContextMenuDialogFragment.newInstance(mp);
+        cmdf.setItemClickListener(new com.yalantis.contextmenu.lib.interfaces.OnMenuItemClickListener() {
+            @Override
+            public void onMenuItemClick(View clickedView, int position) {
+                switch (position) {
+                    case 1:
+                        attachFile(ATTACHMENT_CHOICE_CHOOSE_IMAGE);
+                        break;
+                    case 2:
+                        attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
+                        break;
+                    case 3:
+                        attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
+                        break;
+                    case 4:
+                        attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
+                        break;
+                    case 5:
+                        attachFile(ATTACHMENT_CHOICE_LOCATION);
+                        break;
+                }
+            }
+        });
+        cmdf.show(getSupportFragmentManager(), "CMDF");
+        /*PopupMenu attachFilePopup = new PopupMenu(this, menuAttachFile);
         attachFilePopup.inflate(R.menu.attachment_choices);
         if (new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION).resolveActivity(getPackageManager()) == null) {
             attachFilePopup.getMenu().findItem(R.id.attach_record_voice).setVisible(false);
@@ -804,7 +852,7 @@ public class ConversationActivity extends XmppActivity
                 return false;
             }
         });
-        attachFilePopup.show();
+        attachFilePopup.show();*/
     }
 
     public void verifyOtrSessionDialog(final Conversation conversation, View view) {
