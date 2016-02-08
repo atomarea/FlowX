@@ -788,7 +788,7 @@ public class ConversationActivity extends XmppActivity
         lst.get(3).setResource(R.drawable.ic_attach_file_white_24dp);
         lst.add(new MenuObject("Record Voice"));
         lst.get(4).setResource(R.drawable.ic_send_voice_online);
-        if (new Intent("net.atomarea.flowx.location.request").resolveActivity(getPackageManager()) == null) {
+        if (!(new Intent("net.atomarea.flowx.location.request").resolveActivity(getPackageManager()) == null)) {
             lst.add(new MenuObject("Choose Location"));
             lst.get(5).setResource(R.drawable.ic_send_location_online);
         }
