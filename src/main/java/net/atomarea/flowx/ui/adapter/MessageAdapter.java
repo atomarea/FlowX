@@ -34,9 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
-import com.beardedhen.androidbootstrap.BootstrapLabel;
 import com.beardedhen.androidbootstrap.BootstrapProgressBar;
-import com.beardedhen.androidbootstrap.api.attributes.BootstrapBrand;
 import com.beardedhen.androidbootstrap.api.defaults.DefaultBootstrapBrand;
 
 import net.atomarea.flowx.R;
@@ -254,14 +252,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.download_button.setVisibility(View.GONE);
         }
         viewHolder.image.setVisibility(View.GONE);
+        if (viewHolder.pbFile != null) viewHolder.pbFile.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.VISIBLE);
         viewHolder.messageBody.setText(text);
         viewHolder.messageBody.setTextColor(getMessageTextColor(darkBackground, false));
         viewHolder.messageBody.setTypeface(null, Typeface.ITALIC);
         viewHolder.messageBody.setTextIsSelectable(false);
     }
-
-    BootstrapProgressBar pbFile = null;
 
     private void displayProgressBar(ViewHolder viewHolder, int progress, boolean darkBackground) {
         viewHolder.aw_player.setVisibility(View.GONE);
@@ -270,12 +267,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         viewHolder.image.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.GONE);
-        if (pbFile == null) {
-            pbFile = new BootstrapProgressBar(getContext());
-            pbFile.setBootstrapBrand(DefaultBootstrapBrand.WARNING);
-            ((ViewGroup) viewHolder.messageBody.getParent()).addView(pbFile);
+        if (viewHolder.pbFile == null) {
+            viewHolder.pbFile = new BootstrapProgressBar(getContext());
+            viewHolder.pbFile.setBootstrapBrand(DefaultBootstrapBrand.PRIMARY);
+            ((ViewGroup) viewHolder.messageBody.getParent()).addView(viewHolder.pbFile);
         }
-        pbFile.setProgress(progress);
+        viewHolder.pbFile.setProgress(progress);
+        viewHolder.pbFile.setVisibility(View.VISIBLE);
     }
 
     private void displayDecryptionFailed(ViewHolder viewHolder, boolean darkBackground) {
@@ -284,6 +282,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.download_button.setVisibility(View.GONE);
         }
         viewHolder.image.setVisibility(View.GONE);
+        if (viewHolder.pbFile != null) viewHolder.pbFile.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.VISIBLE);
         viewHolder.messageBody.setText(getContext().getString(
                 R.string.decryption_failed));
@@ -299,6 +298,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         viewHolder.image.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.VISIBLE);
+        if (viewHolder.pbFile != null) viewHolder.pbFile.setVisibility(View.GONE);
         viewHolder.messageBody.setIncludeFontPadding(false);
         Spannable span = new SpannableString(body);
         span.setSpan(new RelativeSizeSpan(4.0f), 0, body.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -313,6 +313,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.download_button.setVisibility(View.GONE);
         }
         viewHolder.image.setVisibility(View.GONE);
+        if (viewHolder.pbFile != null) viewHolder.pbFile.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.VISIBLE);
         viewHolder.messageBody.setIncludeFontPadding(true);
         if (message.getBody() != null) {
@@ -405,6 +406,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.image.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.GONE);
         viewHolder.download_button.setVisibility(View.GONE);
+        if (viewHolder.pbFile != null) viewHolder.pbFile.setVisibility(View.GONE);
         viewHolder.aw_player.setVisibility(View.VISIBLE); // Hier kommt der Player rein
         Uri audioFile = Uri.fromFile(activity.xmppConnectionService.getFileBackend().getFile(message)); // Uri von der Datei
         LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE); // LayoutInflater, whs optional
@@ -418,6 +420,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.aw_player.setVisibility(View.GONE);
         viewHolder.image.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.GONE);
+        if (viewHolder.pbFile != null) viewHolder.pbFile.setVisibility(View.GONE);
         viewHolder.download_button.setVisibility(View.VISIBLE);
         viewHolder.download_button.setText(activity.getString(R.string.open_x_file, UIHelper.getFileDescriptionString(activity, message)));
         viewHolder.download_button.setOnClickListener(new OnClickListener() {
@@ -434,6 +437,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.aw_player.setVisibility(View.GONE);
         viewHolder.image.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.GONE);
+        if (viewHolder.pbFile != null) viewHolder.pbFile.setVisibility(View.GONE);
         viewHolder.download_button.setVisibility(View.VISIBLE);
         viewHolder.download_button.setText(R.string.show_location);
         viewHolder.download_button.setOnClickListener(new OnClickListener() {
@@ -454,6 +458,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         viewHolder.messageBody.setVisibility(View.GONE);
         viewHolder.image.setVisibility(View.VISIBLE);
+        if (viewHolder.pbFile != null) viewHolder.pbFile.setVisibility(View.GONE);
         FileParams params = message.getFileParams();
         double target = metrics.density * 288;
         int scalledW;
@@ -631,7 +636,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             } else if (transferable.getStatus() == Transferable.STATUS_OFFER_CHECK_FILESIZE) {
                 displayDownloadableMessage(viewHolder, message, activity.getString(R.string.check_x_filesize, UIHelper.getFileDescriptionString(activity, message)));
             } else {
-                String msg = UIHelper.getMessagePreview(activity, message).first;//ZUM SUCHEN!
+                String msg = UIHelper.getMessagePreview(activity, message).first;
                 if (msg.startsWith("prg")) {
                     int progress = Integer.parseInt(msg.split(":")[1]);
                     Log.i("TEST!", "" + progress);
@@ -681,6 +686,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
         if (type == RECEIVED) {
+
             if (isInValidSession) {
                 if (mUseWhiteBackground) {
                     viewHolder.message_box.setBackgroundResource(R.drawable.message_bubble_received_white);
@@ -763,6 +769,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         protected TextView messageBody;
         protected ImageView contact_picture;
         protected TextView status_message;
+
+        public BootstrapProgressBar pbFile;
     }
 
     class BitmapWorkerTask extends AsyncTask<Message, Void, Bitmap> {
