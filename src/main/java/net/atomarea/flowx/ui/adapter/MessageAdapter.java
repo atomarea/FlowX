@@ -407,13 +407,14 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.messageBody.setVisibility(View.GONE);
         viewHolder.download_button.setVisibility(View.GONE);
         if (viewHolder.pbFile != null) viewHolder.pbFile.setVisibility(View.GONE);
-        viewHolder.aw_player.setVisibility(View.VISIBLE); // Hier kommt der Player rein
-        Uri audioFile = Uri.fromFile(activity.xmppConnectionService.getFileBackend().getFile(message)); // Uri von der Datei
-        LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE); // LayoutInflater, whs optional
-
-        AudioWife audioWife = new AudioWife();
-        audioWife.init(getContext(), audioFile)
-                .useDefaultUi(viewHolder.aw_player, layoutInflater);
+        viewHolder.aw_player.setVisibility(View.VISIBLE);
+        if (viewHolder.aw_player.getChildCount() == 0) {
+            viewHolder.aw_player.removeAllViews();
+            Uri audioFile = Uri.fromFile(activity.xmppConnectionService.getFileBackend().getFile(message));
+            LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            AudioWife audioWife = new AudioWife();
+            audioWife.init(getContext(), audioFile).useDefaultUi(viewHolder.aw_player, layoutInflater);
+        }
     }
 
     private void displayOpenableMessage(ViewHolder viewHolder, final Message message) {
@@ -499,6 +500,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     @Override
     public View getView(int position, View view, ViewGroup parent) {
+        //Log.i("VIEW", "Update "+position);
         final Message message = getItem(position);
         final boolean isInValidSession = message.isValidInSession();
         final Conversation conversation = message.getConversation();
