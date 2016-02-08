@@ -779,15 +779,15 @@ public class ConversationActivity extends XmppActivity
         }
         List<MenuObject> lst = new ArrayList<>();
         lst.add(new MenuObject());
-        lst.get(0).setResource(android.R.drawable.ic_menu_close_clear_cancel);
+        lst.get(0).setResource(R.drawable.ic_send_cancel_offline);
         lst.add(new MenuObject(getResources().getString(R.string.attach_choose_picture)));
-        lst.get(1).setResource(R.drawable.ic_send_photo_online);
+        lst.get(1).setResource(R.drawable.ic_send_picture_offline);
         lst.add(new MenuObject(getResources().getString(R.string.attach_take_picture)));
-        lst.get(2).setResource(R.drawable.ic_send_photo_online);
+        lst.get(2).setResource(R.drawable.ic_send_photo_offline);
         lst.add(new MenuObject(getResources().getString(R.string.attach_file)));
-        lst.get(3).setResource(R.drawable.ic_attach_file_white_24dp);
+        lst.get(3).setResource(R.drawable.ic_send_file_offline);
         lst.add(new MenuObject(getResources().getString(R.string.attach_record_voice)));
-        lst.get(4).setResource(R.drawable.ic_send_voice_online);
+        lst.get(4).setResource(R.drawable.ic_send_voice_offline);
         if (!(new Intent("net.atomarea.flowx.location.request").resolveActivity(getPackageManager()) == null)) {
             lst.add(new MenuObject(getResources().getString(R.string.send_location)));
             lst.get(5).setResource(R.drawable.ic_send_location_online);
