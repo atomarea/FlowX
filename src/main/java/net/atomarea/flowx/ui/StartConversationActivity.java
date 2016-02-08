@@ -44,6 +44,7 @@ import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -389,8 +390,7 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 		builder.setTitle(R.string.join_conference);
 		final View dialogView = getLayoutInflater().inflate(R.layout.join_conference_dialog, null);
 		final Spinner spinner = (Spinner) dialogView.findViewById(R.id.account);
-		final AutoCompleteTextView jid = (AutoCompleteTextView) dialogView.findViewById(R.id.jid);
-		jid.setAdapter(new KnownHostsAdapter(this, android.R.layout.simple_list_item_1, mKnownConferenceHosts));
+		final TextView jid = (TextView) dialogView.findViewById(R.id.jid);
 		if (prefilledJid != null) {
 			jid.append(prefilledJid);
 		}
