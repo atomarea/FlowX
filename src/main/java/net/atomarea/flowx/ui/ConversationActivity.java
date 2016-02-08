@@ -1,5 +1,6 @@
 package net.atomarea.flowx.ui;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -315,6 +316,13 @@ public class ConversationActivity extends XmppActivity
                 }
             });
         }
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            int hasMicPerm = checkSelfPermission(Manifest.permission.RECORD_AUDIO);
+            if (hasMicPerm != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 1337);
+            }
+        }
     }
 
     @Override
@@ -483,8 +491,16 @@ public class ConversationActivity extends XmppActivity
                         intent.setAction(Intent.ACTION_GET_CONTENT);
                         break;
                     case ATTACHMENT_CHOICE_RECORD_VOICE:
-                        intent.setAction(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-                        intent.setPackage("net.atomarea.flowx");
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            int hasMicPerm = checkSelfPermission(Manifest.permission.RECORD_AUDIO);
+                            if (hasMicPerm == PackageManager.PERMISSION_GRANTED) {
+                                intent.setAction(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+                                intent.setPackage("net.atomarea.flowx");
+                            } else Toast.makeText(getApplicationContext(), "No perm 4 mic... -> change in settings of phone", Toast.LENGTH_SHORT).show(); // TODO: !Txt in strings.xml
+                        } else {
+                            intent.setAction(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+                            intent.setPackage("net.atomarea.flowx");
+                        }
                         break;
                     case ATTACHMENT_CHOICE_LOCATION:
                         intent.setAction("net.atomarea.flowx.location.request");
@@ -609,18 +625,24 @@ public class ConversationActivity extends XmppActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (grantResults.length > 0)
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (requestCode == REQUEST_START_DOWNLOAD) {
-                    if (this.mPendingDownloadableMessage != null) {
-                        startDownloadable(this.mPendingDownloadableMessage);
+        if (requestCode == 1337) {
+            if (!(grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                Toast.makeText(this, "No perm 4 mic...", Toast.LENGTH_SHORT).show(); // TODO: ! Text in strings.xml
+            }
+        } else {
+            if (grantResults.length > 0)
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (requestCode == REQUEST_START_DOWNLOAD) {
+                        if (this.mPendingDownloadableMessage != null) {
+                            startDownloadable(this.mPendingDownloadableMessage);
+                        }
+                    } else {
+                        attachFile(requestCode);
                     }
                 } else {
-                    attachFile(requestCode);
+                    Toast.makeText(this, R.string.no_storage_permission, Toast.LENGTH_SHORT).show();
                 }
-            } else {
-                Toast.makeText(this, R.string.no_storage_permission, Toast.LENGTH_SHORT).show();
-            }
+        }
     }
 
     public void startDownloadable(Message message) {
