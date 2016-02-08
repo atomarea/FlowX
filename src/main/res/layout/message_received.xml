@@ -104,7 +104,7 @@
                     android:layout_marginRight="4sp"
                     android:alpha="0.70"
                     android:gravity="center_vertical"
-                    android:src="@drawable/ic_secure_indicator_white" />
+                    android:src="@drawable/ic_secure_indicator" />
 
                 <github.ankushsachdeva.emojicon.EmojiconTextView
                     android:id="@+id/message_time"
