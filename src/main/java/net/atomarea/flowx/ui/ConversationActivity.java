@@ -362,6 +362,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     ((EmojiconTextView) v.findViewById(R.id.title)).setText(conversation.getName());
                     v.setOnClickListener(this);
                     if (conversation.getMode() == Conversation.MODE_SINGLE) {
+                        v.findViewById(R.id.subtitle).setVisibility(View.VISIBLE);
                         ChatState state = conversation.getIncomingChatState();
                         if (state == ChatState.COMPOSING) {
                             ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(getString(R.string.contact_is_typing));
@@ -373,7 +374,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                             ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().lastseen.time));
                         }
                     } else if (useSubjectToIdentifyConference()) {
-                        ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText((conversation.getParticipants() == null ? "none" : conversation.getParticipants()));
+                        ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText((conversation.getParticipants() == null ? "" : conversation.getParticipants()));
+                        v.findViewById(R.id.subtitle).setVisibility((conversation.getParticipants() == null ? View.GONE : View.VISIBLE));
                     }
                 } else {
                     ab.setTitle(conversation.getJid().toBareJid().toString());
