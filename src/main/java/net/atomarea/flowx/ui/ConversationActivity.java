@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SlidingPaneLayout.PanelSlideListener;
 import android.util.Log;
@@ -370,16 +369,13 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                         } else if (state == ChatState.PAUSED) {
                             ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(getString(R.string.contact_has_stopped_typing));
                             v.setOnClickListener(this);
-                        } else {
+                        } else
                             ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().lastseen.time));
-                        }
                     } else if (useSubjectToIdentifyConference()) {
                         ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText((conversation.getParticipants() == null ? "" : conversation.getParticipants()));
                         v.findViewById(R.id.subtitle).setVisibility((conversation.getParticipants() == null ? View.GONE : View.VISIBLE));
                     }
-                } else {
-                    ab.setTitle(conversation.getJid().toBareJid().toString());
-                }
+                } else ab.setTitle(conversation.getJid().toBareJid().toString());
             } else {
                 ab.setDisplayHomeAsUpEnabled(false);
                 ab.setHomeButtonEnabled(false);
@@ -402,11 +398,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
     public void sendReadMarkerIfNecessary(final Conversation conversation) {
         if (!mActivityPaused && conversation != null) {
-            if (!conversation.isRead()) {
-                xmppConnectionService.sendReadMarker(conversation);
-            } else {
-                xmppConnectionService.markRead(conversation);
-            }
+            if (!conversation.isRead()) xmppConnectionService.sendReadMarker(conversation);
+            else xmppConnectionService.markRead(conversation);
         }
     }
 
@@ -438,25 +431,18 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             menuAdd.setVisible(!isConversationsOverviewHideable());
             if (this.getSelectedConversation() != null) {
                 if (this.getSelectedConversation().getNextEncryption() != Message.ENCRYPTION_NONE) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                         menuSecure.setIcon(R.drawable.ic_lock_white_24dp);
-                    } else {
-                        menuSecure.setIcon(R.drawable.ic_action_secure);
-                    }
+                    else menuSecure.setIcon(R.drawable.ic_action_secure);
                 }
                 if (this.getSelectedConversation().getMode() == Conversation.MODE_MULTI) {
                     menuContactDetails.setVisible(false);
                     menuAttach.setVisible(getSelectedConversation().getAccount().httpUploadAvailable() && getSelectedConversation().getMucOptions().participating());
                     menuInviteContact.setVisible(getSelectedConversation().getMucOptions().canInvite());
                     menuSecure.setVisible(false); // !Config.HIDE_PGP_IN_UI && !Config.X509_VERIFICATION <- Sinnfreiii :D
-                } else {
-                    menuMucDetails.setVisible(false);
-                }
-                if (this.getSelectedConversation().isMuted()) {
-                    menuMute.setVisible(false);
-                } else {
-                    menuUnmute.setVisible(false);
-                }
+                } else menuMucDetails.setVisible(false);
+                if (this.getSelectedConversation().isMuted()) menuMute.setVisible(false);
+                else menuUnmute.setVisible(false);
             }
         }
         return true;
@@ -466,7 +452,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         final Conversation conversation = getSelectedConversation();
         final Account account = conversation.getAccount();
         final OnPresenceSelected callback = new OnPresenceSelected() {
-
             @Override
             public void onPresenceSelected() {
                 Intent intent = new Intent();
@@ -517,28 +502,22 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                         startActivityForResult(
                                 Intent.createChooser(intent, getString(R.string.perform_action_with)),
                                 attachmentChoice);
-                    } else {
-                        startActivityForResult(intent, attachmentChoice);
-                    }
-                } else if (fallbackPackageId != null) {
+                    } else startActivityForResult(intent, attachmentChoice);
+                } else if (fallbackPackageId != null)
                     startActivity(getInstallApkIntent(fallbackPackageId));
-                }
             }
         };
         if ((account.httpUploadAvailable() || attachmentChoice == ATTACHMENT_CHOICE_LOCATION) && encryption != Message.ENCRYPTION_OTR) {
             conversation.setNextCounterpart(null);
             callback.onPresenceSelected();
-        } else {
-            selectPresence(conversation, callback);
-        }
+        } else selectPresence(conversation, callback);
     }
 
     private Intent getInstallApkIntent(final String packageId) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("market://details?id=" + packageId));
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            return intent;
-        } else {
+        if (intent.resolveActivity(getPackageManager()) != null) return intent;
+        else {
             intent.setData(Uri.parse("http://play.google.com/store/apps/details?id=" + packageId));
             return intent;
         }
@@ -546,9 +525,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
     public void attachFile(final int attachmentChoice) {
         if (attachmentChoice != ATTACHMENT_CHOICE_LOCATION) {
-            if (!hasStoragePermission(attachmentChoice)) {
-                return;
-            }
+            if (!hasStoragePermission(attachmentChoice)) return;
         }
         switch (attachmentChoice) {
             case ATTACHMENT_CHOICE_LOCATION:
@@ -573,7 +550,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     xmppConnectionService.getPgpEngine().hasKey(
                             conversation.getContact(),
                             new UiCallback<Contact>() {
-
                                 @Override
                                 public void userInputRequried(PendingIntent pi, Contact contact) {
                                     ConversationActivity.this.runIntent(pi, attachmentChoice);
@@ -591,10 +567,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                             });
                 } else if (mode == Conversation.MODE_MULTI && conversation.getMucOptions().pgpKeysInUse()) {
                     if (!conversation.getMucOptions().everybodyHasKeys()) {
-                        Toast warning = Toast
-                                .makeText(this,
-                                        R.string.missing_public_keys,
-                                        Toast.LENGTH_LONG);
+                        Toast warning = Toast.makeText(this, R.string.missing_public_keys, Toast.LENGTH_LONG);
                         warning.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
                         warning.show();
                     }
@@ -609,10 +582,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                                     @Override
                                     public void onClick(DialogInterface dialog,
                                                         int which) {
-                                        conversation
-                                                .setNextEncryption(Message.ENCRYPTION_NONE);
-                                        xmppConnectionService.databaseBackend
-                                                .updateConversation(conversation);
+                                        conversation.setNextEncryption(Message.ENCRYPTION_NONE);
+                                        xmppConnectionService.databaseBackend.updateConversation(conversation);
                                         selectPresenceToAttachFile(attachmentChoice, Message.ENCRYPTION_NONE);
                                     }
                                 });
@@ -621,32 +592,24 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             } else {
                 showInstallPgpDialog();
             }
-        } else {
-            if (encryption != Message.ENCRYPTION_AXOLOTL || !trustKeysIfNeeded(REQUEST_TRUST_KEYS_MENU, attachmentChoice)) {
-                selectPresenceToAttachFile(attachmentChoice, encryption);
-            }
-        }
+        } else if (encryption != Message.ENCRYPTION_AXOLOTL || !trustKeysIfNeeded(REQUEST_TRUST_KEYS_MENU, attachmentChoice))
+            selectPresenceToAttachFile(attachmentChoice, encryption);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == 1337) {
-            if (!(grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            if (!(grantResults[0] == PackageManager.PERMISSION_GRANTED))
                 Toast.makeText(this, "No perm 4 mic...", Toast.LENGTH_SHORT).show(); // TODO: ! Text in strings.xml
-            }
         } else {
             if (grantResults.length > 0)
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     if (requestCode == REQUEST_START_DOWNLOAD) {
-                        if (this.mPendingDownloadableMessage != null) {
+                        if (this.mPendingDownloadableMessage != null)
                             startDownloadable(this.mPendingDownloadableMessage);
-                        }
-                    } else {
-                        attachFile(requestCode);
-                    }
-                } else {
+                    } else attachFile(requestCode);
+                else
                     Toast.makeText(this, R.string.no_storage_permission, Toast.LENGTH_SHORT).show();
-                }
         }
     }
 
@@ -657,12 +620,10 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         }
         Transferable transferable = message.getTransferable();
         if (transferable != null) {
-            if (!transferable.start()) {
+            if (!transferable.start())
                 Toast.makeText(this, R.string.not_connected_try_again, Toast.LENGTH_SHORT).show();
-            }
-        } else if (message.treatAsDownloadable() != Message.Decision.NEVER) {
+        } else if (message.treatAsDownloadable() != Message.Decision.NEVER)
             xmppConnectionService.getHttpConnectionManager().createNewDownloadConnection(message, true);
-        }
     }
 
     @Override
@@ -716,9 +677,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     break;
             }
             return super.onOptionsItemSelected(item);
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
+        } else return super.onOptionsItemSelected(item);
     }
 
     public void endConversation(Conversation conversation) {
@@ -726,9 +685,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
     public void endConversation(Conversation conversation, boolean showOverview, boolean reinit) {
-        if (showOverview) {
-            showConversationsOverview();
-        }
+        if (showOverview) showConversationsOverview();
         xmppConnectionService.archiveConversation(conversation);
         if (reinit) {
             if (conversationList.size() > 0) {
@@ -750,10 +707,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     protected void clearHistoryDialog(final Conversation conversation) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.clear_conversation_history));
-        View dialogView = getLayoutInflater().inflate(
-                R.layout.dialog_clear_history, null);
-        final CheckBox endConversationCheckBox = (CheckBox) dialogView
-                .findViewById(R.id.end_conversation_checkbox);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_clear_history, null);
+        final CheckBox endConversationCheckBox = (CheckBox) dialogView.findViewById(R.id.end_conversation_checkbox);
         builder.setView(dialogView);
         builder.setNegativeButton(getString(R.string.cancel), null);
         builder.setPositiveButton(getString(R.string.delete_messages),
@@ -762,9 +717,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         ConversationActivity.this.xmppConnectionService.clearConversationHistory(conversation);
-                        if (endConversationCheckBox.isChecked()) {
-                            endConversation(conversation);
-                        } else {
+                        if (endConversationCheckBox.isChecked()) endConversation(conversation);
+                        else {
                             updateConversationList();
                             ConversationActivity.this.mConversationFragment.updateMessages();
                         }
@@ -775,9 +729,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
     protected void attachFileDialog() {
         View menuAttachFile = findViewById(R.id.action_attach_file);
-        if (menuAttachFile == null) {
-            return;
-        }
+        if (menuAttachFile == null) return;
         List<MenuObject> lst = new ArrayList<>();
         lst.add(new MenuObject());
         lst.get(0).setResource(R.drawable.ic_send_cancel_offline);
@@ -821,39 +773,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             }
         });
         cmdf.show(getSupportFragmentManager(), "CMDF");
-        /*PopupMenu attachFilePopup = new PopupMenu(this, menuAttachFile);
-        attachFilePopup.inflate(R.menu.attachment_choices);
-        if (new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION).resolveActivity(getPackageManager()) == null) {
-            attachFilePopup.getMenu().findItem(R.id.attach_record_voice).setVisible(false);
-        }
-        if (new Intent("net.atomarea.flowx.location.request").resolveActivity(getPackageManager()) == null) {
-            attachFilePopup.getMenu().findItem(R.id.attach_location).setVisible(false);
-        }
-        attachFilePopup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.attach_choose_picture:
-                        attachFile(ATTACHMENT_CHOICE_CHOOSE_IMAGE);
-                        break;
-                    case R.id.attach_take_picture:
-                        attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
-                        break;
-                    case R.id.attach_choose_file:
-                        attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
-                        break;
-                    case R.id.attach_record_voice:
-                        attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
-                        break;
-                    case R.id.attach_location:
-                        attachFile(ATTACHMENT_CHOICE_LOCATION);
-                        break;
-                }
-                return false;
-            }
-        });
-        attachFilePopup.show();*/
     }
 
     public void verifyOtrSessionDialog(final Conversation conversation, View view) {
@@ -861,9 +780,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             Toast.makeText(this, R.string.otr_session_not_started, Toast.LENGTH_LONG).show();
             return;
         }
-        if (view == null) {
-            return;
-        }
+        if (view == null) return;
         PopupMenu popup = new PopupMenu(this, view);
         popup.inflate(R.menu.verification_choices);
         popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
@@ -893,20 +810,15 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
     protected void selectEncryptionDialog(final Conversation conversation) {
         View menuItemView = findViewById(R.id.action_security);
-        if (menuItemView == null) {
-            return;
-        }
+        if (menuItemView == null) return;
         if (conversation.getNextEncryption() == Message.ENCRYPTION_NONE) {
-            Log.d(Config.LOGTAG, AxolotlService.getLogprefix(conversation.getAccount())
-                    + "Enabled axolotl for Contact " + conversation.getContact().getJid());
+            Log.d(Config.LOGTAG, AxolotlService.getLogprefix(conversation.getAccount()) + "Enabled axolotl for Contact " + conversation.getContact().getJid());
             conversation.setNextEncryption(Message.ENCRYPTION_AXOLOTL);
         } else if (conversation.getNextEncryption() == Message.ENCRYPTION_AXOLOTL) {
-            Log.d(Config.LOGTAG, AxolotlService.getLogprefix(conversation.getAccount())
-                    + "Disabled axolotl (enabled none) for Contact " + conversation.getContact().getJid());
+            Log.d(Config.LOGTAG, AxolotlService.getLogprefix(conversation.getAccount()) + "Disabled axolotl (enabled none) for Contact " + conversation.getContact().getJid());
             conversation.setNextEncryption(Message.ENCRYPTION_NONE);
         }
-        final ConversationFragment fragment = (ConversationFragment) getFragmentManager()
-                .findFragmentByTag("conversation");
+        final ConversationFragment fragment = (ConversationFragment) getFragmentManager().findFragmentByTag("conversation");
         xmppConnectionService.databaseBackend.updateConversation(conversation);
         fragment.updateChatMsgHint();
         invalidateOptionsMenu();
@@ -949,11 +861,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
     @Override
     public void onBackPressed() {
-        if (!isConversationsOverviewVisable()) {
-            showConversationsOverview();
-        } else {
-            moveTaskToBack(true);
-        }
+        if (!isConversationsOverviewVisable()) showConversationsOverview();
+        else moveTaskToBack(true);
     }
 
     @Override
@@ -983,57 +892,37 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             toggleConversationsOverview();
             return true;
         } else if (modifier && key == downKey) {
-            if (isConversationsOverviewHideable() && !isConversationsOverviewVisable()) {
+            if (isConversationsOverviewHideable() && !isConversationsOverviewVisable())
                 showConversationsOverview();
-            }
             return selectDownConversation();
         } else if (modifier && key == upKey) {
-            if (isConversationsOverviewHideable() && !isConversationsOverviewVisable()) {
+            if (isConversationsOverviewHideable() && !isConversationsOverviewVisable())
                 showConversationsOverview();
-            }
             return selectUpConversation();
-        } else if (modifier && key == KeyEvent.KEYCODE_1) {
-            return openConversationByIndex(0);
-        } else if (modifier && key == KeyEvent.KEYCODE_2) {
-            return openConversationByIndex(1);
-        } else if (modifier && key == KeyEvent.KEYCODE_3) {
-            return openConversationByIndex(2);
-        } else if (modifier && key == KeyEvent.KEYCODE_4) {
-            return openConversationByIndex(3);
-        } else if (modifier && key == KeyEvent.KEYCODE_5) {
-            return openConversationByIndex(4);
-        } else if (modifier && key == KeyEvent.KEYCODE_6) {
-            return openConversationByIndex(5);
-        } else if (modifier && key == KeyEvent.KEYCODE_7) {
-            return openConversationByIndex(6);
-        } else if (modifier && key == KeyEvent.KEYCODE_8) {
-            return openConversationByIndex(7);
-        } else if (modifier && key == KeyEvent.KEYCODE_9) {
-            return openConversationByIndex(8);
-        } else if (modifier && key == KeyEvent.KEYCODE_0) {
-            return openConversationByIndex(9);
-        } else {
-            return super.onKeyUp(key, event);
-        }
+        } else if (modifier && key == KeyEvent.KEYCODE_1) return openConversationByIndex(0);
+        else if (modifier && key == KeyEvent.KEYCODE_2) return openConversationByIndex(1);
+        else if (modifier && key == KeyEvent.KEYCODE_3) return openConversationByIndex(2);
+        else if (modifier && key == KeyEvent.KEYCODE_4) return openConversationByIndex(3);
+        else if (modifier && key == KeyEvent.KEYCODE_5) return openConversationByIndex(4);
+        else if (modifier && key == KeyEvent.KEYCODE_6) return openConversationByIndex(5);
+        else if (modifier && key == KeyEvent.KEYCODE_7) return openConversationByIndex(6);
+        else if (modifier && key == KeyEvent.KEYCODE_8) return openConversationByIndex(7);
+        else if (modifier && key == KeyEvent.KEYCODE_9) return openConversationByIndex(8);
+        else if (modifier && key == KeyEvent.KEYCODE_0) return openConversationByIndex(9);
+        else return super.onKeyUp(key, event);
     }
 
     private void toggleConversationsOverview() {
         if (isConversationsOverviewVisable()) {
             hideConversationsOverview();
-            if (mConversationFragment != null) {
-                mConversationFragment.setFocusOnInputField();
-            }
-        } else {
-            showConversationsOverview();
-        }
+            if (mConversationFragment != null) mConversationFragment.setFocusOnInputField();
+        } else showConversationsOverview();
     }
 
     private boolean selectUpConversation() {
         if (this.mSelectedConversation != null) {
             int index = this.conversationList.indexOf(this.mSelectedConversation);
-            if (index > 0) {
-                return openConversationByIndex(index - 1);
-            }
+            if (index > 0) return openConversationByIndex(index - 1);
         }
         return false;
     }
@@ -1041,9 +930,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     private boolean selectDownConversation() {
         if (this.mSelectedConversation != null) {
             int index = this.conversationList.indexOf(this.mSelectedConversation);
-            if (index != -1 && index < this.conversationList.size() - 1) {
+            if (index != -1 && index < this.conversationList.size() - 1)
                 return openConversationByIndex(index + 1);
-            }
         }
         return false;
     }
@@ -1053,9 +941,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             this.conversationWasSelectedByKeyboard = true;
             setSelectedConversation(this.conversationList.get(index));
             this.mConversationFragment.reInit(getSelectedConversation());
-            if (index > listView.getLastVisiblePosition() - 1 || index < listView.getFirstVisiblePosition() + 1) {
+            if (index > listView.getLastVisiblePosition() - 1 || index < listView.getFirstVisiblePosition() + 1)
                 this.listView.setSelection(index);
-            }
             openConversation();
             return true;
         } catch (IndexOutOfBoundsException e) {
@@ -1070,21 +957,15 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 handleViewConversationIntent(intent);
                 setIntent(new Intent());
             }
-        } else {
-            setIntent(intent);
-        }
+        } else setIntent(intent);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         this.mRedirected.set(false);
-        if (this.xmppConnectionServiceBound) {
-            this.onBackendConnected();
-        }
-        if (conversationList.size() >= 1) {
-            this.onConversationUpdate();
-        }
+        if (this.xmppConnectionServiceBound) this.onBackendConnected();
+        if (conversationList.size() >= 1) this.onConversationUpdate();
     }
 
     @Override
@@ -1092,9 +973,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         listView.discardUndo();
         super.onPause();
         this.mActivityPaused = true;
-        if (this.xmppConnectionServiceBound) {
+        if (this.xmppConnectionServiceBound)
             this.xmppConnectionService.getNotificationService().setIsInForeground(false);
-        }
     }
 
     @Override
@@ -1102,34 +982,24 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         super.onResume();
         final int theme = findTheme();
         final boolean usingEnterKey = usingEnterKey();
-        if (this.mTheme != theme || usingEnterKey != mUsingEnterKey) {
-            recreate();
-        }
+        if (this.mTheme != theme || usingEnterKey != mUsingEnterKey) recreate();
         this.mActivityPaused = false;
-        if (this.xmppConnectionServiceBound) {
+        if (this.xmppConnectionServiceBound)
             this.xmppConnectionService.getNotificationService().setIsInForeground(true);
-        }
-
-        if (!isConversationsOverviewVisable() || !isConversationsOverviewHideable()) {
+        if (!isConversationsOverviewVisable() || !isConversationsOverviewHideable())
             sendReadMarkerIfNecessary(getSelectedConversation());
-        }
-
     }
 
     @Override
     public void onSaveInstanceState(final Bundle savedInstanceState) {
         Conversation conversation = getSelectedConversation();
-        if (conversation != null) {
+        if (conversation != null)
             savedInstanceState.putString(STATE_OPEN_CONVERSATION, conversation.getUuid());
-        } else {
-            savedInstanceState.remove(STATE_OPEN_CONVERSATION);
-        }
+        else savedInstanceState.remove(STATE_OPEN_CONVERSATION);
         savedInstanceState.putBoolean(STATE_PANEL_OPEN, isConversationsOverviewVisable());
-        if (this.mPendingImageUris.size() >= 1) {
+        if (this.mPendingImageUris.size() >= 1)
             savedInstanceState.putString(STATE_PENDING_URI, this.mPendingImageUris.get(0).toString());
-        } else {
-            savedInstanceState.remove(STATE_PENDING_URI);
-        }
+        else savedInstanceState.remove(STATE_PENDING_URI);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -1152,11 +1022,9 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
         if (xmppConnectionService.getAccounts().size() == 0) {
             if (mRedirected.compareAndSet(false, true)) {
-                if (Config.X509_VERIFICATION) {
+                if (Config.X509_VERIFICATION)
                     startActivity(new Intent(this, ManageAccountActivity.class));
-                } else {
-                    startActivity(new Intent(this, EditAccountActivity.class));
-                }
+                else startActivity(new Intent(this, EditAccountActivity.class));
                 finish();
             }
         } else if (conversationList.size() <= 0) {
@@ -1170,9 +1038,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             clearPending();
             handleViewConversationIntent(getIntent());
         } else if (selectConversationByUuid(mOpenConverstaion)) {
-            if (mPanelOpen) {
-                showConversationsOverview();
-            } else {
+            if (mPanelOpen) showConversationsOverview();
+            else {
                 if (isConversationsOverviewHideable()) {
                     openConversation();
                     updateActionBarTitle(true);
@@ -1190,28 +1057,22 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             this.mConversationFragment.messagesView.invalidateViews();
             this.mConversationFragment.setupIme();
         }
-
-        if (this.mPostponedActivityResult != null) {
+        if (this.mPostponedActivityResult != null)
             this.onActivityResult(mPostponedActivityResult.first, RESULT_OK, mPostponedActivityResult.second);
-        }
-
         if (!forbidProcessingPendings) {
             for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove()) {
                 Uri foo = i.next();
                 attachImageToConversation(getSelectedConversation(), foo);
             }
-
             for (Iterator<Uri> i = mPendingFileUris.iterator(); i.hasNext(); i.remove()) {
                 attachFileToConversation(getSelectedConversation(), i.next());
             }
-
             if (mPendingGeoUri != null) {
                 attachLocationToConversation(getSelectedConversation(), mPendingGeoUri);
                 mPendingGeoUri = null;
             }
         }
         forbidProcessingPendings = false;
-
         ExceptionHelper.checkForCrash(this, this.xmppConnectionService);
         openBatteryOptimizationDialogIfNeeded();
         setIntent(new Intent());
@@ -1232,32 +1093,22 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                         Jid next = Jid.fromParts(jid.getLocalpart(), jid.getDomainpart(), nick);
                         this.mConversationFragment.privateMessageWith(next);
                     } catch (final InvalidJidException ignored) {
-                        //do nothing
                     }
-                } else {
-                    this.mConversationFragment.highlightInConference(nick);
-                }
-            } else {
-                this.mConversationFragment.appendText(text);
-            }
+                } else this.mConversationFragment.highlightInConference(nick);
+            } else this.mConversationFragment.appendText(text);
             hideConversationsOverview();
             openConversation();
-            if (mContentView instanceof SlidingPaneLayout) {
+            if (mContentView instanceof SlidingPaneLayout)
                 updateActionBarTitle(true); //fixes bug where slp isn't properly closed yet
-            }
             if (downloadUuid != null) {
                 final Message message = mSelectedConversation.findMessageWithFileAndUuid(downloadUuid);
-                if (message != null) {
-                    startDownloadable(message);
-                }
+                if (message != null) startDownloadable(message);
             }
         }
     }
 
     private boolean selectConversationByUuid(String uuid) {
-        if (uuid == null) {
-            return false;
-        }
+        if (uuid == null) return false;
         for (Conversation aConversationList : conversationList) {
             if (aConversationList.getUuid().equals(uuid)) {
                 setSelectedConversation(aConversationList);
@@ -1276,63 +1127,47 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     @SuppressLint("NewApi")
     private static List<Uri> extractUriFromIntent(final Intent intent) {
         List<Uri> uris = new ArrayList<>();
-        if (intent == null) {
-            return uris;
-        }
+        if (intent == null) return uris;
         Uri uri = intent.getData();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && uri == null) {
             ClipData clipData = intent.getClipData();
-            for (int i = 0; i < clipData.getItemCount(); ++i) {
+            for (int i = 0; i < clipData.getItemCount(); ++i)
                 uris.add(clipData.getItemAt(i).getUri());
-            }
-        } else {
-            uris.add(uri);
-        }
+        } else uris.add(uri);
         return uris;
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode,
-                                    final Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_DECRYPT_PGP) {
+            if (requestCode == REQUEST_DECRYPT_PGP)
                 mConversationFragment.onActivityResult(requestCode, resultCode, data);
-            } else if (requestCode == REQUEST_CHOOSE_PGP_ID) {
+            else if (requestCode == REQUEST_CHOOSE_PGP_ID) {
                 if (xmppConnectionServiceBound) {
                     if (data.getExtras().containsKey(OpenPgpApi.EXTRA_SIGN_KEY_ID)) {
                         mSelectedConversation.getAccount().setPgpSignId(data.getExtras().getLong(OpenPgpApi.EXTRA_SIGN_KEY_ID));
                         announcePgp(mSelectedConversation.getAccount(), null);
-                    } else {
-                        choosePgpSignId(mSelectedConversation.getAccount());
-                    }
+                    } else choosePgpSignId(mSelectedConversation.getAccount());
                     this.mPostponedActivityResult = null;
-                } else {
-                    this.mPostponedActivityResult = new Pair<>(requestCode, data);
-                }
+                } else this.mPostponedActivityResult = new Pair<>(requestCode, data);
             } else if (requestCode == REQUEST_ANNOUNCE_PGP) {
                 if (xmppConnectionServiceBound) {
                     announcePgp(mSelectedConversation.getAccount(), mSelectedConversation);
                     this.mPostponedActivityResult = null;
-                } else {
-                    this.mPostponedActivityResult = new Pair<>(requestCode, data);
-                }
+                } else this.mPostponedActivityResult = new Pair<>(requestCode, data);
             } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_IMAGE) {
                 mPendingImageUris.clear();
                 mPendingImageUris.addAll(extractUriFromIntent(data));
-                if (xmppConnectionServiceBound) {
-                    for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove()) {
+                if (xmppConnectionServiceBound)
+                    for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove())
                         attachImageToConversation(getSelectedConversation(), i.next());
-                    }
-                }
             } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_FILE || requestCode == ATTACHMENT_CHOICE_RECORD_VOICE) {
                 mPendingFileUris.clear();
                 mPendingFileUris.addAll(extractUriFromIntent(data));
-                if (xmppConnectionServiceBound) {
-                    for (Iterator<Uri> i = mPendingFileUris.iterator(); i.hasNext(); i.remove()) {
+                if (xmppConnectionServiceBound)
+                    for (Iterator<Uri> i = mPendingFileUris.iterator(); i.hasNext(); i.remove())
                         attachFileToConversation(getSelectedConversation(), i.next());
-                    }
-                }
             } else if (requestCode == ATTACHMENT_CHOICE_TAKE_PHOTO) {
                 if (mPendingImageUris.size() == 1) {
                     Uri uri = mPendingImageUris.get(0);
@@ -1343,9 +1178,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
                     intent.setData(uri);
                     sendBroadcast(intent);
-                } else {
-                    mPendingImageUris.clear();
-                }
+                } else mPendingImageUris.clear();
             } else if (requestCode == ATTACHMENT_CHOICE_LOCATION) {
                 double latitude = data.getDoubleExtra("latitude", 0);
                 double longitude = data.getDoubleExtra("longitude", 0);
@@ -1359,19 +1192,14 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 if (xmppConnectionServiceBound) {
                     mConversationFragment.onActivityResult(requestCode, resultCode, data);
                     this.mPostponedActivityResult = null;
-                } else {
-                    this.mPostponedActivityResult = new Pair<>(requestCode, data);
-                }
+                } else this.mPostponedActivityResult = new Pair<>(requestCode, data);
             }
         } else {
             mPendingImageUris.clear();
             mPendingFileUris.clear();
-            if (requestCode == ConversationActivity.REQUEST_DECRYPT_PGP) {
+            if (requestCode == ConversationActivity.REQUEST_DECRYPT_PGP)
                 mConversationFragment.onActivityResult(requestCode, resultCode, data);
-            }
-            if (requestCode == REQUEST_BATTERY_OP) {
-                setNeverAskForBatteryOptimizationsAgain();
-            }
+            if (requestCode == REQUEST_BATTERY_OP) setNeverAskForBatteryOptimizationsAgain();
         }
     }
 
@@ -1408,11 +1236,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
     private void attachLocationToConversation(Conversation conversation, Uri uri) {
-        if (conversation == null) {
-            return;
-        }
+        if (conversation == null) return;
         xmppConnectionService.attachLocationToConversation(conversation, uri, new UiCallback<Message>() {
-
             @Override
             public void success(Message message) {
                 xmppConnectionService.sendMessage(message);
@@ -1420,20 +1245,16 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
             @Override
             public void error(int errorCode, Message object) {
-
             }
 
             @Override
             public void userInputRequried(PendingIntent pi, Message object) {
-
             }
         });
     }
 
     private void attachFileToConversation(Conversation conversation, Uri uri) {
-        if (conversation == null) {
-            return;
-        }
+        if (conversation == null) return;
         final Toast prepareFileToast = Toast.makeText(getApplicationContext(), getText(R.string.preparing_file), Toast.LENGTH_LONG);
         prepareFileToast.show();
         xmppConnectionService.attachFileToConversation(conversation, uri, new UiCallback<Message>() {
@@ -1451,25 +1272,20 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
             @Override
             public void userInputRequried(PendingIntent pi, Message message) {
-
             }
         });
     }
 
     private void attachImageToConversation(Conversation conversation, Uri uri) {
-        if (conversation == null) {
-            return;
-        }
+        if (conversation == null) return;
         final Toast prepareFileToast = Toast.makeText(getApplicationContext(), getText(R.string.preparing_image), Toast.LENGTH_LONG);
         prepareFileToast.show();
         xmppConnectionService.attachImageToConversation(conversation, uri,
                 new UiCallback<Message>() {
-
                     @Override
                     public void userInputRequried(PendingIntent pi, Message object) {
                         hidePrepareFileToast(prepareFileToast);
                     }
-
 
                     @Override
                     public void success(Message message) {
@@ -1486,34 +1302,27 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
     private void hidePrepareFileToast(final Toast prepareFileToast) {
-        if (prepareFileToast != null) {
-            runOnUiThread(new Runnable() {
+        if (prepareFileToast != null) runOnUiThread(new Runnable() {
 
-                @Override
-                public void run() {
-                    prepareFileToast.cancel();
-                }
-            });
-        }
+            @Override
+            public void run() {
+                prepareFileToast.cancel();
+            }
+        });
     }
 
     public void updateConversationList() {
-        xmppConnectionService
-                .populateWithOrderedConversations(conversationList);
+        xmppConnectionService.populateWithOrderedConversations(conversationList);
         if (swipedConversation != null) {
-            if (swipedConversation.isRead()) {
-                conversationList.remove(swipedConversation);
-            } else {
-                listView.discardUndo();
-            }
+            if (swipedConversation.isRead()) conversationList.remove(swipedConversation);
+            else listView.discardUndo();
         }
         listAdapter.notifyDataSetChanged();
     }
 
     public void runIntent(PendingIntent pi, int requestCode) {
         try {
-            this.startIntentSenderForResult(pi.getIntentSender(), requestCode,
-                    null, 0, 0, 0);
+            this.startIntentSenderForResult(pi.getIntentSender(), requestCode, null, 0, 0, 0);
         } catch (final SendIntentException ignored) {
         }
     }
@@ -1521,12 +1330,9 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     public void encryptTextMessage(Message message) {
         xmppConnectionService.getPgpEngine().encrypt(message,
                 new UiCallback<Message>() {
-
                     @Override
-                    public void userInputRequried(PendingIntent pi,
-                                                  Message message) {
-                        ConversationActivity.this.runIntent(pi,
-                                ConversationActivity.REQUEST_SEND_MESSAGE);
+                    public void userInputRequried(PendingIntent pi, Message message) {
+                        ConversationActivity.this.runIntent(pi, ConversationActivity.REQUEST_SEND_MESSAGE);
                     }
 
                     @Override
@@ -1537,7 +1343,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
                     @Override
                     public void error(int error, Message message) {
-
                     }
                 });
     }
@@ -1628,18 +1433,16 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
     public void setMessagesLoaded() {
-        if (mConversationFragment != null) {
-            mConversationFragment.setMessagesLoaded();
-        }
+        if (mConversationFragment != null) mConversationFragment.setMessagesLoaded();
     }
 
     @Override
     public void onClick(View view) {
         final Conversation conversation = getSelectedConversation();
         Log.e("Con", "Clicked Title");
-        if (conversation.getMode() == Conversation.MODE_SINGLE) {
+        if (conversation.getMode() == Conversation.MODE_SINGLE)
             switchToContactDetails(getSelectedConversation().getContact());
-        } else if (conversation.getMode() == Conversation.MODE_MULTI) {
+        else if (conversation.getMode() == Conversation.MODE_MULTI) {
             Intent intent = new Intent(this,
                     ConferenceDetailsActivity.class);
             intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
