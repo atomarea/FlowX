@@ -6,18 +6,39 @@
     android:layout_height="match_parent"
     android:background="@android:color/transparent">
 
-    <github.ankushsachdeva.emojicon.EmojiconTextView
-        android:id="@+id/title"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:text=""
-        emojicon:emojiconSize="28sp"
-        android:textColor="@color/white"
-        android:textSize="20dp"
-        android:textStyle="bold" />
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+
+        <github.ankushsachdeva.emojicon.EmojiconTextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text=""
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            emojicon:emojiconSize="28sp" />
+
+        <github.ankushsachdeva.emojicon.EmojiconTextView
+            android:id="@+id/subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/title"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text=""
+            android:textColor="@color/white70"
+            android:textSize="15dp"
+            android:textStyle="normal" />
+    </LinearLayout>
 
     <github.ankushsachdeva.emojicon.EmojiconTextView
         android:id="@+id/title2"
@@ -25,35 +46,9 @@
         android:layout_height="fill_parent"
         android:layout_marginLeft="10dp"
         android:gravity="center"
-        emojicon:emojiconSize="28sp"
         android:textColor="@color/white"
         android:textSize="21dp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        emojicon:emojiconSize="28sp" />
 
-    <github.ankushsachdeva.emojicon.EmojiconTextView
-        android:id="@+id/subtitle"
-        android:layout_below="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="10dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:text=""
-        android:textColor="@color/white70"
-        android:textSize="15dp"
-        android:textStyle="normal" />
-    <TextView
-        android:id="@+id/subtitle_muc"
-        android:layout_below="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="10dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:text=""
-        android:textColor="@color/white70"
-        android:textSize="15dp"
-        android:textStyle="normal" />
 </RelativeLayout>

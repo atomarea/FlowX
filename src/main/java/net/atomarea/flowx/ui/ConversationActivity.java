@@ -289,8 +289,7 @@ public class ConversationActivity extends XmppActivity
         if (mContentView instanceof SlidingPaneLayout) {
             SlidingPaneLayout mSlidingPaneLayout = (SlidingPaneLayout) mContentView;
             mSlidingPaneLayout.setParallaxDistance(150);
-            if (Build.VERSION.SDK_INT < 23) mSlidingPaneLayout
-                    .setShadowResource(R.drawable.es_slidingpane_shadow);
+            // mSlidingPaneLayout.setShadowResource(R.drawable.es_slidingpane_shadow);
             mSlidingPaneLayout.setSliderFadeColor(0);
             mSlidingPaneLayout.setPanelSlideListener(new PanelSlideListener() {
                 @Override
@@ -371,7 +370,7 @@ public class ConversationActivity extends XmppActivity
                             ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().lastseen.time));
                         }
                     } else if (useSubjectToIdentifyConference()) {
-                        ((TextView) v.findViewById(R.id.subtitle_muc)).setText(conversation.getParticipants());
+                        ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(conversation.getParticipants());
                     }
                 } else {
                     ab.setTitle(conversation.getJid().toBareJid().toString());
