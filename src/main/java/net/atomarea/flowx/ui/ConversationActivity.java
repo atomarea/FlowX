@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SlidingPaneLayout.PanelSlideListener;
 import android.util.Log;
@@ -117,8 +118,6 @@ public class ConversationActivity extends XmppActivity
 
     private ArrayAdapter<Conversation> listAdapter;
 
-    private Toast prepareFileToast;
-
     private boolean mActivityPaused = false;
     private AtomicBoolean mRedirected = new AtomicBoolean(false);
     private Pair<Integer, Intent> mPostponedActivityResult;
@@ -156,11 +155,7 @@ public class ConversationActivity extends XmppActivity
     }
 
     public boolean isConversationsOverviewHideable() {
-        if (mContentView instanceof SlidingPaneLayout) {
-            return true;
-        } else {
-            return false;
-        }
+        return (mContentView instanceof SlidingPaneLayout); // besser zu lesen und einfacher
     }
 
     public boolean isConversationsOverviewVisable() {
@@ -293,13 +288,12 @@ public class ConversationActivity extends XmppActivity
         if (mContentView instanceof SlidingPaneLayout) {
             SlidingPaneLayout mSlidingPaneLayout = (SlidingPaneLayout) mContentView;
             mSlidingPaneLayout.setParallaxDistance(150);
-            mSlidingPaneLayout
+            if (Build.VERSION.SDK_INT < 23) mSlidingPaneLayout
                     .setShadowResource(R.drawable.es_slidingpane_shadow);
             mSlidingPaneLayout.setSliderFadeColor(0);
             mSlidingPaneLayout.setPanelSlideListener(new PanelSlideListener() {
-
                 @Override
-                public void onPanelOpened(View arg0) {
+                public void onPanelOpened(View v) {
                     updateActionBarTitle();
                     invalidateOptionsMenu();
                     hideKeyboard();
@@ -311,15 +305,13 @@ public class ConversationActivity extends XmppActivity
                 }
 
                 @Override
-                public void onPanelClosed(View arg0) {
+                public void onPanelClosed(View v) {
                     listView.discardUndo();
                     openConversation();
                 }
 
                 @Override
-                public void onPanelSlide(View arg0, float arg1) {
-                    // TODO Auto-generated method stub
-
+                public void onPanelSlide(View v, float f) { // unnötig...
                 }
             });
         }
@@ -345,11 +337,13 @@ public class ConversationActivity extends XmppActivity
         final ActionBar ab = getActionBar();
         final Conversation conversation = getSelectedConversation();
 
-        this.getActionBar().setDisplayShowCustomEnabled(true);
-        this.getActionBar().setDisplayShowTitleEnabled(false);
+        if (getActionBar() != null) {
+            getActionBar().setDisplayShowCustomEnabled(true);
+            getActionBar().setDisplayShowTitleEnabled(false);
+        }
         LayoutInflater inflator = LayoutInflater.from(this);
         View v = inflator.inflate(R.layout.actionbar, null);
-        this.getActionBar().setCustomView(v);
+        if (getActionBar() != null) getActionBar().setCustomView(v);
         if (ab != null) {
             if (titleShouldBeName && conversation != null) {
                 ab.setDisplayHomeAsUpEnabled(true);
@@ -442,7 +436,7 @@ public class ConversationActivity extends XmppActivity
                     menuContactDetails.setVisible(false);
                     menuAttach.setVisible(getSelectedConversation().getAccount().httpUploadAvailable() && getSelectedConversation().getMucOptions().participating());
                     menuInviteContact.setVisible(getSelectedConversation().getMucOptions().canInvite());
-                    menuSecure.setVisible(!Config.HIDE_PGP_IN_UI && !Config.X509_VERIFICATION);
+                    menuSecure.setVisible(false); // !Config.HIDE_PGP_IN_UI && !Config.X509_VERIFICATION <- Sinnfreiii :D
                 } else {
                     menuMucDetails.setVisible(false);
                 }
@@ -614,7 +608,7 @@ public class ConversationActivity extends XmppActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (grantResults.length > 0)
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (requestCode == REQUEST_START_DOWNLOAD) {
@@ -878,8 +872,8 @@ public class ConversationActivity extends XmppActivity
             MenuItem none = popup.getMenu().findItem(R.id.encryption_choice_none);
             MenuItem pgp = popup.getMenu().findItem(R.id.encryption_choice_pgp);
             MenuItem axolotl = popup.getMenu().findItem(R.id.encryption_choice_axolotl);
-            pgp.setVisible(!Config.HIDE_PGP_IN_UI && !Config.X509_VERIFICATION);
-            none.setVisible(!Config.FORCE_E2E_ENCRYPTION);
+            pgp.setVisible(false); // !Config.HIDE_PGP_IN_UI && !Config.X509_VERIFICATION <- eigtl Sinnfrei, ändert sich nicht
+            none.setVisible(true); // !Config.FORCE_E2E_ENCRYPTION <- eigtl Sinnfrei, ändert sich nicht
             if (conversation.getMode() == Conversation.MODE_MULTI) {
                 axolotl.setVisible(false);
             } else if (!conversation.getAccount().getAxolotlService().isContactAxolotlCapable(conversation.getContact())) {
@@ -975,7 +969,6 @@ public class ConversationActivity extends XmppActivity
         } else if (modifier && key == downKey) {
             if (isConversationsOverviewHideable() && !isConversationsOverviewVisable()) {
                 showConversationsOverview();
-                ;
             }
             return selectDownConversation();
         } else if (modifier && key == upKey) {
@@ -1378,10 +1371,12 @@ public class ConversationActivity extends XmppActivity
             builder.setPositiveButton(R.string.next, new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                    Uri uri = Uri.parse("package:" + getPackageName());
-                    intent.setData(uri);
-                    startActivityForResult(intent, REQUEST_BATTERY_OP);
+                    if (Build.VERSION.SDK_INT >= 23) { // Sonst Crash bei API <23
+                        Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                        Uri uri = Uri.parse("package:" + getPackageName());
+                        intent.setData(uri);
+                        startActivityForResult(intent, REQUEST_BATTERY_OP);
+                    }
                 }
             });
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {

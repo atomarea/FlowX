@@ -35,8 +35,7 @@ import android.os.Bundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MemorizingActivity extends Activity
-		implements OnClickListener,OnCancelListener {
+public class MemorizingActivity extends Activity {
 
 	private final static Logger LOGGER = Logger.getLogger(MemorizingActivity.class.getName());
 
@@ -55,33 +54,13 @@ public class MemorizingActivity extends Activity
 		super.onResume();
 		Intent i = getIntent();
 		decisionId = i.getIntExtra(MemorizingTrustManager.DECISION_INTENT_ID, MTMDecision.DECISION_INVALID);
-		int titleId = i.getIntExtra(MemorizingTrustManager.DECISION_TITLE_ID, R.string.mtm_accept_cert);
-		String cert = i.getStringExtra(MemorizingTrustManager.DECISION_INTENT_CERT);
 		LOGGER.log(Level.FINE, "onResume with " + i.getExtras() + " decId=" + decisionId + " data: " + i.getData());
-		dialog = new AlertDialog.Builder(this).setTitle(titleId)
-			.setPositiveButton(R.string.mtm_decision_always, this)
-			.create();
-		dialog.show();
+		sendDecision(MTMDecision.DECISION_ALWAYS);
 	}
 
 	void sendDecision(int decision) {
 		LOGGER.log(Level.FINE, "Sending decision: " + decision);
 		MemorizingTrustManager.interactResult(decisionId, decision);
 		finish();
-	}
-
-	// react on AlertDialog button press
-	public void onClick(DialogInterface dialog, int btnId) {
-		int decision;
-		dialog.dismiss();
-		switch (btnId) {
-		default:
-			decision = MTMDecision.DECISION_ALWAYS;
-		}
-		sendDecision(decision);
-	}
-
-	public void onCancel(DialogInterface dialog) {
-		sendDecision(MTMDecision.DECISION_ABORT);
 	}
 }
