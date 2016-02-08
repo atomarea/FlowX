@@ -474,7 +474,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         final Message message = getItem(position);
         final boolean isInValidSession = message.isValidInSession();
         final Conversation conversation = message.getConversation();
-        final Account account = conversation.getAccount();
+        //final Account account = conversation.getAccount();
         final int type = getItemViewType(position);
         ViewHolder viewHolder;
         if (view == null) {
