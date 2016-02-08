@@ -31,7 +31,7 @@ dependencies {
 	compile project(':libs:MemorizingTrustManager')
 	compile project(':libs:emojicon')
 	compile project(':libs:audiowife')
-	compile 'com.android.support:support-v13:23.0.1'
+	compile 'com.android.support:support-v13:+'
 	compile 'org.bouncycastle:bcprov-jdk15on:1.52'
 	compile 'org.bouncycastle:bcmail-jdk15on:1.52'
 	compile 'org.jitsi:org.otr4j:0.22'
@@ -47,6 +47,7 @@ dependencies {
 	compile 'com.beardedhen:androidbootstrap:2.0.0'
 	compile 'com.soundcloud.android:android-crop:1.0.1@aar'
 	compile 'org.sufficientlysecure:openpgp-api:10.0'
+	compile 'com.yalantis:contextmenu:1.0.6'
 }
 
 android {
