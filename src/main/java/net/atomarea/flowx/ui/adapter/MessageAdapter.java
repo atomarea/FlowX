@@ -19,6 +19,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,10 +34,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
+import com.beardedhen.androidbootstrap.BootstrapLabel;
+import com.beardedhen.androidbootstrap.BootstrapProgressBar;
+import com.beardedhen.androidbootstrap.api.attributes.BootstrapBrand;
+import com.beardedhen.androidbootstrap.api.defaults.DefaultBootstrapBrand;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
-import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.DownloadableFile;
 import net.atomarea.flowx.entities.Message;
@@ -194,7 +198,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         .getAccount().getAxolotlService().getFingerprintTrust(
                                 message.getAxolotlFingerprint());
 
-                if(trust == null || (!trust.trusted() && !trust.trustedInactive())) {
+                if (trust == null || (!trust.trusted() && !trust.trustedInactive())) {
                     viewHolder.indicator.setColorFilter(activity.getWarningTextColor());
                     viewHolder.indicator.setAlpha(1.0f);
                 } else {
@@ -255,6 +259,23 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.messageBody.setTextColor(getMessageTextColor(darkBackground, false));
         viewHolder.messageBody.setTypeface(null, Typeface.ITALIC);
         viewHolder.messageBody.setTextIsSelectable(false);
+    }
+
+    BootstrapProgressBar pbFile = null;
+
+    private void displayProgressBar(ViewHolder viewHolder, int progress, boolean darkBackground) {
+        viewHolder.aw_player.setVisibility(View.GONE);
+        if (viewHolder.download_button != null) {
+            viewHolder.download_button.setVisibility(View.GONE);
+        }
+        viewHolder.image.setVisibility(View.GONE);
+        viewHolder.messageBody.setVisibility(View.GONE);
+        if (pbFile == null) {
+            pbFile = new BootstrapProgressBar(getContext());
+            pbFile.setBootstrapBrand(DefaultBootstrapBrand.WARNING);
+            ((ViewGroup) viewHolder.messageBody.getParent()).addView(pbFile);
+        }
+        pbFile.setProgress(progress);
     }
 
     private void displayDecryptionFailed(ViewHolder viewHolder, boolean darkBackground) {
@@ -347,11 +368,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.messageBody.setText(span);
             }
             int urlCount = 0;
-            			Matcher matcher = Patterns.WEB_URL.matcher(body);
-            			while (matcher.find()) {
-                				urlCount++;
-                			}
-            			viewHolder.messageBody.setTextIsSelectable(urlCount <= 1);
+            Matcher matcher = Patterns.WEB_URL.matcher(body);
+            while (matcher.find()) {
+                urlCount++;
+            }
+            viewHolder.messageBody.setTextIsSelectable(urlCount <= 1);
         } else {
             viewHolder.messageBody.setText("");
             viewHolder.messageBody.setTextIsSelectable(false);
@@ -457,18 +478,20 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         });
         viewHolder.image.setOnLongClickListener(openContextMenu);
     }
+
     private void loadMoreMessages(Conversation conversation) {
-        		conversation.setLastClearHistory(0);
-        		conversation.setHasMessagesLeftOnServer(true);
-        		conversation.setFirstMamReference(null);
-        		long timestamp = conversation.getLastMessageTransmitted();
-        		if (timestamp == 0) {
-            			timestamp = System.currentTimeMillis();
-            		}
-        		activity.setMessagesLoaded();
-        		activity.xmppConnectionService.getMessageArchiveService().query(conversation, 0, timestamp);
-        		Toast.makeText(activity, R.string.fetching_history_from_server,Toast.LENGTH_LONG).show();
-        	}
+        conversation.setLastClearHistory(0);
+        conversation.setHasMessagesLeftOnServer(true);
+        conversation.setFirstMamReference(null);
+        long timestamp = conversation.getLastMessageTransmitted();
+        if (timestamp == 0) {
+            timestamp = System.currentTimeMillis();
+        }
+        activity.setMessagesLoaded();
+        activity.xmppConnectionService.getMessageArchiveService().query(conversation, 0, timestamp);
+        Toast.makeText(activity, R.string.fetching_history_from_server, Toast.LENGTH_LONG).show();
+    }
+
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         final Message message = getItem(position);
@@ -501,7 +524,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     viewHolder.indicatorReceived = (ImageView) view
                             .findViewById(R.id.indicator_received);
                     viewHolder.indicatorRead = (ImageView) view
-                            							.findViewById(R.id.indicator_read);
+                            .findViewById(R.id.indicator_read);
                     viewHolder.encryption = (TextView) view.findViewById(R.id.message_encryption);
                     break;
                 case RECEIVED:
@@ -608,7 +631,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             } else if (transferable.getStatus() == Transferable.STATUS_OFFER_CHECK_FILESIZE) {
                 displayDownloadableMessage(viewHolder, message, activity.getString(R.string.check_x_filesize, UIHelper.getFileDescriptionString(activity, message)));
             } else {
-                displayInfoMessage(viewHolder, UIHelper.getMessagePreview(activity, message).first, darkBackground);
+                String msg = UIHelper.getMessagePreview(activity, message).first;//ZUM SUCHEN!
+                if (msg.startsWith("prg")) {
+                    int progress = Integer.parseInt(msg.split(":")[1]);
+                    Log.i("TEST!", "" + progress);
+                    displayProgressBar(viewHolder, progress, darkBackground);
+                } else displayInfoMessage(viewHolder, msg, darkBackground);
             }
         } else if (message.getType() == Message.TYPE_IMAGE && message.getEncryption() != Message.ENCRYPTION_PGP && message.getEncryption() != Message.ENCRYPTION_DECRYPTION_FAILED) {
             displayImageMessage(viewHolder, message);
@@ -688,12 +716,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         PackageManager manager = activity.getPackageManager();
         List<ResolveInfo> infos = manager.queryIntentActivities(openIntent, 0);
         if (infos.size() == 0) {
-            openIntent.setDataAndType(Uri.fromFile(file),"*/*");
+            openIntent.setDataAndType(Uri.fromFile(file), "*/*");
         }
         try {
             getContext().startActivity(openIntent);
             return;
-        }  catch (ActivityNotFoundException e) {
+        } catch (ActivityNotFoundException e) {
         }
         Toast.makeText(activity, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
     }
@@ -736,6 +764,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         protected ImageView contact_picture;
         protected TextView status_message;
     }
+
     class BitmapWorkerTask extends AsyncTask<Message, Void, Bitmap> {
         private final WeakReference<ImageView> imageViewReference;
         private Message message = null;
