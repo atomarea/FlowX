@@ -12,7 +12,12 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,10 +39,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.Toast;
 
+import com.makeramen.roundedimageview.RoundedImageView;
 import com.yalantis.contextmenu.lib.ContextMenuDialogFragment;
 import com.yalantis.contextmenu.lib.MenuObject;
 import com.yalantis.contextmenu.lib.MenuParams;
@@ -67,9 +74,11 @@ import net.java.otr4j.session.SessionStatus;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.timroes.android.listview.EnhancedListView;
@@ -137,6 +146,29 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 uris.add(clipData.getItemAt(i).getUri());
         } else uris.add(uri);
         return uris;
+    }
+
+    public static boolean cancelPotentialWork(Conversation conversation, ImageView imageView) {
+        final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
+
+        if (bitmapWorkerTask != null) {
+            final Conversation oldConversation = bitmapWorkerTask.conversation;
+            if (oldConversation == null || conversation != oldConversation)
+                bitmapWorkerTask.cancel(true);
+            else return false;
+        }
+        return true;
+    }
+
+    private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
+        if (imageView != null) {
+            final Drawable drawable = imageView.getDrawable();
+            if (drawable instanceof AsyncDrawable) {
+                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
+                return asyncDrawable.getBitmapWorkerTask();
+            }
+        }
+        return null;
     }
 
     public Conversation getSelectedConversation() {
@@ -373,15 +405,19 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         final EmojiconTextView tv_title = (EmojiconTextView) v.findViewById(R.id.title);
         final EmojiconTextView tv_subtitle = (EmojiconTextView) v.findViewById(R.id.subtitle);
         final EmojiconTextView tv_flowx = (EmojiconTextView) v.findViewById(R.id.title2);
+        final RoundedImageView iv_avatar = (RoundedImageView) v.findViewById(R.id.avatar_pic);
+        iv_avatar.setVisibility(View.VISIBLE);
         if (titleShouldBeName && conversation != null) {
             if (lastAbState != 1) {
                 lastAbState = 1;
                 tv_flowx.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
                 tv_title.animate().setStartDelay(300).alpha(1f).setDuration(200).start();
                 tv_subtitle.animate().setStartDelay(500).alpha(1f).setDuration(200).start();
+                iv_avatar.animate().setStartDelay(700).alpha(1f).setDuration(200).start();
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        loadAvatar(conversation, iv_avatar);
                         ab.setDisplayHomeAsUpEnabled(true);
                     }
                 }, 250);
@@ -409,6 +445,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 lastAbState = 2;
                 tv_title.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
                 tv_subtitle.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
+                iv_avatar.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
                 tv_flowx.animate().setStartDelay(300).alpha(1f).setDuration(200).start();
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -1470,6 +1507,64 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
             intent.putExtra("uuid", getSelectedConversation().getUuid());
             startActivity(intent);
+        }
+    }
+
+    public void loadAvatar(Conversation conversation, ImageView imageView) {
+        if (cancelPotentialWork(conversation, imageView)) {
+            final Bitmap bm = avatarService().get(conversation, getPixel(56), true);
+            if (bm != null) {
+                imageView.setImageBitmap(bm);
+                imageView.setBackgroundColor(0x00000000);
+            } else {
+                imageView.setBackgroundColor(UIHelper.getColorForName(conversation.getName()));
+                imageView.setImageDrawable(null);
+                final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+                final AsyncDrawable asyncDrawable = new AsyncDrawable(getResources(), null, task);
+                imageView.setImageDrawable(asyncDrawable);
+                try {
+                    task.execute(conversation);
+                } catch (final RejectedExecutionException ignored) {
+                }
+            }
+        }
+    }
+
+    static class AsyncDrawable extends BitmapDrawable {
+        private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
+
+        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
+            super(res, bitmap);
+            bitmapWorkerTaskReference = new WeakReference<>(bitmapWorkerTask);
+        }
+
+        public BitmapWorkerTask getBitmapWorkerTask() {
+            return bitmapWorkerTaskReference.get();
+        }
+    }
+
+    class BitmapWorkerTask extends AsyncTask<Conversation, Void, Bitmap> {
+        private final WeakReference<ImageView> imageViewReference;
+        private Conversation conversation = null;
+
+        public BitmapWorkerTask(ImageView imageView) {
+            imageViewReference = new WeakReference<>(imageView);
+        }
+
+        @Override
+        protected Bitmap doInBackground(Conversation... params) {
+            return avatarService().get(params[0], getPixel(56));
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if (bitmap != null) {
+                final ImageView imageView = imageViewReference.get();
+                if (imageView != null) {
+                    imageView.setImageBitmap(bitmap);
+                    imageView.setBackgroundColor(0x00000000);
+                }
+            }
         }
     }
 }
