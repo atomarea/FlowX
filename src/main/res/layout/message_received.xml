@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		        xmlns:emojicon="http://schemas.android.com/apk/res-auto"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="3dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="3dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:emojicon="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="3dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:paddingTop="3dp">
 
     <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/message_photo"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:scaleType="fitXY"
         android:src="@drawable/ic_profile"
@@ -25,12 +26,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_marginEnd="-4dp"
+        android:layout_marginRight="-4dp"
+        android:layout_marginTop="-2dp"
+        android:layout_toEndOf="@+id/message_photo"
         android:layout_toRightOf="@+id/message_photo"
         android:background="@drawable/message_bubble_received"
-        android:minHeight="53dp"
-        android:layout_marginTop="-2dp"
-        android:layout_marginRight="-4dp"
-        android:longClickable="true">
+        android:longClickable="true"
+        android:minHeight="53dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -43,10 +46,11 @@
                 android:id="@+id/message_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginBottom="4dp"
+                android:layout_marginTop="8dp"
                 android:adjustViewBounds="true"
                 android:background="@color/black87"
+                android:contentDescription="@string/app_name"
                 android:scaleType="centerCrop" />
 
             <github.ankushsachdeva.emojicon.EmojiconTextView
@@ -54,34 +58,34 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:autoLink="all"
-                android:textColorLink="@color/black12"
+                android:fontFamily="sans-serif"
                 android:textColor="@color/black12"
-		        android:textColorHighlight="@color/grey800"
-		        emojicon:emojiconSize="25sp"
-                android:textSize="?attr/TextSizeBody" />
+                android:textColorHighlight="@color/grey800"
+                android:textColorLink="@color/black12"
+                android:textSize="?attr/TextSizeBody"
+                emojicon:emojiconSize="25sp" />
 
             <com.beardedhen.androidbootstrap.BootstrapButton
                 android:id="@+id/download_button"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                app:roundedCorners="true"
+                android:visibility="gone"
                 app:bootstrapBrand="success"
                 app:bootstrapSize="sm"
                 app:buttonMode="regular"
-                android:visibility="gone" />
+                app:roundedCorners="true" />
 
             <RelativeLayout
                 android:id="@+id/aw_player"
-                android:visibility="gone"
-                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                />
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:layout_gravity="start"
                 android:orientation="horizontal"
                 android:paddingBottom="2dp">
 
@@ -90,10 +94,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:gravity="center_vertical"
+                    android:layout_marginEnd="4sp"
                     android:layout_marginRight="4sp"
-                    android:textColor="@color/white70"
-                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-condensed"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/white"
                     android:textSize="?attr/TextSizeInfo" />
 
                 <ImageView
@@ -101,8 +106,9 @@
                     android:layout_width="?attr/TextSizeInfo"
                     android:layout_height="?attr/TextSizeInfo"
                     android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="4sp"
                     android:layout_marginRight="4sp"
-                    android:alpha="0.70"
+                    android:contentDescription="@string/app_name"
                     android:gravity="center_vertical"
                     android:src="@drawable/ic_secure_indicator" />
 
@@ -111,6 +117,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
+                    android:fontFamily="sans-serif-condensed"
                     android:gravity="center_vertical"
                     android:text="@string/sending"
                     android:textColor="@color/white70"
