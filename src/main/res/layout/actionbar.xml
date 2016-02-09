@@ -22,6 +22,7 @@
             android:layout_marginRight="5dp"
             android:scaleType="fitXY"
             android:src="@drawable/ic_send_voice_online"
+            android:visibility="gone"
             app:riv_corner_radius="20dp" />
 
         <LinearLayout
