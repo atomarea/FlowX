@@ -1,8 +1,6 @@
 package net.atomarea.flowx.ui;
 
 import android.Manifest;
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -102,11 +100,10 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     private static final String STATE_OPEN_CONVERSATION = "state_open_conversation";
     private static final String STATE_PANEL_OPEN = "state_panel_open";
     private static final String STATE_PENDING_URI = "state_pending_uri";
-
-    private String mOpenConverstaion = null;
-    private boolean mPanelOpen = true;
     final private List<Uri> mPendingImageUris = new ArrayList<>();
     final private List<Uri> mPendingFileUris = new ArrayList<>();
+    private String mOpenConverstaion = null;
+    private boolean mPanelOpen = true;
     private Uri mPendingGeoUri = null;
     private boolean forbidProcessingPendings = false;
     private Message mPendingDownloadableMessage = null;
@@ -126,6 +123,20 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     private boolean mActivityPaused = false;
     private AtomicBoolean mRedirected = new AtomicBoolean(false);
     private Pair<Integer, Intent> mPostponedActivityResult;
+    private int lastAbState = -1;
+
+    @SuppressLint("NewApi")
+    private static List<Uri> extractUriFromIntent(final Intent intent) {
+        List<Uri> uris = new ArrayList<>();
+        if (intent == null) return uris;
+        Uri uri = intent.getData();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && uri == null) {
+            ClipData clipData = intent.getClipData();
+            for (int i = 0; i < clipData.getItemCount(); ++i)
+                uris.add(clipData.getItemAt(i).getUri());
+        } else uris.add(uri);
+        return uris;
+    }
 
     public Conversation getSelectedConversation() {
         return mSelectedConversation;
@@ -344,8 +355,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         updateActionBarTitle(isConversationsOverviewHideable() && !isConversationsOverviewVisable());
     }
 
-    private int lastAbState = -1;
-
     private void updateActionBarTitle(boolean titleShouldBeName) {
         final ActionBar ab = getActionBar();
         final Conversation conversation = getSelectedConversation();
@@ -364,7 +373,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         final EmojiconTextView tv_subtitle = (EmojiconTextView) v.findViewById(R.id.subtitle);
         final EmojiconTextView tv_flowx = (EmojiconTextView) v.findViewById(R.id.title2);
         if (titleShouldBeName && conversation != null) {
-            Log.i("AB Update", "CONVERSATION");
             if (lastAbState != 1) {
                 lastAbState = 1;
                 tv_flowx.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
@@ -389,7 +397,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 }
             } else ab.setTitle(conversation.getJid().toBareJid().toString());
         } else {
-            Log.i("AB Update", "MENU");
             tv_flowx.setText(R.string.app_name);
             if (lastAbState != 2) {
                 lastAbState = 2;
@@ -1137,19 +1144,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     protected void unregisterListeners() {
         super.unregisterListeners();
         xmppConnectionService.getNotificationService().setOpenConversation(null);
-    }
-
-    @SuppressLint("NewApi")
-    private static List<Uri> extractUriFromIntent(final Intent intent) {
-        List<Uri> uris = new ArrayList<>();
-        if (intent == null) return uris;
-        Uri uri = intent.getData();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && uri == null) {
-            ClipData clipData = intent.getClipData();
-            for (int i = 0; i < clipData.getItemCount(); ++i)
-                uris.add(clipData.getItemAt(i).getUri());
-        } else uris.add(uri);
-        return uris;
     }
 
     @Override
