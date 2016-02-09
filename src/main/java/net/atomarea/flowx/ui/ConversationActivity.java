@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -378,6 +379,12 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 tv_flowx.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
                 tv_title.animate().setStartDelay(300).alpha(1f).setDuration(200).start();
                 tv_subtitle.animate().setStartDelay(500).alpha(1f).setDuration(200).start();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        ab.setDisplayHomeAsUpEnabled(true);
+                    }
+                }, 250);
             }
             if (conversation.getMode() == Conversation.MODE_SINGLE || useSubjectToIdentifyConference()) {
                 tv_title.setText(conversation.getName());
@@ -403,6 +410,12 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 tv_title.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
                 tv_subtitle.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
                 tv_flowx.animate().setStartDelay(300).alpha(1f).setDuration(200).start();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        ab.setDisplayHomeAsUpEnabled(false);
+                    }
+                }, 250);
             }
         }
     }
