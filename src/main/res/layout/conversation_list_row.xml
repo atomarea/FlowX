@@ -1,108 +1,116 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			xmlns:emojicon="http://schemas.android.com/apk/res-auto"
-			 xmlns:app="http://schemas.android.com/apk/res-auto"
-			 android:layout_width="fill_parent"
-			 android:layout_height="wrap_content"
-			 android:descendantFocusability="blocksDescendants">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:emojicon="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants">
 
-	<View
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:background="@color/primary"/>
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/primary" />
 
-	<FrameLayout
-		android:id="@+id/swipeable_item"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:background="@color/grey50">
+    <FrameLayout
+        android:id="@+id/swipeable_item"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/grey50">
 
-	<RelativeLayout
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:background="?android:selectableItemBackground"
-		android:orientation="horizontal"
-		android:padding="8dp" >
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:selectableItemBackground"
+            android:orientation="horizontal"
+            android:padding="8dp">
 
-		<com.makeramen.roundedimageview.RoundedImageView
-			android:id="@+id/conversation_image"
-			android:layout_width="66dp"
-			android:layout_height="66dp"
-			android:layout_alignParentLeft="true"
-			android:scaleType="centerCrop"
-			app:riv_corner_radius="40dp" />
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/conversation_image"
+                android:layout_width="66dp"
+                android:layout_height="66dp"
+                android:layout_alignParentLeft="true"
+                android:scaleType="centerCrop"
+                app:riv_corner_radius="40dp" />
 
-		<RelativeLayout
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:layout_centerVertical="true"
-			android:layout_toRightOf="@+id/conversation_image"
-			android:paddingLeft="8dp" >
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/conversation_image"
+                android:paddingLeft="8dp">
 
-			<github.ankushsachdeva.emojicon.EmojiconTextView
-				android:id="@+id/conversation_name"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignLeft="@+id/conversation_lastwrapper"
-				android:layout_toLeftOf="@+id/conversation_lastupdate"
-				android:singleLine="true"
-				emojicon:emojiconSize="28sp"
-				android:textColor="@color/black87"
-				android:textSize="?attr/TextSizeHeadline"
-				android:typeface="sans" />
+                <github.ankushsachdeva.emojicon.EmojiconTextView
+                    android:id="@+id/conversation_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/conversation_lastwrapper"
+                    android:layout_alignStart="@+id/conversation_lastwrapper"
+                    android:layout_toLeftOf="@+id/conversation_lastupdate"
+                    android:layout_toStartOf="@+id/conversation_lastupdate"
+                    android:fontFamily="sans-serif-medium"
+                    android:singleLine="true"
+                    android:textColor="@color/black87"
+                    android:textSize="20sp"
+                    emojicon:emojiconSize="24sp" />
 
-			<RelativeLayout
-				android:id="@+id/conversation_lastwrapper"
-				android:layout_width="fill_parent"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/conversation_name"
-				android:orientation="vertical"
-				android:paddingTop="3dp" >
+                <RelativeLayout
+                    android:id="@+id/conversation_lastwrapper"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/conversation_name"
+                    android:orientation="vertical"
+                    android:paddingTop="3dp">
 
-			<LinearLayout android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_centerVertical="true"
-				android:layout_toLeftOf="@+id/notification_status"
-				android:orientation="vertical">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:layout_toLeftOf="@+id/notification_status"
+                        android:orientation="vertical">
 
-				<github.ankushsachdeva.emojicon.EmojiconTextView
-					android:id="@+id/conversation_lastmsg"
-					android:layout_width="fill_parent"
-					android:layout_height="wrap_content"
-					android:scrollHorizontally="false"
-					android:singleLine="true"
-					android:textColor="@color/black87"
-					emojicon:emojiconSize="25sp"
-					android:textSize="?attr/TextSizeBody" />
+                        <github.ankushsachdeva.emojicon.EmojiconTextView
+                            android:id="@+id/conversation_lastmsg"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-condensed"
+                            android:scrollHorizontally="false"
+                            android:singleLine="true"
+                            android:textColor="@color/black87"
+                            android:textSize="?attr/TextSizeBody"
+                            emojicon:emojiconSize="25sp" />
 
-				<ImageView
-					android:id="@+id/conversation_lastimage"
-					android:layout_width="fill_parent"
-					android:layout_height="36dp"
-					android:background="@color/black87"
-					android:scaleType="centerCrop" />
-			</LinearLayout>
-			<ImageView
-				android:id="@+id/notification_status"
-				android:layout_width="16sp"
-				android:layout_height="16sp"
-				android:layout_alignParentRight="true"
-				android:layout_centerVertical="true"
-				android:layout_marginLeft="4dp"
-				android:src="@drawable/ic_notifications_grey600_24dp"
-				/>
-		</RelativeLayout>
+                        <ImageView
+                            android:id="@+id/conversation_lastimage"
+                            android:layout_width="fill_parent"
+                            android:layout_height="36dp"
+                            android:background="@color/black87"
+                            android:scaleType="centerCrop" />
+                    </LinearLayout>
 
-			<github.ankushsachdeva.emojicon.EmojiconTextView
-				android:id="@+id/conversation_lastupdate"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignBaseline="@+id/conversation_name"
-				android:layout_alignParentRight="true"
-				android:gravity="right"
-				android:textColor="@color/black54"
-				android:textSize="?attr/TextSizeInfo" />
-		</RelativeLayout>
-	</RelativeLayout>
-	</FrameLayout>
+                    <ImageView
+                        android:id="@+id/notification_status"
+                        android:layout_width="16sp"
+                        android:layout_height="16sp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginStart="4dp"
+                        android:src="@drawable/ic_notifications_grey600_24dp" />
+                </RelativeLayout>
+
+                <github.ankushsachdeva.emojicon.EmojiconTextView
+                    android:id="@+id/conversation_lastupdate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/conversation_name"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:fontFamily="sans-serif-condensed"
+                    android:gravity="end"
+                    android:textColor="@color/black54"
+                    android:textSize="?attr/TextSizeInfo" />
+            </RelativeLayout>
+        </RelativeLayout>
+    </FrameLayout>
 </FrameLayout>

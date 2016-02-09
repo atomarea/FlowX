@@ -1,6 +1,8 @@
 package net.atomarea.flowx.ui;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
@@ -342,45 +344,58 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         updateActionBarTitle(isConversationsOverviewHideable() && !isConversationsOverviewVisable());
     }
 
+    private int lastAbState = -1;
+
     private void updateActionBarTitle(boolean titleShouldBeName) {
         final ActionBar ab = getActionBar();
         final Conversation conversation = getSelectedConversation();
 
-        if (getActionBar() != null) {
-            getActionBar().setDisplayShowCustomEnabled(true);
-            getActionBar().setDisplayShowTitleEnabled(false);
-        }
+        if (ab == null) return;
+
+        ab.setDisplayShowCustomEnabled(true);
+        ab.setDisplayShowTitleEnabled(false);
         LayoutInflater inflator = LayoutInflater.from(this);
-        View v = inflator.inflate(R.layout.actionbar, null);
-        if (getActionBar() != null) getActionBar().setCustomView(v);
-        if (ab != null) {
-            if (titleShouldBeName && conversation != null) {
-                ab.setDisplayHomeAsUpEnabled(true);
-                ab.setHomeButtonEnabled(true);
-                if (conversation.getMode() == Conversation.MODE_SINGLE || useSubjectToIdentifyConference()) {
-                    ((EmojiconTextView) v.findViewById(R.id.title)).setText(conversation.getName());
-                    v.setOnClickListener(this);
-                    if (conversation.getMode() == Conversation.MODE_SINGLE) {
-                        v.findViewById(R.id.subtitle).setVisibility(View.VISIBLE);
-                        ChatState state = conversation.getIncomingChatState();
-                        if (state == ChatState.COMPOSING) {
-                            ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(getString(R.string.contact_is_typing));
-                            v.setOnClickListener(this);
-                        } else if (state == ChatState.PAUSED) {
-                            ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(getString(R.string.contact_has_stopped_typing));
-                            v.setOnClickListener(this);
-                        } else
-                            ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().lastseen.time));
-                    } else if (useSubjectToIdentifyConference()) {
-                        ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText((conversation.getParticipants() == null ? "" : conversation.getParticipants()));
-                        v.findViewById(R.id.subtitle).setVisibility((conversation.getParticipants() == null ? View.GONE : View.VISIBLE));
-                    }
-                } else ab.setTitle(conversation.getJid().toBareJid().toString());
-            } else {
-                ab.setDisplayHomeAsUpEnabled(false);
-                ab.setHomeButtonEnabled(false);
-                ((EmojiconTextView) v.findViewById(R.id.title2)).setText(R.string.app_name);
-                ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText("");
+        View v = ab.getCustomView();
+        if (v == null) {
+            v = inflator.inflate(R.layout.actionbar, null);
+            ab.setCustomView(v);
+        }
+        final EmojiconTextView tv_title = (EmojiconTextView) v.findViewById(R.id.title);
+        final EmojiconTextView tv_subtitle = (EmojiconTextView) v.findViewById(R.id.subtitle);
+        final EmojiconTextView tv_flowx = (EmojiconTextView) v.findViewById(R.id.title2);
+        if (titleShouldBeName && conversation != null) {
+            Log.i("AB Update", "CONVERSATION");
+            if (lastAbState != 1) {
+                lastAbState = 1;
+                tv_flowx.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
+                tv_title.animate().setStartDelay(300).alpha(1f).setDuration(200).start();
+                tv_subtitle.animate().setStartDelay(500).alpha(1f).setDuration(200).start();
+            }
+            if (conversation.getMode() == Conversation.MODE_SINGLE || useSubjectToIdentifyConference()) {
+                tv_title.setText(conversation.getName());
+                v.setOnClickListener(this);
+                if (conversation.getMode() == Conversation.MODE_SINGLE) {
+                    ChatState state = conversation.getIncomingChatState();
+                    if (state == ChatState.COMPOSING) {
+                        tv_subtitle.setText(getString(R.string.contact_is_typing));
+                        v.setOnClickListener(this);
+                    } else if (state == ChatState.PAUSED) {
+                        tv_subtitle.setText(getString(R.string.contact_has_stopped_typing));
+                        v.setOnClickListener(this);
+                    } else
+                        tv_subtitle.setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().lastseen.time));
+                } else if (useSubjectToIdentifyConference()) {
+                    tv_subtitle.setText((conversation.getParticipants() == null ? "-" : conversation.getParticipants()));
+                }
+            } else ab.setTitle(conversation.getJid().toBareJid().toString());
+        } else {
+            Log.i("AB Update", "MENU");
+            tv_flowx.setText(R.string.app_name);
+            if (lastAbState != 2) {
+                lastAbState = 2;
+                tv_title.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
+                tv_subtitle.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
+                tv_flowx.animate().setStartDelay(300).alpha(1f).setDuration(200).start();
             }
         }
     }
