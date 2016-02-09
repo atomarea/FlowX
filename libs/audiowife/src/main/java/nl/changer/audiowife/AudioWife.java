@@ -61,6 +61,11 @@ public class AudioWife {
 	 ****/
 	private static final int AUDIO_PROGRESS_UPDATE_TIME = 100;
 
+	// TODO: externalize the error messages.
+	private static final String ERROR_PLAYVIEW_NULL = "Play view cannot be null";
+	private static final String ERROR_PLAYTIME_CURRENT_NEGATIVE = "Current playback time cannot be negative";
+	private static final String ERROR_PLAYTIME_TOTAL_NEGATIVE = "Total playback time cannot be negative";
+
 	private Handler mProgressUpdateHandler;
 
 	private MediaPlayer mMediaPlayer;
@@ -87,6 +92,11 @@ public class AudioWife {
 	 */
 	private TextView mTotalTime;
 
+	/***
+	 * Set if AudioWife is using the default UI provided with the library.
+	 * **/
+	private boolean mHasDefaultUi;
+
 	/****
 	 * Array to hold custom completion listeners
 	 ****/
@@ -101,12 +111,7 @@ public class AudioWife {
 	 ****/
 	private static Uri mUri;
 
-	/***
-	 * Context of Activity which initialized the player
-	 ****/
-    	private Context mCtx;
-
-    public static AudioWife getInstance() {
+	public static AudioWife getInstance() {
 
 		if (mAudioWife == null) {
 			mAudioWife = new AudioWife();
@@ -146,15 +151,15 @@ public class AudioWife {
 		// if play button itself is null, the whole purpose of AudioWife is
 		// defeated.
 		if (mPlayButton == null) {
-			throw new IllegalStateException(mCtx.getResources().getString(R.string.ERROR_PLAYVIEW_NULL));
+			throw new IllegalStateException(ERROR_PLAYVIEW_NULL);
 		}
 
 		if (mUri == null) {
-			throw new IllegalStateException(mCtx.getResources().getString(R.string.URI_NULL));
+			throw new IllegalStateException("Uri cannot be null. Call init() before calling this method");
 		}
 
 		if (mMediaPlayer == null) {
-			throw new IllegalStateException(mCtx.getResources().getString(R.string.CALL_INIT));
+			throw new IllegalStateException("Call init() before calling this method");
 		}
 
 		if (mMediaPlayer.isPlaying()) {
@@ -225,7 +230,7 @@ public class AudioWife {
 		}
 
 		if (currentTime < 0) {
-			throw new IllegalArgumentException(mCtx.getResources().getString(R.string.ERROR_PLAYTIME_CURRENT_NEGATIVE));
+			throw new IllegalArgumentException(ERROR_PLAYTIME_CURRENT_NEGATIVE);
 		}
 
 		StringBuilder playbackStr = new StringBuilder();
@@ -271,7 +276,7 @@ public class AudioWife {
 		}
 
 		if (currentTime < 0) {
-			throw new IllegalArgumentException(mCtx.getResources().getString(R.string.ERROR_PLAYTIME_CURRENT_NEGATIVE));
+			throw new IllegalArgumentException(ERROR_PLAYTIME_CURRENT_NEGATIVE);
 		}
 
 		StringBuilder playbackStr = new StringBuilder();
@@ -310,16 +315,12 @@ public class AudioWife {
 		}
 
 		if (totalDuration < 0) {
-			throw new IllegalArgumentException(mCtx.getResources().getString(R.string.ERROR_PLAYTIME_TOTAL_NEGATIVE));
+			throw new IllegalArgumentException(ERROR_PLAYTIME_TOTAL_NEGATIVE);
 		}
 
 		// set total time as the audio is being played
 		if (totalDuration != 0) {
-			playbackStr.append(String.format("%02d:%02d",
-				TimeUnit.MILLISECONDS.toMinutes((long) totalDuration),
-				TimeUnit.MILLISECONDS.toSeconds((long) totalDuration)
-					- TimeUnit.MINUTES.toSeconds(
-					TimeUnit.MILLISECONDS.toMinutes((long) totalDuration))));
+			playbackStr.append(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) totalDuration), TimeUnit.MILLISECONDS.toSeconds((long) totalDuration) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) totalDuration))));
 		}
 
 		mTotalTime.setText(playbackStr);
@@ -351,8 +352,6 @@ public class AudioWife {
 		}
 	}
 
-
-
 	/***
 	 * Initialize the audio player. This method should be the first one to be called before starting
 	 * to play audio using {@link nl.changer.audiowife.AudioWife}
@@ -364,12 +363,8 @@ public class AudioWife {
 	 ****/
 	public AudioWife init(Context ctx, Uri uri) {
 
-	    	if (ctx == null) {
-		    throw new IllegalArgumentException("Context cannot be null");
-		}
-
 		if (uri == null) {
-			throw new IllegalArgumentException(ctx.getResources().getString(R.string.ERROR_URI_NULL));
+			throw new IllegalArgumentException("Uri cannot be null");
 		}
 
 		if (mAudioWife == null) {
@@ -378,18 +373,12 @@ public class AudioWife {
 
 		mUri = uri;
 
-	    	mCtx = ctx;
-
 		mProgressUpdateHandler = new Handler();
 
 		initPlayer(ctx);
 
 		return this;
 	}
-
-
-
-
 
 	/***
 	 * Sets the audio play functionality on click event of this view. You can set {@link android.widget.Button} or
@@ -400,7 +389,12 @@ public class AudioWife {
 	public AudioWife setPlayView(View play) {
 
 		if (play == null) {
-			throw new NullPointerException(mCtx.getResources().getString(R.string.ERROR_PLAYVIEW_NULL));
+			throw new NullPointerException("PlayView cannot be null");
+		}
+
+		if (mHasDefaultUi) {
+			Log.w(TAG, "Already using default UI. Setting play view will have no effect");
+			return this;
 		}
 
 		mPlayButton = play;
@@ -411,7 +405,7 @@ public class AudioWife {
 
 	private void initOnPlayClick() {
 		if (mPlayButton == null) {
-			throw new NullPointerException(mCtx.getResources().getString(R.string.ERROR_PLAYVIEW_NULL));
+			throw new NullPointerException(ERROR_PLAYVIEW_NULL);
 		}
 
 		// add default click listener to the top
@@ -428,12 +422,12 @@ public class AudioWife {
 		// when the play button is clicked
 		mPlayButton.setOnClickListener(new View.OnClickListener() {
 
-		    @Override
-		    public void onClick(View v) {
-			for (View.OnClickListener listener : mPlayListeners) {
-			    listener.onClick(v);
+			@Override
+			public void onClick(View v) {
+				for (View.OnClickListener listener : mPlayListeners) {
+					listener.onClick(v);
+				}
 			}
-		    }
 		});
 	}
 
@@ -447,7 +441,12 @@ public class AudioWife {
 	public AudioWife setPauseView(View pause) {
 
 		if (pause == null) {
-			throw new NullPointerException(mCtx.getResources().getString(R.string.ERROR_PAUSEVIEW_NULL));
+			throw new NullPointerException("PauseView cannot be null");
+		}
+
+		if (mHasDefaultUi) {
+			Log.w(TAG, "Already using default UI. Setting pause view will have no effect");
+			return this;
 		}
 
 		mPauseButton = pause;
@@ -458,7 +457,7 @@ public class AudioWife {
 
 	private void initOnPauseClick() {
 		if (mPauseButton == null) {
-			throw new NullPointerException(mCtx.getResources().getString(R.string.ERROR_PAUSEVIEW_NULL));
+			throw new NullPointerException("Pause view cannot be null");
 		}
 
 		// add default click listener to the top
@@ -475,12 +474,12 @@ public class AudioWife {
 		// when the pause button is clicked
 		mPauseButton.setOnClickListener(new View.OnClickListener() {
 
-		    @Override
-		    public void onClick(View v) {
-			for (View.OnClickListener listener : mPauseListeners) {
-			    listener.onClick(v);
+			@Override
+			public void onClick(View v) {
+				for (View.OnClickListener listener : mPauseListeners) {
+					listener.onClick(v);
+				}
 			}
-		    }
 		});
 	}
 
@@ -492,6 +491,10 @@ public class AudioWife {
 	 ****/
 	public AudioWife setPlaytime(TextView playTime) {
 
+		if (mHasDefaultUi) {
+			Log.w(TAG, "Already using default UI. Setting play time will have no effect");
+			return this;
+		}
 
 		mPlaybackTime = playTime;
 
@@ -507,6 +510,11 @@ public class AudioWife {
 	 ****/
 	public AudioWife setRuntimeView(TextView currentTime) {
 
+		if (mHasDefaultUi) {
+			Log.w(TAG, "Already using default UI. Setting play time will have no effect");
+			return this;
+		}
+
 		mRunTime = currentTime;
 
 		// initialize the playtime to 0
@@ -521,6 +529,11 @@ public class AudioWife {
 	 ****/
 	public AudioWife setTotalTimeView(TextView totalTime) {
 
+		if (mHasDefaultUi) {
+			Log.w(TAG, "Already using default UI. Setting play time will have no effect");
+			return this;
+		}
+
 		mTotalTime = totalTime;
 
 		setTotalTime();
@@ -528,6 +541,11 @@ public class AudioWife {
 	}
 
 	public AudioWife setSeekBar(SeekBar seekbar) {
+
+		if (mHasDefaultUi) {
+			Log.w(TAG, "Already using default UI. Setting seek bar will have no effect");
+			return this;
+		}
 
 		mSeekBar = seekbar;
 		initMediaSeekBar();
@@ -689,14 +707,12 @@ public class AudioWife {
 	 ****/
 	public AudioWife useDefaultUi(ViewGroup playerContainer, LayoutInflater inflater) {
 		if (playerContainer == null) {
-			throw new NullPointerException(mCtx.getResources().getString(R.string.ERROR_PLAYERCONTAINER_NULL));
+			throw new NullPointerException("Player container cannot be null");
 		}
 
 		if (inflater == null) {
-			throw new IllegalArgumentException(mCtx.getResources().getString(R.string.ERROR_INFLATER_NULL));
+			throw new IllegalArgumentException("Inflater cannot be null");
 		}
-
-
 
 		View playerUi = inflater.inflate(R.layout.aw_player, playerContainer);
 
@@ -716,6 +732,9 @@ public class AudioWife {
 		TextView playbackTime = (TextView) playerUi.findViewById(R.id.playback_time);
 		setPlaytime(playbackTime);
 
+		// this has to be set after all the views
+		// have finished initializing.
+		mHasDefaultUi = true;
 		return this;
 	}
 
