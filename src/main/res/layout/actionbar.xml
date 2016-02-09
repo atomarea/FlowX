@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:emojicon="http://schemas.android.com/apk/res-auto"
     android:id="@+id/actionbar_background"
     android:layout_width="match_parent"
@@ -7,31 +8,50 @@
     android:background="@android:color/transparent">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:orientation="vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-        <github.ankushsachdeva.emojicon.EmojiconTextView
-            android:id="@+id/title"
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/avatar_pic"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginRight="5dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_send_voice_online"
+            app:riv_corner_radius="20dp" />
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:fontFamily="sans-serif-medium"
-            android:maxLines="1"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            emojicon:emojiconSize="24sp" />
+            android:orientation="vertical">
 
-        <github.ankushsachdeva.emojicon.EmojiconTextView
-            android:id="@+id/subtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:fontFamily="sans-serif"
-            android:maxLines="1"
-            android:textColor="@color/white70"
-            android:textSize="15sp" />
+            <github.ankushsachdeva.emojicon.EmojiconTextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                emojicon:emojiconSize="24sp" />
+
+            <github.ankushsachdeva.emojicon.EmojiconTextView
+                android:id="@+id/subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif"
+                android:maxLines="1"
+                android:textColor="@color/white70"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
     <github.ankushsachdeva.emojicon.EmojiconTextView
