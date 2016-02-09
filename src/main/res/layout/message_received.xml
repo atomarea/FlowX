@@ -83,7 +83,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="4sp"
                     android:layout_marginRight="4sp"
-                    android:fontFamily="sans-serif-condensed"
+                    android:fontFamily="sans-serif"
                     android:gravity="center_vertical"
                     android:textColor="@color/white"
                     android:textSize="?attr/TextSizeInfo" />
@@ -104,7 +104,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:fontFamily="sans-serif-condensed"
+                    android:fontFamily="sans-serif"
                     android:gravity="center_vertical"
                     android:text="@string/sending"
                     android:textColor="@color/white70"
