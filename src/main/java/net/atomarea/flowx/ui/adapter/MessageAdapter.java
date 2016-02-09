@@ -52,7 +52,6 @@ import net.atomarea.flowx.utils.UIHelper;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.regex.Matcher;
 
 import nl.changer.audiowife.AudioWife;
@@ -85,6 +84,27 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         this.activity = a;
         metrics = getContext().getResources().getDisplayMetrics();
         updatePreferences();
+    }
+
+    public static boolean cancelPotentialWork(Message message, ImageView imageView) {
+        final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
+        if (bitmapWorkerTask != null) {
+            final Message oldMessage = bitmapWorkerTask.message;
+            if (oldMessage == null || message != oldMessage) bitmapWorkerTask.cancel(true);
+            else return false;
+        }
+        return true;
+    }
+
+    private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
+        if (imageView != null) {
+            final Drawable drawable = imageView.getDrawable();
+            if (drawable instanceof AsyncDrawable) {
+                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
+                return asyncDrawable.getBitmapWorkerTask();
+            }
+        }
+        return null;
     }
 
     public void setOnContactPictureClicked(OnContactPictureClicked listener) {
@@ -194,7 +214,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.time.setText(formatedTime + " \u00B7 " + filesize + " \u00B7 " + info);
             else if ((filesize == null) && (info != null))
                 viewHolder.time.setText(formatedTime + " \u00B7 " + info);
-            else if ((filesize != null) && (info == null))
+            else if ((filesize != null))
                 viewHolder.time.setText(formatedTime + " \u00B7 " + filesize);
             else viewHolder.time.setText(formatedTime);
         } else {
@@ -203,7 +223,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             else if ((filesize == null) && (info != null))
                 if (error) viewHolder.time.setText(info + " \u00B7 " + formatedTime);
                 else viewHolder.time.setText(info);
-            else if ((filesize != null) && (info == null))
+            else if ((filesize != null))
                 viewHolder.time.setText(filesize + " \u00B7 " + formatedTime);
             else viewHolder.time.setText(formatedTime);
         }
@@ -259,7 +279,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         span.setSpan(new ForegroundColorSpan(activity.getWarningTextColor()), 0, body.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         viewHolder.messageBody.setText(span);
     }
-
 
     private void displayTextMessage(final ViewHolder viewHolder, final Message message, boolean darkBackground) {
         viewHolder.aw_player.setVisibility(View.GONE);
@@ -452,7 +471,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             case SENT:
                 view = activity.getLayoutInflater().inflate(R.layout.message_sent, parent, false);
                 viewHolder.message_box = (LinearLayout) view.findViewById(R.id.message_box);
-                viewHolder.contact_picture = (ImageView) view.findViewById(R.id.message_photo);
                 viewHolder.aw_player = (ViewGroup) view.findViewById(R.id.aw_player);
                 viewHolder.download_button = (BootstrapButton) view.findViewById(R.id.download_button);
                 viewHolder.indicator = (ImageView) view.findViewById(R.id.security_indicator);
@@ -466,7 +484,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             case RECEIVED:
                 view = activity.getLayoutInflater().inflate(R.layout.message_received, parent, false);
                 viewHolder.message_box = (LinearLayout) view.findViewById(R.id.message_box);
-                viewHolder.contact_picture = (ImageView) view.findViewById(R.id.message_photo);
                 viewHolder.aw_player = (ViewGroup) view.findViewById(R.id.aw_player);
                 viewHolder.download_button = (BootstrapButton) view.findViewById(R.id.download_button);
                 viewHolder.indicator = (ImageView) view.findViewById(R.id.security_indicator);
@@ -478,7 +495,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 break;
             case STATUS:
                 view = activity.getLayoutInflater().inflate(R.layout.message_status, parent, false);
-                viewHolder.contact_picture = (ImageView) view.findViewById(R.id.message_photo);
                 viewHolder.status_message = (TextView) view.findViewById(R.id.status_message);
                 viewHolder.load_more_messages = (Button) view.findViewById(R.id.load_more_messages);
                 break;
@@ -496,7 +512,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         if (type == STATUS) {
             if ("LOAD_MORE".equals(message.getBody())) {
                 viewHolder.status_message.setVisibility(View.GONE);
-                viewHolder.contact_picture.setVisibility(View.GONE);
                 viewHolder.load_more_messages.setVisibility(View.VISIBLE);
                 viewHolder.load_more_messages.setOnClickListener(new OnClickListener() {
                     @Override
@@ -506,39 +521,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 });
             } else {
                 viewHolder.status_message.setVisibility(View.VISIBLE);
-                viewHolder.contact_picture.setVisibility(View.VISIBLE);
                 viewHolder.load_more_messages.setVisibility(View.GONE);
-                if (conversation.getMode() == Conversation.MODE_SINGLE) {
-                    viewHolder.contact_picture.setImageBitmap(activity.avatarService().get(conversation.getContact(), activity.getPixel(32)));
-                    viewHolder.contact_picture.setAlpha(0.5f);
-                }
                 viewHolder.status_message.setText(message.getBody());
             }
             return view;
-        } else {
-            loadAvatar(message, viewHolder.contact_picture);
         }
-
-        viewHolder.contact_picture.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (MessageAdapter.this.mOnContactPictureClickedListener != null) {
-                    MessageAdapter.this.mOnContactPictureClickedListener
-                            .onContactPictureClicked(message);
-                }
-            }
-        });
-        viewHolder.contact_picture.setOnLongClickListener(new OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (MessageAdapter.this.mOnContactPictureLongClickedListener != null) {
-                    MessageAdapter.this.mOnContactPictureLongClickedListener
-                            .onContactPictureLongClicked(message);
-                    return true;
-                }
-                return false;
-            }
-        });
 
         final Transferable transferable = message.getTransferable();
         if (transferable != null && transferable.getStatus() != Transferable.STATUS_UPLOADING) {
@@ -589,10 +576,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         if (type == RECEIVED) {
             if (isInValidSession) {
-                viewHolder.message_box.setBackgroundResource(R.drawable.message_bubble_received);
+                viewHolder.message_box.setBackgroundResource(R.drawable.msg_bbl_recv);
                 viewHolder.encryption.setVisibility(View.GONE);
             } else {
-                viewHolder.message_box.setBackgroundResource(R.drawable.message_bubble_received_warning);
+                viewHolder.message_box.setBackgroundResource(R.drawable.msg_bbl_warn);
                 viewHolder.encryption.setVisibility(View.VISIBLE);
                 viewHolder.encryption.setText(CryptoHelper.encryptionTypeToText(message.getEncryption()));
             }
@@ -602,7 +589,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         return view;
     }
-
 
     public void openDownloadable(Message message) {
         DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
@@ -650,21 +636,32 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     private static class ViewHolder {
 
+        public Button load_more_messages;
+        public BootstrapProgressBar pbFile;
         protected LinearLayout message_box;
         protected BootstrapButton download_button;
         protected ViewGroup aw_player;
         protected TextView encryption;
-        public Button load_more_messages;
         protected ImageView image;
         protected ImageView indicator;
         protected ImageView indicatorReceived;
         protected TextView time;
         protected ImageView indicatorRead;
         protected TextView messageBody;
-        protected ImageView contact_picture;
         protected TextView status_message;
+    }
 
-        public BootstrapProgressBar pbFile;
+    static class AsyncDrawable extends BitmapDrawable {
+        private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
+
+        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
+            super(res, bitmap);
+            bitmapWorkerTaskReference = new WeakReference<>(bitmapWorkerTask);
+        }
+
+        public BitmapWorkerTask getBitmapWorkerTask() {
+            return bitmapWorkerTaskReference.get();
+        }
     }
 
     class BitmapWorkerTask extends AsyncTask<Message, Void, Bitmap> {
@@ -689,60 +686,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     imageView.setBackgroundColor(0x00000000);
                 }
             }
-        }
-    }
-
-    public void loadAvatar(Message message, ImageView imageView) {
-        if (cancelPotentialWork(message, imageView)) {
-            final Bitmap bm = activity.avatarService().get(message, activity.getPixel(48), true);
-            if (bm != null) {
-                imageView.setImageBitmap(bm);
-                imageView.setBackgroundColor(0x00000000);
-            } else {
-                imageView.setBackgroundColor(UIHelper.getColorForName(UIHelper.getMessageDisplayName(message)));
-                imageView.setImageDrawable(null);
-                final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-                final AsyncDrawable asyncDrawable = new AsyncDrawable(activity.getResources(), null, task);
-                imageView.setImageDrawable(asyncDrawable);
-                try {
-                    task.execute(message);
-                } catch (final RejectedExecutionException ignored) {
-                }
-            }
-        }
-    }
-
-    public static boolean cancelPotentialWork(Message message, ImageView imageView) {
-        final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-        if (bitmapWorkerTask != null) {
-            final Message oldMessage = bitmapWorkerTask.message;
-            if (oldMessage == null || message != oldMessage) bitmapWorkerTask.cancel(true);
-            else return false;
-        }
-        return true;
-    }
-
-    private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
-        if (imageView != null) {
-            final Drawable drawable = imageView.getDrawable();
-            if (drawable instanceof AsyncDrawable) {
-                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
-                return asyncDrawable.getBitmapWorkerTask();
-            }
-        }
-        return null;
-    }
-
-    static class AsyncDrawable extends BitmapDrawable {
-        private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
-
-        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
-            super(res, bitmap);
-            bitmapWorkerTaskReference = new WeakReference<>(bitmapWorkerTask);
-        }
-
-        public BitmapWorkerTask getBitmapWorkerTask() {
-            return bitmapWorkerTaskReference.get();
         }
     }
 }
