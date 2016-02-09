@@ -43,6 +43,7 @@
             android:layout_toLeftOf="@+id/textSendButton"
             android:layout_toStartOf="@+id/textSendButton"
             android:background="@drawable/message_edit_text"
+            android:elevation="1dp"
             android:minHeight="48dp"
             android:orientation="horizontal">
 
