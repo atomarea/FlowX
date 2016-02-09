@@ -118,7 +118,7 @@
                     android:layout_marginStart="-6sp"
                     android:contentDescription="@string/app_name"
                     android:gravity="center_vertical"
-                    android:src="@drawable/ic_read_indicator" />
+                    android:src="@drawable/ic_received_indicator" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
