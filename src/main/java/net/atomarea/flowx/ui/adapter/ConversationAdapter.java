@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.support.v4.content.ContextCompat;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -126,8 +127,8 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
         mLastMessage.setTextColor(Color.BLACK);
 
         if (conversation.getIncomingChatState().equals(ChatState.COMPOSING)) {
-            mLastMessage.setTextColor(Color.GREEN);
-            mLastMessage.setText("schreibt..."); // TODO: ! strings.xml
+            mLastMessage.setTextColor(ContextCompat.getColor(getContext(), R.color.green500));
+            mLastMessage.setText(R.string.contact_is_typing);
         }
 
         return view;
