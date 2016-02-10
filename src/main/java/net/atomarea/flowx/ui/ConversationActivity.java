@@ -410,6 +410,10 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         if (titleShouldBeName && conversation != null) {
             if (lastAbState != 1) {
                 lastAbState = 1;
+                tv_flowx.setAlpha(1f);
+                tv_title.setAlpha(0f);
+                tv_subtitle.setAlpha(0f);
+                iv_avatar.setAlpha(0f);
                 tv_flowx.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
                 tv_title.animate().setStartDelay(500).alpha(1f).setDuration(200).start();
                 tv_subtitle.animate().setStartDelay(1300).alpha(1f).setDuration(200).start(); // Daten laden, dann erst anzeigen... daher das Delay...
@@ -443,6 +447,10 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             tv_flowx.setText(R.string.app_name);
             if (lastAbState != 2) {
                 lastAbState = 2;
+                tv_flowx.setAlpha(0f);
+                tv_title.setAlpha(1f);
+                tv_subtitle.setAlpha(1f);
+                iv_avatar.setAlpha(1f);
                 tv_title.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
                 tv_subtitle.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
                 iv_avatar.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
