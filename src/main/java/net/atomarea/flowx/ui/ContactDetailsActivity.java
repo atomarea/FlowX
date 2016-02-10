@@ -10,6 +10,7 @@ import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
+import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
@@ -174,33 +176,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         }
 
         this.messageFingerprint = getIntent().getStringExtra("fingerprint");
-        setContentView(R.layout.activity_contact_details);
-
-        if (getActionBar() == null) return;
-
-        getActionBar().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        contactJidTv = (TextView) findViewById(R.id.details_contactjid);
-        accountJidTv = (TextView) findViewById(R.id.details_account);
-        lastseen = (TextView) findViewById(R.id.details_lastseen);
-        send = (CheckBox) findViewById(R.id.details_send_presence);
-        receive = (CheckBox) findViewById(R.id.details_receive_presence);
-        addContactButton = (BootstrapButton) findViewById(R.id.add_contact_button);
-        addContactButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showAddToRosterDialog(contact);
-            }
-        });
-        keys = (LinearLayout) findViewById(R.id.details_contact_keys);
-        tags = (LinearLayout) findViewById(R.id.tags);
-        if (getActionBar() != null) {
-            getActionBar().setHomeButtonEnabled(true);
-            getActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        this.showDynamicTags = preferences.getBoolean("show_dynamic_tags", false);
     }
 
     @Override
@@ -282,9 +257,40 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     private void populateView() {
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
+        BitmapDrawable bmd = new BitmapDrawable(this.getResources(), avatarService().get(contact, size.x));
+        ImageView iv = new ImageView(this);
+        iv.setImageDrawable(bmd);
 
-        ((ImageView) findViewById(R.id.iv_contact)).setImageBitmap(avatarService().get(contact, size.x));
-        (findViewById(R.id.iv_contact)).setOnClickListener(onBadgeClick);
+        FadingActionBarHelper helper = new FadingActionBarHelper()
+                .actionBarBackground(new ColorDrawable(Color.BLACK))
+                .headerView(iv)
+                .contentLayout(R.layout.activity_contact_details);
+
+        setContentView(helper.createView(this));
+
+        helper.initActionBar(this);
+
+        contactJidTv = (TextView) findViewById(R.id.details_contactjid);
+        accountJidTv = (TextView) findViewById(R.id.details_account);
+        lastseen = (TextView) findViewById(R.id.details_lastseen);
+        send = (CheckBox) findViewById(R.id.details_send_presence);
+        receive = (CheckBox) findViewById(R.id.details_receive_presence);
+        addContactButton = (BootstrapButton) findViewById(R.id.add_contact_button);
+        addContactButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showAddToRosterDialog(contact);
+            }
+        });
+        keys = (LinearLayout) findViewById(R.id.details_contact_keys);
+        tags = (LinearLayout) findViewById(R.id.tags);
+        if (getActionBar() != null) {
+            getActionBar().setHomeButtonEnabled(true);
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        this.showDynamicTags = preferences.getBoolean("show_dynamic_tags", false);
 
         if (getActionBar() == null) return; // lol
 
