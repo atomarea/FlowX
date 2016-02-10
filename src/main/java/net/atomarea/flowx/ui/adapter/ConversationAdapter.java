@@ -125,10 +125,12 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
         loadAvatar(conversation, profilePicture);
 
         mLastMessage.setTextColor(Color.BLACK);
+        mLastMessage.setTypeface(null, Typeface.NORMAL);
 
         if (conversation.getIncomingChatState().equals(ChatState.COMPOSING)) {
             mLastMessage.setTextColor(ContextCompat.getColor(getContext(), R.color.green500));
             mLastMessage.setText(R.string.contact_is_typing);
+            mLastMessage.setTypeface(null, Typeface.BOLD);
         }
 
         return view;
