@@ -411,9 +411,9 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             if (lastAbState != 1) {
                 lastAbState = 1;
                 tv_flowx.animate().setStartDelay(0).alpha(0f).setDuration(200).start();
-                tv_title.animate().setStartDelay(300).alpha(1f).setDuration(200).start();
-                tv_subtitle.animate().setStartDelay(500).alpha(1f).setDuration(200).start();
-                iv_avatar.animate().setStartDelay(700).alpha(1f).setDuration(200).start();
+                tv_title.animate().setStartDelay(500).alpha(1f).setDuration(200).start();
+                tv_subtitle.animate().setStartDelay(1300).alpha(1f).setDuration(200).start(); // Daten laden, dann erst anzeigen... daher das Delay...
+                iv_avatar.animate().setStartDelay(300).alpha(1f).setDuration(200).start();
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
