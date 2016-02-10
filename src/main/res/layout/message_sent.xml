@@ -15,8 +15,8 @@
         android:id="@+id/message_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginStart="5dp"
         android:background="@drawable/msg_bbl_sent"
         android:elevation="1dp"
         android:longClickable="true">
