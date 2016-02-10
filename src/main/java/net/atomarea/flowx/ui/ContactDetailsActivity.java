@@ -294,12 +294,9 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
 
         if (getActionBar() == null) return; // lol
 
+        getActionBar().setTitle(contact.getDisplayName());
+
         invalidateOptionsMenu();
-        getActionBar().setDisplayShowCustomEnabled(true);
-        getActionBar().setDisplayShowTitleEnabled(false);
-        LayoutInflater inflator = LayoutInflater.from(this);
-        View v = inflator.inflate(R.layout.actionbar, null);
-        getActionBar().setCustomView(v);
 
         if (contact.showInRoster()) {
             send.setVisibility(View.VISIBLE);
