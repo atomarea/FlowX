@@ -108,6 +108,12 @@
                 android:visibility="gone" />
         </RelativeLayout>
 
+        <ImageView
+            android:id="@+id/iv_cqr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/app_name" />
+
         <LinearLayout
             android:id="@+id/details_contact_keys"
             android:layout_width="fill_parent"

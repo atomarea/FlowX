@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.PendingIntent;
@@ -60,15 +59,6 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
-import net.java.otr4j.session.SessionID;
-
-import java.io.FileNotFoundException;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
@@ -88,16 +78,22 @@ import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
 import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
+import net.java.otr4j.session.SessionID;
+
+import java.io.FileNotFoundException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 
 public abstract class XmppActivity extends FragmentActivity {
 
+	public static final String EXTRA_ACCOUNT = "account";
 	protected static final int REQUEST_ANNOUNCE_PGP = 0x0101;
 	protected static final int REQUEST_INVITE_TO_CONVERSATION = 0x0102;
 	protected static final int REQUEST_CHOOSE_PGP_ID = 0x0103;
 	protected static final int REQUEST_BATTERY_OP = 0x13849ff;
-
-	public static final String EXTRA_ACCOUNT = "account";
-
 	public XmppConnectionService xmppConnectionService;
 	public boolean xmppConnectionServiceBound = false;
 	protected boolean registeredListeners = false;
@@ -112,46 +108,9 @@ public abstract class XmppActivity extends FragmentActivity {
 	protected int mColorGreen;
 	protected int mPrimaryColor;
 	protected boolean mUseSubject = true;
-
-	private DisplayMetrics metrics;
 	protected int mTheme;
 	protected boolean mUsingEnterKey = false;
-
-	private long mLastUiRefresh = 0;
-	private Handler mRefreshUiHandler = new Handler();
-	private Runnable mRefreshUiRunnable = new Runnable() {
-		@Override
-		public void run() {
-			mLastUiRefresh = SystemClock.elapsedRealtime();
-			refreshUiReal();
-		}
-	};
-
 	protected ConferenceInvite mPendingConferenceInvite = null;
-
-
-	protected final void refreshUi() {
-		final long diff = SystemClock.elapsedRealtime() - mLastUiRefresh;
-		if (diff > Config.REFRESH_UI_INTERVAL) {
-			mRefreshUiHandler.removeCallbacks(mRefreshUiRunnable);
-			runOnUiThread(mRefreshUiRunnable);
-		} else {
-			final long next = Config.REFRESH_UI_INTERVAL - diff;
-			mRefreshUiHandler.removeCallbacks(mRefreshUiRunnable);
-			mRefreshUiHandler.postDelayed(mRefreshUiRunnable,next);
-		}
-	}
-
-	abstract protected void refreshUiReal();
-
-	protected interface OnValueEdited {
-		public void onValueEdited(String value);
-	}
-
-	public interface OnPresenceSelected {
-		public void onPresenceSelected();
-	}
-
 	protected ServiceConnection mConnection = new ServiceConnection() {
 
 		@Override
@@ -171,6 +130,83 @@ public abstract class XmppActivity extends FragmentActivity {
 			xmppConnectionServiceBound = false;
 		}
 	};
+	private DisplayMetrics metrics;
+	private long mLastUiRefresh = 0;
+	private Handler mRefreshUiHandler = new Handler();
+	private Runnable mRefreshUiRunnable = new Runnable() {
+		@Override
+		public void run() {
+			mLastUiRefresh = SystemClock.elapsedRealtime();
+			refreshUiReal();
+		}
+	};
+	private UiCallback<Conversation> adhocCallback = new UiCallback<Conversation>() {
+		@Override
+		public void success(final Conversation conversation) {
+			switchToConversation(conversation);
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					Toast.makeText(XmppActivity.this, R.string.conference_created, Toast.LENGTH_LONG).show();
+				}
+			});
+		}
+
+		@Override
+		public void error(final int errorCode, Conversation object) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					Toast.makeText(XmppActivity.this, errorCode, Toast.LENGTH_LONG).show();
+				}
+			});
+		}
+
+		@Override
+		public void userInputRequried(PendingIntent pi, Conversation object) {
+
+		}
+	};
+
+	public static boolean cancelPotentialWork(Message message,
+											  ImageView imageView) {
+		final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
+
+		if (bitmapWorkerTask != null) {
+			final Message oldMessage = bitmapWorkerTask.message;
+			if (oldMessage == null || message != oldMessage) {
+				bitmapWorkerTask.cancel(true);
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
+		if (imageView != null) {
+			final Drawable drawable = imageView.getDrawable();
+			if (drawable instanceof AsyncDrawable) {
+				final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
+				return asyncDrawable.getBitmapWorkerTask();
+			}
+		}
+		return null;
+	}
+
+	protected final void refreshUi() {
+		final long diff = SystemClock.elapsedRealtime() - mLastUiRefresh;
+		if (diff > Config.REFRESH_UI_INTERVAL) {
+			mRefreshUiHandler.removeCallbacks(mRefreshUiRunnable);
+			runOnUiThread(mRefreshUiRunnable);
+		} else {
+			final long next = Config.REFRESH_UI_INTERVAL - diff;
+			mRefreshUiHandler.removeCallbacks(mRefreshUiRunnable);
+			mRefreshUiHandler.postDelayed(mRefreshUiRunnable,next);
+		}
+	}
+
+	abstract protected void refreshUiReal();
 
 	@Override
 	protected void onStart() {
@@ -904,34 +940,6 @@ public abstract class XmppActivity extends FragmentActivity {
 		}
 	}
 
-	private UiCallback<Conversation> adhocCallback = new UiCallback<Conversation>() {
-		@Override
-		public void success(final Conversation conversation) {
-			switchToConversation(conversation);
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					Toast.makeText(XmppActivity.this,R.string.conference_created,Toast.LENGTH_LONG).show();
-				}
-			});
-		}
-
-		@Override
-		public void error(final int errorCode, Conversation object) {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					Toast.makeText(XmppActivity.this,errorCode,Toast.LENGTH_LONG).show();
-				}
-			});
-		}
-
-		@Override
-		public void userInputRequried(PendingIntent pi, Conversation object) {
-
-		}
-	};
-
 	public int getTertiaryTextColor() {
 		return this.mTertiaryTextColor;
 	}
@@ -1039,6 +1047,18 @@ public abstract class XmppActivity extends FragmentActivity {
 		}
 	}
 
+	public BitmapDrawable getQrCode() {
+		String uri = getShareableUri();
+		if (uri != null) {
+			Point size = new Point();
+			getWindowManager().getDefaultDisplay().getSize(size);
+			final int width = (size.x < size.y ? size.x : size.y);
+			Bitmap bitmap = createQrCodeBitmap(uri, width);
+			return new BitmapDrawable(getResources(), bitmap);
+		}
+		return null;
+	}
+
 	protected Bitmap createQrCodeBitmap(String input, int size) {
 		Log.d(Config.LOGTAG,"qr code requested size: "+size);
 		try {
@@ -1071,6 +1091,44 @@ public abstract class XmppActivity extends FragmentActivity {
 		} catch (InvalidJidException e) {
 			return null;
 		}
+	}
+
+	public AvatarService avatarService() {
+		return xmppConnectionService.getAvatarService();
+	}
+
+	public void loadBitmap(Message message, ImageView imageView) {
+		Bitmap bm;
+		try {
+			bm = xmppConnectionService.getFileBackend().getThumbnail(message,
+					(int) (metrics.density * 288), true);
+		} catch (FileNotFoundException e) {
+			bm = null;
+		}
+		if (bm != null) {
+			imageView.setImageBitmap(bm);
+			imageView.setBackgroundColor(0x00000000);
+		} else {
+			if (cancelPotentialWork(message, imageView)) {
+				imageView.setBackgroundColor(0xff333333);
+				final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+				final AsyncDrawable asyncDrawable = new AsyncDrawable(
+						getResources(), null, task);
+				imageView.setImageDrawable(asyncDrawable);
+				try {
+					task.execute(message);
+				} catch (final RejectedExecutionException ignored) {
+				}
+			}
+		}
+	}
+
+	protected interface OnValueEdited {
+		public void onValueEdited(String value);
+	}
+
+	public interface OnPresenceSelected {
+		public void onPresenceSelected();
 	}
 
 	public static class ConferenceInvite {
@@ -1115,8 +1173,19 @@ public abstract class XmppActivity extends FragmentActivity {
 		}
 	}
 
-	public AvatarService avatarService() {
-		return xmppConnectionService.getAvatarService();
+	static class AsyncDrawable extends BitmapDrawable {
+		private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
+
+		public AsyncDrawable(Resources res, Bitmap bitmap,
+				BitmapWorkerTask bitmapWorkerTask) {
+			super(res, bitmap);
+			bitmapWorkerTaskReference = new WeakReference<>(
+					bitmapWorkerTask);
+		}
+
+		public BitmapWorkerTask getBitmapWorkerTask() {
+			return bitmapWorkerTaskReference.get();
+		}
 	}
 
 	class BitmapWorkerTask extends AsyncTask<Message, Void, Bitmap> {
@@ -1147,73 +1216,6 @@ public abstract class XmppActivity extends FragmentActivity {
 					imageView.setBackgroundColor(0x00000000);
 				}
 			}
-		}
-	}
-
-	public void loadBitmap(Message message, ImageView imageView) {
-		Bitmap bm;
-		try {
-			bm = xmppConnectionService.getFileBackend().getThumbnail(message,
-					(int) (metrics.density * 288), true);
-		} catch (FileNotFoundException e) {
-			bm = null;
-		}
-		if (bm != null) {
-			imageView.setImageBitmap(bm);
-			imageView.setBackgroundColor(0x00000000);
-		} else {
-			if (cancelPotentialWork(message, imageView)) {
-				imageView.setBackgroundColor(0xff333333);
-				final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-				final AsyncDrawable asyncDrawable = new AsyncDrawable(
-						getResources(), null, task);
-				imageView.setImageDrawable(asyncDrawable);
-				try {
-					task.execute(message);
-				} catch (final RejectedExecutionException ignored) {
-				}
-			}
-		}
-	}
-
-	public static boolean cancelPotentialWork(Message message,
-			ImageView imageView) {
-		final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-
-		if (bitmapWorkerTask != null) {
-			final Message oldMessage = bitmapWorkerTask.message;
-			if (oldMessage == null || message != oldMessage) {
-				bitmapWorkerTask.cancel(true);
-			} else {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
-		if (imageView != null) {
-			final Drawable drawable = imageView.getDrawable();
-			if (drawable instanceof AsyncDrawable) {
-				final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
-				return asyncDrawable.getBitmapWorkerTask();
-			}
-		}
-		return null;
-	}
-
-	static class AsyncDrawable extends BitmapDrawable {
-		private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
-
-		public AsyncDrawable(Resources res, Bitmap bitmap,
-				BitmapWorkerTask bitmapWorkerTask) {
-			super(res, bitmap);
-			bitmapWorkerTaskReference = new WeakReference<>(
-					bitmapWorkerTask);
-		}
-
-		public BitmapWorkerTask getBitmapWorkerTask() {
-			return bitmapWorkerTaskReference.get();
 		}
 	}
 }

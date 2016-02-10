@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -289,6 +288,9 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
             getActionBar().setHomeButtonEnabled(true);
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
+        BitmapDrawable bm = getQrCode();
+        if (bm != null) ((ImageView) findViewById(R.id.iv_cqr)).setImageDrawable(bm);
 
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         this.showDynamicTags = preferences.getBoolean("show_dynamic_tags", false);
