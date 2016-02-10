@@ -5,7 +5,7 @@
     android:id="@+id/scrollview_contact_detail"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@color/grey50">
+    android:background="@color/grey200">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -121,13 +121,34 @@
                     android:textSize="?attr/TextSizeInfo"
                     android:visibility="gone" />
             </RelativeLayout>
-
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:background="@drawable/infocard_border"
+                android:padding="@dimen/infocard_padding">
+                <github.ankushsachdeva.emojicon.EmojiconTextView
+                    android:id="@+id/root2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="false"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/show_qr_code"
+                    android:textColor="@color/primary"
+                    android:typeface="normal"
+                    android:divider="?android:dividerHorizontal"
+                    android:showDividers="middle"
+                    android:textSize="@dimen/bootstrap_h5_text_size"
+                    android:visibility="visible" />
             <ImageView
                 android:id="@+id/iv_cqr"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/app_name" />
-
+            </RelativeLayout>
             <LinearLayout
                 android:id="@+id/details_contact_keys"
                 android:layout_width="fill_parent"
@@ -141,7 +162,6 @@
                 android:orientation="vertical"
                 android:padding="@dimen/infocard_padding"
                 android:showDividers="middle">
-
             </LinearLayout>
         </LinearLayout>
 
