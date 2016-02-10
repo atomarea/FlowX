@@ -986,12 +986,12 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 switch (status) {
                     case CHAT:
                     case ONLINE:
-                        return R.drawable.ic_send_text_online;
+                        return R.drawable.ic_send_text_offline;
                     case AWAY:
-                        return R.drawable.ic_send_text_away;
+                        return R.drawable.ic_send_text_offline;
                     case XA:
                     case DND:
-                        return R.drawable.ic_send_text_dnd;
+                        return R.drawable.ic_send_text_offline;
                     default:
                         return R.drawable.ic_send_text_offline;
                 }
@@ -999,12 +999,12 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 switch (status) {
                     case CHAT:
                     case ONLINE:
-                        return R.drawable.ic_send_photo_online;
+                        return R.drawable.ic_send_photo_offline;
                     case AWAY:
-                        return R.drawable.ic_send_photo_away;
+                        return R.drawable.ic_send_photo_offline;
                     case XA:
                     case DND:
-                        return R.drawable.ic_send_photo_dnd;
+                        return R.drawable.ic_send_photo_offline;
                     default:
                         return R.drawable.ic_send_photo_offline;
                 }
@@ -1012,12 +1012,12 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 switch (status) {
                     case CHAT:
                     case ONLINE:
-                        return R.drawable.ic_send_voice_online;
+                        return R.drawable.ic_send_voice_offline;
                     case AWAY:
-                        return R.drawable.ic_send_voice_away;
+                        return R.drawable.ic_send_voice_offline;
                     case XA:
                     case DND:
-                        return R.drawable.ic_send_voice_dnd;
+                        return R.drawable.ic_send_voice_offline;
                     default:
                         return R.drawable.ic_send_voice_offline;
                 }
@@ -1025,12 +1025,12 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 switch (status) {
                     case CHAT:
                     case ONLINE:
-                        return R.drawable.ic_send_location_online;
+                        return R.drawable.ic_send_location_offline;
                     case AWAY:
-                        return R.drawable.ic_send_location_away;
+                        return R.drawable.ic_send_location_offline;
                     case XA:
                     case DND:
-                        return R.drawable.ic_send_location_dnd;
+                        return R.drawable.ic_send_location_offline;
                     default:
                         return R.drawable.ic_send_location_offline;
                 }
@@ -1038,12 +1038,12 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 switch (status) {
                     case CHAT:
                     case ONLINE:
-                        return R.drawable.ic_send_cancel_online;
+                        return R.drawable.ic_send_cancel_offline;
                     case AWAY:
-                        return R.drawable.ic_send_cancel_away;
+                        return R.drawable.ic_send_cancel_offline;
                     case XA:
                     case DND:
-                        return R.drawable.ic_send_cancel_dnd;
+                        return R.drawable.ic_send_cancel_offline;
                     default:
                         return R.drawable.ic_send_cancel_offline;
                 }
@@ -1051,12 +1051,12 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 switch (status) {
                     case CHAT:
                     case ONLINE:
-                        return R.drawable.ic_send_picture_online;
+                        return R.drawable.ic_send_picture_offline;
                     case AWAY:
-                        return R.drawable.ic_send_picture_away;
+                        return R.drawable.ic_send_picture_offline;
                     case XA:
                     case DND:
-                        return R.drawable.ic_send_picture_dnd;
+                        return R.drawable.ic_send_picture_offline;
                     default:
                         return R.drawable.ic_send_picture_offline;
                 }

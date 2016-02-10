@@ -81,26 +81,6 @@
             android:key="confirm_messages"
             android:summary="@string/pref_confirm_messages_summary"
             android:title="@string/pref_confirm_messages" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="indicate_received"
-            android:summary="@string/pref_use_indicate_received_summary"
-            android:title="@string/pref_use_indicate_received" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="send_button_status"
-            android:summary="@string/pref_use_send_button_to_indicate_status_summary"
-            android:title="@string/pref_use_send_button_to_indicate_status" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="away_when_screen_off"
-            android:summary="@string/pref_away_when_screen_off_summary"
-            android:title="@string/pref_away_when_screen_off" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="xa_on_silent_mode"
-            android:summary="@string/pref_xa_on_silent_mode_summary"
-            android:title="@string/pref_xa_on_silent_mode" />
     </PreferenceScreen>
 
     <PreferenceScreen
@@ -125,11 +105,6 @@
             android:key="keep_foreground_service"
             android:title="@string/pref_keep_foreground_service"
             android:summary="@string/pref_keep_foreground_service_summary" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="use_tor"
-            android:title="@string/pref_use_tor"
-            android:summary="@string/pref_use_tor_summary" />
         <net.atomarea.flowx.ui.ExportLogsPreference
             android:key="export_logs"
             android:title="@string/pref_export_logs"

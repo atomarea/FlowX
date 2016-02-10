@@ -72,7 +72,7 @@
                             android:id="@+id/conversation_lastmsg"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-condensed"
+                            android:fontFamily="sans-serif"
                             android:scrollHorizontally="false"
                             android:singleLine="true"
                             android:textColor="@color/black87"
@@ -106,7 +106,7 @@
                     android:layout_alignBaseline="@+id/conversation_name"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
-                    android:fontFamily="sans-serif-condensed"
+                    android:fontFamily="sans-serif"
                     android:gravity="end"
                     android:textColor="@color/black54"
                     android:textSize="?attr/TextSizeInfo" />
