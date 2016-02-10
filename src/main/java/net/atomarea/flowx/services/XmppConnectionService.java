@@ -221,7 +221,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		@Override
 		public void onMessageAcknowledged(Account account, String uuid) {
 			for (final Conversation conversation : getConversations()) {
-				if (conversation.getAccount() == account) {
+				if (conversation.getAccount() == account && conversation.getMode() == Conversation.MODE_SINGLE) {
 					Message message = conversation.findUnsentMessageWithUuid(uuid);
 					if (message != null) {
 						markMessage(message, Message.STATUS_SEND);
@@ -1776,6 +1776,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 					if (conversation.getMucOptions().mamSupport()) {
 						getMessageArchiveService().catchupMUC(conversation);
 					}
+					sendUnsentMessages(conversation);
 				}
 
 				@Override
