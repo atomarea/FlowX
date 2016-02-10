@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract.Contacts;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -262,7 +263,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         iv.setImageDrawable(bmd);
 
         FadingActionBarHelper helper = new FadingActionBarHelper()
-                .actionBarBackground(new ColorDrawable(Color.BLACK))
+                .actionBarBackground(new ColorDrawable(ContextCompat.getColor(this, R.color.primary)))
                 .headerView(iv)
                 .contentLayout(R.layout.activity_contact_details);
 
