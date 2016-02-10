@@ -77,7 +77,19 @@
                         app:bootstrapBrand="success"
                         app:bootstrapSize="md"
                         app:roundedCorners="true" />
-
+                    <github.ankushsachdeva.emojicon.EmojiconTextView
+                        android:id="@+id/root"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginTop="0dp"
+                        android:text="@string/pref_presence_settings"
+                        android:textColor="@color/primary"
+                        android:typeface="normal"
+                        android:divider="?android:dividerHorizontal"
+                        android:showDividers="middle"
+                        android:textSize="?attr/TextSizeBody"
+                        android:visibility="visible" />
                     <CheckBox
                         android:id="@+id/details_send_presence"
                         android:layout_width="wrap_content"
@@ -128,7 +140,9 @@
                 android:divider="?android:dividerHorizontal"
                 android:orientation="vertical"
                 android:padding="@dimen/infocard_padding"
-                android:showDividers="middle"></LinearLayout>
+                android:showDividers="middle">
+
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>
