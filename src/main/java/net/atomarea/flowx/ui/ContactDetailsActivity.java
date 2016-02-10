@@ -53,6 +53,8 @@ import org.openintents.openpgp.util.OpenPgpUtils;
 
 import java.util.List;
 
+import github.ankushsachdeva.emojicon.EmojiconTextView;
+
 public class ContactDetailsActivity extends XmppActivity implements OnAccountUpdate, OnRosterUpdate, OnUpdateBlocklist, OnKeyStatusUpdated {
     public static final String ACTION_VIEW_CONTACT = "view_contact";
 
@@ -297,7 +299,11 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
 
         if (getActionBar() == null) return; // lol
 
-        getActionBar().setTitle(contact.getDisplayName());
+        getActionBar().setCustomView(R.layout.actionbar);
+        getActionBar().setDisplayShowCustomEnabled(true);
+
+        ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.title)).setText(contact.getDisplayName());
+        ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), contact.lastseen.time));
 
         invalidateOptionsMenu();
 
