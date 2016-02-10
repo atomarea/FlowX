@@ -3,7 +3,6 @@ package net.atomarea.flowx.ui.adapter;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -23,7 +22,6 @@ import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.ui.ConversationActivity;
 import net.atomarea.flowx.ui.XmppActivity;
 import net.atomarea.flowx.utils.UIHelper;
-import net.atomarea.flowx.xmpp.chatstate.ChatState;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -123,12 +121,12 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
         ImageView profilePicture = (ImageView) view.findViewById(R.id.conversation_image);
         loadAvatar(conversation, profilePicture);
 
-        mLastMessage.setTextColor(Color.BLACK);
+        /*mLastMessage.setTextColor(Color.BLACK);
 
         if (conversation.getIncomingChatState().equals(ChatState.COMPOSING)) {
             mLastMessage.setTextColor(Color.GREEN);
             mLastMessage.setText("schreibt..."); // TODO: ! strings.xml
-        }
+        }*/
 
         return view;
     }
