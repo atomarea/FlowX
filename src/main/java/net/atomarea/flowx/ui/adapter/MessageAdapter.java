@@ -374,7 +374,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         AudioWife audioWife = audioPlayer.get(position);
         if (audioWife == null) {
-            Log.i("MessageAdapter/AW", "Initialising new AudioWife Player");
             audioWife = new AudioWife();
             audioWife.init(getContext(), audioFile);
             audioPlayer.put(position, audioWife);
@@ -383,7 +382,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             audioWife.useDefaultUi(vg, layoutInflater);
             viewHolder.aw_player.addView(audioWife.getPlayerUi());
         } else {
-            Log.i("MessageAdapter/AW", "Reusing old AudioWife Player");
             audioWife.cleanPlayerUi();
             viewHolder.aw_player.addView(audioWife.getPlayerUi());
         }
@@ -468,7 +466,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     public View getView(int position, View unused, ViewGroup parent) {
         final Message message = getItem(position);
         final boolean isInValidSession = message.isValidInSession();
-        final Conversation conversation = message.getConversation();
         final int type = getItemViewType(position);
         ViewHolder viewHolder;
         View view;
