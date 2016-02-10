@@ -95,6 +95,7 @@
             android:layout_centerVertical="true"
             android:background="?android:selectableItemBackground"
             android:contentDescription="@string/app_name"
+            android:elevation="1dp"
             android:scaleType="fitXY"
             android:src="@drawable/ic_send_text_offline" />
     </RelativeLayout>
