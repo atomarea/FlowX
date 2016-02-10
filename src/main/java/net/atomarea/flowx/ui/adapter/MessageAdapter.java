@@ -31,6 +31,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +52,7 @@ import net.atomarea.flowx.utils.GeoHelper;
 import net.atomarea.flowx.utils.UIHelper;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 
@@ -66,9 +68,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     private DisplayMetrics metrics;
 
-    private OnContactPictureClicked mOnContactPictureClickedListener;
-    private OnContactPictureLongClicked mOnContactPictureLongClickedListener;
-
     private OnLongClickListener openContextMenu = new OnLongClickListener() {
 
         @Override
@@ -78,6 +77,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
     };
     private boolean mIndicateReceived = false;
+    private HashMap<Integer, AudioWife> audioPlayer;
 
     public MessageAdapter(ConversationActivity a, List<Message> messages) {
         super(a, 0, messages);
@@ -105,14 +105,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }
         }
         return null;
-    }
-
-    public void setOnContactPictureClicked(OnContactPictureClicked listener) {
-        this.mOnContactPictureClickedListener = listener;
-    }
-
-    public void setOnContactPictureLongClicked(OnContactPictureLongClicked listener) {
-        this.mOnContactPictureLongClickedListener = listener;
     }
 
     @Override
@@ -371,16 +363,30 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.download_button.setOnLongClickListener(openContextMenu);
     }
 
-    private void displayAudioMessage(ViewHolder viewHolder, final Message message) {
+    private void displayAudioMessage(ViewHolder viewHolder, final Message message, int position) {
+        if (audioPlayer == null) audioPlayer = new HashMap<>();
         viewHolder.image.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.GONE);
         if (viewHolder.download_button != null) viewHolder.download_button.setVisibility(View.GONE);
         if (viewHolder.pbFile != null) viewHolder.pbFile.setVisibility(View.GONE);
         viewHolder.aw_player.setVisibility(View.VISIBLE);
         Uri audioFile = Uri.fromFile(activity.xmppConnectionService.getFileBackend().getFile(message));
-        LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        AudioWife audioWife = new AudioWife();
-        audioWife.init(getContext(), audioFile).useDefaultUi(viewHolder.aw_player, layoutInflater);
+
+        AudioWife audioWife = audioPlayer.get(position);
+        if (audioWife == null) {
+            Log.i("MessageAdapter/AW", "Initialising new AudioWife Player");
+            audioWife = new AudioWife();
+            audioWife.init(getContext(), audioFile);
+            audioPlayer.put(position, audioWife);
+            RelativeLayout vg = new RelativeLayout(activity);
+            LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            audioWife.useDefaultUi(vg, layoutInflater);
+            viewHolder.aw_player.addView(audioWife.getPlayerUi());
+        } else {
+            Log.i("MessageAdapter/AW", "Reusing old AudioWife Player");
+            audioWife.cleanPlayerUi();
+            viewHolder.aw_player.addView(audioWife.getPlayerUi());
+        }
     }
 
     private void displayOpenableMessage(ViewHolder viewHolder, final Message message) {
@@ -548,7 +554,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 displayImageMessage(viewHolder, message);
             } else {
                 if (message.getMimeType().startsWith("audio/"))
-                    displayAudioMessage(viewHolder, message);
+                    displayAudioMessage(viewHolder, message, position);
                 else displayOpenableMessage(viewHolder, message);
             }
         } else if (message.getEncryption() == Message.ENCRYPTION_PGP) {
@@ -624,14 +630,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     public void updatePreferences() {
         this.mIndicateReceived = activity.indicateReceived();
-    }
-
-    public interface OnContactPictureClicked {
-        void onContactPictureClicked(Message message);
-    }
-
-    public interface OnContactPictureLongClicked {
-        void onContactPictureLongClicked(Message message);
     }
 
     private static class ViewHolder {

@@ -51,8 +51,6 @@ import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.ui.XmppActivity.OnPresenceSelected;
 import net.atomarea.flowx.ui.XmppActivity.OnValueEdited;
 import net.atomarea.flowx.ui.adapter.MessageAdapter;
-import net.atomarea.flowx.ui.adapter.MessageAdapter.OnContactPictureClicked;
-import net.atomarea.flowx.ui.adapter.MessageAdapter.OnContactPictureLongClicked;
 import net.atomarea.flowx.utils.GeoHelper;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
@@ -71,7 +69,88 @@ import github.ankushsachdeva.emojicon.emoji.Emojicon;
 
 public class ConversationFragment extends Fragment implements EditMessage.KeyboardListener {
 
+    final protected List<Message> messageList = new ArrayList<>();
     protected Conversation conversation;
+    protected ListView messagesView;
+    protected MessageAdapter messageListAdapter;
+    private View mRootView;
+    private ImageButton mEmojiButton;
+    private EmojiconsPopup mEmojiPopup;
+    private EditMessage mEditMessage;
+    private ImageButton mSendButton;
+    private RelativeLayout snackbar;
+    private TextView snackbarMessage;
+    private TextView snackbarAction;
+    private boolean messagesLoaded = true;
+    private Toast messageLoaderToast;
+    private IntentSender askForPassphraseIntent = null;
+    private ConcurrentLinkedQueue<Message> mEncryptedMessages = new ConcurrentLinkedQueue<>();
+    private boolean mDecryptJobRunning = false;
+    private OnClickListener mEmojiButtonListener = new OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            //If popup is not showing => emoji keyboard is not visible, we need to show it
+            if (!mEmojiPopup.isShowing()) {
+
+                //If keyboard is visible, simply show the emoji popup
+                if (mEmojiPopup.isKeyBoardOpen()) {
+                    mEmojiPopup.showAtBottom();
+                    mEmojiButton.setImageResource(R.drawable.emoji_button);
+                }
+
+                //else, open the text keyboard first and immediately after that show the emoji popup
+                else {
+                    mEditMessage.setFocusableInTouchMode(true);
+                    mEditMessage.requestFocus();
+                    mEmojiPopup.showAtBottomPending();
+                    final InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.showSoftInput(mEditMessage, InputMethodManager.SHOW_IMPLICIT);
+                    //mEmojiButton.setImageResource(R.drawable.keyboard_button);
+                }
+            }
+
+            //If popup is showing, simply dismiss it to show the undelying text keyboard
+            else {
+                mEmojiPopup.dismiss();
+            }
+        }
+    };
+    private OnClickListener clickToMuc = new OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getActivity(), ConferenceDetailsActivity.class);
+            intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
+            intent.putExtra("uuid", conversation.getUuid());
+            startActivity(intent);
+        }
+    };
+    private ConversationActivity activity;
+    protected OnClickListener clickToDecryptListener = new OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            if (activity.hasPgp() && askForPassphraseIntent != null) {
+                try {
+                    getActivity().startIntentSenderForResult(
+                            askForPassphraseIntent,
+                            ConversationActivity.REQUEST_DECRYPT_PGP, null, 0,
+                            0, 0);
+                    askForPassphraseIntent = null;
+                } catch (SendIntentException e) {
+                    //
+                }
+            }
+        }
+    };
+    protected OnClickListener clickToVerify = new OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            activity.verifyOtrSessionDialog(conversation, v);
+        }
+    };
     private OnClickListener leaveMuc = new OnClickListener() {
 
         @Override
@@ -105,20 +184,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             });
         }
     };
-    protected ListView messagesView;
-    final protected List<Message> messageList = new ArrayList<>();
-    protected MessageAdapter messageListAdapter;
-    private View mRootView;
-    private ImageButton mEmojiButton;
-    private EmojiconsPopup mEmojiPopup;
-    private EditMessage mEditMessage;
-    private ImageButton mSendButton;
-    private RelativeLayout snackbar;
-    private TextView snackbarMessage;
-    private TextView snackbarAction;
-    private boolean messagesLoaded = true;
-    private Toast messageLoaderToast;
-
     private OnScrollListener mOnScrollListener = new OnScrollListener() {
 
         @Override
@@ -211,63 +276,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             }
         }
     };
-    private IntentSender askForPassphraseIntent = null;
-    protected OnClickListener clickToDecryptListener = new OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            if (activity.hasPgp() && askForPassphraseIntent != null) {
-                try {
-                    getActivity().startIntentSenderForResult(
-                            askForPassphraseIntent,
-                            ConversationActivity.REQUEST_DECRYPT_PGP, null, 0,
-                            0, 0);
-                    askForPassphraseIntent = null;
-                } catch (SendIntentException e) {
-                    //
-                }
-            }
-        }
-    };
-    protected OnClickListener clickToVerify = new OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            activity.verifyOtrSessionDialog(conversation, v);
-        }
-    };
-    private ConcurrentLinkedQueue<Message> mEncryptedMessages = new ConcurrentLinkedQueue<>();
-    private boolean mDecryptJobRunning = false;
-    private OnClickListener mEmojiButtonListener = new OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            //If popup is not showing => emoji keyboard is not visible, we need to show it
-            if (!mEmojiPopup.isShowing()) {
-
-                //If keyboard is visible, simply show the emoji popup
-                if (mEmojiPopup.isKeyBoardOpen()) {
-                    mEmojiPopup.showAtBottom();
-                    mEmojiButton.setImageResource(R.drawable.emoji_button);
-                }
-
-                //else, open the text keyboard first and immediately after that show the emoji popup
-                else {
-                    mEditMessage.setFocusableInTouchMode(true);
-                    mEditMessage.requestFocus();
-                    mEmojiPopup.showAtBottomPending();
-                    final InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.showSoftInput(mEditMessage, InputMethodManager.SHOW_IMPLICIT);
-                    //mEmojiButton.setImageResource(R.drawable.keyboard_button);
-                }
-            }
-
-            //If popup is showing, simply dismiss it to show the undelying text keyboard
-            else {
-                mEmojiPopup.dismiss();
-            }
-        }
-    };
     private OnEditorActionListener mEditorActionListener = new OnEditorActionListener() {
 
         @Override
@@ -320,22 +328,54 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             }
         }
     };
-    private OnClickListener clickToMuc = new OnClickListener() {
+    private Message selectedMessage;
+    private OnClickListener mUnblockClickListener = new OnClickListener() {
+        @Override
+        public void onClick(final View v) {
+            v.post(new Runnable() {
+                @Override
+                public void run() {
+                    v.setVisibility(View.INVISIBLE);
+                }
+            });
+            if (conversation.isDomainBlocked()) {
+                BlockContactDialog.show(activity, activity.xmppConnectionService, conversation);
+            } else {
+                activity.unblockConversation(conversation);
+            }
+        }
+    };
+    private OnClickListener mAddBackClickListener = new OnClickListener() {
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(getActivity(), ConferenceDetailsActivity.class);
-            intent.setAction(ConferenceDetailsActivity.ACTION_VIEW_MUC);
-            intent.putExtra("uuid", conversation.getUuid());
+            final Contact contact = conversation == null ? null : conversation.getContact();
+            if (contact != null) {
+                activity.xmppConnectionService.createContact(contact);
+                activity.switchToContactDetails(contact);
+            }
+        }
+    };
+    private OnClickListener mAnswerSmpClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(activity, VerifyOTRActivity.class);
+            intent.setAction(VerifyOTRActivity.ACTION_VERIFY_CONTACT);
+            intent.putExtra("contact", conversation.getContact().getJid().toBareJid().toString());
+            intent.putExtra(VerifyOTRActivity.EXTRA_ACCOUNT, conversation.getAccount().getJid().toBareJid().toString());
+            intent.putExtra("mode", VerifyOTRActivity.MODE_ANSWER_QUESTION);
             startActivity(intent);
         }
     };
-    private ConversationActivity activity;
-    private Message selectedMessage;
+    private int completionIndex = 0;
+    private int lastCompletionLength = 0;
+    private String incomplete;
+    private int lastCompletionCursor;
+    private boolean firstWord = false;
 
     public void setMessagesLoaded() {
-        		this.messagesLoaded = true;
-        	}
+        this.messagesLoaded = true;
+    }
 
     private void sendMessage() {
         final String body = mEditMessage.getText().toString();
@@ -506,54 +546,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         messagesView.setOnScrollListener(mOnScrollListener);
         messagesView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
         messageListAdapter = new MessageAdapter((ConversationActivity) getActivity(), this.messageList);
-        messageListAdapter.setOnContactPictureClicked(new OnContactPictureClicked() {
 
-            @Override
-            public void onContactPictureClicked(Message message) {
-                if (message.getStatus() <= Message.STATUS_RECEIVED) {
-                    if (message.getConversation().getMode() == Conversation.MODE_MULTI) {
-                        if (message.getCounterpart() != null) {
-                            String user = message.getCounterpart().isBareJid() ? message.getCounterpart().toString() : message.getCounterpart().getResourcepart();
-                            if (!message.getConversation().getMucOptions().isUserInRoom(user)) {
-                                Toast.makeText(activity, activity.getString(R.string.user_has_left_conference, user), Toast.LENGTH_SHORT).show();
-                            }
-                            highlightInConference(user);
-                        }
-                    } else {
-                        activity.switchToContactDetails(message.getContact(), message.getAxolotlFingerprint());
-                    }
-                } else {
-                    Account account = message.getConversation().getAccount();
-                    Intent intent = new Intent(activity, EditAccountActivity.class);
-                    intent.putExtra("jid", account.getJid().toBareJid().toString());
-                    intent.putExtra("fingerprint", message.getAxolotlFingerprint());
-                    startActivity(intent);
-                }
-            }
-        });
-        messageListAdapter
-                .setOnContactPictureLongClicked(new OnContactPictureLongClicked() {
-
-                    @Override
-                    public void onContactPictureLongClicked(Message message) {
-                        if (message.getStatus() <= Message.STATUS_RECEIVED) {
-                            if (message.getConversation().getMode() == Conversation.MODE_MULTI) {
-                                if (message.getCounterpart() != null) {
-                                    String user = message.getCounterpart().getResourcepart();
-                                    if (user != null) {
-                                        if (message.getConversation().getMucOptions().isUserInRoom(user)) {
-                                            privateMessageWith(message.getCounterpart());
-                                        } else {
-                                            Toast.makeText(activity, activity.getString(R.string.user_has_left_conference, user), Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            activity.showQrCode();
-                        }
-                    }
-                });
         messagesView.setAdapter(messageListAdapter);
 
         registerForContextMenu(messagesView);
@@ -566,8 +559,8 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                                     ContextMenuInfo menuInfo) {
         synchronized (this.messageList) {
             if (conversation.getLastClearHistory() != 0) {
-                				this.messageList.add(0, Message.createLoadMoreMessage(conversation));
-                			}
+                this.messageList.add(0, Message.createLoadMoreMessage(conversation));
+            }
             super.onCreateContextMenu(menu, v, menuInfo);
             AdapterView.AdapterContextMenuInfo acmi = (AdapterContextMenuInfo) menuInfo;
             this.selectedMessage = this.messageList.get(acmi.position);
@@ -802,47 +795,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         }
     }
 
-    private OnClickListener mUnblockClickListener = new OnClickListener() {
-        @Override
-        public void onClick(final View v) {
-            v.post(new Runnable() {
-                @Override
-                public void run() {
-                    v.setVisibility(View.INVISIBLE);
-                }
-            });
-            if (conversation.isDomainBlocked()) {
-                BlockContactDialog.show(activity, activity.xmppConnectionService, conversation);
-            } else {
-                activity.unblockConversation(conversation);
-            }
-        }
-    };
-
-    private OnClickListener mAddBackClickListener = new OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            final Contact contact = conversation == null ? null : conversation.getContact();
-            if (contact != null) {
-                activity.xmppConnectionService.createContact(contact);
-                activity.switchToContactDetails(contact);
-            }
-        }
-    };
-
-    private OnClickListener mAnswerSmpClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Intent intent = new Intent(activity, VerifyOTRActivity.class);
-            intent.setAction(VerifyOTRActivity.ACTION_VERIFY_CONTACT);
-            intent.putExtra("contact", conversation.getContact().getJid().toBareJid().toString());
-            intent.putExtra(VerifyOTRActivity.EXTRA_ACCOUNT, conversation.getAccount().getJid().toBareJid().toString());
-            intent.putExtra("mode", VerifyOTRActivity.MODE_ANSWER_QUESTION);
-            startActivity(intent);
-        }
-    };
-
     private void updateSnackBar(final Conversation conversation) {
         final Account account = conversation.getAccount();
         final Contact contact = conversation.getContact();
@@ -977,8 +929,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
     public void setFocusOnInputField() {
         mEditMessage.requestFocus();
     }
-
-    enum SendButtonAction {TEXT, TAKE_PHOTO, SEND_LOCATION, RECORD_VOICE, CANCEL, CHOOSE_PICTURE}
 
     private int getSendButtonImageResource(SendButtonAction action, Presence.Status status) {
         switch (action) {
@@ -1338,12 +1288,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         updateSendButton();
     }
 
-    private int completionIndex = 0;
-    private int lastCompletionLength = 0;
-    private String incomplete;
-    private int lastCompletionCursor;
-    private boolean firstWord = false;
-
     @Override
     public boolean onTabPressed(boolean repeated) {
         if (conversation == null || conversation.getMode() == Conversation.MODE_SINGLE) {
@@ -1394,5 +1338,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             }
         }
     }
+
+    enum SendButtonAction {TEXT, TAKE_PHOTO, SEND_LOCATION, RECORD_VOICE, CANCEL, CHOOSE_PICTURE}
 
 }

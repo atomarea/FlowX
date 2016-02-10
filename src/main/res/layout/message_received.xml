@@ -19,8 +19,7 @@
         android:layout_marginRight="5dp"
         android:background="@drawable/msg_bbl_sent"
         android:elevation="1dp"
-        android:longClickable="true"
-        android:minHeight="53dp">
+        android:longClickable="true">
 
         <LinearLayout
             android:layout_width="wrap_content"

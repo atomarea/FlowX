@@ -24,11 +24,6 @@
 
 package nl.changer.audiowife;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-
-import android.app.Activity;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -39,10 +34,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 /***
  * A simple audio player wrapper for Android
@@ -50,76 +47,51 @@ import android.widget.TextView;
 public class AudioWife {
 
 	private static final String TAG = AudioWife.class.getSimpleName();
-
-	/***
-	 * Keep a single copy of this in memory unless required to create a new instance explicitly.
-	 ****/
-	private static AudioWife mAudioWife;
-
 	/****
 	 * Playback progress update time in milliseconds
 	 ****/
 	private static final int AUDIO_PROGRESS_UPDATE_TIME = 100;
-
 	// TODO: externalize the error messages.
 	private static final String ERROR_PLAYVIEW_NULL = "Play view cannot be null";
 	private static final String ERROR_PLAYTIME_CURRENT_NEGATIVE = "Current playback time cannot be negative";
 	private static final String ERROR_PLAYTIME_TOTAL_NEGATIVE = "Total playback time cannot be negative";
-
+	/***
+	 * Keep a single copy of this in memory unless required to create a new instance explicitly.
+	 ****/
+	private static AudioWife mAudioWife;
+	/***
+	 * Audio URI
+	 ****/
+	private static Uri mUri;
 	private Handler mProgressUpdateHandler;
-
 	private MediaPlayer mMediaPlayer;
-
 	private SeekBar mSeekBar;
-
 	@Deprecated
 	/***
 	 * Set both current playack time and total runtime
 	 * of the audio in the UI.
 	 */
 	private TextView mPlaybackTime;
-
 	private View mPlayButton;
 	private View mPauseButton;
-
 	/***
 	 * Indicates the current run-time of the audio being played
 	 */
 	private TextView mRunTime;
-
 	/***
 	 * Indicates the total duration of the audio being played.
 	 */
 	private TextView mTotalTime;
-
 	/***
 	 * Set if AudioWife is using the default UI provided with the library.
 	 * **/
 	private boolean mHasDefaultUi;
-
 	/****
 	 * Array to hold custom completion listeners
 	 ****/
 	private ArrayList<OnCompletionListener> mCompletionListeners = new ArrayList<OnCompletionListener>();
-
 	private ArrayList<View.OnClickListener> mPlayListeners = new ArrayList<View.OnClickListener>();
-
 	private ArrayList<View.OnClickListener> mPauseListeners = new ArrayList<View.OnClickListener>();
-
-	/***
-	 * Audio URI
-	 ****/
-	private static Uri mUri;
-
-	public static AudioWife getInstance() {
-
-		if (mAudioWife == null) {
-			mAudioWife = new AudioWife();
-		}
-
-		return mAudioWife;
-	}
-
 	private Runnable mUpdateProgress = new Runnable() {
 
 		public void run() {
@@ -140,6 +112,57 @@ public class AudioWife {
 			}
 		}
 	};
+	private OnCompletionListener mOnCompletion = new OnCompletionListener() {
+
+		@Override
+		public void onCompletion(MediaPlayer mp) {
+			// set UI when audio finished playing
+			int currentPlayTime = 0;
+			mSeekBar.setProgress((int) currentPlayTime);
+			updatePlaytime(currentPlayTime);
+			updateRuntime(currentPlayTime);
+			setPlayable();
+			// ensure that our completion listener fires first.
+			// This will provide the developer to over-ride our
+			// completion listener functionality
+
+			fireCustomCompletionListeners(mp);
+		}
+	};
+	/****
+	 * Sets the default audio player UI as a child of the parameter container view.
+	 * <p/>
+	 * <br/>
+	 * This is the simplest way to get AudioWife working for you. If you are using the default
+	 * player provided by this method, calling method {@link nl.changer.audiowife.AudioWife#setPlayView(android.view.View)},
+	 * {@link nl.changer.audiowife.AudioWife#setPauseView(android.view.View)}, {@link nl.changer.audiowife.AudioWife#setSeekBar(android.widget.SeekBar)},
+	 * {@link nl.changer.audiowife.AudioWife#setPlaytime(android.widget.TextView)} will have no effect.
+	 * <p/>
+	 * <br/>
+	 * <br/>
+	 * The default player UI consists of:
+	 * <p/>
+	 * <ul>
+	 * <li>Play view</li>
+	 * <li>Pause view</li>
+	 * <li>Seekbar</li>
+	 * <li>Playtime</li>
+	 * <ul>
+	 * <br/>
+	 *
+	 * @param playerContainer
+	 * View to integrate default player UI into.
+	 ****/
+	private View playerUi;
+
+	public static AudioWife getInstance() {
+
+		if (mAudioWife == null) {
+			mAudioWife = new AudioWife();
+		}
+
+		return mAudioWife;
+	}
 
 	/***
 	 * Starts playing audio file associated. Before playing the audio, visibility of appropriate UI
@@ -355,7 +378,7 @@ public class AudioWife {
 	/***
 	 * Initialize the audio player. This method should be the first one to be called before starting
 	 * to play audio using {@link nl.changer.audiowife.AudioWife}
-	 * 
+	 *
 	 * @param ctx
 	 *            {@link android.app.Activity} Context
 	 * @param uri
@@ -383,7 +406,7 @@ public class AudioWife {
 	/***
 	 * Sets the audio play functionality on click event of this view. You can set {@link android.widget.Button} or
 	 * an {@link android.widget.ImageView} as audio play control
-	 * 
+	 *
 	 * @see nl.changer.audiowife.AudioWife#addOnPauseClickListener(android.view.View.OnClickListener)
 	 ****/
 	public AudioWife setPlayView(View play) {
@@ -435,7 +458,7 @@ public class AudioWife {
 	 * Sets the audio pause functionality on click event of the view passed in as a parameter. You
 	 * can set {@link android.widget.Button} or an {@link android.widget.ImageView} as audio pause control. Audio pause
 	 * functionality will be unavailable if this method is not called.
-	 * 
+	 *
 	 * @see nl.changer.audiowife.AudioWife#addOnPauseClickListener(android.view.View.OnClickListener)
 	 ****/
 	public AudioWife setPauseView(View pause) {
@@ -505,7 +528,7 @@ public class AudioWife {
 
 	/***
 	 * Sets current playback time view. Use this if you have a playback time counter in the UI.
-	 * 
+	 *
 	 * @see nl.changer.audiowife.AudioWife#setTotalTimeView(android.widget.TextView)
 	 ****/
 	public AudioWife setRuntimeView(TextView currentTime) {
@@ -524,7 +547,7 @@ public class AudioWife {
 
 	/***
 	 * Sets the total playback time view. Use this if you have a playback time counter in the UI.
-	 * 
+	 *
 	 * @see nl.changer.audiowife.AudioWife#setRuntimeView(android.widget.TextView)
 	 ****/
 	public AudioWife setTotalTimeView(TextView totalTime) {
@@ -622,24 +645,6 @@ public class AudioWife {
 		mMediaPlayer.setOnCompletionListener(mOnCompletion);
 	}
 
-	private OnCompletionListener mOnCompletion = new OnCompletionListener() {
-
-		@Override
-		public void onCompletion(MediaPlayer mp) {
-			// set UI when audio finished playing
-			int currentPlayTime = 0;
-			mSeekBar.setProgress((int) currentPlayTime);
-			updatePlaytime(currentPlayTime);
-			updateRuntime(currentPlayTime);
-			setPlayable();
-			// ensure that our completion listener fires first.
-			// This will provide the developer to over-ride our
-			// completion listener functionality
-
-			fireCustomCompletionListeners(mp);
-		}
-	};
-
 	private void initMediaSeekBar() {
 
 		if (mSeekBar == null) {
@@ -681,30 +686,14 @@ public class AudioWife {
 		}
 	}
 
-	/****
-	 * Sets the default audio player UI as a child of the parameter container view.
-	 * 
-	 * <br/>
-	 * This is the simplest way to get AudioWife working for you. If you are using the default
-	 * player provided by this method, calling method {@link nl.changer.audiowife.AudioWife#setPlayView(android.view.View)},
-	 * {@link nl.changer.audiowife.AudioWife#setPauseView(android.view.View)}, {@link nl.changer.audiowife.AudioWife#setSeekBar(android.widget.SeekBar)},
-	 * {@link nl.changer.audiowife.AudioWife#setPlaytime(android.widget.TextView)} will have no effect.
-	 * 
-	 * <br/>
-	 * <br/>
-	 * The default player UI consists of:
-	 * 
-	 * <ul>
-	 * <li>Play view</li>
-	 * <li>Pause view</li>
-	 * <li>Seekbar</li>
-	 * <li>Playtime</li>
-	 * <ul>
-	 * <br/>
-	 * 
-	 * @param playerContainer
-	 *            View to integrate default player UI into.
-	 ****/
+	public void cleanPlayerUi() {
+		((ViewGroup) playerUi.getParent()).removeView(playerUi);
+	}
+
+	public View getPlayerUi() {
+		return playerUi;
+	}
+
 	public AudioWife useDefaultUi(ViewGroup playerContainer, LayoutInflater inflater) {
 		if (playerContainer == null) {
 			throw new NullPointerException("Player container cannot be null");
@@ -714,7 +703,7 @@ public class AudioWife {
 			throw new IllegalArgumentException("Inflater cannot be null");
 		}
 
-		View playerUi = inflater.inflate(R.layout.aw_player, playerContainer);
+		playerUi = inflater.inflate(R.layout.aw_player, playerContainer, false); // IMPORTANT, sonst geht meine Lösung nicht xD
 
 		// init play view
 		View playView = playerUi.findViewById(R.id.play);
