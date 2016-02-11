@@ -729,7 +729,7 @@ public class AudioWife {
 
 	/***
 	 * Releases the allocated resources.
-	 * 
+	 *
 	 * <p>
 	 * Call {@link #init(android.content.Context, android.net.Uri, android.widget.SeekBar, android.view.View, android.view.View, android.widget.TextView)} before calling
 	 * {@link #play()}

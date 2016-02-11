@@ -169,7 +169,7 @@
     <string name="mgmt_account_delete_confirm_text">Wenn du dein Account löscht, gehen alle Gesprächsverläufe verloren</string>
     <string name="attach_record_voice">Sprachnachricht</string>
     <string name="account_settings_jabber_id">Name:</string>
-    <string name="account_settings_password">Passwort:</string>
+    <string name="account_settings_password">Passwort</string>
     <string name="account_settings_example_jabber_id"></string>
     <string name="account_settings_confirm_password">Passwort bestätigen</string>
     <string name="password">Passwort</string>
