@@ -59,6 +59,7 @@ import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Transferable;
+import net.atomarea.flowx.persistance.FileBackend;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.services.XmppConnectionService.OnAccountUpdate;
 import net.atomarea.flowx.services.XmppConnectionService.OnConversationUpdate;
@@ -219,6 +220,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FileBackend.getConversationsFileDirectory();
         if (savedInstanceState != null) {
             mOpenConverstaion = savedInstanceState.getString(STATE_OPEN_CONVERSATION, null);
             mPanelOpen = savedInstanceState.getBoolean(STATE_PANEL_OPEN, true);

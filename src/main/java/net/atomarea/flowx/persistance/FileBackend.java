@@ -81,7 +81,13 @@ public class FileBackend {
 	}
 
 	public static String getConversationsFileDirectory() {
-		return  Environment.getExternalStorageDirectory().getAbsolutePath()+"/FlowX/";
+		String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/FlowX/";
+		File x = new File(path, ".nomedia");
+		try {
+			x.createNewFile();
+		} catch(Exception ignored) {
+		}
+		return path;
 	}
 
 	public static String getConversationsImageDirectory() {
