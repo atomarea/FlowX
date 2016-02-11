@@ -20,16 +20,6 @@
         android:title="@string/action_renew_certificate"
         android:visible="false"
         android:showAsAction="never" />
-    />
-
-    <item
-        android:id="@+id/action_server_info_show_more"
-        android:title="@string/server_info_show_more"
-        android:checkable="true"
-        android:visible="false"
-        android:checked="false"
-        android:showAsAction="never" />
-
     <item
         android:id="@+id/action_change_password_on_server"
         android:icon="?attr/icon_edit"
@@ -40,6 +30,11 @@
         android:id="@+id/action_clear_devices"
         android:title="@string/clear_other_devices"
         android:showAsAction="never" />
+    <item
+        android:id="@+id/resetkeys"
+        android:title="@string/regenerate_omemo_key"
+        android:icon="?attr/icon_not_secure"
+        android:showAsAction="always" />
     <item
         android:id="@+id/action_restart"
         android:title="@string/restart"
