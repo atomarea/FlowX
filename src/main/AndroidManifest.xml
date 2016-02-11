@@ -110,6 +110,9 @@
             android:name="net.atomarea.flowx.ui.EditAccountActivity"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
+            android:name="net.atomarea.flowx.ui.RegisterActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
             android:name="net.atomarea.flowx.ui.ConferenceDetailsActivity"
             android:label="@string/title_activity_conference_details"
             android:windowSoftInputMode="stateHidden" />

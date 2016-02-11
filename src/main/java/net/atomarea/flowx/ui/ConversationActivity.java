@@ -220,7 +220,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FileBackend.getConversationsFileDirectory();
         if (savedInstanceState != null) {
             mOpenConverstaion = savedInstanceState.getString(STATE_OPEN_CONVERSATION, null);
             mPanelOpen = savedInstanceState.getBoolean(STATE_PANEL_OPEN, true);
@@ -1106,7 +1105,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             if (mRedirected.compareAndSet(false, true)) {
                 if (Config.X509_VERIFICATION)
                     startActivity(new Intent(this, ManageAccountActivity.class));
-                else startActivity(new Intent(this, EditAccountActivity.class));
+                else startActivity(new Intent(this, RegisterActivity.class));
                 finish();
             }
         } else if (conversationList.size() <= 0) {

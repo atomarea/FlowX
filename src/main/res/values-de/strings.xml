@@ -43,7 +43,7 @@
     <string name="unblock_domain_text">Entsperre alle Kontakte %s?</string>
     <string name="contact_blocked">Kontakt blockiert</string>
     <string name="remove_bookmark_text">Möchtest du die Gruppe löschen? Die Unterhaltung mit dieser Gruppe wird dabei nicht entfernt.</string>
-    <string name="register_account">Account registrieren</string>
+    <string name="register_account">Registrieren</string>
     <string name="share_with">Teile mit&#8230;</string>
     <string name="start_conversation">Beginne Unterhaltung</string>
     <string name="invite_contact">In Gruppe einladen</string>
@@ -218,7 +218,7 @@
     <string name="create_contact">Kontakt hinzufügen</string>
     <string name="join_conference">Gruppe beitreten</string>
     <string name="delete_contact">Kontakt löschen</string>
-    <string name="view_contact_details">Kontaktdetails anzeigen</string>
+    <string name="view_contact_details">Kontakt anzeigen</string>
     <string name="block_contact">Kontakt blockieren</string>
     <string name="unblock_contact">Kontakte freigeben</string>
     <string name="create">Hinzufügen</string>

@@ -425,9 +425,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         final MenuItem showQrCode = menu.findItem(R.id.action_show_qr_code);
         final MenuItem showBlocklist = menu.findItem(R.id.action_show_block_list);
         final MenuItem changePassword = menu.findItem(R.id.action_change_password_on_server);
-        final MenuItem restart = menu.findItem(R.id.action_restart);
-        final MenuItem setavatar = menu.findItem(R.id.action_PublishProfilePictureActivity);
-        final MenuItem resetkeys = menu.findItem(R.id.resetkeys);
         final MenuItem clearDevices = menu.findItem(R.id.action_clear_devices);
         final MenuItem renewCertificate = menu.findItem(R.id.action_renew_certificate);
 
@@ -449,9 +446,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             showQrCode.setVisible(false);
             showBlocklist.setVisible(false);
             changePassword.setVisible(false);
-            restart.setVisible(false);
-            setavatar.setVisible(false);
-            resetkeys.setVisible(false);
             clearDevices.setVisible(false);
 
         }

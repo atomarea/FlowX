@@ -164,48 +164,6 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 	}
 
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.mgmt_account_publish_avatar:
-				publishAvatar(selectedAccount);
-				return true;
-			case R.id.mgmt_account_disable:
-				disableAccount(selectedAccount);
-				return true;
-			case R.id.mgmt_account_enable:
-				enableAccount(selectedAccount);
-				return true;
-			case R.id.mgmt_account_delete:
-				deleteAccount(selectedAccount);
-				return true;
-			case R.id.mgmt_account_announce_pgp:
-				publishOpenPGPPublicKey(selectedAccount);
-				return true;
-			default:
-				return super.onContextItemSelected(item);
-		}
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.action_add_account:
-				startActivity(new Intent(getApplicationContext(),
-						EditAccountActivity.class));
-				break;
-			case R.id.action_disable_all:
-				disableAllAccounts();
-				break;
-			case R.id.action_enable_all:
-				enableAllAccounts();
-				break;
-			default:
-				break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
 	public boolean onNavigateUp() {
 		if (xmppConnectionService.getConversations().size() == 0) {
 			Intent contactsIntent = new Intent(this,

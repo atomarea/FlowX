@@ -8,6 +8,13 @@
     android:paddingLeft="24dp"
     android:paddingRight="24dp"
     android:paddingTop="16dp">
+    <TextView
+        android:id="@+id/add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Gebe hier den Benutzernamen eines Freundes ein!"
+        android:textColor="@color/black87"
+        android:textSize="?attr/TextSizeBody" />
 
     <TextView
         android:id="@+id/your_account"
@@ -29,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/account_settings_jabber_id"
+        android:text="Name"
         android:textColor="@color/black87"
         android:textSize="?attr/TextSizeBody" />
 
