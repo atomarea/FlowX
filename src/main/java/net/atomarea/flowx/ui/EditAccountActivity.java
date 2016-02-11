@@ -598,7 +598,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
 		builder.setIconAttribute(android.R.attr.alertDialogIcon);
 		builder.setMessage(R.string.clear_other_devices_desc);
 		builder.setNegativeButton(getString(R.string.cancel), null);
-		builder.setPositiveButton("Yes",
+		builder.setPositiveButton(R.string.ok,
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
