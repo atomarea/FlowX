@@ -61,7 +61,6 @@ import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.ServiceDiscoveryResult;
 import net.atomarea.flowx.generator.IqGenerator;
 import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.DNSHelper;
 import net.atomarea.flowx.utils.SSLSocketHelper;
 import net.atomarea.flowx.utils.SocksSocketFactory;
@@ -352,13 +351,7 @@ public class XmppConnection implements Runnable {
 			this.changeStatus(Account.State.OFFLINE);
 			this.attempt--; //don't count attempt when reconnecting instantly anyway
 		} finally {
-			if (socket != null) {
-				try {
-					socket.close();
-				} catch (IOException e) {
-
-				}
-			}
+			forceCloseSocket();
 			if (wakeLock.isHeld()) {
 				try {
 					wakeLock.release();
@@ -430,13 +423,7 @@ public class XmppConnection implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			if (socket != null) {
-				socket.close();
-			}
-		} catch (final IOException ignored) {
-
-		}
+		forceCloseSocket();
 		connect();
 	}
 
@@ -1283,14 +1270,45 @@ public class XmppConnection implements Runnable {
 		}
 	}
 
+	public void waitForPush() {
+		if (tagWriter.isActive()) {
+			tagWriter.finish();
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						while(!tagWriter.finished()) {
+							Thread.sleep(10);
+						}
+						socket.close();
+						Log.d(Config.LOGTAG,account.getJid().toBareJid()+": closed tcp without closing stream");
+					} catch (IOException e) {
+						e.printStackTrace();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
+		} else {
+			forceCloseSocket();
+			Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": closed tcp without closing stream (no waiting)");
+		}
+	}
+
+	private void forceCloseSocket() {
+		if (socket != null) {
+			try {
+				socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public void disconnect(final boolean force) {
 		Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": disconnecting force="+Boolean.valueOf(force));
 		if (force) {
-			try {
-				socket.close();
-			} catch(Exception e) {
-				Log.d(Config.LOGTAG,account.getJid().toBareJid().toString()+": exception during force close ("+e.getMessage()+")");
-			}
+			forceCloseSocket();
 			return;
 		} else {
 			if (tagWriter.isActive()) {
@@ -1495,17 +1513,13 @@ public class XmppConnection implements Runnable {
 		}
 
 		public boolean mam() {
-			if (hasDiscoFeature(account.getJid().toBareJid(), "urn:xmpp:mam:0")) {
-				return true;
-			} else {
-				return hasDiscoFeature(account.getServer(), "urn:xmpp:mam:0");
-			}
+			return hasDiscoFeature(account.getJid().toBareJid(), "urn:xmpp:mam:0")
+				|| hasDiscoFeature(account.getServer(), "urn:xmpp:mam:0");
 		}
 
-		public boolean advancedStreamFeaturesLoaded() {
-			synchronized (XmppConnection.this.disco) {
-				return disco.containsKey(account.getServer());
-			}
+		public boolean push() {
+			return hasDiscoFeature(account.getJid().toBareJid(), "urn:xmpp:push:0")
+					|| hasDiscoFeature(account.getServer(), "urn:xmpp:push:0");
 		}
 
 		public boolean rosterVersioning() {

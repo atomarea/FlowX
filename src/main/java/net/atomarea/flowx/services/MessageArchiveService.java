@@ -102,7 +102,6 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 				return null;
 			}
 			final Query query = new Query(conversation, start, end,PagingOrder.REVERSE);
-			query.reference = conversation.getFirstMamReference();
 			this.queries.add(query);
 			this.execute(query);
 			return query;
@@ -204,7 +203,6 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 		Element relevant = query.getPagingOrder() == PagingOrder.NORMAL ? last : first;
 		boolean abort = (query.getStart() == 0 && query.getTotalCount() >= Config.PAGE_SIZE) || query.getTotalCount() >= Config.MAM_MAX_MESSAGES;
 		if (query.getConversation() != null) {
-			query.getConversation().setFirstMamReference(first == null ? null : first.getContent());
 		}
 		if (complete || relevant == null || abort) {
 			final boolean done = (complete || query.getMessageCount() == 0) && query.getStart() == 0;

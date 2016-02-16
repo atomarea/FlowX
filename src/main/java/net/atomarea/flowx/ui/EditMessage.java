@@ -70,6 +70,7 @@ public class EditMessage extends EmojiconEditText {
                 this.isUserTyping = false;
                 this.keyboardListener.onTextDeleted();
             }
+            this.keyboardListener.onTextChanged();
         }
     }
 
@@ -88,7 +89,7 @@ public class EditMessage extends EmojiconEditText {
         void onTypingStopped();
 
         void onTextDeleted();
-
+        void onTextChanged();
         boolean onTabPressed(boolean repeated);
     }
 

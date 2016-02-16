@@ -10,6 +10,7 @@ public final class Config {
 
     public static final String DOMAIN_LOCK = "flowx.im"; //only allow account creation for this domain
     public static final boolean DISALLOW_REGISTRATION_IN_UI = false; //hide the register checkbox
+    public static final boolean CLOSE_TCP_WHEN_SWITCHING_TO_BACKGROUND = false;
     public static final boolean HIDE_PGP_IN_UI = true; //some more consumer focused clients might want to disable OpenPGP
     public static final boolean LEGACY_NAMESPACE_HTTP_UPLOAD = false;
     public static final boolean REQUEST_DISCO = true;

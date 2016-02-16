@@ -517,5 +517,7 @@
     <string name="enter_contact">Kontakt eingeben</string>
     <string name="selection_too_large">Die Markierung ist zu groß</string>
     <string name="check_x_filesize">%s annehmen</string>
+    <string name="correct_message">Nachricht korrigieren</string>
+    <string name="send_corrected_message">korrigierte Nachricht senden</string>
 
 </resources>

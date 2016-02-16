@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import github.ankushsachdeva.emojicon.EmojiconGridView;
@@ -314,8 +315,14 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                         activity.attachFile(ConversationActivity.ATTACHMENT_CHOICE_CHOOSE_IMAGE);
                         break;
                     case CANCEL:
-                        if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI) {
-                            conversation.setNextCounterpart(null);
+                        if (conversation != null) {
+                            if (conversation.getCorrectingMessage() != null) {
+                                conversation.setCorrectingMessage(null);
+                                mEditMessage.getEditableText().clear();
+                            }
+                            if (conversation.getMode() == Conversation.MODE_MULTI) {
+                                conversation.setNextCounterpart(null);
+                            }
                             updateChatMsgHint();
                             updateSendButton();
                         }
@@ -367,6 +374,13 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             startActivity(intent);
         }
     };
+    @Override
+    public void onTextChanged() {
+        if (conversation != null && conversation.getCorrectingMessage() != null) {
+            updateSendButton();
+        }
+    }
+
     private int completionIndex = 0;
     private int lastCompletionLength = 0;
     private String incomplete;
@@ -382,12 +396,21 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         if (body.length() == 0 || this.conversation == null) {
             return;
         }
-        Message message = new Message(conversation, body, conversation.getNextEncryption());
-        if (conversation.getMode() == Conversation.MODE_MULTI) {
-            if (conversation.getNextCounterpart() != null) {
-                message.setCounterpart(conversation.getNextCounterpart());
-                message.setType(Message.TYPE_PRIVATE);
+        final Message message;
+        if (conversation.getCorrectingMessage() == null) {
+            message = new Message(conversation, body, conversation.getNextEncryption());
+            if (conversation.getMode() == Conversation.MODE_MULTI) {
+                if (conversation.getNextCounterpart() != null) {
+                    message.setCounterpart(conversation.getNextCounterpart());
+                    message.setType(Message.TYPE_PRIVATE);
+                }
             }
+        } else {
+            message = conversation.getCorrectingMessage();
+            message.setBody(body);
+            message.setEdited(message.getUuid());
+            message.setUuid(UUID.randomUUID().toString());
+            conversation.setCorrectingMessage(null);
         }
         switch (conversation.getNextEncryption()) {
             case Message.ENCRYPTION_OTR:
@@ -408,7 +431,9 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
 
     public void updateChatMsgHint() {
         final boolean multi = conversation.getMode() == Conversation.MODE_MULTI;
-        if (multi && conversation.getNextCounterpart() != null) {
+        if (conversation.getCorrectingMessage() != null) {
+            this.mEditMessage.setHint(R.string.send_corrected_message);
+        } else if (multi && conversation.getNextCounterpart() != null) {
             this.mEditMessage.setHint(getString(
                     R.string.send_private_message_to,
                     conversation.getNextCounterpart().getResourcepart()));
@@ -555,8 +580,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         synchronized (this.messageList) {
             if (conversation.getLastClearHistory() != 0) {
                 this.messageList.add(0, Message.createLoadMoreMessage(conversation));
@@ -574,6 +598,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             activity.getMenuInflater().inflate(R.menu.message_context, menu);
             menu.setHeaderTitle(R.string.message_options);
             MenuItem copyText = menu.findItem(R.id.copy_text);
+            MenuItem correctMessage = menu.findItem(R.id.correct_message);
             MenuItem shareWith = menu.findItem(R.id.share_with);
             MenuItem sendAgain = menu.findItem(R.id.send_again);
             MenuItem copyUrl = menu.findItem(R.id.copy_url);
@@ -584,6 +609,11 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                     && !GeoHelper.isGeoUri(m.getBody())
                     && m.treatAsDownloadable() != Message.Decision.MUST) {
                 copyText.setVisible(true);
+            }
+            if (m.getType() == Message.TYPE_TEXT
+                    && m.getStatus() != Message.STATUS_RECEIVED
+                    && !m.isCarbon()) {
+                correctMessage.setVisible(true);
             }
             if ((m.getType() != Message.TYPE_TEXT
                     && m.getType() != Message.TYPE_PRIVATE
@@ -619,6 +649,9 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 return true;
             case R.id.copy_text:
                 copyText(selectedMessage);
+                return true;
+            case R.id.correct_message:
+                correctMessage(selectedMessage);
                 return true;
             case R.id.send_again:
                 resendMessage(selectedMessage);
@@ -721,7 +754,15 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         updateChatMsgHint();
         updateSendButton();
     }
+    private void correctMessage(Message message) {
+        while(message.mergeable(message.next())) {
+            message = message.next();
+        }
+        this.conversation.setCorrectingMessage(message);
+        this.mEditMessage.getEditableText().clear();
+        this.mEditMessage.getEditableText().append(message.getBody());
 
+    }
     protected void highlightInConference(String nick) {
         String oldString = mEditMessage.getText().toString().trim();
         if (oldString.isEmpty() || mEditMessage.getSelectionStart() == 0) {
@@ -1018,9 +1059,12 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         final Conversation c = this.conversation;
         final SendButtonAction action;
         final Presence.Status status;
-        final boolean empty = this.mEditMessage == null || this.mEditMessage.getText().length() == 0;
+        final String text = this.mEditMessage == null ? "" : this.mEditMessage.getText().toString();
+        final boolean empty = text.length() == 0;
         final boolean conference = c.getMode() == Conversation.MODE_MULTI;
-        if (conference && !c.getAccount().httpUploadAvailable()) {
+        if (c.getCorrectingMessage() != null && (empty || text.equals(c.getCorrectingMessage().getBody()))) {
+            action = SendButtonAction.CANCEL;
+        } else if (conference && !c.getAccount().httpUploadAvailable()) {
             if (empty && c.getNextCounterpart() != null) {
                 action = SendButtonAction.CANCEL;
             } else {

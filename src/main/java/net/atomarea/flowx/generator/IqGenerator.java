@@ -25,6 +25,7 @@ import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.utils.Xmlns;
 import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.forms.Data;
+import net.atomarea.flowx.xmpp.forms.Field;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
@@ -289,7 +290,7 @@ public class IqGenerator extends AbstractGenerator {
 	public IqPacket requestHttpUploadSlot(Jid host, DownloadableFile file, String mime) {
 		IqPacket packet = new IqPacket(IqPacket.TYPE.GET);
 		packet.setTo(host);
-		Element request = packet.addChild("request",Xmlns.HTTP_UPLOAD);
+		Element request = packet.addChild("request", Xmlns.HTTP_UPLOAD);
 		request.addChild("filename").setContent(file.getName());
 		request.addChild("size").setContent(String.valueOf(file.getExpectedSize()));
 		if (mime != null) {
@@ -306,5 +307,32 @@ public class IqGenerator extends AbstractGenerator {
 		register.query("jabber:iq:register").addChild(data);
 
 		return register;
+	}
+
+	public IqPacket pushTokenToAppServer(Jid appServer, String token, String deviceId) {
+		IqPacket packet = new IqPacket(IqPacket.TYPE.SET);
+		packet.setTo(appServer);
+		Element command = packet.addChild("command", "http://jabber.org/protocol/commands");
+		command.setAttribute("node","register-push-gcm");
+		command.setAttribute("action","execute");
+		Data data = new Data();
+		data.put("token", token);
+		data.put("device-id", deviceId);
+		data.submit();
+		command.addChild(data);
+		return packet;
+	}
+
+	public IqPacket enablePush(Jid jid, String node, String secret) {
+		IqPacket packet = new IqPacket(IqPacket.TYPE.SET);
+		Element enable = packet.addChild("enable","urn:xmpp:push:0");
+		enable.setAttribute("jid",jid.toString());
+		enable.setAttribute("node", node);
+		Data data = new Data();
+		data.setFormType("http://jabber.org/protocol/pubsub#publish-options");
+		data.put("secret",secret);
+		data.submit();
+		enable.addChild(data);
+		return packet;
 	}
 }

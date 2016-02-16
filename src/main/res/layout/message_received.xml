@@ -97,6 +97,15 @@
                     android:contentDescription="@string/app_name"
                     android:gravity="center_vertical"
                     android:src="@drawable/ic_secure_indicator" />
+                <ImageView
+                    android:id="@+id/edit_indicator"
+                    android:layout_width="?attr/TextSizeInfo"
+                    android:layout_height="?attr/TextSizeInfo"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="4sp"
+                    android:alpha="0.70"
+                    android:gravity="center_vertical"
+                    android:src="@drawable/ic_mode_edit_white_18dp" />
 
                 <github.ankushsachdeva.emojicon.EmojiconTextView
                     android:id="@+id/message_time"

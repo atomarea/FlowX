@@ -135,6 +135,15 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.indicatorReceived.setVisibility(View.GONE);
             viewHolder.indicatorRead.setVisibility(View.GONE);
         }
+        if (viewHolder.edit_indicator != null) {
+            if (message.edited()) {
+                viewHolder.edit_indicator.setVisibility(View.VISIBLE);
+                viewHolder.edit_indicator.setImageResource(darkBackground ? R.drawable.ic_mode_edit_white_18dp : R.drawable.ic_mode_edit_white_18dp);
+                viewHolder.edit_indicator.setAlpha(darkBackground ? 0.7f : 0.57f);
+            } else {
+                viewHolder.edit_indicator.setVisibility(View.GONE);
+            }
+        }
         boolean multiReceived = message.getConversation().getMode() == Conversation.MODE_MULTI && message.getMergedStatus() <= Message.STATUS_RECEIVED;
         if (message.getType() == Message.TYPE_IMAGE || message.getType() == Message.TYPE_FILE || message.getTransferable() != null) {
             FileParams params = message.getFileParams();
@@ -451,16 +460,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.image.setOnLongClickListener(openContextMenu);
     }
 
-    private void loadMoreMessages(Conversation conversation) {
-        conversation.setLastClearHistory(0);
-        conversation.setHasMessagesLeftOnServer(true);
-        conversation.setFirstMamReference(null);
-        long timestamp = conversation.getLastMessageTransmitted();
-        if (timestamp == 0) timestamp = System.currentTimeMillis();
-        activity.setMessagesLoaded();
-        activity.xmppConnectionService.getMessageArchiveService().query(conversation, 0, timestamp);
-        Toast.makeText(activity, R.string.fetching_history_from_server, Toast.LENGTH_LONG).show();
-    }
 
     @Override
     public View getView(int position, View unused, ViewGroup parent) {
@@ -477,6 +476,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.aw_player = (ViewGroup) view.findViewById(R.id.aw_player);
                 viewHolder.download_button = (BootstrapButton) view.findViewById(R.id.download_button);
                 viewHolder.indicator = (ImageView) view.findViewById(R.id.security_indicator);
+                viewHolder.edit_indicator = (ImageView) view.findViewById(R.id.edit_indicator);
                 viewHolder.image = (ImageView) view.findViewById(R.id.message_image);
                 viewHolder.messageBody = (TextView) view.findViewById(R.id.message_body);
                 viewHolder.time = (TextView) view.findViewById(R.id.message_time);
@@ -490,6 +490,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.aw_player = (ViewGroup) view.findViewById(R.id.aw_player);
                 viewHolder.download_button = (BootstrapButton) view.findViewById(R.id.download_button);
                 viewHolder.indicator = (ImageView) view.findViewById(R.id.security_indicator);
+                viewHolder.edit_indicator = (ImageView) view.findViewById(R.id.edit_indicator);
                 viewHolder.image = (ImageView) view.findViewById(R.id.message_image);
                 viewHolder.messageBody = (TextView) view.findViewById(R.id.message_body);
                 viewHolder.time = (TextView) view.findViewById(R.id.message_time);
@@ -519,7 +520,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.load_more_messages.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        loadMoreMessages(message.getConversation());
                     }
                 });
             } else {
@@ -632,6 +632,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private static class ViewHolder {
 
         public Button load_more_messages;
+        public ImageView edit_indicator;
         public BootstrapProgressBar pbFile;
         protected LinearLayout message_box;
         protected BootstrapButton download_button;
