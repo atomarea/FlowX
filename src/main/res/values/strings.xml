@@ -580,6 +580,7 @@
 	<string name="load_more_messages">Load more messages</string>
 	<string name="correct_message">Correct message</string>
 	<string name="send_corrected_message">Send corrected message</string>
+	<string name="gcm_defaultSenderId"></string>
 	<plurals name="x_messages">
 		<item quantity="one">%d message</item>
 		<item quantity="other">%d messages</item>
