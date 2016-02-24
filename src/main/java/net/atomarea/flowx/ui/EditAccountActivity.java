@@ -1,10 +1,8 @@
 package net.atomarea.flowx.ui;
 
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,17 +19,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,10 +43,7 @@ import net.atomarea.flowx.services.XmppConnectionService.OnCaptchaRequested;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.services.XmppConnectionService.OnAccountUpdate;
 import net.atomarea.flowx.ui.adapter.KnownHostsAdapter;
-import net.atomarea.flowx.utils.CryptoHelper;
-import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
-import net.atomarea.flowx.xmpp.XmppConnection.Features;
 import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
@@ -65,6 +57,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     private BootstrapEditText mPasswordConfirm;
     private CheckBox mRegisterNew;
     private BootstrapButton mSaveButton;
+    private Button mCancelButton;
     private Button mDisableBatterOptimizations;
 
     private RelativeLayout mBatteryOptimizations;
@@ -311,24 +304,19 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         if (accountInfoEdited() && !mInitMode) {
             this.mSaveButton.setText(R.string.save);
             this.mSaveButton.setEnabled(true);
-            this.mSaveButton.setTextColor(getPrimaryTextColor());
         } else if (mAccount != null && (mAccount.getStatus() == Account.State.CONNECTING || mFetchingAvatar)) {
             this.mSaveButton.setEnabled(false);
-            this.mSaveButton.setTextColor(getSecondaryTextColor());
             this.mSaveButton.setText(R.string.account_status_connecting);
         } else if (mAccount != null && mAccount.getStatus() == Account.State.DISABLED && !mInitMode) {
             this.mSaveButton.setEnabled(true);
-            this.mSaveButton.setTextColor(getPrimaryTextColor());
             this.mSaveButton.setText(R.string.enable);
         } else {
             this.mSaveButton.setEnabled(true);
-            this.mSaveButton.setTextColor(getPrimaryTextColor());
             if (!mInitMode) {
                 if (mAccount != null && mAccount.isOnlineAndConnected()) {
                     this.mSaveButton.setText(R.string.save);
                     if (!accountInfoEdited()) {
                         this.mSaveButton.setEnabled(false);
-                        this.mSaveButton.setTextColor(getSecondaryTextColor());
                     }
                 } else {
                     this.mSaveButton.setText(R.string.connect);
@@ -400,6 +388,8 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         this.mPort.addTextChangedListener(mTextWatcher);
         this.mSaveButton = (BootstrapButton) findViewById(R.id.save_button);
         this.mSaveButton.setOnClickListener(this.mSaveButtonClickListener);
+        this.mCancelButton = (Button) findViewById(R.id.cancel_button);
+        this.mCancelButton.setOnClickListener(this.mCancelButtonClickListener);
         final OnCheckedChangeListener OnCheckedShowConfirmPassword = new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(final CompoundButton buttonView,
@@ -501,6 +491,8 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 getActionBar().setDisplayShowHomeEnabled(false);
                 getActionBar().setHomeButtonEnabled(false);
             }
+            this.mCancelButton.setEnabled(false);
+            this.mCancelButton.setTextColor(getSecondaryTextColor());
         }
         if (Config.DOMAIN_LOCK == null) {
             final KnownHostsAdapter mKnownHostsAdapter = new KnownHostsAdapter(this,

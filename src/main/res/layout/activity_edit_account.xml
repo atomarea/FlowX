@@ -55,9 +55,10 @@
                         android:layout_height="wrap_content"
                         android:enabled="false"
                         android:hint="@string/account_settings_example_jabber_id"
+                        app:roundedCorners="true"
                         android:inputType="textEmailAddress"
                         app:bootstrapSize="md"
-                        app:bootstrapBrand="info"
+                        app:bootstrapBrand="regular"
                         android:textColor="@color/black87"
                         android:textColorHint="@color/black54"
                         android:textSize="?attr/TextSizeBody" />
@@ -77,7 +78,8 @@
                         android:hint="@string/password"
                         android:inputType="textPassword"
                         app:bootstrapSize="md"
-                        app:bootstrapBrand="info"
+                        app:bootstrapBrand="regular"
+                        app:roundedCorners="true"
                         android:textColor="@color/black87"
                         android:textColorHint="@color/black54"
                         android:textSize="?attr/TextSizeBody" />
@@ -161,6 +163,7 @@
                         android:inputType="textPassword"
                         android:visibility="gone"
                         app:bootstrapSize="md"
+                        app:roundedCorners="true"
                         app:bootstrapBrand="info"
                         android:textColor="@color/black87"
                         android:textColorHint="@color/black54"
@@ -172,9 +175,21 @@
                         android:layout_marginTop="8dp"
                         android:enabled="false"
                         android:text="@string/save"
+                        android:textColor="@color/white"
+                        android:textColorLink="@color/white"
                         app:bootstrapBrand="success"
                         app:bootstrapSize="md"
-                        app:roundedCorners="true" />
+                        app:roundedCorners="true"
+                        android:textColorHint="@color/white"
+                        android:textColorHighlight="@color/white" />
+                    <Button
+                        android:id="@+id/cancel_button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        android:layout_weight="1"
+                        android:text="@string/cancel"
+                        android:textColor="@color/black87"/>
                 </LinearLayout>
             </RelativeLayout>
             <RelativeLayout

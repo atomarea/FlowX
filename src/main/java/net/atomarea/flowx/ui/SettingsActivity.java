@@ -1,23 +1,31 @@
 package net.atomarea.flowx.ui;
 
+import android.app.AlertDialog;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.util.Log;
 import android.widget.Toast;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.xmpp.XmppConnection;
-
+import java.security.KeyStoreException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
+
+import de.duenndns.ssl.MemorizingTrustManager;
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.xmpp.XmppConnection;
 
 public class SettingsActivity extends XmppActivity implements
 		OnSharedPreferenceChangeListener {
@@ -60,7 +68,6 @@ public class SettingsActivity extends XmppActivity implements
 				expert.removePreference(connectionOptions);
 			}
 		}
-
 	}
 
 	@Override
@@ -93,7 +100,8 @@ public class SettingsActivity extends XmppActivity implements
 			xmppConnectionService.toggleForegroundService();
 		} else if (name.equals("confirm_messages")
 				|| name.equals("xa_on_silent_mode")
-				|| name.equals("away_when_screen_off")) {
+				|| name.equals("away_when_screen_off")
+				|| name.equals("allow_message_correction")) {
 			if (xmppConnectionServiceBound) {
 				if (name.equals("away_when_screen_off")) {
 					xmppConnectionService.toggleScreenEventReceiver();

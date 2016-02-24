@@ -37,7 +37,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Um FlowX nutzen zu können, benötigst du ein Konto. Logge dich ein oder registriere dir einfach ein neues Konto."
-                    android:textColor="@color/black87"
+                    android:textColor="@color/black54"
                     android:layout_marginBottom="@dimen/activity_horizontal_margin"
                     android:textSize="?attr/TextSizeBody" />
                     <TextView
@@ -45,16 +45,18 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/account_settings_jabber_id"
+                        android:layout_marginTop="@dimen/bootstrap_h1_hori_padding"
                         android:textColor="@color/black87"
                         android:textSize="?attr/TextSizeBody" />
                     <com.beardedhen.androidbootstrap.BootstrapEditText
                         android:id="@+id/account_jid"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/account_settings_example_jabber_id"
+                        android:hint="Benutername"
                         android:inputType="textEmailAddress"
                         app:bootstrapSize="md"
-                        app:bootstrapBrand="info"
+                        app:bootstrapBrand="regular"
+                        app:roundedCorners="true"
                         android:textColor="@color/black87"
                         android:textColorHint="@color/black54"
                         android:textSize="?attr/TextSizeBody" />
@@ -69,16 +71,18 @@
                         android:id="@+id/account_password"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/password"
+                        android:hint="Passwort"
                         android:inputType="textPassword"
                         app:bootstrapSize="md"
-                        app:bootstrapBrand="info"
+                        app:bootstrapBrand="regular"
+                        app:roundedCorners="true"
                         android:textColor="@color/black87"
                         android:textColorHint="@color/black54"
                         android:textSize="?attr/TextSizeBody" />
 
                     <LinearLayout
                         android:id="@+id/name_port"
+                        android:visibility="gone"
                         android:layout_marginTop="8dp"
                         android:orientation="horizontal"
                         android:layout_width="fill_parent"
@@ -156,7 +160,8 @@
                         android:inputType="textPassword"
                         android:visibility="gone"
                         app:bootstrapSize="md"
-                        app:bootstrapBrand="info"
+                        app:bootstrapBrand="regular"
+                        app:roundedCorners="true"
                         android:textColor="@color/black87"
                         android:textColorHint="@color/black54"
                         android:textSize="?attr/TextSizeBody" />

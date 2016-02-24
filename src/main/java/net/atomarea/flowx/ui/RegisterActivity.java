@@ -300,24 +300,19 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
         if (accountInfoEdited() && !mInitMode) {
             this.mSaveButton.setText(R.string.save);
             this.mSaveButton.setEnabled(true);
-            this.mSaveButton.setTextColor(getPrimaryTextColor());
         } else if (mAccount != null && (mAccount.getStatus() == Account.State.CONNECTING || mFetchingAvatar)) {
             this.mSaveButton.setEnabled(false);
-            this.mSaveButton.setTextColor(getSecondaryTextColor());
             this.mSaveButton.setText(R.string.account_status_connecting);
         } else if (mAccount != null && mAccount.getStatus() == Account.State.DISABLED && !mInitMode) {
             this.mSaveButton.setEnabled(true);
-            this.mSaveButton.setTextColor(getPrimaryTextColor());
             this.mSaveButton.setText(R.string.enable);
         } else {
             this.mSaveButton.setEnabled(true);
-            this.mSaveButton.setTextColor(getPrimaryTextColor());
             if (!mInitMode) {
                 if (mAccount != null && mAccount.isOnlineAndConnected()) {
                     this.mSaveButton.setText(R.string.save);
                     if (!accountInfoEdited()) {
                         this.mSaveButton.setEnabled(false);
-                        this.mSaveButton.setTextColor(getSecondaryTextColor());
                     }
                 } else {
                     this.mSaveButton.setText(R.string.connect);
