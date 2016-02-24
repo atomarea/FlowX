@@ -9,6 +9,7 @@ import net.java.otr4j.session.SessionStatus;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.UUID;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
@@ -115,13 +116,6 @@ public class MessageParser extends AbstractParser implements
 		}
 
 		return finishedMessage;
-	}
-
-	private Message parsePGPChat(final Conversation conversation, String pgpEncrypted, int status) {
-		final Message message = new Message(conversation, pgpEncrypted, Message.ENCRYPTION_PGP, status);
-		PgpDecryptionService pgpDecryptionService = conversation.getAccount().getPgpDecryptionService();
-		pgpDecryptionService.add(message);
-		return message;
 	}
 
 	private class Invite {
@@ -336,6 +330,7 @@ public class MessageParser extends AbstractParser implements
 			if (isTypeGroupChat) {
 				if (counterpart.getResourcepart().equals(conversation.getMucOptions().getActualNick())) {
 					status = Message.STATUS_SEND_RECEIVED;
+					isCarbon = true; //not really carbon but received from another resource
 					if (mXmppConnectionService.markMessage(conversation, remoteMsgId, status)) {
 						return;
 					} else if (remoteMsgId == null || Config.IGNORE_ID_REWRITE_IN_MUC) {
@@ -361,7 +356,7 @@ public class MessageParser extends AbstractParser implements
 					message = new Message(conversation, body, Message.ENCRYPTION_NONE, status);
 				}
 			} else if (pgpEncrypted != null) {
-				message = parsePGPChat(conversation, pgpEncrypted, status);
+				message = new Message(conversation, pgpEncrypted, Message.ENCRYPTION_PGP, status);
 			} else if (axolotlEncrypted != null) {
 				message = parseAxolotlChat(axolotlEncrypted, from, remoteMsgId, conversation, status);
 				if (message == null) {
@@ -395,7 +390,10 @@ public class MessageParser extends AbstractParser implements
 			}
 
 			if (replacementId != null && mXmppConnectionService.allowMessageCorrection()) {
-				Message replacedMessage = conversation.findMessageWithRemoteIdAndCounterpart(replacementId, counterpart);
+				Message replacedMessage = conversation.findMessageWithRemoteIdAndCounterpart(replacementId,
+						counterpart,
+						message.getStatus() == Message.STATUS_RECEIVED,
+						message.isCarbon());
 				if (replacedMessage != null) {
 					final boolean fingerprintsMatch = replacedMessage.getAxolotlFingerprint() == null
 							|| replacedMessage.getAxolotlFingerprint().equals(message.getAxolotlFingerprint());
@@ -403,15 +401,22 @@ public class MessageParser extends AbstractParser implements
 							&& replacedMessage.getTrueCounterpart().equals(message.getTrueCounterpart());
 					if (fingerprintsMatch && (trueCountersMatch || conversation.getMode() == Conversation.MODE_SINGLE)) {
 						Log.d(Config.LOGTAG, "replaced message '" + replacedMessage.getBody() + "' with '" + message.getBody() + "'");
+						final String uuid = replacedMessage.getUuid();
+						replacedMessage.setUuid(UUID.randomUUID().toString());
 						replacedMessage.setBody(message.getBody());
 						replacedMessage.setEdited(replacedMessage.getRemoteMsgId());
 						replacedMessage.setRemoteMsgId(remoteMsgId);
+						replacedMessage.setEncryption(message.getEncryption());
 						if (replacedMessage.getStatus() == Message.STATUS_RECEIVED) {
 							replacedMessage.markUnread();
 						}
-						mXmppConnectionService.updateMessage(replacedMessage);
+						mXmppConnectionService.updateMessage(replacedMessage, uuid);
+						mXmppConnectionService.getNotificationService().updateNotification(false);
 						if (mXmppConnectionService.confirmMessages() && remoteMsgId != null && !isForwarded && !isTypeGroupChat) {
 							sendMessageReceipts(account, packet);
+						}
+						if (replacedMessage.getEncryption() == Message.ENCRYPTION_PGP) {
+							conversation.getAccount().getPgpDecryptionService().add(replacedMessage);
 						}
 						return;
 					} else {
@@ -432,6 +437,10 @@ public class MessageParser extends AbstractParser implements
 				conversation.prepend(message);
 			} else {
 				conversation.add(message);
+			}
+
+			if (message.getEncryption() == Message.ENCRYPTION_PGP) {
+				conversation.getAccount().getPgpDecryptionService().add(message);
 			}
 
 			if (query == null || query.getWith() == null) { //either no mam or catchup

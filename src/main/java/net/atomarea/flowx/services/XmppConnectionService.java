@@ -287,7 +287,11 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 				}
 				List<Conversation> conversations = getConversations();
 				for (Conversation conversation : conversations) {
-					if (conversation.getAccount() == account && conversation.getMode() == Conversation.MODE_SINGLE) {
+					if (conversation.getAccount() == account
+							&& !account.pendingConferenceJoins.contains(conversation)) {
+						if (!conversation.startOtrIfNeeded()) {
+							Log.d(Config.LOGTAG,account.getJid().toBareJid()+": couldn't start OTR with "+conversation.getContact().getJid()+" when needed");
+						}
 						sendUnsentMessages(conversation);
 					}
 				}
@@ -473,7 +477,6 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		final String action = intent == null ? null : intent.getAction();
 		boolean interactive = false;
 		if (action != null) {
-			Log.d(Config.LOGTAG,"start reason: "+action);
 			switch (action) {
 				case ConnectivityManager.CONNECTIVITY_ACTION:
 					if (hasInternetConnection() && Config.RESET_ATTEMPT_COUNT_ON_NETWORK_CHANGE) {
@@ -1499,7 +1502,8 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 			mDatabaseExecutor.execute(runnable);
 			this.accounts.remove(account);
 			updateAccountUi();
-			getNotificationService();		}
+			getNotificationService();
+		}
 	}
 
 	public void setOnConversationListChangedListener(OnConversationUpdate listener) {
@@ -1753,21 +1757,22 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		List<Conversation> conversations = getConversations();
 		for (Conversation conversation : conversations) {
 			if (conversation.getMode() == Conversation.MODE_MULTI && conversation.getAccount() == account) {
-				joinMuc(conversation, true, null);
+				joinMuc(conversation);
 			}
 		}
 	}
 
 	public void joinMuc(Conversation conversation) {
-		joinMuc(conversation, false, null);
+		joinMuc(conversation, null);
 	}
 
-	private void joinMuc(Conversation conversation, boolean now, final OnConferenceJoined onConferenceJoined) {
+	private void joinMuc(Conversation conversation, final OnConferenceJoined onConferenceJoined) {
 		Account account = conversation.getAccount();
 		account.pendingConferenceJoins.remove(conversation);
 		account.pendingConferenceLeaves.remove(conversation);
-		if (account.getStatus() == Account.State.ONLINE || now) {
+		if (account.getStatus() == Account.State.ONLINE) {
 			conversation.resetMucOptions();
+			conversation.setHasMessagesLeftOnServer(false);
 			fetchConferenceConfiguration(conversation, new OnConferenceConfigurationFetched() {
 
 				private void join(Conversation conversation) {
@@ -1802,7 +1807,6 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 						conversation.setContactJid(joinJid);
 						databaseBackend.updateConversation(conversation);
 					}
-					conversation.setHasMessagesLeftOnServer(false);
 					if (conversation.getMucOptions().mamSupport()) {
 						getMessageArchiveService().catchupMUC(conversation);
 					}
@@ -1820,9 +1824,12 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 					fetchConferenceConfiguration(conversation);
 				}
 			});
-
+			updateConversationUi();
 		} else {
 			account.pendingConferenceJoins.add(conversation);
+			conversation.resetMucOptions();
+			conversation.setHasMessagesLeftOnServer(false);
+			updateConversationUi();
 		}
 	}
 
@@ -1945,7 +1952,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 				String name = new BigInteger(75, getRNG()).toString(32);
 				Jid jid = Jid.fromParts(name, server, null);
 				final Conversation conversation = findOrCreateConversation(account, jid, true);
-				joinMuc(conversation, true, new OnConferenceJoined() {
+				joinMuc(conversation, new OnConferenceJoined() {
 					@Override
 					public void onConferenceJoined(final Conversation conversation) {
 						Bundle options = new Bundle();
@@ -2152,6 +2159,11 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 
 	public void updateMessage(Message message) {
 		databaseBackend.updateMessage(message);
+		updateConversationUi();
+	}
+
+	public void updateMessage(Message message, String uuid) {
+		databaseBackend.updateMessage(message, uuid);
 		updateConversationUi();
 	}
 
@@ -2616,7 +2628,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	}
 
 	public boolean sendChatStates() {
-		return getPreferences().getBoolean("chat_states", true);
+		return getPreferences().getBoolean("chat_states", false);
 	}
 
 	public boolean saveEncryptedMessages() {

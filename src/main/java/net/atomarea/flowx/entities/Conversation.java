@@ -225,11 +225,18 @@ public class Conversation extends AbstractEntity implements Blockable {
         }
         return null;
     }
-    public Message findMessageWithRemoteIdAndCounterpart(String id, Jid counterpart) {
+    public Message findMessageWithRemoteIdAndCounterpart(String id, Jid counterpart, boolean received, boolean carbon) {
         synchronized (this.messages) {
-            for(Message message : this.messages) {
-                if(id.equals(message.getRemoteMsgId()) && counterpart.equals(message.getCounterpart())) {
-                    return message;
+            for(int i = this.messages.size() - 1; i >= 0; --i) {
+                Message message = messages.get(i);
+                if (counterpart.equals(message.getCounterpart())
+                        && ((message.getStatus() == Message.STATUS_RECEIVED) == received)
+                        && (carbon == message.isCarbon() || received) ) {
+                    if (id.equals(message.getRemoteMsgId())) {
+                        return message;
+                    } else {
+                        return null;
+                    }
                 }
             }
         }
@@ -519,16 +526,20 @@ public class Conversation extends AbstractEntity implements Blockable {
         return mSmp;
     }
 
-    public void startOtrIfNeeded() {
-        if (this.otrSession != null
-                && this.otrSession.getSessionStatus() != SessionStatus.ENCRYPTED) {
+    public boolean startOtrIfNeeded() {
+        if (this.otrSession != null && this.otrSession.getSessionStatus() != SessionStatus.ENCRYPTED) {
             try {
                 this.otrSession.startSession();
+                return true;
             } catch (OtrException e) {
                 this.resetOtrSession();
+                return false;
             }
+        } else {
+            return true;
         }
     }
+
 
     public boolean endOtrIfNeeded() {
         if (this.otrSession != null) {

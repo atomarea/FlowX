@@ -188,6 +188,10 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 		}
 	}
 
+	public boolean queryInProgress(Conversation conversation) {
+		return queryInProgress(conversation, null);
+	}
+
 	public void processFin(Element fin, Jid from) {
 		if (fin == null) {
 			return;
@@ -221,7 +225,6 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 			this.execute(nextQuery);
 			this.finalizeQuery(query, false);
 			synchronized (this.queries) {
-				this.queries.remove(query);
 				this.queries.add(nextQuery);
 			}
 		}

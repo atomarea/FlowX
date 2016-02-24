@@ -1501,7 +1501,9 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
     public void setMessagesLoaded() {
-        if (mConversationFragment != null) mConversationFragment.setMessagesLoaded();
+        if (mConversationFragment != null)
+            mConversationFragment.setMessagesLoaded();
+        mConversationFragment.updateMessages();
     }
 
     @Override

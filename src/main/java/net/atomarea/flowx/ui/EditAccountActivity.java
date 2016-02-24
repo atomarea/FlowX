@@ -387,9 +387,9 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                Uri uri = Uri.parse("package:" + getPackageName());
+                Uri uri = Uri.parse("package:"+getPackageName());
                 intent.setData(uri);
-                startActivityForResult(intent, REQUEST_BATTERY_OP);
+                startActivityForResult(intent,REQUEST_BATTERY_OP);
             }
         });
         this.mNamePort = (LinearLayout) findViewById(R.id.name_port);
