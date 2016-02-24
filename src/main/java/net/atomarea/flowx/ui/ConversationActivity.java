@@ -1283,10 +1283,12 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             builder.setPositiveButton(R.string.next, new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                    Uri uri = Uri.parse("package:" + getPackageName());
-                    intent.setData(uri);
-                    startActivityForResult(intent, REQUEST_BATTERY_OP);
+                    if (Build.VERSION.SDK_INT >= 23) { // Sonst Crash bei API <23
+                        Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                        Uri uri = Uri.parse("package:" + getPackageName());
+                        intent.setData(uri);
+                        startActivityForResult(intent, REQUEST_BATTERY_OP);
+                    }
                 }
             });
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -1297,7 +1299,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     }
                 });
             }
-            builder.create().show();
         }
     }
 

@@ -369,17 +369,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         this.mAvatar = (ImageView) findViewById(R.id.avater);
         this.mAvatar.setOnClickListener(this.mAvatarClickListener);
         this.mRegisterNew = (CheckBox) findViewById(R.id.account_register_new);
-        this.mBatteryOptimizations = (RelativeLayout) findViewById(R.id.battery_optimization);
-        this.mDisableBatterOptimizations = (Button) findViewById(R.id.batt_op_disable);
-        this.mDisableBatterOptimizations.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                Uri uri = Uri.parse("package:"+getPackageName());
-                intent.setData(uri);
-                startActivityForResult(intent,REQUEST_BATTERY_OP);
-            }
-        });
         this.mNamePort = (LinearLayout) findViewById(R.id.name_port);
         this.mHostname = (EditText) findViewById(R.id.hostname);
         this.mHostname.addTextChangedListener(mTextWatcher);
@@ -585,7 +574,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             this.mRegisterNew.setChecked(false);
         }
         if (this.mAccount.isOnlineAndConnected() && !this.mFetchingAvatar) {
-            this.mBatteryOptimizations.setVisibility(showBatteryOptimizationWarning() ? View.VISIBLE : View.GONE);
         }
     }
 
