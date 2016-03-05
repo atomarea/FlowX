@@ -587,7 +587,11 @@
 	<string name="server_side_mam_prefs">Server-side archiving preferences</string>
 	<string name="fetching_mam_prefs">Fetching archiving preferences. Please wait…</string>
 	<string name="unable_to_fetch_mam_prefs">Unable to fetch archiving preferences</string>
+	<string name="no_keys_just_confirm">You already trust this contact. By selecting \'done\' you are just confirming that %s is part of this conference.</string>
+	<string name="pref_treat_vibrate_as_silent">Treat vibrate as silent mode</string>
+	<string name="pref_treat_vibrate_as_silent_summary">Marks your resource as not available when device is on vibrate</string>
 	<string name="gcm_defaultSenderId"></string>
+	<string name="select_image_and_crop">Select image and crop</string>
 	<plurals name="x_messages">
 		<item quantity="one">%d message</item>
 		<item quantity="other">%d messages</item>

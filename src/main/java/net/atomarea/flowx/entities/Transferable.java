@@ -1,28 +1,31 @@
 package net.atomarea.flowx.entities;
 
+import java.util.Arrays;
+import java.util.List;
+
 public interface Transferable {
 
-    String[] VALID_IMAGE_EXTENSIONS = {"webp", "jpeg", "jpg", "png", "jpe"};
-    String[] VALID_CRYPTO_EXTENSIONS = {"pgp", "gpg", "otr"};
-    String[] WELL_KNOWN_EXTENSIONS = {"pdf", "m4a", "mp4", "mp3", "vcf", "exe", "apk", "avi", "flv", "aac", "wav", "flac", "opus"};
+	List<String> VALID_IMAGE_EXTENSIONS = Arrays.asList("webp", "jpeg", "jpg", "png", "jpe");
+	List<String> VALID_CRYPTO_EXTENSIONS = Arrays.asList("pgp", "gpg", "otr");
+	List<String> WELL_KNOWN_EXTENSIONS = Arrays.asList("pdf","m4a","mp4","3gp","aac","amr","mp3");
 
-    int STATUS_UNKNOWN = 0x200;
-    int STATUS_CHECKING = 0x201;
-    int STATUS_FAILED = 0x202;
-    int STATUS_OFFER = 0x203;
-    int STATUS_DOWNLOADING = 0x204;
-    int STATUS_DELETED = 0x205;
-    int STATUS_OFFER_CHECK_FILESIZE = 0x206;
-    int STATUS_UPLOADING = 0x207;
+	int STATUS_UNKNOWN = 0x200;
+	int STATUS_CHECKING = 0x201;
+	int STATUS_FAILED = 0x202;
+	int STATUS_OFFER = 0x203;
+	int STATUS_DOWNLOADING = 0x204;
+	int STATUS_DELETED = 0x205;
+	int STATUS_OFFER_CHECK_FILESIZE = 0x206;
+	int STATUS_UPLOADING = 0x207;
 
 
-    boolean start();
+	boolean start();
 
-    int getStatus();
+	int getStatus();
 
-    long getFileSize();
+	long getFileSize();
 
-    int getProgress();
+	int getProgress();
 
-    void cancel();
+	void cancel();
 }

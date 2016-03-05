@@ -21,6 +21,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
@@ -31,10 +35,6 @@ import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 
 import org.openintents.openpgp.util.OpenPgpApi;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ManageAccountActivity extends XmppActivity implements OnAccountUpdate, KeyChainAliasCallback, XmppConnectionService.OnAccountCreated {
 
@@ -123,8 +123,9 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 			menu.findItem(R.id.mgmt_account_publish_avatar).setVisible(false);
 		} else {
 			menu.findItem(R.id.mgmt_account_enable).setVisible(false);
-			menu.findItem(R.id.mgmt_account_announce_pgp).setVisible(!Config.HIDE_PGP_IN_UI);
+			menu.findItem(R.id.mgmt_account_announce_pgp).setVisible(Config.supportOpenPgp());
 		}
+		menu.setHeaderTitle(this.selectedAccount.getJid().toBareJid().toString());
 	}
 
 	@Override
@@ -151,6 +152,8 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 
 		if (Config.X509_VERIFICATION) {
 			addAccount.setVisible(false);
+		} else {
+			addAccount.setVisible(!Config.LOCK_SETTINGS);
 		}
 
 		if (!accountsLeftToEnable()) {
@@ -161,6 +164,48 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 			disableAll.setVisible(false);
 		}
 		return true;
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.mgmt_account_publish_avatar:
+				publishAvatar(selectedAccount);
+				return true;
+			case R.id.mgmt_account_disable:
+				disableAccount(selectedAccount);
+				return true;
+			case R.id.mgmt_account_enable:
+				enableAccount(selectedAccount);
+				return true;
+			case R.id.mgmt_account_delete:
+				deleteAccount(selectedAccount);
+				return true;
+			case R.id.mgmt_account_announce_pgp:
+				publishOpenPGPPublicKey(selectedAccount);
+				return true;
+			default:
+				return super.onContextItemSelected(item);
+		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.action_add_account:
+				startActivity(new Intent(getApplicationContext(),
+						EditAccountActivity.class));
+				break;
+			case R.id.action_disable_all:
+				disableAllAccounts();
+				break;
+			case R.id.action_enable_all:
+				enableAllAccounts();
+				break;
+			default:
+				break;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

@@ -3,10 +3,10 @@ package net.atomarea.flowx.parser;
 import android.util.Log;
 import android.util.Pair;
 
-import net.atomarea.flowx.crypto.PgpDecryptionService;
 import net.java.otr4j.session.Session;
 import net.java.otr4j.session.SessionStatus;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
@@ -104,7 +104,7 @@ public class MessageParser extends AbstractParser implements
 		}
 	}
 
-	private Message parseAxolotlChat(Element axolotlMessage, Jid from, String id, Conversation conversation, int status) {
+	private Message parseAxolotlChat(Element axolotlMessage, Jid from,  Conversation conversation, int status) {
 		Message finishedMessage = null;
 		AxolotlService service = conversation.getAccount().getAxolotlService();
 		XmppAxolotlMessage xmppAxolotlMessage = XmppAxolotlMessage.fromElement(axolotlMessage, from.toBareJid());
@@ -291,7 +291,9 @@ public class MessageParser extends AbstractParser implements
 		final String body = packet.getBody();
 		final Element mucUserElement = packet.findChild("x", "http://jabber.org/protocol/muc#user");
 		final String pgpEncrypted = packet.findChildContent("x", "jabber:x:encrypted");
-		final Element replaceElement = packet.findChild("replace","urn:xmpp:message-correct:0");
+		final Element replaceElement = packet.findChild("replace", "urn:xmpp:message-correct:0");
+		final Element oob = packet.findChild("x", "jabber:x:oob");
+		final boolean isOob = oob!= null && body != null && body.equals(oob.findChildContent("url"));
 		final String replacementId = replaceElement == null ? null : replaceElement.getAttribute("id");
 		final Element axolotlEncrypted = packet.findChild(XmppAxolotlMessage.CONTAINERTAG, AxolotlService.PEP_PREFIX);
 		int status;
@@ -345,7 +347,7 @@ public class MessageParser extends AbstractParser implements
 				}
 			}
 			Message message;
-			if (body != null && body.startsWith("?OTR")) {
+			if (body != null && body.startsWith("?OTR") && Config.supportOtr()) {
 				if (!isForwarded && !isTypeGroupChat && isProperlyAddressed) {
 					message = parseOtrChat(body, from, remoteMsgId, conversation);
 					if (message == null) {
@@ -355,10 +357,20 @@ public class MessageParser extends AbstractParser implements
 					Log.d(Config.LOGTAG,account.getJid().toBareJid()+": ignoring OTR message from "+from+" isForwarded="+Boolean.toString(isForwarded)+", isProperlyAddressed="+Boolean.valueOf(isProperlyAddressed));
 					message = new Message(conversation, body, Message.ENCRYPTION_NONE, status);
 				}
-			} else if (pgpEncrypted != null) {
+			} else if (pgpEncrypted != null && Config.supportOpenPgp()) {
 				message = new Message(conversation, pgpEncrypted, Message.ENCRYPTION_PGP, status);
-			} else if (axolotlEncrypted != null) {
-				message = parseAxolotlChat(axolotlEncrypted, from, remoteMsgId, conversation, status);
+			} else if (axolotlEncrypted != null && Config.supportOmemo()) {
+				Jid origin;
+				if (conversation.getMode() == Conversation.MODE_MULTI) {
+					origin = conversation.getMucOptions().getTrueCounterpart(counterpart.getResourcepart());
+					if (origin == null) {
+						Log.d(Config.LOGTAG,"axolotl message in non anonymous conference received");
+						return;
+					}
+				} else {
+					origin = from;
+				}
+				message = parseAxolotlChat(axolotlEncrypted, origin, conversation, status);
 				if (message == null) {
 					return;
 				}
@@ -375,6 +387,7 @@ public class MessageParser extends AbstractParser implements
 			message.setServerMsgId(serverMsgId);
 			message.setCarbon(isCarbon);
 			message.setTime(timestamp);
+			message.setOob(isOob);
 			message.markable = packet.hasChild("markable", "urn:xmpp:chat-markers:0");
 			if (conversation.getMode() == Conversation.MODE_MULTI) {
 				Jid trueCounterpart = conversation.getMucOptions().getTrueCounterpart(counterpart.getResourcepart());

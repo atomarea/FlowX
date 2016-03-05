@@ -12,7 +12,9 @@ import android.widget.Toast;
 
 import org.whispersystems.libaxolotl.IdentityKey;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,32 +22,29 @@ import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
 import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.entities.Contact;
+import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdated {
-	private Jid accountJid;
-	private Jid contactJid;
+	private List<Jid> contactJids;
 
-	private Contact contact;
 	private Account mAccount;
+	private Conversation mConversation;
 	private TextView keyErrorMessage;
 	private LinearLayout keyErrorMessageCard;
 	private TextView ownKeysTitle;
 	private LinearLayout ownKeys;
 	private LinearLayout ownKeysCard;
-	private TextView foreignKeysTitle;
 	private LinearLayout foreignKeys;
-	private LinearLayout foreignKeysCard;
 	private Button mSaveButton;
 	private Button mCancelButton;
 
 	private AxolotlService.FetchStatus lastFetchReport = AxolotlService.FetchStatus.SUCCESS;
 
 	private final Map<String, Boolean> ownKeysToTrust = new HashMap<>();
-	private final Map<String, Boolean> foreignKeysToTrust = new HashMap<>();
+	private final Map<Jid,Map<String, Boolean>> foreignKeysToTrust = new HashMap<>();
 
 	private final OnClickListener mSaveButtonListener = new OnClickListener() {
 		@Override
@@ -70,25 +69,16 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 	}
 
 	@Override
-	protected String getShareableUri() {
-		if (contact != null) {
-			return contact.getShareableUri();
-		} else {
-			return "";
-		}
-	}
-
-	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_trust_keys);
-		try {
-			this.accountJid = Jid.fromString(getIntent().getExtras().getString(EXTRA_ACCOUNT));
-		} catch (final InvalidJidException ignored) {
-		}
-		try {
-			this.contactJid = Jid.fromString(getIntent().getExtras().getString("contact"));
-		} catch (final InvalidJidException ignored) {
+		this.contactJids = new ArrayList<>();
+		for(String jid : getIntent().getStringArrayExtra("contacts")) {
+			try {
+				this.contactJids.add(Jid.fromString(jid));
+			} catch (InvalidJidException e) {
+				e.printStackTrace();
+			}
 		}
 
 		keyErrorMessageCard = (LinearLayout) findViewById(R.id.key_error_message_card);
@@ -96,9 +86,7 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 		ownKeysTitle = (TextView) findViewById(R.id.own_keys_title);
 		ownKeys = (LinearLayout) findViewById(R.id.own_keys_details);
 		ownKeysCard = (LinearLayout) findViewById(R.id.own_keys_card);
-		foreignKeysTitle = (TextView) findViewById(R.id.foreign_keys_title);
-		foreignKeys = (LinearLayout) findViewById(R.id.foreign_keys_details);
-		foreignKeysCard = (LinearLayout) findViewById(R.id.foreign_keys_card);
+		foreignKeys = (LinearLayout) findViewById(R.id.foreign_keys);
 		mCancelButton = (Button) findViewById(R.id.cancel_button);
 		mCancelButton.setOnClickListener(mCancelButtonListener);
 		mSaveButton = (Button) findViewById(R.id.save_button);
@@ -119,7 +107,7 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 		boolean hasForeignKeys = false;
 		for(final String fingerprint : ownKeysToTrust.keySet()) {
 			hasOwnKeys = true;
-			addFingerprintRowWithListeners(ownKeys, contact.getAccount(), fingerprint, false,
+			addFingerprintRowWithListeners(ownKeys, mAccount, fingerprint, false,
 					XmppAxolotlSession.Trust.fromBoolean(ownKeysToTrust.get(fingerprint)), false,
 					new CompoundButton.OnCheckedChangeListener() {
 						@Override
@@ -132,30 +120,44 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 					null
 			);
 		}
-		for(final String fingerprint : foreignKeysToTrust.keySet()) {
-			hasForeignKeys = true;
-			addFingerprintRowWithListeners(foreignKeys, contact.getAccount(), fingerprint, false,
-					XmppAxolotlSession.Trust.fromBoolean(foreignKeysToTrust.get(fingerprint)), false,
-					new CompoundButton.OnCheckedChangeListener() {
-						@Override
-						public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-							foreignKeysToTrust.put(fingerprint, isChecked);
-							lockOrUnlockAsNeeded();
-						}
-					},
-					null,
-					null
-			);
+
+		synchronized (this.foreignKeysToTrust) {
+			for (Map.Entry<Jid, Map<String, Boolean>> entry : foreignKeysToTrust.entrySet()) {
+				hasForeignKeys = true;
+				final LinearLayout layout = (LinearLayout) getLayoutInflater().inflate(R.layout.keys_card, foreignKeys, false);
+				final Jid jid = entry.getKey();
+				final TextView header = (TextView) layout.findViewById(R.id.foreign_keys_title);
+				final LinearLayout keysContainer = (LinearLayout) layout.findViewById(R.id.foreign_keys_details);
+				final TextView informNoKeys = (TextView) layout.findViewById(R.id.no_keys_to_accept);
+				header.setText(jid.toString());
+				final Map<String, Boolean> fingerprints = entry.getValue();
+				for (final String fingerprint : fingerprints.keySet()) {
+					addFingerprintRowWithListeners(keysContainer, mAccount, fingerprint, false,
+							XmppAxolotlSession.Trust.fromBoolean(fingerprints.get(fingerprint)), false,
+							new CompoundButton.OnCheckedChangeListener() {
+								@Override
+								public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+									fingerprints.put(fingerprint, isChecked);
+									lockOrUnlockAsNeeded();
+								}
+							},
+							null,
+							null
+					);
+				}
+				if (fingerprints.size() == 0) {
+					informNoKeys.setVisibility(View.VISIBLE);
+					informNoKeys.setText(getString(R.string.no_keys_just_confirm,mAccount.getRoster().getContact(jid).getDisplayName()));
+				} else {
+					informNoKeys.setVisibility(View.GONE);
+				}
+				foreignKeys.addView(layout);
+			}
 		}
 
-		if(hasOwnKeys) {
-			ownKeysTitle.setText(accountJid.toString());
-			ownKeysCard.setVisibility(View.VISIBLE);
-		}
-		if(hasForeignKeys) {
-			foreignKeysTitle.setText(contactJid.toString());
-			foreignKeysCard.setVisibility(View.VISIBLE);
-		}
+		ownKeysTitle.setText(mAccount.getJid().toBareJid().toString());
+		ownKeysCard.setVisibility(hasOwnKeys ? View.VISIBLE : View.GONE);
+		foreignKeys.setVisibility(hasForeignKeys ? View.VISIBLE : View.GONE);
 		if(hasPendingKeyFetches()) {
 			setFetching();
 			lock();
@@ -163,13 +165,15 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 			if (!hasForeignKeys && hasNoOtherTrustedKeys()) {
 				keyErrorMessageCard.setVisibility(View.VISIBLE);
 				if (lastFetchReport == AxolotlService.FetchStatus.ERROR
-						|| contact.getAccount().getAxolotlService().fetchMapHasErrors(contact)) {
+						|| mAccount.getAxolotlService().fetchMapHasErrors(contactJids)) {
 					keyErrorMessage.setText(R.string.error_no_keys_to_trust_server_error);
 				} else {
 					keyErrorMessage.setText(R.string.error_no_keys_to_trust);
 				}
-				ownKeys.removeAllViews(); ownKeysCard.setVisibility(View.GONE);
-				foreignKeys.removeAllViews(); foreignKeysCard.setVisibility(View.GONE);
+				ownKeys.removeAllViews();
+				ownKeysCard.setVisibility(View.GONE);
+				foreignKeys.removeAllViews();
+				foreignKeys.setVisibility(View.GONE);
 			}
 			lockOrUnlockAsNeeded();
 			setDone();
@@ -177,46 +181,58 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 	}
 
 	private boolean reloadFingerprints() {
+		List<Jid> acceptedTargets = mConversation == null ? new ArrayList<Jid>() : mConversation.getAcceptedCryptoTargets();
 		ownKeysToTrust.clear();
-		foreignKeysToTrust.clear();
 		AxolotlService service = this.mAccount.getAxolotlService();
 		Set<IdentityKey> ownKeysSet = service.getKeysWithTrust(XmppAxolotlSession.Trust.UNDECIDED);
-		Set<IdentityKey> foreignKeysSet = service.getKeysWithTrust(XmppAxolotlSession.Trust.UNDECIDED, contact);
-		if (hasNoOtherTrustedKeys() && ownKeysSet.size() == 0) {
-			foreignKeysSet.addAll(service.getKeysWithTrust(XmppAxolotlSession.Trust.UNTRUSTED, contact));
-		}
 		for(final IdentityKey identityKey : ownKeysSet) {
 			if(!ownKeysToTrust.containsKey(identityKey)) {
 				ownKeysToTrust.put(identityKey.getFingerprint().replaceAll("\\s", ""), false);
 			}
 		}
-		for(final IdentityKey identityKey : foreignKeysSet) {
-			if(!foreignKeysToTrust.containsKey(identityKey)) {
-				foreignKeysToTrust.put(identityKey.getFingerprint().replaceAll("\\s", ""), false);
+		synchronized (this.foreignKeysToTrust) {
+			foreignKeysToTrust.clear();
+			for (Jid jid : contactJids) {
+				Set<IdentityKey> foreignKeysSet = service.getKeysWithTrust(XmppAxolotlSession.Trust.UNDECIDED, jid);
+				if (hasNoOtherTrustedKeys(jid) && ownKeysSet.size() == 0) {
+					foreignKeysSet.addAll(service.getKeysWithTrust(XmppAxolotlSession.Trust.UNTRUSTED, jid));
+				}
+				Map<String, Boolean> foreignFingerprints = new HashMap<>();
+				for (final IdentityKey identityKey : foreignKeysSet) {
+					if (!foreignFingerprints.containsKey(identityKey)) {
+						foreignFingerprints.put(identityKey.getFingerprint().replaceAll("\\s", ""), false);
+					}
+				}
+				if (foreignFingerprints.size() > 0 || !acceptedTargets.contains(jid)) {
+					foreignKeysToTrust.put(jid, foreignFingerprints);
+				}
 			}
 		}
-		return ownKeysSet.size() + foreignKeysSet.size() > 0;
+		return ownKeysSet.size() + foreignKeysToTrust.size() > 0;
 	}
 
 	@Override
 	public void onBackendConnected() {
-		if ((accountJid != null) && (contactJid != null)) {
-			this.mAccount = xmppConnectionService.findAccountByJid(accountJid);
-			if (this.mAccount == null) {
-				return;
-			}
-			this.contact = this.mAccount.getRoster().getContact(contactJid);
+		Intent intent = getIntent();
+		this.mAccount = extractAccount(intent);
+		if (this.mAccount != null && intent != null) {
+			String uuid = intent.getStringExtra("conversation");
+			this.mConversation = xmppConnectionService.findConversationByUuid(uuid);
 			reloadFingerprints();
 			populateView();
 		}
 	}
 
 	private boolean hasNoOtherTrustedKeys() {
+		return mAccount == null || mAccount.getAxolotlService().anyTargetHasNoTrustedKeys(contactJids);
+	}
+
+	private boolean hasNoOtherTrustedKeys(Jid contact) {
 		return mAccount == null || mAccount.getAxolotlService().getNumTrustedKeys(contact) == 0;
 	}
 
 	private boolean hasPendingKeyFetches() {
-		return mAccount != null && contact != null && mAccount.getAxolotlService().hasPendingKeyFetches(mAccount,contact);
+		return mAccount != null && mAccount.getAxolotlService().hasPendingKeyFetches(mAccount, contactJids);
 	}
 
 
@@ -262,14 +278,28 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 
 	private void commitTrusts() {
 		for(final String fingerprint :ownKeysToTrust.keySet()) {
-			contact.getAccount().getAxolotlService().setFingerprintTrust(
+			mAccount.getAxolotlService().setFingerprintTrust(
 					fingerprint,
 					XmppAxolotlSession.Trust.fromBoolean(ownKeysToTrust.get(fingerprint)));
 		}
-		for(final String fingerprint:foreignKeysToTrust.keySet()) {
-			contact.getAccount().getAxolotlService().setFingerprintTrust(
-					fingerprint,
-					XmppAxolotlSession.Trust.fromBoolean(foreignKeysToTrust.get(fingerprint)));
+		List<Jid> acceptedTargets = mConversation == null ? new ArrayList<Jid>() : mConversation.getAcceptedCryptoTargets();
+		synchronized (this.foreignKeysToTrust) {
+			for (Map.Entry<Jid, Map<String, Boolean>> entry : foreignKeysToTrust.entrySet()) {
+				Jid jid = entry.getKey();
+				Map<String, Boolean> value = entry.getValue();
+				if (!acceptedTargets.contains(jid)) {
+					acceptedTargets.add(jid);
+				}
+				for (final String fingerprint : value.keySet()) {
+					mAccount.getAxolotlService().setFingerprintTrust(
+							fingerprint,
+							XmppAxolotlSession.Trust.fromBoolean(value.get(fingerprint)));
+				}
+			}
+		}
+		if (mConversation != null && mConversation.getMode() == Conversation.MODE_MULTI) {
+			mConversation.setAcceptedCryptoTargets(acceptedTargets);
+			xmppConnectionService.updateConversation(mConversation);
 		}
 	}
 
@@ -284,11 +314,17 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 	}
 
 	private void lockOrUnlockAsNeeded() {
-		if (hasNoOtherTrustedKeys() && !foreignKeysToTrust.values().contains(true)){
-			lock();
-		} else {
-			unlock();
+		synchronized (this.foreignKeysToTrust) {
+			for (Jid jid : contactJids) {
+				Map<String, Boolean> fingerprints = foreignKeysToTrust.get(jid);
+				if (hasNoOtherTrustedKeys(jid) && (fingerprints == null || !fingerprints.values().contains(true))) {
+					lock();
+					return;
+				}
+			}
 		}
+		unlock();
+
 	}
 
 	private void setDone() {

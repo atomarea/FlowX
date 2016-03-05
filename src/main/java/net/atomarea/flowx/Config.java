@@ -6,12 +6,41 @@ import net.atomarea.flowx.xmpp.chatstate.ChatState;
 
 public final class Config {
 
+    private static final int UNENCRYPTED = 1;
+    private static final int OPENPGP = 2;
+    private static final int OTR = 4;
+    private static final int OMEMO = 8;
+
+    private static final int ENCRYPTION_MASK = UNENCRYPTED | OPENPGP | OTR | OMEMO;
+
+    public static boolean supportUnencrypted() {
+        return (ENCRYPTION_MASK & UNENCRYPTED) != 0;
+    }
+
+    public static boolean supportOpenPgp() {
+        return (ENCRYPTION_MASK & OPENPGP) != 0;
+    }
+
+    public static boolean supportOtr() {
+        return (ENCRYPTION_MASK & OTR) != 0;
+    }
+
+    public static boolean supportOmemo() {
+        return (ENCRYPTION_MASK & OMEMO) != 0;
+    }
+
+    public static boolean multipleEncryptionChoices() {
+        return (ENCRYPTION_MASK & (ENCRYPTION_MASK - 1)) != 0;
+    }
+
     public static final String LOGTAG = "conversations";
 
     public static final String DOMAIN_LOCK = "flowx.im"; //only allow account creation for this domain
+    public static final String CONFERENCE_DOMAIN_LOCK = "conference.flowx.im"; //only allow conference creation for this domain
+    public static final boolean LOCK_DOMAINS_IN_CONVERSATIONS = true; //only add contacts and conferences for own domains
+    public static final boolean LOCK_SETTINGS = true; //set to true to allow only one account
     public static final boolean DISALLOW_REGISTRATION_IN_UI = false; //hide the register checkbox
     public static final boolean CLOSE_TCP_WHEN_SWITCHING_TO_BACKGROUND = false;
-    public static final boolean HIDE_PGP_IN_UI = true; //some more consumer focused clients might want to disable OpenPGP
     public static final boolean LEGACY_NAMESPACE_HTTP_UPLOAD = false;
     public static final boolean REQUEST_DISCO = true;
     public static final int PING_MAX_INTERVAL = 300;
@@ -23,7 +52,6 @@ public final class Config {
     public static final int CARBON_GRACE_PERIOD = 90;
     public static final int MINI_GRACE_PERIOD = 750;
     public static final boolean X509_VERIFICATION = false; //use x509 certificates to verify OMEMO keys
-    public static final boolean FORCE_E2E_ENCRYPTION = false; //disables ability to send unencrypted 1-on-1
     public static final boolean ALLOW_NON_TLS_CONNECTIONS = false; //very dangerous. you should have a good reason to set this to true
     public static final boolean FORCE_ORBOT = false; // always use TOR
     public static final boolean DISABLE_PROXY_LOOKUP = false; //useful to debug ibb

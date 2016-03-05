@@ -9,11 +9,13 @@ import net.java.otr4j.session.SessionID;
 import net.java.otr4j.session.SessionImpl;
 import net.java.otr4j.session.SessionStatus;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.interfaces.DSAPublicKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -48,6 +50,7 @@ public class Conversation extends AbstractEntity implements Blockable {
     public static final String ATTRIBUTE_MUC_PASSWORD = "muc_password";
     public static final String ATTRIBUTE_MUTED_TILL = "muted_till";
     public static final String ATTRIBUTE_ALWAYS_NOTIFY = "always_notify";
+    public static final String ATTRIBUTE_CRYPTO_TARGETS = "crypto_targets";
 
     private String name;
     private String contactUuid;
@@ -300,6 +303,18 @@ public class Conversation extends AbstractEntity implements Blockable {
 
     public long getLastClearHistory() {
         return getLongAttribute("last_clear_history", 0);
+    }
+
+    public List<Jid> getAcceptedCryptoTargets() {
+        if (mode == MODE_SINGLE) {
+            return Arrays.asList(getJid().toBareJid());
+        } else {
+            return getJidListAttribute(ATTRIBUTE_CRYPTO_TARGETS);
+        }
+    }
+
+    public void setAcceptedCryptoTargets(List<Jid> acceptedTargets) {
+        setAttribute(ATTRIBUTE_CRYPTO_TARGETS, acceptedTargets);
     }
 
     public void setCorrectingMessage(Message correctingMessage) {
@@ -662,8 +677,8 @@ public class Conversation extends AbstractEntity implements Blockable {
         final AxolotlService axolotlService = getAccount().getAxolotlService();
         int next = this.getIntAttribute(ATTRIBUTE_NEXT_ENCRYPTION, -1);
         if (next == -1) {
-            if (Config.X509_VERIFICATION && mode == MODE_SINGLE) {
-                if (axolotlService != null && axolotlService.isContactAxolotlCapable(getContact())) {
+            if (Config.X509_VERIFICATION) {
+                if (axolotlService != null && axolotlService.isConversationAxolotlCapable(this)) {
                     return Message.ENCRYPTION_AXOLOTL;
                 } else {
                     return Message.ENCRYPTION_NONE;
@@ -676,12 +691,19 @@ public class Conversation extends AbstractEntity implements Blockable {
                 next = outgoing;
             }
         }
-        if (Config.FORCE_E2E_ENCRYPTION && mode == MODE_SINGLE && next <= 0) {
-            if (axolotlService != null && axolotlService.isContactAxolotlCapable(getContact())) {
+        if (!Config.supportUnencrypted() && next <= 0) {
+            if (Config.supportOmemo()
+                    && (axolotlService != null && axolotlService.isConversationAxolotlCapable(this) || !Config.multipleEncryptionChoices())) {
                 return Message.ENCRYPTION_AXOLOTL;
-            } else {
+            } else if (Config.supportOtr() && mode == MODE_SINGLE) {
                 return Message.ENCRYPTION_OTR;
+            } else if (Config.supportOpenPgp()
+                    && (mode == MODE_SINGLE) || !Config.multipleEncryptionChoices()) {
+                return Message.ENCRYPTION_PGP;
             }
+        } else if (next == Message.ENCRYPTION_AXOLOTL
+                && (!Config.supportOmemo() || axolotlService == null || !axolotlService.isConversationAxolotlCapable(this))) {
+            next = Message.ENCRYPTION_NONE;
         }
         return next;
     }
@@ -789,21 +811,61 @@ public class Conversation extends AbstractEntity implements Blockable {
     }
 
     public boolean setAttribute(String key, String value) {
-        try {
-            this.attributes.put(key, value);
-            return true;
-        } catch (JSONException e) {
-            return false;
+        synchronized (this.attributes) {
+            try {
+                this.attributes.put(key, value);
+                return true;
+            } catch (JSONException e) {
+                return false;
+            }
+        }
+    }
+
+    public boolean setAttribute(String key, List<Jid> jids) {
+        JSONArray array = new JSONArray();
+        for(Jid jid : jids) {
+            array.put(jid.toBareJid().toString());
+        }
+        synchronized (this.attributes) {
+            try {
+                this.attributes.put(key, array);
+                return true;
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
     }
 
     public String getAttribute(String key) {
-        try {
-            return this.attributes.getString(key);
-        } catch (JSONException e) {
-            return null;
+        synchronized (this.attributes) {
+            try {
+                return this.attributes.getString(key);
+            } catch (JSONException e) {
+                return null;
+            }
         }
     }
+
+    public List<Jid> getJidListAttribute(String key) {
+        ArrayList<Jid> list = new ArrayList<>();
+        synchronized (this.attributes) {
+            try {
+                JSONArray array = this.attributes.getJSONArray(key);
+                for (int i = 0; i < array.length(); ++i) {
+                    try {
+                        list.add(Jid.fromString(array.getString(i)));
+                    } catch (InvalidJidException e) {
+                        //ignored
+                    }
+                }
+            } catch (JSONException e) {
+                //ignored
+            }
+        }
+        return list;
+    }
+
 
     public int getIntAttribute(String key, int defaultValue) {
         String value = this.getAttribute(key);

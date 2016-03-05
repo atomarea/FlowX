@@ -47,6 +47,7 @@ import net.atomarea.flowx.entities.MucOptions;
 import net.atomarea.flowx.entities.Presence;
 import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.entities.TransferablePlaceholder;
+import net.atomarea.flowx.http.HttpDownloadConnection;
 import net.atomarea.flowx.services.MessageArchiveService;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.ui.XmppActivity.OnPresenceSelected;
@@ -197,7 +198,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
 
         private int getIndexOf(String uuid, List<Message> messages) {
             if (uuid == null) {
-                return 0;
+                return messages.size() - 1;
             }
             for (int i = 0; i < messages.size(); ++i) {
                 if (uuid.equals(messages.get(i).getUuid())) {
@@ -238,7 +239,12 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                                 @Override
                                 public void run() {
                                     final int oldPosition = messagesView.getFirstVisiblePosition();
-                                    Message message = messageList.get(oldPosition);
+                                    final Message message;
+                                    if (oldPosition < messageList.size()) {
+                                        message = messageList.get(oldPosition);
+                                    }  else {
+                                        message = null;
+                                    }
                                     String uuid = message != null ? message.getUuid() : null;
                                     View v = messagesView.getChildAt(0);
                                     final int pxOffset = (v == null) ? 0 : v.getTop();
@@ -597,6 +603,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
 
     private void populateContextMenu(ContextMenu menu) {
         final Message m = this.selectedMessage;
+        final Transferable t = m.getTransferable();
         Message relevantForCorrection = m;
         while(relevantForCorrection.mergeable(relevantForCorrection.next())) {
             relevantForCorrection = relevantForCorrection.next();
@@ -613,7 +620,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             MenuItem downloadFile = menu.findItem(R.id.download_file);
             MenuItem cancelTransmission = menu.findItem(R.id.cancel_transmission);
             if ((m.getType() == Message.TYPE_TEXT || m.getType() == Message.TYPE_PRIVATE)
-                    && m.getTransferable() == null
+                    && t == null
                     && !GeoHelper.isGeoUri(m.getBody())
                     && m.treatAsDownloadable() != Message.Decision.MUST) {
                 copyText.setVisible(true);
@@ -627,7 +634,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             }
             if ((m.getType() != Message.TYPE_TEXT
                     && m.getType() != Message.TYPE_PRIVATE
-                    && m.getTransferable() == null)
+                    && t == null)
                     || (GeoHelper.isGeoUri(m.getBody()))) {
                 shareWith.setVisible(true);
             }
@@ -636,15 +643,16 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             }
             if (m.hasFileOnRemoteHost()
                     || GeoHelper.isGeoUri(m.getBody())
-                    || m.treatAsDownloadable() == Message.Decision.MUST) {
+                    || m.treatAsDownloadable() == Message.Decision.MUST
+                    || (t != null && t instanceof HttpDownloadConnection)) {
                 copyUrl.setVisible(true);
             }
-            if ((m.getType() == Message.TYPE_TEXT && m.getTransferable() == null && m.treatAsDownloadable() != Message.Decision.NEVER)
-                    || (m.isFileOrImage() && m.getTransferable() instanceof TransferablePlaceholder && m.hasFileOnRemoteHost())){
+            if ((m.getType() == Message.TYPE_TEXT && t == null && m.treatAsDownloadable() != Message.Decision.NEVER)
+                    || (m.isFileOrImage() && t instanceof TransferablePlaceholder && m.hasFileOnRemoteHost())){
                 downloadFile.setVisible(true);
                 downloadFile.setTitle(activity.getString(R.string.download_x_file,UIHelper.getFileDescriptionString(activity, m)));
             }
-            if ((m.getTransferable() != null && !(m.getTransferable() instanceof TransferablePlaceholder))
+            if ((t != null && !(t instanceof TransferablePlaceholder))
                     || (m.isFileOrImage() && (m.getStatus() == Message.STATUS_WAITING
                     || m.getStatus() == Message.STATUS_OFFERED))) {
                 cancelTransmission.setVisible(true);
