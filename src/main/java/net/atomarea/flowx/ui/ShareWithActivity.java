@@ -17,17 +17,24 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.ui.adapter.ConversationAdapter;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 
-public class ShareWithActivity extends XmppActivity {
+public class ShareWithActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate {
+
+	@Override
+	public void onConversationUpdate() {
+		refreshUi();
+	}
 
 	private class Share {
 		public List<Uri> uris = new ArrayList<>();
@@ -36,14 +43,17 @@ public class ShareWithActivity extends XmppActivity {
 		public String contact;
 		public String text;
 		public String uuid;
+		public boolean multiple = false;
 	}
 
 	private Share share;
 
 	private static final int REQUEST_START_NEW_CONVERSATION = 0x0501;
 	private ListView mListView;
+	private ConversationAdapter mAdapter;
 	private List<Conversation> mConversations = new ArrayList<>();
 	private Toast mToast;
+	private AtomicInteger attachmentCounter = new AtomicInteger(0);
 
 	private UiCallback<Message> attachFileCallback = new UiCallback<Message>() {
 
@@ -59,25 +69,51 @@ public class ShareWithActivity extends XmppActivity {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					if (mToast != null) {
-						mToast.cancel();
-					}
-					if (share.uuid != null) {
-						mToast = Toast.makeText(getApplicationContext(),
-								getString(share.image ? R.string.shared_image_with_x : R.string.shared_file_with_x,message.getConversation().getName()),
-								Toast.LENGTH_SHORT);
-						mToast.show();
+					if (attachmentCounter.decrementAndGet() <=0 ) {
+						int resId;
+						if (share.image && share.multiple) {
+							resId = R.string.shared_images_with_x;
+						} else if (share.image) {
+							resId = R.string.shared_image_with_x;
+						} else {
+							resId = R.string.shared_file_with_x;
+						}
+						replaceToast(getString(resId, message.getConversation().getName()));
+						if (share.uuid != null) {
+							finish();
+						} else {
+							switchToConversation(message.getConversation());
+						}
 					}
 				}
 			});
 		}
 
 		@Override
-		public void error(int errorCode, Message object) {
-			// TODO Auto-generated method stub
-
+		public void error(final int errorCode, Message object) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					replaceToast(getString(errorCode));
+					if (attachmentCounter.decrementAndGet() <=0 ) {
+						finish();
+					}
+				}
+			});
 		}
 	};
+
+	protected void hideToast() {
+		if (mToast != null) {
+			mToast.cancel();
+		}
+	}
+
+	protected void replaceToast(String msg) {
+		hideToast();
+		mToast = Toast.makeText(this, msg ,Toast.LENGTH_LONG);
+		mToast.show();
+	}
 
 	protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -107,8 +143,7 @@ public class ShareWithActivity extends XmppActivity {
 		setTitle(getString(R.string.title_activity_sharewith));
 
 		mListView = (ListView) findViewById(R.id.choose_conversation_list);
-		ConversationAdapter mAdapter = new ConversationAdapter(this,
-				this.mConversations);
+		mAdapter = new ConversationAdapter(this, this.mConversations);
 		mListView.setAdapter(mAdapter);
 		mListView.setOnItemClickListener(new OnItemClickListener() {
 
@@ -146,23 +181,24 @@ public class ShareWithActivity extends XmppActivity {
 			return;
 		}
 		final String type = intent.getType();
-		Log.d(Config.LOGTAG, "action: "+intent.getAction()+ ", type:"+type);
+		final String action = intent.getAction();
+		Log.d(Config.LOGTAG, "action: "+action+ ", type:"+type);
 		share.uuid = intent.getStringExtra("uuid");
-		if (Intent.ACTION_SEND.equals(intent.getAction())) {
-			final Uri uri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
-			if (type != null && uri != null && !type.equalsIgnoreCase("text/plain")) {
+		if (Intent.ACTION_SEND.equals(action)) {
+			final String text = intent.getStringExtra(Intent.EXTRA_TEXT);
+			final Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+			if (type != null && uri != null && text == null) {
 				this.share.uris.clear();
 				this.share.uris.add(uri);
 				this.share.image = type.startsWith("image/") || isImage(uri);
 			} else {
-				this.share.text = getIntent().getStringExtra(Intent.EXTRA_TEXT);
+				this.share.text = text;
 			}
-		} else if (Intent.ACTION_SEND_MULTIPLE.equals(intent.getAction())) {
+		} else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
 			this.share.image = type != null && type.startsWith("image/");
 			if (!this.share.image) {
 				return;
 			}
-
 			this.share.uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
 		}
 		if (xmppConnectionServiceBound) {
@@ -191,8 +227,7 @@ public class ShareWithActivity extends XmppActivity {
 			share();
 			return;
 		}
-		xmppConnectionService.populateWithOrderedConversations(mConversations,
-				this.share != null && this.share.uris.size() == 0);
+		refreshUiReal();
 	}
 
 	private void share() {
@@ -224,6 +259,7 @@ public class ShareWithActivity extends XmppActivity {
 	}
 
 	private void share(final Conversation conversation) {
+		mListView.setEnabled(false);
 		if (conversation.getNextEncryption() == Message.ENCRYPTION_PGP && !hasPgp()) {
 			if (share.uuid == null) {
 				showInstallPgpDialog();
@@ -237,29 +273,21 @@ public class ShareWithActivity extends XmppActivity {
 			OnPresenceSelected callback = new OnPresenceSelected() {
 				@Override
 				public void onPresenceSelected() {
+					attachmentCounter.set(share.uris.size());
 					if (share.image) {
-						mToast = Toast.makeText(getApplicationContext(),
-								getText(R.string.preparing_image),
-								Toast.LENGTH_LONG);
-						mToast.show();
+						share.multiple = share.uris.size() > 1;
+						replaceToast(getString(share.multiple ? R.string.preparing_images : R.string.preparing_image));
 						for (Iterator<Uri> i = share.uris.iterator(); i.hasNext(); i.remove()) {
 							ShareWithActivity.this.xmppConnectionService
 									.attachImageToConversation(conversation, i.next(),
 											attachFileCallback);
 						}
 					} else {
-						mToast = Toast.makeText(getApplicationContext(),
-								getText(R.string.preparing_file),
-								Toast.LENGTH_LONG);
-						mToast.show();
+						replaceToast(getString(R.string.preparing_file));
 						ShareWithActivity.this.xmppConnectionService
 								.attachFileToConversation(conversation, share.uris.get(0),
 										attachFileCallback);
 					}
-					if (share.uuid == null) {
-						switchToConversation(conversation, null, true);
-					}
-					finish();
 				}
 			};
 			if (conversation.getAccount().httpUploadAvailable()) {
@@ -269,13 +297,21 @@ public class ShareWithActivity extends XmppActivity {
 			}
 		} else {
 			switchToConversation(conversation, this.share.text, true);
-			finish();
 		}
 
 	}
 
 	public void refreshUiReal() {
-		//nothing to do. This Activity doesn't implement any listeners
+		xmppConnectionService.populateWithOrderedConversations(mConversations, this.share != null && this.share.uris.size() == 0);
+		mAdapter.notifyDataSetChanged();
 	}
 
+	@Override
+	public void onBackPressed() {
+		if (attachmentCounter.get() >= 1) {
+			replaceToast(getString(R.string.sharing_files_please_wait));
+		} else {
+			super.onBackPressed();
+		}
+	}
 }

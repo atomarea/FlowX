@@ -417,7 +417,7 @@ public abstract class XmppActivity extends FragmentActivity {
 		}
 	}
 
-	protected boolean showBatteryOptimizationWarning() {
+	protected boolean isOptimizingBattery() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
 			return !pm.isIgnoringBatteryOptimizations(getPackageName());
@@ -1111,6 +1111,7 @@ public abstract class XmppActivity extends FragmentActivity {
 		} else {
 			if (cancelPotentialWork(message, imageView)) {
 				imageView.setBackgroundColor(0xff333333);
+				imageView.setImageDrawable(null);
 				final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
 				final AsyncDrawable asyncDrawable = new AsyncDrawable(
 						getResources(), null, task);

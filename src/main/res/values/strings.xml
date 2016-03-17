@@ -592,6 +592,9 @@
 	<string name="pref_treat_vibrate_as_silent_summary">Marks your resource as not available when device is on vibrate</string>
 	<string name="gcm_defaultSenderId"></string>
 	<string name="select_image_and_crop">Select image and crop</string>
+	<string name="sharing_files_please_wait">Sharing files. Please wait…</string>
+	<string name="preparing_images">Preparing images for transmission</string>
+	<string name="shared_images_with_x">Shared images with %s</string>
 	<plurals name="x_messages">
 		<item quantity="one">%d message</item>
 		<item quantity="other">%d messages</item>

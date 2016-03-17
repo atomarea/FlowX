@@ -4,9 +4,10 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -18,22 +19,18 @@ import android.widget.Toast;
 import com.soundcloud.android.crop.Crop;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.persistance.FileBackend;
-import net.atomarea.flowx.utils.ExifHelper;
 import net.atomarea.flowx.utils.FileUtils;
 import net.atomarea.flowx.utils.PhoneHelper;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
 
 public class PublishProfilePictureActivity extends XmppActivity {
 
-	private static final int REQUEST_CHOOSE_FILE = 0xac23;
+	private static final int REQUEST_CHOOSE_FILE_AND_CROP = 0xac23;
+	private static final int REQUEST_CHOOSE_FILE = 0xac24;
 	private ImageView avatar;
 	private TextView accountTextView;
 	private TextView hintOrWarning;
@@ -138,7 +135,7 @@ public class PublishProfilePictureActivity extends XmppActivity {
 			@Override
 			public void onClick(View v) {
 				if (hasStoragePermission(REQUEST_CHOOSE_FILE)) {
-					chooseAvatar();
+					chooseAvatar(false);
 				}
 
 			}
@@ -146,20 +143,22 @@ public class PublishProfilePictureActivity extends XmppActivity {
 		this.defaultUri = PhoneHelper.getSefliUri(getApplicationContext());
 	}
 
-	private void chooseAvatar() {
+	private void chooseAvatar(boolean crop) {
 		Intent attachFileIntent = new Intent();
 		attachFileIntent.setType("image/*");
 		attachFileIntent.setAction(Intent.ACTION_GET_CONTENT);
 		Intent chooser = Intent.createChooser(attachFileIntent, getString(R.string.attach_file));
-		startActivityForResult(chooser, REQUEST_CHOOSE_FILE);
+		startActivityForResult(chooser, crop ? REQUEST_CHOOSE_FILE_AND_CROP : REQUEST_CHOOSE_FILE);
 	}
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 		if (grantResults.length > 0)
 			if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				if (requestCode == REQUEST_CHOOSE_FILE) {
-					chooseAvatar();
+				if (requestCode == REQUEST_CHOOSE_FILE_AND_CROP) {
+					chooseAvatar(true);
+				} else if (requestCode == REQUEST_CHOOSE_FILE) {
+					chooseAvatar(false);
 				}
 			} else {
 				Toast.makeText(this, R.string.no_storage_permission, Toast.LENGTH_SHORT).show();
@@ -167,23 +166,49 @@ public class PublishProfilePictureActivity extends XmppActivity {
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.publish_avatar, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		if (item.getItemId() == R.id.action_crop_image) {
+			if (hasStoragePermission(REQUEST_CHOOSE_FILE_AND_CROP)) {
+				chooseAvatar(true);
+			}
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == RESULT_OK) {
 			switch (requestCode) {
-				case REQUEST_CHOOSE_FILE:
+				case REQUEST_CHOOSE_FILE_AND_CROP:
 					Uri source = data.getData();
 					String original = FileUtils.getPath(this, source);
 					if (original != null) {
 						source = Uri.parse("file://"+original);
 					}
 					Uri destination = Uri.fromFile(new File(getCacheDir(), "croppedAvatar"));
-					final int size = getPixel(300);
+					final int size = getPixel(192);
 					Crop.of(source, destination).asSquare().withMaxSize(size, size).start(this);
+					break;
+				case REQUEST_CHOOSE_FILE:
+					this.avatarUri = data.getData();
+					if (xmppConnectionServiceBound) {
+						loadImageIntoPreview(this.avatarUri);
+					}
 					break;
 				case Crop.REQUEST_CROP:
 					this.avatarUri = Uri.fromFile(new File(getCacheDir(), "croppedAvatar"));
-					loadImageIntoPreview(this.avatarUri);
+					if (xmppConnectionServiceBound) {
+						loadImageIntoPreview(this.avatarUri);
+					}
 					break;
 			}
 		} else {
@@ -206,7 +231,7 @@ public class PublishProfilePictureActivity extends XmppActivity {
 			if (this.avatarUri == null) {
 				if (this.account.getAvatar() != null
 						|| this.defaultUri == null) {
-					this.avatar.setImageBitmap(avatarService().get(account, getPixel(300)));
+					this.avatar.setImageBitmap(avatarService().get(account, getPixel(192)));
 					if (this.defaultUri != null) {
 						this.avatar
 								.setOnLongClickListener(this.backToDefaultListener);
@@ -248,21 +273,10 @@ public class PublishProfilePictureActivity extends XmppActivity {
 		}
 	}
 
-	private Bitmap loadScaledBitmap(Uri uri, int reqSize) throws FileNotFoundException {
-		final BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inJustDecodeBounds = true;
-		BitmapFactory.decodeStream(getContentResolver().openInputStream(uri), null, options);
-		int rotation = ExifHelper.getOrientation(getContentResolver().openInputStream(uri));
-		options.inSampleSize = FileBackend.calcSampleSize(options, reqSize);
-		options.inJustDecodeBounds = false;
-		Bitmap bm = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri), null, options);
-		return FileBackend.rotate(bm,rotation);
-	}
-
 	protected void loadImageIntoPreview(Uri uri) {
 		Bitmap bm = null;
 		try {
-			bm = loadScaledBitmap(uri, getPixel(300));
+			bm = xmppConnectionService.getFileBackend().cropCenterSquare(uri, getPixel(192));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

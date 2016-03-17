@@ -519,5 +519,8 @@
     <string name="check_x_filesize">%s annehmen</string>
     <string name="correct_message">Nachricht korrigieren</string>
     <string name="send_corrected_message">korrigierte Nachricht senden</string>
-
+    <string name="select_image_and_crop">Bild auswählen und anpassen</string>
+    <string name="sharing_files_please_wait">Teile Datei. Bitte warten…</string>
+    <string name="preparing_images">Bilder werden für Übertragung vorbereitet</string>
+    <string name="shared_images_with_x">Teile Bilder mit %s</string>
 </resources>

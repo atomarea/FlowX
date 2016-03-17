@@ -1276,19 +1276,19 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
     private void openBatteryOptimizationDialogIfNeeded() {
-        if (showBatteryOptimizationWarning() && getPreferences().getBoolean("show_battery_optimization", true)) {
+        if (hasAccountWithoutPush()
+                && isOptimizingBattery()
+                && getPreferences().getBoolean("show_battery_optimization", true)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.battery_optimizations_enabled);
             builder.setMessage(R.string.battery_optimizations_enabled_dialog);
             builder.setPositiveButton(R.string.next, new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if (Build.VERSION.SDK_INT >= 23) { // Sonst Crash bei API <23
-                        Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                        Uri uri = Uri.parse("package:" + getPackageName());
-                        intent.setData(uri);
-                        startActivityForResult(intent, REQUEST_BATTERY_OP);
-                    }
+                    Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                    Uri uri = Uri.parse("package:" + getPackageName());
+                    intent.setData(uri);
+                    startActivityForResult(intent, REQUEST_BATTERY_OP);
                 }
             });
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -1301,6 +1301,16 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             }
             builder.create().show();
         }
+    }
+
+    private boolean hasAccountWithoutPush() {
+        for(Account account : xmppConnectionService.getAccounts()) {
+            if (account.getStatus() != Account.State.DISABLED
+                    && !xmppConnectionService.getPushManagementService().available(account)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void attachLocationToConversation(Conversation conversation, Uri uri) {
@@ -1454,9 +1464,14 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     protected void refreshUiReal() {
         updateConversationList();
         if (conversationList.size() > 0) {
+            if (!this.mConversationFragment.isAdded()) {
+                Log.d(Config.LOGTAG,"fragment NOT added to activity. detached="+Boolean.toString(mConversationFragment.isDetached()));
+            }
             ConversationActivity.this.mConversationFragment.updateMessages();
             updateActionBarTitle();
             invalidateOptionsMenu();
+        } else {
+            Log.d(Config.LOGTAG,"not updating conversations fragment because conversations list size was 0");
         }
     }
 
