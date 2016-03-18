@@ -36,7 +36,7 @@ dependencies {
 	compile project(':libs:MemorizingTrustManager')
 	compile project(':libs:emojicon')
 	compile project(':libs:audiowife')
-	compile 'com.android.support:support-v13:+'
+	compile 'com.android.support:support-v13:23.1.1'
 	compile 'org.bouncycastle:bcprov-jdk15on:1.52'
 	compile 'org.bouncycastle:bcmail-jdk15on:1.52'
 	compile 'org.jitsi:org.otr4j:0.22'
@@ -54,6 +54,7 @@ dependencies {
 	compile 'org.sufficientlysecure:openpgp-api:10.0'
 	compile 'com.yalantis:contextmenu:1.0.6'
     compile 'com.github.manuelpeinado.fadingactionbar:fadingactionbar:3.1.2'
+	compile 'com.android.support:multidex:1.0.0'
 	playstoreCompile 'com.google.android.gms:play-services-gcm:8.3.0'
 }
 
@@ -67,9 +68,11 @@ android {
 	defaultConfig {
 		minSdkVersion 14
 		targetSdkVersion 23
-		versionCode 1405
-		versionName "1384"
+		versionCode 1407
+		versionName "1386"
 		archivesBaseName += "-$versionName"
+		applicationId "net.atomarea.flowx"
+		multiDexEnabled true
 	}
 
 	compileOptions {

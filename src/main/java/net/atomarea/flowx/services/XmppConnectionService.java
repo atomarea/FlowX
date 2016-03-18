@@ -199,7 +199,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 			this);
 	private AvatarService mAvatarService = new AvatarService(this);
 	private MessageArchiveService mMessageArchiveService = new MessageArchiveService(this);
-	private net.atomarea.flowx.services.PushManagementService mPushManagementService = new net.atomarea.flowx.services.PushManagementService(this);
+	private PushManagementService mPushManagementService = new PushManagementService(this);
 	private OnConversationUpdate mOnConversationUpdate = null;
 	private final FileObserver fileObserver = new FileObserver(
 			FileBackend.getConversationsImageDirectory()) {
@@ -2689,7 +2689,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	}
 
 	public boolean indicateReceived() {
-		return getPreferences().getBoolean("indicate_received", false);
+		return getPreferences().getBoolean("indicate_received", true);
 	}
 
 	public boolean useTorToConnect() {
@@ -3148,7 +3148,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		});
 	}
 
-	public net.atomarea.flowx.services.PushManagementService getPushManagementService() {
+	public PushManagementService getPushManagementService() {
 		return mPushManagementService;
 	}
 

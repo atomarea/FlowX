@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey50">
+    android:background="@color/grey50" >
 
     <LinearLayout
         android:id="@+id/account_image_wrapper"
@@ -19,7 +19,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:riv_corner_radius="300dp" />
-
     </LinearLayout>
 
     <TextView
@@ -46,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true">
+        android:layout_alignParentRight="true" >
 
         <Button
             android:id="@+id/cancel_button"
@@ -85,14 +84,13 @@
         android:gravity="center_vertical"
         android:orientation="vertical"
         android:paddingLeft="8dp"
-        android:paddingRight="8dp">
+        android:paddingRight="8dp" >
 
         <TextView
             android:id="@+id/account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black87"
-            android:visibility="gone"
             android:textSize="?attr/TextSizeHeadline" />
 
         <TextView
@@ -101,7 +99,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:minLines="3"
-            android:visibility="gone"
             android:text="@string/publish_avatar_explanation"
             android:textColor="@color/black87"
             android:textSize="?attr/TextSizeBody" />
