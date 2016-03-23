@@ -1,8 +1,6 @@
 package net.atomarea.flowx.http;
 
 import android.app.PendingIntent;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.PowerManager;
 import android.util.Log;
 import android.util.Pair;
@@ -12,10 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -196,9 +191,7 @@ public class HttpUploadConnection implements Transferable {
 						mGetUrl = new URL(mGetUrl.toString() + "#" + CryptoHelper.bytesToHex(key));
 					}
 					mXmppConnectionService.getFileBackend().updateFileParams(message, mGetUrl);
-					Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-					intent.setData(Uri.fromFile(file));
-					mXmppConnectionService.sendBroadcast(intent);
+					mXmppConnectionService.getFileBackend().updateMediaScanner(file);
 					message.setTransferable(null);
 					message.setCounterpart(message.getConversation().getJid().toBareJid());
 					if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {

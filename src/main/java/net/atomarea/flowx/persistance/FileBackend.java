@@ -1,5 +1,6 @@
 package net.atomarea.flowx.persistance;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -26,7 +27,6 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
@@ -34,7 +34,6 @@ import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.DownloadableFile;
 import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.ExifHelper;
@@ -48,6 +47,37 @@ public class FileBackend {
 
 	public FileBackend(XmppConnectionService service) {
 		this.mXmppConnectionService = service;
+	}
+
+	private void createNoMedia() {
+		final File nomedia = new File(getConversationsFileDirectory()+".nomedia");
+		if (!nomedia.exists()) {
+			try {
+				nomedia.createNewFile();
+			} catch (Exception e) {
+				Log.d(Config.LOGTAG, "could not create nomedia file");
+			}
+		}
+	}
+
+	public void updateMediaScanner(File file) {
+		if (file.getAbsolutePath().startsWith(getConversationsImageDirectory())) {
+			Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+			intent.setData(Uri.fromFile(file));
+			mXmppConnectionService.sendBroadcast(intent);
+		} else {
+			createNoMedia();
+		}
+	}
+
+	public boolean deleteFile(Message message) {
+		File file = getFile(message);
+		if (file.delete()) {
+			updateMediaScanner(file);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public DownloadableFile getFile(Message message) {
@@ -81,19 +111,13 @@ public class FileBackend {
 	}
 
 	public static String getConversationsFileDirectory() {
-		String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/FlowX/";
-		File x = new File(path, ".nomedia");
-		try {
-			x.createNewFile();
-		} catch(Exception ignored) {
-		}
-		return path;
+		return  Environment.getExternalStorageDirectory().getAbsolutePath()+"/Conversations/";
 	}
 
 	public static String getConversationsImageDirectory() {
 		return Environment.getExternalStoragePublicDirectory(
 				Environment.DIRECTORY_PICTURES).getAbsolutePath()
-			+ "/FlowX/";
+			+ "/Conversations/";
 	}
 
 	public Bitmap resize(Bitmap originalBitmap, int size) {

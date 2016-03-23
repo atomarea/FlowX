@@ -523,4 +523,5 @@
     <string name="sharing_files_please_wait">Teile Datei. Bitte warten…</string>
     <string name="preparing_images">Bilder werden für Übertragung vorbereitet</string>
     <string name="shared_images_with_x">Teile Bilder mit %s</string>
+    <string name="delete_x_file">Datei %s löschen</string>
 </resources>

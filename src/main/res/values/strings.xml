@@ -594,6 +594,7 @@
 	<string name="sharing_files_please_wait">Sharing files. Please wait…</string>
 	<string name="preparing_images">Preparing images for transmission</string>
 	<string name="shared_images_with_x">Shared images with %s</string>
+	<string name="delete_x_file">Delete %s</string>
 	<plurals name="x_messages">
 		<item quantity="one">%d message</item>
 		<item quantity="other">%d messages</item>

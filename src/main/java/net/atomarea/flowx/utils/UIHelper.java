@@ -148,7 +148,9 @@ public class UIHelper {
 					return new Pair<>(context.getString(R.string.checking_x,
 									getFileDescriptionString(context,message)),true);
 				case Transferable.STATUS_DOWNLOADING:
-					return new Pair<>("prg:"+d.getProgress(),true);
+					return new Pair<>(context.getString(R.string.receiving_x_file,
+									getFileDescriptionString(context,message),
+									d.getProgress()),true);
 				case Transferable.STATUS_OFFER:
 				case Transferable.STATUS_OFFER_CHECK_FILESIZE:
 					return new Pair<>(context.getString(R.string.x_file_offered_for_download,
@@ -175,7 +177,7 @@ public class UIHelper {
 		} else if (message.getType() == Message.TYPE_FILE || message.getType() == Message.TYPE_IMAGE) {
 			if (message.getStatus() == Message.STATUS_RECEIVED) {
 				return new Pair<>(context.getString(R.string.received_x_file,
-						getFileDescriptionString(context, message)), true);
+							getFileDescriptionString(context, message)), true);
 			} else {
 				return new Pair<>(getFileDescriptionString(context,message),true);
 			}
@@ -223,9 +225,10 @@ public class UIHelper {
 	}
 
 	public static String getMessageDisplayName(final Message message) {
+		final Conversation conversation = message.getConversation();
 		if (message.getStatus() == Message.STATUS_RECEIVED) {
 			final Contact contact = message.getContact();
-			if (message.getConversation().getMode() == Conversation.MODE_MULTI) {
+			if (conversation.getMode() == Conversation.MODE_MULTI) {
 				if (contact != null) {
 					return contact.getDisplayName();
 				} else {
@@ -235,10 +238,10 @@ public class UIHelper {
 				return contact != null ? contact.getDisplayName() : "";
 			}
 		} else {
-			if (message.getConversation().getMode() == Conversation.MODE_MULTI) {
-				return getDisplayedMucCounterpart(message.getConversation().getJid());
+			if (conversation.getMode() == Conversation.MODE_MULTI) {
+				return conversation.getMucOptions().getSelf().getName();
 			} else {
-				final Jid jid = message.getConversation().getAccount().getJid();
+				final Jid jid = conversation.getAccount().getJid();
 				return jid.hasLocalpart() ? jid.getLocalpart() : jid.toDomainJid().toString();
 			}
 		}

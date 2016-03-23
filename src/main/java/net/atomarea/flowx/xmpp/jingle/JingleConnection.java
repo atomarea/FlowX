@@ -1,7 +1,5 @@
 package net.atomarea.flowx.xmpp.jingle;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 import android.util.Pair;
 
@@ -9,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -111,9 +108,7 @@ public class JingleConnection implements Transferable {
 			}
 			Log.d(Config.LOGTAG,"successfully transmitted file:" + file.getAbsolutePath()+" ("+file.getSha1Sum()+")");
 			if (message.getEncryption() != Message.ENCRYPTION_PGP) {
-				Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-				intent.setData(Uri.fromFile(file));
-				mXmppConnectionService.sendBroadcast(intent);
+				mXmppConnectionService.getFileBackend().updateMediaScanner(file);
 			} else {
 				account.getPgpDecryptionService().add(message);
 			}
