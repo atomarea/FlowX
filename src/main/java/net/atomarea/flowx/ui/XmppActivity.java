@@ -1000,7 +1000,12 @@ public abstract class XmppActivity extends FragmentActivity {
 		}
 	}
 
+	protected boolean neverCompressPictures() {
+		return getPreferences().getString("picture_compression", "auto").equals("never");
+	}
+
 	protected void unregisterNdefPushMessageCallback() {
+
 		NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 		if (nfcAdapter != null && nfcAdapter.isEnabled()) {
 			nfcAdapter.setNdefPushMessageCallback(null,this);

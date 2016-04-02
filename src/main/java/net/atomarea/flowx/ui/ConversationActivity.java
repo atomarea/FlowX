@@ -1231,11 +1231,31 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove())
                         attachImageToConversation(getSelectedConversation(), i.next());
             } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_FILE || requestCode == ATTACHMENT_CHOICE_RECORD_VOICE) {
-                mPendingFileUris.clear();
-                mPendingFileUris.addAll(extractUriFromIntent(data));
-                if (xmppConnectionServiceBound)
-                    for (Iterator<Uri> i = mPendingFileUris.iterator(); i.hasNext(); i.remove())
-                        attachFileToConversation(getSelectedConversation(), i.next());
+                final List<Uri> uris = extractUriFromIntent(data);
+                final Conversation c = getSelectedConversation();
+                final long max = c.getAccount()
+                        .getXmppConnection()
+                        .getFeatures()
+                        .getMaxHttpUploadSize();
+                final OnPresenceSelected callback = new OnPresenceSelected() {
+                    @Override
+                    public void onPresenceSelected() {
+                        mPendingFileUris.clear();
+                        mPendingFileUris.addAll(uris);
+                        if (xmppConnectionServiceBound) {
+                            for (Iterator<Uri> i = mPendingFileUris.iterator(); i.hasNext(); i.remove()) {
+                                attachFileToConversation(c, i.next());
+                            }
+                        }
+                    }
+                };
+                if (c.getMode() == Conversation.MODE_MULTI
+                        || FileBackend.allFilesUnderSize(this, uris, max)
+                        || c.getNextEncryption() == Message.ENCRYPTION_OTR) {
+                    callback.onPresenceSelected();
+                } else {
+                    selectPresence(c, callback);
+                }
             } else if (requestCode == ATTACHMENT_CHOICE_TAKE_PHOTO) {
                 if (mPendingImageUris.size() == 1) {
                     Uri uri = mPendingImageUris.get(0);
@@ -1299,7 +1319,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     }
                 });
             }
-            builder.create().show();
         }
     }
 

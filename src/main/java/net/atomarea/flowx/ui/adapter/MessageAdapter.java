@@ -200,7 +200,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.indicator.setImageResource(darkBackground ? R.drawable.ic_secure_indicator : R.drawable.ic_secure_indicator_white);
             viewHolder.indicator.setVisibility(View.VISIBLE);
             if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL) {
-                XmppAxolotlSession.Trust trust = message.getConversation().getAccount().getAxolotlService().getFingerprintTrust(message.getAxolotlFingerprint());
+                XmppAxolotlSession.Trust trust = message.getConversation().getAccount().getAxolotlService().getFingerprintTrust(message.getFingerprint());
                 if (trust == null || (!trust.trusted() && !trust.trustedInactive())) {
                     viewHolder.indicator.setColorFilter(activity.getWarningTextColor());
                     viewHolder.indicator.setAlpha(1.0f);

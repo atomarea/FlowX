@@ -17,6 +17,7 @@ import org.json.JSONObject;
 
 import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.forms.Data;
+import net.atomarea.flowx.xmpp.forms.Field;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
 
 public class ServiceDiscoveryResult {
@@ -189,6 +190,19 @@ public class ServiceDiscoveryResult {
 		return false;
 	}
 
+	public String getExtendedDiscoInformation(String formType, String name) {
+		for(Data form : this.forms) {
+			if (formType.equals(form.getFormType())) {
+				for(Field field: form.getFields()) {
+					if (name.equals(field.getFieldName())) {
+						return field.getValue();
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 	protected byte[] mkCapHash() {
 		StringBuilder s = new StringBuilder();
 
@@ -219,8 +233,22 @@ public class ServiceDiscoveryResult {
 		});
 
 		for(Data form : forms) {
-			s.append(form.getFormType()+"<");
-			//TODO append fields and values
+			s.append(form.getFormType() + "<");
+			List<Field> fields = form.getFields();
+			Collections.sort(fields, new Comparator<Field>() {
+				@Override
+				public int compare(Field lhs, Field rhs) {
+					return lhs.getFieldName().compareTo(rhs.getFieldName());
+				}
+			});
+			for(Field field : fields) {
+				s.append(field.getFieldName()+"<");
+				List<String> values = field.getValues();
+				Collections.sort(values);
+				for(String value : values) {
+					s.append(value+"<");
+				}
+			}
 		}
 
 		MessageDigest md;
