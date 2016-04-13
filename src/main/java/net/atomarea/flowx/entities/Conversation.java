@@ -324,7 +324,9 @@ public class Conversation extends AbstractEntity implements Blockable {
     public Message getCorrectingMessage() {
         return this.correctingMessage;
     }
-
+    public boolean withSelf() {
+        return getContact().isSelf();
+    }
     public interface OnMessageFound {
         void onMessageFound(final Message message);
     }

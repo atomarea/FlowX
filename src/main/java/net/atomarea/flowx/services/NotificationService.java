@@ -193,6 +193,7 @@ public class NotificationService {
 
         final String ringtone = preferences.getString("notification_ringtone", null);
         final boolean vibrate = preferences.getBoolean("vibrate_on_notification", true);
+        final boolean led = preferences.getBoolean("led", true);
 
         if (notifications.size() == 0) {
             notificationManager.cancel(NOTIFICATION_ID);
@@ -223,7 +224,9 @@ public class NotificationService {
             mBuilder.setDefaults(0);
             mBuilder.setSmallIcon(R.drawable.ic_notification);
             mBuilder.setDeleteIntent(createDeleteIntent());
-            mBuilder.setLights(0x0087FF, 2000, 4000);
+            if (led) {
+                mBuilder.setLights(0x0087FF, 2000, 4000);
+        }
             final Notification notification = mBuilder.build();
             notificationManager.notify(NOTIFICATION_ID, notification);
         }

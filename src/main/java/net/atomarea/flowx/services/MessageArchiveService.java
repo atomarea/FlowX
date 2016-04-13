@@ -45,8 +45,10 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 				}
 			}
 		}
-		long startCatchup = getLastMessageTransmitted(account);
+		Pair<Long,String> pair = mXmppConnectionService.databaseBackend.getLastMessageReceived(account);
+		long startCatchup = pair == null ? 0 : pair.first;
 		long endCatchup = account.getXmppConnection().getLastSessionEstablished();
+		final Query query;
 		if (startCatchup == 0) {
 			return;
 		} else if (endCatchup - startCatchup >= Config.MAM_MAX_CATCHUP) {
@@ -57,8 +59,11 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 					this.query(conversation,startCatchup);
 				}
 			}
+			query = new Query(account, startCatchup, endCatchup);
+		} else {
+			query = new Query(account, startCatchup, endCatchup);
+			query.reference = pair.second;
 		}
-		final Query query = new Query(account, startCatchup, endCatchup);
 		this.queries.add(query);
 		this.execute(query);
 	}
@@ -73,11 +78,6 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 					conversation.getLastMessageTransmitted(),
 					System.currentTimeMillis());
 		}
-	}
-
-	private long getLastMessageTransmitted(final Account account) {
-		Pair<Long,String> pair = mXmppConnectionService.databaseBackend.getLastMessageReceived(account);
-		return pair == null ? 0 : pair.first;
 	}
 
 	public Query query(final Conversation conversation) {
@@ -280,7 +280,7 @@ public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 			this.end = end;
 			this.queryId = new BigInteger(50, mXmppConnectionService.getRNG()).toString(32);
 		}
-
+		
 		private Query page(String reference) {
 			Query query = new Query(this.account,this.start,this.end);
 			query.reference = reference;

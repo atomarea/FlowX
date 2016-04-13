@@ -3,8 +3,10 @@ package net.atomarea.flowx.ui;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Build;
 import android.os.Bundle;
@@ -284,6 +286,9 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
 					quickEdit(mConversation.getName(),this.onSubjectEdited);
 				}
 				break;
+			case R.id.action_share:
+				share();
+				break;
 			case R.id.action_save_as_bookmark:
 				saveAsBookmark();
 				break;
@@ -310,7 +315,17 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
 			return "";
 		}
 	}
-
+	private void share() {
+		Intent shareIntent = new Intent();
+		shareIntent.setAction(Intent.ACTION_SEND);
+		shareIntent.putExtra(Intent.EXTRA_TEXT, getShareableUri());
+		shareIntent.setType("text/plain");
+		try {
+			startActivity(Intent.createChooser(shareIntent, getText(R.string.share_uri_with)));
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(this, R.string.no_application_to_share_uri, Toast.LENGTH_SHORT).show();
+		}
+	}
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem menuItemSaveBookmark = menu.findItem(R.id.action_save_as_bookmark);

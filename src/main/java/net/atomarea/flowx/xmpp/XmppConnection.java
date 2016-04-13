@@ -39,6 +39,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
@@ -114,7 +116,9 @@ public class XmppConnection implements Runnable {
 	private long lastConnect = 0;
 	private long lastSessionStarted = 0;
 	private long lastDiscoStarted = 0;
-	private int mPendingServiceDiscoveries = 0;
+	private AtomicInteger mPendingServiceDiscoveries = new AtomicInteger(0);
+	private AtomicBoolean mIsServiceItemsDiscoveryPending = new AtomicBoolean(true);
+	private boolean mWaitForDisco = true;
 	private final ArrayList<String> mPendingServiceDiscoveriesIds = new ArrayList<>();
 	private boolean mInteractive = false;
 	private int attempt = 0;
@@ -179,16 +183,18 @@ public class XmppConnection implements Runnable {
 				if (packet.getType() == IqPacket.TYPE.RESULT) {
 					account.setOption(Account.OPTION_REGISTER,
 							false);
+					forceCloseSocket();
 					changeStatus(Account.State.REGISTRATION_SUCCESSFUL);
 				} else if (packet.hasChild("error")
 						&& (packet.findChild("error")
 						.hasChild("conflict"))) {
+					forceCloseSocket();
 					changeStatus(Account.State.REGISTRATION_CONFLICT);
 				} else {
+					forceCloseSocket();
 					changeStatus(Account.State.REGISTRATION_FAILED);
 					Log.d(Config.LOGTAG, packet.toString());
 				}
-				disconnect(true);
 			}
 		};
 	}
@@ -554,7 +560,6 @@ public class XmppConnection implements Runnable {
 			}
 			nextTag = tagReader.readTag();
 		}
-		throw new IOException("reached end of stream. last tag was "+nextTag);
 	}
 
 	private void acknowledgeStanzaUpTo(int serverCount) {
@@ -735,47 +740,12 @@ public class XmppConnection implements Runnable {
 			}
 		} else if (!this.streamFeatures.hasChild("register")
 				&& account.isOptionSet(Account.OPTION_REGISTER)) {
+			forceCloseSocket();
 			changeStatus(Account.State.REGISTRATION_NOT_SUPPORTED);
-			disconnect(true);
 		} else if (this.streamFeatures.hasChild("mechanisms")
 				&& shouldAuthenticate
 				&& (features.encryptionEnabled || Config.ALLOW_NON_TLS_CONNECTIONS)) {
-			final List<String> mechanisms = extractMechanisms(streamFeatures
-					.findChild("mechanisms"));
-			final Element auth = new Element("auth");
-			auth.setAttribute("xmlns", "urn:ietf:params:xml:ns:xmpp-sasl");
-			if (mechanisms.contains("EXTERNAL") && account.getPrivateKeyAlias() != null) {
-				saslMechanism = new External(tagWriter, account, mXmppConnectionService.getRNG());
-			} else if (mechanisms.contains("SCRAM-SHA-1")) {
-				saslMechanism = new ScramSha1(tagWriter, account, mXmppConnectionService.getRNG());
-			} else if (mechanisms.contains("PLAIN")) {
-				saslMechanism = new Plain(tagWriter, account);
-			} else if (mechanisms.contains("DIGEST-MD5")) {
-				saslMechanism = new DigestMd5(tagWriter, account, mXmppConnectionService.getRNG());
-			}
-			if (saslMechanism != null) {
-				final JSONObject keys = account.getKeys();
-				try {
-					if (keys.has(Account.PINNED_MECHANISM_KEY) &&
-							keys.getInt(Account.PINNED_MECHANISM_KEY) > saslMechanism.getPriority()) {
-						Log.e(Config.LOGTAG, "Auth failed. Authentication mechanism " + saslMechanism.getMechanism() +
-								" has lower priority (" + String.valueOf(saslMechanism.getPriority()) +
-								") than pinned priority (" + keys.getInt(Account.PINNED_MECHANISM_KEY) +
-								"). Possible downgrade attack?");
-						throw new SecurityException();
-					}
-				} catch (final JSONException e) {
-					Log.d(Config.LOGTAG, "Parse error while checking pinned auth mechanism");
-				}
-				Log.d(Config.LOGTAG, account.getJid().toString() + ": Authenticating with " + saslMechanism.getMechanism());
-				auth.setAttribute("mechanism", saslMechanism.getMechanism());
-				if (!saslMechanism.getClientFirstMessage().isEmpty()) {
-					auth.setContent(saslMechanism.getClientFirstMessage());
-				}
-				tagWriter.writeElement(auth);
-			} else {
-				throw new IncompatibleServerException();
-			}
+			authenticate();
 		} else if (this.streamFeatures.hasChild("sm", "urn:xmpp:sm:" + smVersion) && streamId != null) {
 			if (Config.EXTENDED_SM_LOGGING) {
 				Log.d(Config.LOGTAG,account.getJid().toBareJid()+": resuming after stanza #"+stanzasReceived);
@@ -788,6 +758,45 @@ public class XmppConnection implements Runnable {
 			} else {
 				throw new IncompatibleServerException();
 			}
+		}
+	}
+
+	private void authenticate() throws IOException {
+		final List<String> mechanisms = extractMechanisms(streamFeatures
+				.findChild("mechanisms"));
+		final Element auth = new Element("auth");
+		auth.setAttribute("xmlns", "urn:ietf:params:xml:ns:xmpp-sasl");
+		if (mechanisms.contains("EXTERNAL") && account.getPrivateKeyAlias() != null) {
+			saslMechanism = new External(tagWriter, account, mXmppConnectionService.getRNG());
+		} else if (mechanisms.contains("SCRAM-SHA-1")) {
+			saslMechanism = new ScramSha1(tagWriter, account, mXmppConnectionService.getRNG());
+		} else if (mechanisms.contains("PLAIN")) {
+			saslMechanism = new Plain(tagWriter, account);
+		} else if (mechanisms.contains("DIGEST-MD5")) {
+			saslMechanism = new DigestMd5(tagWriter, account, mXmppConnectionService.getRNG());
+		}
+		if (saslMechanism != null) {
+			final JSONObject keys = account.getKeys();
+			try {
+				if (keys.has(Account.PINNED_MECHANISM_KEY) &&
+						keys.getInt(Account.PINNED_MECHANISM_KEY) > saslMechanism.getPriority()) {
+					Log.e(Config.LOGTAG, "Auth failed. Authentication mechanism " + saslMechanism.getMechanism() +
+							" has lower priority (" + String.valueOf(saslMechanism.getPriority()) +
+							") than pinned priority (" + keys.getInt(Account.PINNED_MECHANISM_KEY) +
+							"). Possible downgrade attack?");
+					throw new SecurityException();
+				}
+			} catch (final JSONException e) {
+				Log.d(Config.LOGTAG, "Parse error while checking pinned auth mechanism");
+			}
+			Log.d(Config.LOGTAG, account.getJid().toString() + ": Authenticating with " + saslMechanism.getMechanism());
+			auth.setAttribute("mechanism", saslMechanism.getMechanism());
+			if (!saslMechanism.getClientFirstMessage().isEmpty()) {
+				auth.setContent(saslMechanism.getClientFirstMessage());
+			}
+			tagWriter.writeElement(auth);
+		} else {
+			throw new IncompatibleServerException();
 		}
 	}
 
@@ -923,7 +932,7 @@ public class XmppConnection implements Runnable {
 						disconnect(true);
 					}
 				} else {
-					Log.d(Config.LOGTAG, account.getJid() + ": disconnecting because of bind failure ("+packet.toString());
+					Log.d(Config.LOGTAG, account.getJid() + ": disconnecting because of bind failure (" + packet.toString());
 					disconnect(true);
 				}
 			}
@@ -1008,11 +1017,12 @@ public class XmppConnection implements Runnable {
 		synchronized (this.disco) {
 			this.disco.clear();
 		}
-		mPendingServiceDiscoveries = mServerIdentity == Identity.NIMBUZZ ? 1 : 0;
+		mPendingServiceDiscoveries.set(0);
+		mIsServiceItemsDiscoveryPending.set(true);
+		mWaitForDisco = mServerIdentity != Identity.NIMBUZZ;
 		lastDiscoStarted = SystemClock.elapsedRealtime();
 		Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": starting service discovery");
 		mXmppConnectionService.scheduleWakeUpCall(Config.CONNECT_DISCO_TIMEOUT, account.getUuid().hashCode());
-		sendServiceDiscoveryItems(account.getServer());
 		Element caps = streamFeatures.findChild("c");
 		final String hash = caps == null ? null : caps.getAttribute("hash");
 		final String ver = caps == null ? null : caps.getAttribute("ver");
@@ -1027,13 +1037,15 @@ public class XmppConnection implements Runnable {
 			disco.put(account.getServer(), discoveryResult);
 		}
 		sendServiceDiscoveryInfo(account.getJid().toBareJid());
+		sendServiceDiscoveryItems(account.getServer());
+		if (!mWaitForDisco) {
+			finalizeBind();
+		}
 		this.lastSessionStarted = SystemClock.elapsedRealtime();
 	}
 
 	private void sendServiceDiscoveryInfo(final Jid jid) {
-		if (mServerIdentity != Identity.NIMBUZZ) {
-			mPendingServiceDiscoveries++;
-		}
+		mPendingServiceDiscoveries.incrementAndGet();
 		final IqPacket iq = new IqPacket(IqPacket.TYPE.GET);
 		iq.setTo(jid);
 		iq.query("http://jabber.org/protocol/disco#info");
@@ -1077,14 +1089,10 @@ public class XmppConnection implements Runnable {
 					Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": could not query disco info for " + jid.toString());
 				}
 				if (packet.getType() != IqPacket.TYPE.TIMEOUT) {
-					mPendingServiceDiscoveries--;
-					if (mPendingServiceDiscoveries == 0) {
-						Log.d(Config.LOGTAG,account.getJid().toBareJid()+": done with service discovery");
-						Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": online with resource " + account.getResource());
-						if (bindListener != null) {
-							bindListener.onBind(account);
-						}
-						changeStatus(Account.State.ONLINE);
+					if (mPendingServiceDiscoveries.decrementAndGet() == 0
+							&& !mIsServiceItemsDiscoveryPending.get()
+							&& mWaitForDisco) {
+						finalizeBind();
 					}
 				}
 			}
@@ -1092,6 +1100,14 @@ public class XmppConnection implements Runnable {
 		synchronized (this.mPendingServiceDiscoveriesIds) {
 			this.mPendingServiceDiscoveriesIds.add(id);
 		}
+	}
+
+	private void finalizeBind() {
+		Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": online with resource " + account.getResource());
+		if (bindListener != null) {
+			bindListener.onBind(account);
+		}
+		changeStatus(Account.State.ONLINE);
 	}
 
 	private void enableAdvancedStreamFeatures() {
@@ -1111,7 +1127,7 @@ public class XmppConnection implements Runnable {
 		final IqPacket iq = new IqPacket(IqPacket.TYPE.GET);
 		iq.setTo(server.toDomainJid());
 		iq.query("http://jabber.org/protocol/disco#items");
-		this.sendIqPacket(iq, new OnIqPacketReceived() {
+		String id = this.sendIqPacket(iq, new OnIqPacketReceived() {
 
 			@Override
 			public void onIqPacketReceived(final Account account, final IqPacket packet) {
@@ -1128,8 +1144,17 @@ public class XmppConnection implements Runnable {
 				} else {
 					Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": could not query disco items of " + server);
 				}
+				if (packet.getType() != IqPacket.TYPE.TIMEOUT) {
+					mIsServiceItemsDiscoveryPending.set(false);
+					if (mPendingServiceDiscoveries.get() == 0 && mWaitForDisco) {
+						finalizeBind();
+					}
+				}
 			}
 		});
+		synchronized (this.mPendingServiceDiscoveriesIds) {
+			this.mPendingServiceDiscoveriesIds.add(id);
+		}
 	}
 
 	private void sendEnableCarbons() {
@@ -1505,13 +1530,15 @@ public class XmppConnection implements Runnable {
 
 		public boolean pep() {
 			synchronized (XmppConnection.this.disco) {
-				ServiceDiscoveryResult info = disco.get(account.getServer());
-				if (info != null && info.hasIdentity("pubsub", "pep")) {
-					return true;
-				} else {
-					info = disco.get(account.getJid().toBareJid());
-					return info != null && info.hasIdentity("pubsub", "pep");
-				}
+				ServiceDiscoveryResult info = disco.get(account.getJid().toBareJid());
+				return info != null && info.hasIdentity("pubsub", "pep");
+			}
+		}
+
+		public boolean pepPersistent() {
+			synchronized (XmppConnection.this.disco) {
+				ServiceDiscoveryResult info = disco.get(account.getJid().toBareJid());
+				return info != null && info.getFeatures().contains("http://jabber.org/protocol/pubsub#persistent-items");
 			}
 		}
 
