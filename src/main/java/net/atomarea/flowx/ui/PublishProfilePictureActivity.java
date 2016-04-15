@@ -18,8 +18,6 @@ import android.widget.Toast;
 
 import com.soundcloud.android.crop.Crop;
 
-import java.io.File;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
@@ -27,6 +25,8 @@ import net.atomarea.flowx.persistance.FileBackend;
 import net.atomarea.flowx.utils.FileUtils;
 import net.atomarea.flowx.utils.PhoneHelper;
 import net.atomarea.flowx.xmpp.pep.Avatar;
+
+import java.io.File;
 
 public class PublishProfilePictureActivity extends XmppActivity {
 
@@ -200,7 +200,7 @@ public class PublishProfilePictureActivity extends XmppActivity {
 						source = Uri.parse("file://"+original);
 					}
 					Uri destination = Uri.fromFile(new File(getCacheDir(), "croppedAvatar"));
-					final int size = getPixel(192);
+					final int size = getPixel(300);
 					Crop.of(source, destination).asSquare().withMaxSize(size, size).start(this);
 					break;
 				case REQUEST_CHOOSE_FILE:
@@ -240,7 +240,7 @@ public class PublishProfilePictureActivity extends XmppActivity {
 			if (this.avatarUri == null) {
 				if (this.account.getAvatar() != null
 						|| this.defaultUri == null) {
-					this.avatar.setImageBitmap(avatarService().get(account, getPixel(192)));
+					this.avatar.setImageBitmap(avatarService().get(account, getPixel(300)));
 					if (this.defaultUri != null) {
 						this.avatar
 								.setOnLongClickListener(this.backToDefaultListener);
@@ -285,7 +285,7 @@ public class PublishProfilePictureActivity extends XmppActivity {
 	protected void loadImageIntoPreview(Uri uri) {
 		Bitmap bm = null;
 		try {
-			bm = xmppConnectionService.getFileBackend().cropCenterSquare(uri, getPixel(192));
+			bm = xmppConnectionService.getFileBackend().cropCenterSquare(uri, getPixel(300));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -320,12 +320,12 @@ public class PublishProfilePictureActivity extends XmppActivity {
 
 	protected void enablePublishButton() {
 		this.publishButton.setEnabled(true);
-		this.publishButton.setTextColor(getPrimaryTextColor());
+		this.publishButton.setTextColor(getResources().getColor(R.color.white));
 	}
 
 	protected void disablePublishButton() {
 		this.publishButton.setEnabled(false);
-		this.publishButton.setTextColor(getSecondaryTextColor());
+		this.publishButton.setTextColor(getResources().getColor(R.color.white70));
 	}
 
 	public void refreshUiReal() {

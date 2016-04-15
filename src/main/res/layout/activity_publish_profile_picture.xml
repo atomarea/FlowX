@@ -54,24 +54,25 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/cancel"
+            android:visibility="gone"
             android:textColor="@color/black87" />
 
         <View
-            android:layout_width="1dp"
+            android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_marginBottom="7dp"
-            android:layout_marginTop="7dp"
-            android:background="@color/black12" />
+            android:layout_marginTop="7dp" />
 
         <Button
             android:id="@+id/publish_button"
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="35dp"
             android:layout_weight="1"
             android:enabled="false"
+            android:background="@color/green500"
             android:text="@string/publish"
-            android:textColor="@color/black54" />
+            android:textColor="@color/white70" />
     </LinearLayout>
 
     <LinearLayout
@@ -91,6 +92,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black87"
+            android:visibility="gone"
             android:textSize="?attr/TextSizeHeadline" />
 
         <TextView
@@ -101,6 +103,7 @@
             android:minLines="3"
             android:text="@string/publish_avatar_explanation"
             android:textColor="@color/black87"
+            android:visibility="gone"
             android:textSize="?attr/TextSizeBody" />
     </LinearLayout>
 

@@ -9,8 +9,6 @@ import android.widget.Toast;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class ChangePasswordActivity extends XmppActivity implements XmppConnectionService.OnAccountPasswordChanged {
 
@@ -37,7 +35,7 @@ public class ChangePasswordActivity extends XmppActivity implements XmppConnecti
 					mNewPasswordConfirm.setError(null);
 					xmppConnectionService.updateAccountPasswordOnServer(mAccount, newPassword, ChangePasswordActivity.this);
 					mChangePasswordButton.setEnabled(false);
-					mChangePasswordButton.setTextColor(getSecondaryTextColor());
+					mChangePasswordButton.setTextColor(getResources().getColor(R.color.white70));
 					mChangePasswordButton.setText(R.string.updating);
 				}
 			}
@@ -90,7 +88,7 @@ public class ChangePasswordActivity extends XmppActivity implements XmppConnecti
 			public void run() {
 				mNewPassword.setError(getString(R.string.could_not_change_password));
 				mChangePasswordButton.setEnabled(true);
-				mChangePasswordButton.setTextColor(getPrimaryTextColor());
+				mChangePasswordButton.setTextColor(getResources().getColor(R.color.white));
 				mChangePasswordButton.setText(R.string.change_password);
 			}
 		});
