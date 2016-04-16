@@ -3,7 +3,7 @@
 
     <PreferenceScreen
         android:title="@string/pref_notification_settings"
-        android:icon="@android:drawable/ic_menu_info_details">
+        android:icon="@drawable/ic_settings_notifications">
 
         <CheckBoxPreference
             android:defaultValue="true"
@@ -55,7 +55,7 @@
 
     <PreferenceScreen
         android:title="@string/pref_input_options"
-        android:icon="@android:drawable/ic_menu_edit">
+        android:icon="@drawable/ic_settings_input">
 
         <CheckBoxPreference
             android:defaultValue="false"
@@ -74,7 +74,7 @@
 
     <PreferenceScreen
         android:title="@string/pref_presence_settings"
-        android:icon="@android:drawable/ic_menu_view">
+        android:icon="@drawable/ic_settings_status">
 
         <CheckBoxPreference
             android:defaultValue="true"
@@ -90,7 +90,7 @@
 
     <PreferenceScreen
         android:title="@string/pref_advanced_options"
-        android:icon="@android:drawable/ic_menu_manage">
+        android:icon="@drawable/ic_settings_advance">
         <ListPreference
             android:defaultValue="Mobile"
             android:entries="@array/resources"
@@ -117,5 +117,5 @@
     </PreferenceScreen>
     <net.atomarea.flowx.ui.AboutPreference
         android:title="@string/title_activity_about"
-        android:icon="@android:drawable/ic_menu_help" />
+        android:icon="@drawable/ic_settings_help"/>
 </PreferenceScreen>

@@ -528,4 +528,6 @@
     <string name="pref_led_summary">Schaltet die LED ein bei empfangenen Nachrichten.</string>
     <string name="no_application_to_share_uri">Keine Anwendung zum Teilen gefunden!</string>
     <string name="share_uri_with">Teile Gruppe mit…</string>
+    <string name="pref_attachments">Anhänge</string>
+    <string name="shared_text_with_x">Teile Text mit %s</string>
 </resources>
