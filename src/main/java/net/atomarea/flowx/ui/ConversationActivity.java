@@ -364,15 +364,19 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 }
             });
         }
-
         if (Build.VERSION.SDK_INT >= 23) {
             int hasMicPerm = checkSelfPermission(Manifest.permission.RECORD_AUDIO);
             if (hasMicPerm != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 1337);
             }
         }
+        if (Build.VERSION.SDK_INT >= 23) {
+            int hasCamPerm = checkSelfPermission(Manifest.permission.CAMERA);
+            if (hasCamPerm != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.CAMERA}, 1338);
+            }
+        }
     }
-
     @Override
     public void switchToConversation(Conversation conversation) {
         setSelectedConversation(conversation);

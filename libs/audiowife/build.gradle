@@ -12,7 +12,8 @@ android {
     }
     buildTypes {
         release {
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'        }
+
+        }
     }
 
     // It would be better to fix the issues

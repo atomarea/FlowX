@@ -70,7 +70,7 @@
             android:layout_height="35dp"
             android:layout_weight="1"
             android:enabled="false"
-            android:background="@color/green500"
+            android:background="@color/primary"
             android:text="@string/publish"
             android:textColor="@color/white70" />
     </LinearLayout>

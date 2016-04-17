@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -74,6 +75,8 @@ import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
 import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import eu.livotov.labs.android.camview.ScannerLiveView;
 
 public class StartConversationActivity extends XmppActivity implements OnRosterUpdate, OnUpdateBlocklist {
 
@@ -535,9 +538,47 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 			case R.id.action_join_conference:
 				showJoinConferenceDialog(null);
 				return true;
-			case R.id.action_scan_qr_code:
-				new IntentIntegrator(this).initiateScan();
-				return true;
+			case R.id.action_show_qr_code:
+				AlertDialog.Builder builder = new AlertDialog.Builder(StartConversationActivity.this);
+				builder.setTitle("QR Scanner");
+				builder.setCancelable(true);
+				View qrView = LayoutInflater.from(builder.getContext()).inflate(R.layout.qr_scanner, null);
+				final ScannerLiveView scannerLiveView = (ScannerLiveView) qrView.findViewById(R.id.scanner);
+				scannerLiveView.setScannerViewEventListener(new ScannerLiveView.ScannerViewEventListener() {
+					@Override
+					public void onScannerStarted(ScannerLiveView scanner) {	}
+
+					@Override
+					public void onScannerStopped(ScannerLiveView scanner) {	}
+
+					@Override
+					public void onScannerError(Throwable err) {	}
+
+					@Override
+					public void onCodeScanned(String data) {
+						Uri myUri = Uri.parse(data);
+						Intent intent = new Intent(Intent.ACTION_VIEW, myUri);
+						startActivity(intent);
+					}
+				});
+				builder.setView(qrView);
+				builder.setNegativeButton("Abbrechen", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						scannerLiveView.stopScanner();
+						dialog.cancel();
+					}
+				});
+				builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						scannerLiveView.stopScanner();
+					}
+				});
+				builder.create();
+				scannerLiveView.startScanner();
+				builder.show();
+				break;
 			case R.id.action_hide_offline:
 				mHideOfflineContacts = !item.isChecked();
 				getPreferences().edit().putBoolean("hide_offline", mHideOfflineContacts).commit();

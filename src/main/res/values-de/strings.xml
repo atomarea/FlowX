@@ -226,7 +226,7 @@
     <string name="join">Beitreten</string>
     <string name="conference_address">Gruppenname</string>
     <string name="conference_address_example">raum@conference.example.com</string>
-    <string name="save_as_bookmark">speichern</string>
+    <string name="save_as_bookmark">Gruppe speichern</string>
     <string name="delete_bookmark">Gruppe löschen</string>
     <string name="bookmark_already_exists">Gruppe existiert bereits</string>
     <string name="you">Du</string>
@@ -482,7 +482,7 @@
     <string name="location_sharing_disabled">Standort-Freigabe ist in den Einstellungen deaktiviert</string>
     <string name="touch_to_open_conversations">Touch um FlowX zu öffnen</string>
     <string name="clear_other_devices">Fingerabdrücke löschen</string>
-    <string name="clear_other_devices_desc">Löscht alle Fingerabdrücke von FlowX, dadurch müssen alle verschlüsselten Chats neu verifiziert werden.</string>
+    <string name="clear_other_devices_desc">Alle Fingerabdrücke löschen, dadurch müssen alle verschlüsselten Chats neu verifiziert werden.</string>
     <string name="done">Fertig</string>
     <string name="purge_key">Fingerabdruck löschen</string>
     <string name="purge_key_desc_part1">Bist du sicher den Fingerabdruck zu löschen?</string>

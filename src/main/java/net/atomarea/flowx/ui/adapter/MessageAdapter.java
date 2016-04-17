@@ -560,9 +560,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (message.getFileParams().width > 0) {
                 displayImageMessage(viewHolder, message);
             } else {
-                if (message.getMimeType().startsWith("audio/"))
-                    displayAudioMessage(viewHolder, message, position);
-                else displayOpenableMessage(viewHolder, message);
+                String mimeType = message.getMimeType();
+                if (mimeType != null) {
+                    if (message.getMimeType().startsWith("audio/"))
+                        displayAudioMessage(viewHolder, message, position);
+                    else displayOpenableMessage(viewHolder, message);
+                } else displayOpenableMessage(viewHolder, message);
             }
         } else if (message.getEncryption() == Message.ENCRYPTION_PGP) {
             if (activity.hasPgp())
