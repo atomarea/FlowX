@@ -39,6 +39,7 @@
                     android:text="Um FlowX nutzen zu können, benötigst du ein Konto. Logge dich ein oder registriere dir einfach ein neues Konto."
                     android:textColor="@color/black54"
                     android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    android:visibility="gone"
                     android:textSize="?attr/TextSizeBody" />
                     <TextView
                         android:id="@+id/account_jid_label"

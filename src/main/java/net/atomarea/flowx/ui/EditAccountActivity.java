@@ -474,7 +474,9 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 }
                 updateAccountInformation(true);
             }
-        } else if (this.xmppConnectionService.getAccounts().size() == 0) {
+        }
+        if (this.xmppConnectionService.getAccounts().size() == 0
+                || this.mAccount == xmppConnectionService.getPendingAccount()) {
             if (getActionBar() != null) {
                 getActionBar().setDisplayHomeAsUpEnabled(false);
                 getActionBar().setDisplayShowHomeEnabled(false);

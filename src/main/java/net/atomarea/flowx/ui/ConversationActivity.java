@@ -377,6 +377,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             }
         }
     }
+
     @Override
     public void switchToConversation(Conversation conversation) {
         setSelectedConversation(conversation);
@@ -779,9 +780,14 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             } else {
                 setSelectedConversation(null);
                 if (mRedirected.compareAndSet(false, true)) {
-                    Intent intent = new Intent(this, StartConversationActivity.class);
-                    intent.putExtra("init", true);
-                    startActivity(intent);
+                    Account pendingAccount = xmppConnectionService.getPendingAccount();
+                    if (pendingAccount == null) {
+                        Intent intent = new Intent(this, StartConversationActivity.class);
+                        intent.putExtra("init", true);
+                        startActivity(intent);
+                    } else {
+                        switchToAccount(pendingAccount, true);
+                    }
                     finish();
                 }
             }
@@ -1109,7 +1115,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             if (mRedirected.compareAndSet(false, true)) {
                 if (Config.X509_VERIFICATION)
                     startActivity(new Intent(this, ManageAccountActivity.class));
-                else startActivity(new Intent(this, RegisterActivity.class));
+                else startActivity(new Intent(this, WelcomeActivity.class));
                 finish();
             }
         } else if (conversationList.size() <= 0) {
@@ -1327,7 +1333,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
     private boolean hasAccountWithoutPush() {
-        for(Account account : xmppConnectionService.getAccounts()) {
+        for (Account account : xmppConnectionService.getAccounts()) {
             if (account.getStatus() != Account.State.DISABLED
                     && !xmppConnectionService.getPushManagementService().available(account)) {
                 return true;
@@ -1467,11 +1473,11 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         boolean hasUndecidedContacts = !axolotlService.getKeysWithTrust(XmppAxolotlSession.Trust.UNDECIDED, targets).isEmpty();
         boolean hasPendingKeys = !axolotlService.findDevicesWithoutSession(mSelectedConversation).isEmpty();
         boolean hasNoTrustedKeys = axolotlService.anyTargetHasNoTrustedKeys(targets);
-        if(hasUndecidedOwn || hasUndecidedContacts || hasPendingKeys || hasNoTrustedKeys) {
+        if (hasUndecidedOwn || hasUndecidedContacts || hasPendingKeys || hasNoTrustedKeys) {
             axolotlService.createSessionsIfNeeded(mSelectedConversation);
             Intent intent = new Intent(getApplicationContext(), TrustKeysActivity.class);
             String[] contacts = new String[targets.size()];
-            for(int i = 0; i < contacts.length; ++i) {
+            for (int i = 0; i < contacts.length; ++i) {
                 contacts[i] = targets.get(i).toString();
             }
             intent.putExtra("contacts", contacts);
@@ -1483,18 +1489,19 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             return false;
         }
     }
+
     @Override
     protected void refreshUiReal() {
         updateConversationList();
         if (conversationList.size() > 0) {
             if (!this.mConversationFragment.isAdded()) {
-                Log.d(Config.LOGTAG,"fragment NOT added to activity. detached="+Boolean.toString(mConversationFragment.isDetached()));
+                Log.d(Config.LOGTAG, "fragment NOT added to activity. detached=" + Boolean.toString(mConversationFragment.isDetached()));
             }
             ConversationActivity.this.mConversationFragment.updateMessages();
             updateActionBarTitle();
             invalidateOptionsMenu();
         } else {
-            Log.d(Config.LOGTAG,"not updating conversations fragment because conversations list size was 0");
+            Log.d(Config.LOGTAG, "not updating conversations fragment because conversations list size was 0");
         }
     }
 

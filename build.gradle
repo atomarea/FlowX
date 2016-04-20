@@ -65,12 +65,12 @@ android {
 		}
 	}
 	compileSdkVersion 23
-	buildToolsVersion "23.0.2"
+	buildToolsVersion "23.0.3"
 	defaultConfig {
 		minSdkVersion 14
 		targetSdkVersion 23
-		versionCode 1416
-		versionName "1396"
+		versionCode 1417
+		versionName "1397"
 		archivesBaseName += "-$versionName"
 		applicationId "net.atomarea.flowx"
 		multiDexEnabled true
