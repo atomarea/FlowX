@@ -406,6 +406,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         final MenuItem changePassword = menu.findItem(R.id.action_change_password_on_server);
         final MenuItem clearDevices = menu.findItem(R.id.action_clear_devices);
         final MenuItem renewCertificate = menu.findItem(R.id.action_renew_certificate);
+        final MenuItem changePresence = menu.findItem(R.id.action_change_presence);
 
         renewCertificate.setVisible(mAccount != null && mAccount.getPrivateKeyAlias() != null);
 
@@ -421,11 +422,13 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             if (otherDevices == null || otherDevices.isEmpty()) {
                 clearDevices.setVisible(false);
             }
+            changePresence.setVisible(manuallyChangePresence());
         } else {
             showQrCode.setVisible(false);
             showBlocklist.setVisible(false);
             changePassword.setVisible(false);
             clearDevices.setVisible(false);
+            changePresence.setVisible(false);
 
         }
         return true;
@@ -466,6 +469,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         if (this.jidToEdit != null) {
             this.mAccount = xmppConnectionService.findAccountByJid(jidToEdit);
             if (this.mAccount != null) {
+                this.mInitMode |= this.mAccount.isOptionSet(Account.OPTION_REGISTER);
                 if (this.mAccount.getPrivateKeyAlias() != null) {
                     this.mPassword.setHint(R.string.authenticate_with_certificate);
                     if (this.mInitMode) {
@@ -530,6 +534,9 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             case R.id.action_renew_certificate:
                 renewCertificate();
                 break;
+            case R.id.action_change_presence:
+                				changePresence();
+                				break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -537,7 +544,11 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     private void renewCertificate() {
         KeyChain.choosePrivateKeyAlias(this, this, null, null, null, -1, null);
     }
-
+    private void changePresence() {
+        		Intent intent = new Intent(this, SetPresenceActivity.class);
+        		intent.putExtra(SetPresenceActivity.EXTRA_ACCOUNT,mAccount.getJid().toBareJid().toString());
+        		startActivity(intent);
+        	}
     @Override
     public void alias(String alias) {
         if (alias != null) {

@@ -423,6 +423,7 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
         if (this.jidToEdit != null) {
             this.mAccount = xmppConnectionService.findAccountByJid(jidToEdit);
             if (this.mAccount != null) {
+                this.mInitMode |= this.mAccount.isOptionSet(Account.OPTION_REGISTER);
                 if (this.mAccount.getPrivateKeyAlias() != null) {
                     this.mPassword.setHint(R.string.authenticate_with_certificate);
                     if (this.mInitMode) {
@@ -446,7 +447,11 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
         updateSaveButton();
         invalidateOptionsMenu();
     }
-
+    private void changePresence() {
+        		Intent intent = new Intent(this, SetPresenceActivity.class);
+        		intent.putExtra(SetPresenceActivity.EXTRA_ACCOUNT,mAccount.getJid().toBareJid().toString());
+        		startActivity(intent);
+        	}
     @Override
     public void alias(String alias) {
         if (alias != null) {

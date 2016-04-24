@@ -114,6 +114,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     private CheckBox receive;
     private BootstrapButton addContactButton;
     private LinearLayout keys;
+    private TextView statusMessage;
     private LinearLayout tags;
     private boolean showDynamicTags;
     private String messageFingerprint;
@@ -275,6 +276,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         contactJidTv = (TextView) findViewById(R.id.details_contactjid);
         accountJidTv = (TextView) findViewById(R.id.details_account);
         lastseen = (TextView) findViewById(R.id.details_lastseen);
+        statusMessage = (TextView) findViewById(R.id.status_message);
         send = (CheckBox) findViewById(R.id.details_send_presence);
         receive = (CheckBox) findViewById(R.id.details_receive_presence);
         addContactButton = (BootstrapButton) findViewById(R.id.add_contact_button);
@@ -313,6 +315,25 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
             addContactButton.setVisibility(View.GONE);
             send.setOnCheckedChangeListener(null);
             receive.setOnCheckedChangeListener(null);
+
+            List<String> statusMessages = contact.getPresences().getStatusMessages();
+            if (statusMessages.size() == 0) {
+                statusMessage.setVisibility(View.GONE);
+            } else {
+                StringBuilder builder = new StringBuilder();
+                statusMessage.setVisibility(View.VISIBLE);
+                int s = statusMessages.size();
+                for(int i = 0; i < s; ++i) {
+                    if (s > 1) {
+                        builder.append("• ");
+                    }
+                    builder.append(statusMessages.get(i));
+                    if (i < s - 1) {
+                        builder.append("\n");
+                    }
+                }
+                statusMessage.setText(builder);
+            }
 
             if (contact.getOption(Contact.Options.FROM)) {
                 send.setText(R.string.send_presence_updates);
@@ -432,7 +453,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
             keys.setVisibility(View.GONE);
         }
 
-        List<ListItem.Tag> tagList = contact.getTags();
+        List<ListItem.Tag> tagList = contact.getTags(this);
         if (tagList.size() == 0 || !this.showDynamicTags) {
             tags.setVisibility(View.GONE);
         } else {

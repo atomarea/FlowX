@@ -228,7 +228,11 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 			return super.onNavigateUp();
 		}
 	}
-
+	private void changePresence(Account account) {
+				Intent intent = new Intent(this, SetPresenceActivity.class);
+				intent.putExtra(SetPresenceActivity.EXTRA_ACCOUNT,account.getJid().toBareJid().toString());
+				startActivity(intent);
+			}
 	public void onClickTglAccountState(Account account, boolean enable) {
 		if (enable) {
 			enableAccount(account);
