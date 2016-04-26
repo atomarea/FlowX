@@ -1,6 +1,6 @@
-﻿![screenshots](http://git.vpn/FlowX.git/raw/master/Screenshots/front-img.png)
+﻿![screenshots](http://git.atom-area.net/FlowX.git/raw/master/Screenshots/readme.png)
 
-[![Google Play](http://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=net.atomarea.flowx)
+[![Google Play](http://cloud.atom-area.net/pics/GooglePlay.png)](https://play.google.com/store/apps/details?id=net.atomarea.flowx)
 
 # FlowX
 
