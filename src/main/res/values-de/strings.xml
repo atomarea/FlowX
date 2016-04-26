@@ -539,4 +539,10 @@
     <string name="pick_your_username">Wähle dein Benuternamen</string>
     <string name="change_presence">Status ändern</string>
     <string name="status_message">Status Nachricht</string>
+    <string name="title_activity_share_location">Standort teilen</string>
+    <string name="title_activity_show_location">Standort anzeigen</string>
+    <string name="action_copy_location">Standort kopieren</string>
+    <string name="action_share_location">Standort teilen</string>
+    <string name="location_disabled">Standort teilen nicht möglich!</string>
+    <string name="secure_password_generated">Ein sicheres Passwort wurde erstellt</string>
 </resources>

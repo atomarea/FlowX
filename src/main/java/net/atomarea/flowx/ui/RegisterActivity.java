@@ -84,6 +84,13 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
 
         @Override
         public void onClick(final View v) {
+            final String password = mPassword.getText().toString();
+            final String passwordConfirm = mPasswordConfirm.getText().toString();
+
+            if (!mInitMode && passwordChangedInMagicCreateMode()) {
+                gotoChangePassword(password);
+                return;
+            }
             if (mInitMode && mAccount != null) {
                 mAccount.setOption(Account.OPTION_DISABLED, false);
             }
@@ -148,8 +155,6 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
                 mAccountJid.requestFocus();
                 return;
             }
-            final String password = mPassword.getText().toString();
-            final String passwordConfirm = mPasswordConfirm.getText().toString();
             if (registerNewAccount) {
                 if (!password.equals(passwordConfirm)) {
                     mPasswordConfirm.setError(getString(R.string.passwords_do_not_match));
@@ -158,6 +163,9 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
                 }
             }
             if (mAccount != null) {
+                if (mInitMode && mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)) {
+                    mAccount.setOption(Account.OPTION_MAGIC_CREATE, mAccount.getPassword().contains(password));
+                }
                 mAccount.setJid(jid);
                 mAccount.setPort(numericPort);
                 mAccount.setHostname(hostname);
@@ -297,7 +305,13 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
     }
 
     protected void updateSaveButton() {
-        if (accountInfoEdited() && !mInitMode) {
+        boolean accountInfoEdited = accountInfoEdited();
+
+        if (!mInitMode && passwordChangedInMagicCreateMode()) {
+            this.mSaveButton.setText(R.string.change_password);
+            this.mSaveButton.setEnabled(true);
+            this.mSaveButton.setTextColor(getPrimaryTextColor());
+        } else if (accountInfoEdited && !mInitMode) {
             this.mSaveButton.setText(R.string.save);
             this.mSaveButton.setEnabled(true);
         } else if (mAccount != null && (mAccount.getStatus() == Account.State.CONNECTING || mFetchingAvatar)) {
@@ -323,22 +337,34 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
         }
     }
 
+
     protected boolean accountInfoEdited() {
         if (this.mAccount == null) {
             return false;
         }
+        return jidEdited() ||
+                !this.mAccount.getPassword().equals(this.mPassword.getText().toString()) ||
+                !this.mAccount.getHostname().equals(this.mHostname.getText().toString()) ||
+                !String.valueOf(this.mAccount.getPort()).equals(this.mPort.getText().toString());
+    }
+
+    protected boolean jidEdited() {
         final String unmodified;
         if (Config.DOMAIN_LOCK != null) {
             unmodified = this.mAccount.getJid().getLocalpart();
         } else {
             unmodified = this.mAccount.getJid().toBareJid().toString();
         }
-        return !unmodified.equals(this.mAccountJid.getText().toString()) ||
-                !this.mAccount.getPassword().equals(this.mPassword.getText().toString()) ||
-                !this.mAccount.getHostname().equals(this.mHostname.getText().toString()) ||
-                !String.valueOf(this.mAccount.getPort()).equals(this.mPort.getText().toString());
+        return !unmodified.equals(this.mAccountJid.getText().toString());
     }
 
+    protected boolean passwordChangedInMagicCreateMode() {
+        return mAccount != null
+                && mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)
+                && !this.mAccount.getPassword().equals(this.mPassword.getText().toString())
+                && !this.jidEdited()
+                && mAccount.isOnlineAndConnected();
+    }
     @Override
     protected String getShareableUri() {
         if (mAccount != null) {
@@ -387,6 +413,14 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
         if (Config.DISALLOW_REGISTRATION_IN_UI) {
             this.mRegisterNew.setVisibility(View.GONE);
         }
+    }
+    private void gotoChangePassword(String newPassword) {
+        final Intent changePasswordIntent = new Intent(this, ChangePasswordActivity.class);
+        changePasswordIntent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toString());
+        if (newPassword != null) {
+            changePasswordIntent.putExtra("password", newPassword);
+        }
+        startActivity(changePasswordIntent);
     }
 
     @Override

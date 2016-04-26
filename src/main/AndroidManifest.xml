@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <uses-permission
@@ -126,6 +128,27 @@
             android:name=".ui.ManageAccountActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_manage_accounts" />
+        <activity
+            android:name=".activities.ShareLocationActivity"
+            android:label="@string/title_activity_share_location" >
+            <intent-filter>
+                <action android:name="net.atomarea.flowx.location.request" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.ShowLocationActivity"
+            android:label="@string/title_activity_show_location" >
+            <intent-filter>
+                <action android:name="net.atomarea.flowx.location.show" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <data android:scheme="geo" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.EditAccountActivity"
             android:windowSoftInputMode="stateHidden|adjustResize" />

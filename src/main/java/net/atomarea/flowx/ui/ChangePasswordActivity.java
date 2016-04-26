@@ -1,14 +1,18 @@
 package net.atomarea.flowx.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class ChangePasswordActivity extends XmppActivity implements XmppConnectionService.OnAccountPasswordChanged {
 
@@ -20,7 +24,7 @@ public class ChangePasswordActivity extends XmppActivity implements XmppConnecti
 				final String currentPassword = mCurrentPassword.getText().toString();
 				final String newPassword = mNewPassword.getText().toString();
 				final String newPasswordConfirm = mNewPasswordConfirm.getText().toString();
-				if (!currentPassword.equals(mAccount.getPassword())) {
+				if (!mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE) && !currentPassword.equals(mAccount.getPassword())) {
 					mCurrentPassword.requestFocus();
 					mCurrentPassword.setError(getString(R.string.account_status_unauthorized));
 				} else if (!newPassword.equals(newPasswordConfirm)) {
@@ -35,12 +39,13 @@ public class ChangePasswordActivity extends XmppActivity implements XmppConnecti
 					mNewPasswordConfirm.setError(null);
 					xmppConnectionService.updateAccountPasswordOnServer(mAccount, newPassword, ChangePasswordActivity.this);
 					mChangePasswordButton.setEnabled(false);
-					mChangePasswordButton.setTextColor(getResources().getColor(R.color.white70));
+					mChangePasswordButton.setTextColor(getSecondaryTextColor());
 					mChangePasswordButton.setText(R.string.updating);
 				}
 			}
 		}
 	};
+	private TextView mCurrentPasswordLabel;
 	private EditText mCurrentPassword;
 	private EditText mNewPassword;
 	private EditText mNewPasswordConfirm;
@@ -49,7 +54,13 @@ public class ChangePasswordActivity extends XmppActivity implements XmppConnecti
 	@Override
 	void onBackendConnected() {
 		this.mAccount = extractAccount(getIntent());
-
+		if (this.mAccount != null && this.mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)) {
+			this.mCurrentPasswordLabel.setVisibility(View.GONE);
+			this.mCurrentPassword.setVisibility(View.GONE);
+		} else {
+			this.mCurrentPasswordLabel.setVisibility(View.VISIBLE);
+			this.mCurrentPassword.setVisibility(View.VISIBLE);
+		}
 	}
 
 	@Override
@@ -65,9 +76,18 @@ public class ChangePasswordActivity extends XmppActivity implements XmppConnecti
 		});
 		this.mChangePasswordButton = (Button) findViewById(R.id.right_button);
 		this.mChangePasswordButton.setOnClickListener(this.mOnChangePasswordButtonClicked);
+		this.mCurrentPasswordLabel = (TextView) findViewById(R.id.current_password_label);
 		this.mCurrentPassword = (EditText) findViewById(R.id.current_password);
 		this.mNewPassword = (EditText) findViewById(R.id.new_password);
 		this.mNewPasswordConfirm = (EditText) findViewById(R.id.new_password_confirm);
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		Intent intent = getIntent();
+		String password = intent != null ? intent.getStringExtra("password") : "";
+		this.mNewPassword.getEditableText().append(password);
 	}
 
 	@Override
@@ -88,7 +108,7 @@ public class ChangePasswordActivity extends XmppActivity implements XmppConnecti
 			public void run() {
 				mNewPassword.setError(getString(R.string.could_not_change_password));
 				mChangePasswordButton.setEnabled(true);
-				mChangePasswordButton.setTextColor(getResources().getColor(R.color.white));
+				mChangePasswordButton.setTextColor(getPrimaryTextColor());
 				mChangePasswordButton.setText(R.string.change_password);
 			}
 		});

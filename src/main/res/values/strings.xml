@@ -623,4 +623,11 @@
 	<string name="presence_away">Away</string>
 	<string name="presence_xa">Not Available</string>
 	<string name="presence_dnd">Busy</string>
+	<string name="title_activity_share_location">Share Location</string>
+	<string name="title_activity_show_location">Show Location</string>
+	<string name="action_about">About</string>
+	<string name="action_copy_location">Copy Location</string>
+	<string name="action_share_location">Share Location</string>
+	<string name="location_disabled">Location sharing is disabled</string>
+	<string name="secure_password_generated">A secure password has been generated</string>
 </resources>

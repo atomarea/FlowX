@@ -580,7 +580,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                         break;
                     case ATTACHMENT_CHOICE_LOCATION:
                         intent.setAction("net.atomarea.flowx.location.request");
-                        fallbackPackageId = "net.atomarea.flowx.sharelocation";
+                        intent.setPackage("net.atomarea.flowx");
                         break;
                 }
                 if (intent.resolveActivity(getPackageManager()) != null) {
