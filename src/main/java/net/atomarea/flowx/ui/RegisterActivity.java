@@ -51,6 +51,7 @@ import net.atomarea.flowx.ui.adapter.KnownHostsAdapter;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
+import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.XmppConnection.Features;
 import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
@@ -278,17 +279,20 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
             @Override
             public void run() {
                 final Intent intent;
-                if (avatar != null) {
-                    intent = new Intent(getApplicationContext(),
-                            StartConversationActivity.class);
-                    if (xmppConnectionService != null && xmppConnectionService.getAccounts().size() == 1) {
+                final XmppConnection connection = mAccount.getXmppConnection();
+                final boolean wasFirstAccount = xmppConnectionService != null && xmppConnectionService.getAccounts().size() == 1;
+                if (avatar != null || (connection != null && !connection.getFeatures().pep())) {
+                    intent = new Intent(getApplicationContext(), StartConversationActivity.class);
+                    if (wasFirstAccount) {
                         intent.putExtra("init", true);
                     }
                 } else {
-                    intent = new Intent(getApplicationContext(),
-                            PublishProfilePictureActivity.class);
+                    intent = new Intent(getApplicationContext(), PublishProfilePictureActivity.class);
                     intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toBareJid().toString());
                     intent.putExtra("setup", true);
+                }
+                if (wasFirstAccount) {
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 }
                 startActivity(intent);
                 finish();

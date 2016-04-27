@@ -606,7 +606,7 @@
 		<item quantity="one">%d message</item>
 		<item quantity="other">%d messages</item>
 	</plurals>
-	<string name="welcome_header">Welcome to FlowX</string>
+	<string translatable="false" name="welcome_header">Welcome to FlowX</string>
 	<string name="welcome_text">If you want to use FlowX, you have to join or register a new Account .</string>
 	<string name="magic_create_text">Choose a valid Username.</string>
 	<string name="your_full_jid_will_be"></string>

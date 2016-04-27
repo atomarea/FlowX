@@ -44,6 +44,7 @@ import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.services.XmppConnectionService.OnAccountUpdate;
 import net.atomarea.flowx.ui.adapter.KnownHostsAdapter;
 import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
+import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
@@ -280,17 +281,20 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             @Override
             public void run() {
                 final Intent intent;
-                if (avatar != null) {
-                    intent = new Intent(getApplicationContext(),
-                            StartConversationActivity.class);
-                    if (xmppConnectionService != null && xmppConnectionService.getAccounts().size() == 1) {
+                final XmppConnection connection = mAccount.getXmppConnection();
+                final boolean wasFirstAccount = xmppConnectionService != null && xmppConnectionService.getAccounts().size() == 1;
+                if (avatar != null || (connection != null && !connection.getFeatures().pep())) {
+                    intent = new Intent(getApplicationContext(), StartConversationActivity.class);
+                    if (wasFirstAccount) {
                         intent.putExtra("init", true);
                     }
                 } else {
-                    intent = new Intent(getApplicationContext(),
-                            PublishProfilePictureActivity.class);
+                    intent = new Intent(getApplicationContext(), PublishProfilePictureActivity.class);
                     intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toBareJid().toString());
                     intent.putExtra("setup", true);
+                }
+                if (wasFirstAccount) {
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 }
                 startActivity(intent);
                 finish();
@@ -504,8 +508,8 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 updateAccountInformation(true);
             }
         }
-        if (this.xmppConnectionService.getAccounts().size() == 0
-                || this.mAccount == xmppConnectionService.getPendingAccount()) {
+        if ((Config.MAGIC_CREATE_DOMAIN == null && this.xmppConnectionService.getAccounts().size() == 0)
+                || (this.mAccount != null && this.mAccount == xmppConnectionService.getPendingAccount())) {
             if (getActionBar() != null) {
                 getActionBar().setDisplayHomeAsUpEnabled(false);
                 getActionBar().setDisplayShowHomeEnabled(false);
