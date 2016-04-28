@@ -202,6 +202,7 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
 
         }
     };
+
     public void refreshUiReal() {
         invalidateOptionsMenu();
         if (mAccount != null
@@ -369,6 +370,7 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
                 && !this.jidEdited()
                 && mAccount.isOnlineAndConnected();
     }
+
     @Override
     protected String getShareableUri() {
         if (mAccount != null) {
@@ -418,6 +420,7 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
             this.mRegisterNew.setVisibility(View.GONE);
         }
     }
+
     private void gotoChangePassword(String newPassword) {
         final Intent changePasswordIntent = new Intent(this, ChangePasswordActivity.class);
         changePasswordIntent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toString());
@@ -470,7 +473,8 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
                 }
                 updateAccountInformation(true);
             }
-        } else if (this.xmppConnectionService.getAccounts().size() == 0) {
+        } else if ((Config.MAGIC_CREATE_DOMAIN == null && this.xmppConnectionService.getAccounts().size() == 0)
+                || (this.mAccount != null && this.mAccount == xmppConnectionService.getPendingAccount())) {
             if (getActionBar() != null) {
                 getActionBar().setDisplayHomeAsUpEnabled(false);
                 getActionBar().setDisplayShowHomeEnabled(false);
@@ -485,11 +489,13 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
         updateSaveButton();
         invalidateOptionsMenu();
     }
+
     private void changePresence() {
-        		Intent intent = new Intent(this, SetPresenceActivity.class);
-        		intent.putExtra(SetPresenceActivity.EXTRA_ACCOUNT,mAccount.getJid().toBareJid().toString());
-        		startActivity(intent);
-        	}
+        Intent intent = new Intent(this, SetPresenceActivity.class);
+        intent.putExtra(SetPresenceActivity.EXTRA_ACCOUNT, mAccount.getJid().toBareJid().toString());
+        startActivity(intent);
+    }
+
     @Override
     public void alias(String alias) {
         if (alias != null) {

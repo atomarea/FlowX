@@ -1010,7 +1010,7 @@ public abstract class XmppActivity extends FragmentActivity {
 		return getPreferences().getString("picture_compression", "auto").equals("never");
 	}
 	protected boolean manuallyChangePresence() {
-		return getPreferences().getBoolean("manually_change_presence", false);
+		return getPreferences().getBoolean("manually_change_presence", true);
 	}
 	protected void unregisterNdefPushMessageCallback() {
 

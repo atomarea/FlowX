@@ -74,31 +74,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
                         android:text="@string/add_contact"
                         app:bootstrapBrand="success"
                         app:bootstrapSize="md"
                         app:roundedCorners="true" />
-                    <github.ankushsachdeva.emojicon.EmojiconTextView
-                        android:id="@+id/root3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginTop="0dp"
-                        android:text="Status"
-                        android:textColor="@color/primary"
-                        android:typeface="normal"
-                        android:divider="?android:dividerHorizontal"
-                        android:showDividers="middle"
-                        android:textSize="?attr/TextSizeBody"
-                        android:visibility="visible" />
-                    <TextView
-                        android:layout_marginTop="8dp"
-                        android:id="@+id/status_message"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/black87"
-                        android:textSize="?attr/TextSizeBody" />
-
                     <github.ankushsachdeva.emojicon.EmojiconTextView
                         android:id="@+id/root"
                         android:layout_width="wrap_content"
@@ -112,6 +92,15 @@
                         android:showDividers="middle"
                         android:textSize="?attr/TextSizeBody"
                         android:visibility="visible" />
+                    <github.ankushsachdeva.emojicon.EmojiconTextView
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="15dp"
+                        android:id="@+id/status_message"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black87"
+                        android:hint="Welcome to FlowX"
+                        android:textSize="?attr/TextSizeBody" />
                     <CheckBox
                         android:id="@+id/details_send_presence"
                         android:layout_width="wrap_content"

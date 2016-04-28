@@ -1,24 +1,24 @@
 // Top-level build file where you can add configuration options common to all
 // sub-projects/modules.
 buildscript {
-	repositories {
-		jcenter()
-		mavenCentral()
-	}
-	dependencies {
-		classpath 'com.android.tools.build:gradle:1.5.0'
-	}
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.5.0'
+    }
 }
 
 apply plugin: 'com.android.application'
 
 repositories {
-	jcenter()
-	mavenCentral()
+    jcenter()
+    mavenCentral()
 }
 
 configurations {
-	playstoreCompile
+    playstoreCompile
 }
 
 
@@ -43,77 +43,77 @@ dependencies {
 	compile 'com.soundcloud.android:android-crop:1.0.1@aar'
 	compile 'org.sufficientlysecure:openpgp-api:10.0'
 	compile 'com.yalantis:contextmenu:1.0.6'
-    compile 'com.github.manuelpeinado.fadingactionbar:fadingactionbar:3.1.2'
+	compile 'com.github.manuelpeinado.fadingactionbar:fadingactionbar:3.1.2'
 	compile 'com.android.support:multidex:1.0.0'
 	compile 'org.osmdroid:osmdroid-android:4.3'
 	compile 'org.slf4j:slf4j-simple:1.7.9'
-	compile ('eu.livotov.labs.android:CAMView:2.0.1@aar') {transitive=true}
+	compile('eu.livotov.labs.android:CAMView:2.0.1@aar') { transitive = true }
 	playstoreCompile 'com.google.android.gms:play-services-gcm:8.4.0'
 }
 
 android {
-	signingConfigs {
-		config {
-		}
-	}
-	compileSdkVersion 23
-	buildToolsVersion "23.0.3"
-	defaultConfig {
-		minSdkVersion 14
-		targetSdkVersion 23
-		versionCode 1418
-		versionName "1398"
-		archivesBaseName += "-$versionName"
-		applicationId "net.atomarea.flowx"
-		multiDexEnabled true
-	}
+    signingConfigs {
+        config {
+        }
+    }
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 1418
+        versionName "1398"
+        archivesBaseName += "-$versionName"
+        applicationId "net.atomarea.flowx"
+        multiDexEnabled true
+    }
 
-	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_7
-		targetCompatibility JavaVersion.VERSION_1_7
-	}
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
 
-	productFlavors {
-		push
-		nonpush
-	}
-	if (project.hasProperty('mStoreFile') &&
-			project.hasProperty('mStorePassword') &&
-			project.hasProperty('mKeyAlias') &&
-			project.hasProperty('mKeyPassword')) {
-		signingConfigs {
-			release {
-				storeFile file(mStoreFile)
-				storePassword mStorePassword
-				keyAlias mKeyAlias
-				keyPassword mKeyPassword
-			}
-		}
-		buildTypes.release.signingConfig = signingConfigs.release
-	} else {
-		buildTypes.release.signingConfig = null
-	}
+    productFlavors {
+        push
+        nonpush
+    }
+    if (project.hasProperty('mStoreFile') &&
+            project.hasProperty('mStorePassword') &&
+            project.hasProperty('mKeyAlias') &&
+            project.hasProperty('mKeyPassword')) {
+        signingConfigs {
+            release {
+                storeFile file(mStoreFile)
+                storePassword mStorePassword
+                keyAlias mKeyAlias
+                keyPassword mKeyPassword
+            }
+        }
+        buildTypes.release.signingConfig = signingConfigs.release
+    } else {
+        buildTypes.release.signingConfig = null
+    }
 
-	lintOptions {
-		disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource'
-	}
+    lintOptions {
+        disable 'ExtraTranslation', 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource'
+    }
 
-	subprojects {
+    subprojects {
 
-		afterEvaluate {
-			if (getPlugins().hasPlugin('android') ||
-					getPlugins().hasPlugin('android-library')) {
+        afterEvaluate {
+            if (getPlugins().hasPlugin('android') ||
+                    getPlugins().hasPlugin('android-library')) {
 
-				configure(android.lintOptions) {
-					disable 'AndroidGradlePluginVersion', 'MissingTranslation'
-				}
-			}
+                configure(android.lintOptions) {
+                    disable 'AndroidGradlePluginVersion', 'MissingTranslation'
+                }
+            }
 
-		}
-	}
+        }
+    }
 
-	packagingOptions {
-		exclude 'META-INF/BCKEY.DSA'
-		exclude 'META-INF/BCKEY.SF'
-	}
+    packagingOptions {
+        exclude 'META-INF/BCKEY.DSA'
+        exclude 'META-INF/BCKEY.SF'
+    }
 }

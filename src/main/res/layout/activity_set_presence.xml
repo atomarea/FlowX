@@ -20,7 +20,7 @@
             android:background="@drawable/infocard_border"
             android:padding="@dimen/infocard_padding"
             android:orientation="vertical">
-            <EditText
+            <github.ankushsachdeva.emojicon.EmojiconEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
@@ -32,6 +32,7 @@
             <Spinner
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:id="@+id/presence_show"
                 android:layout_gravity="center_horizontal"/>
             <CheckBox
@@ -47,12 +48,12 @@
             <Button
                 android:id="@+id/change_presence"
                 style="?android:attr/borderlessButtonStyle"
-                android:layout_marginRight="-8dp"
+                android:layout_marginRight="8dp"
                 android:layout_marginBottom="-8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
-                android:text="@string/change_presence"
+                android:text="@string/save"
                 android:textColor="@color/accent"/>
         </LinearLayout>
     <LinearLayout

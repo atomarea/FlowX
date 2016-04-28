@@ -325,7 +325,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
                 int s = statusMessages.size();
                 for(int i = 0; i < s; ++i) {
                     if (s > 1) {
-                        builder.append("• ");
+                        builder.append("");
                     }
                     builder.append(statusMessages.get(i));
                     if (i < s - 1) {
@@ -373,6 +373,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         } else {
             addContactButton.setVisibility(View.VISIBLE);
             send.setVisibility(View.GONE);
+            statusMessage.setVisibility(View.GONE);
             receive.setVisibility(View.GONE);
         }
 

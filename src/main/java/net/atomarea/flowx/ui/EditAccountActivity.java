@@ -59,9 +59,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     private CheckBox mRegisterNew;
     private BootstrapButton mSaveButton;
     private Button mCancelButton;
-    private Button mDisableBatterOptimizations;
-
-    private RelativeLayout mBatteryOptimizations;
     private TextView mAccountJidLabel;
     private ImageView mAvatar;
     private LinearLayout mNamePort;

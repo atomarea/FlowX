@@ -537,7 +537,7 @@
     <string name="create_account">Account erstellen</string>
     <string name="use_own_provider">Anmelden</string>
     <string name="pick_your_username">Wähle dein Benuternamen</string>
-    <string name="change_presence">Status ändern</string>
+    <string name="change_presence">Status</string>
     <string name="status_message">Status Nachricht</string>
     <string name="title_activity_share_location">Standort teilen</string>
     <string name="title_activity_show_location">Standort anzeigen</string>
