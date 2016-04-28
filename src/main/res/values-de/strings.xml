@@ -417,7 +417,7 @@
     <string name="contact_has_stopped_typing">hat aufgehört zu tippen</string>
     <string name="pref_chat_states">Schreib Benachrichtigung</string>
     <string name="pref_chat_states_summary">Lass deine Kontakte sehen ob du schreibst.</string>
-    <string name="send_location">Standort teilen</string>
+    <string name="send_location">Standort</string>
     <string name="show_location">Standort anzeigen</string>
     <string name="no_application_found_to_display_location">Keine Anwendung gefunden zum teilen eines Standortes</string>
     <string name="location">Standort</string>
@@ -544,5 +544,5 @@
     <string name="action_copy_location">Standort kopieren</string>
     <string name="action_share_location">Standort teilen</string>
     <string name="location_disabled">Standort teilen nicht möglich!</string>
-    <string name="secure_password_generated">Ein sicheres Passwort wurde erstellt</string>
+    <string name="create_contact_info">Gebe hier den Benutzernamen eines Freundes ein!</string>
 </resources>

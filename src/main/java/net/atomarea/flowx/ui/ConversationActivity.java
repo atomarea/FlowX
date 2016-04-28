@@ -376,6 +376,18 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 requestPermissions(new String[]{Manifest.permission.CAMERA}, 1338);
             }
         }
+        if (Build.VERSION.SDK_INT >= 23) {
+            int hasALocPerm = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+            if (hasALocPerm != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1339);
+            }
+        }
+        if (Build.VERSION.SDK_INT >= 23) {
+            int hasALoc2Perm = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            if (hasALoc2Perm != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1340);
+            }
+        }
     }
 
     @Override
@@ -834,7 +846,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         lst.get(4).setResource(R.drawable.ic_send_voice_offline);
         if (!(new Intent("net.atomarea.flowx.location.request").resolveActivity(getPackageManager()) == null)) {
             lst.add(new MenuObject(getResources().getString(R.string.send_location)));
-            lst.get(5).setResource(R.drawable.ic_send_location_online);
+            lst.get(5).setResource(R.drawable.ic_send_location_offline);
         }
         MenuParams mp = new MenuParams();
         if (getActionBar() != null) mp.setActionBarSize(getActionBar().getHeight());
