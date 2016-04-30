@@ -688,7 +688,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            if (bitmap != null) {
+            if (bitmap != null && !isCancelled()) {
                 final ImageView imageView = imageViewReference.get();
                 if (imageView != null) {
                     imageView.setImageBitmap(bitmap);

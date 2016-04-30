@@ -10,6 +10,11 @@
         android:title="@string/change_presence"
         android:icon="@drawable/ic_announcement_white_24dp"/>
     <item
+        android:id="@+id/action_change_presence2"
+        android:showAsAction="withText"
+        android:title="@string/change_presence"
+        android:icon="@drawable/ic_announcement_white_24dp"/>
+    <item
         android:id="@+id/action_PublishProfilePictureActivity"
         android:title="@string/mgmt_account_publish_avatar"
         android:showAsAction="never" />

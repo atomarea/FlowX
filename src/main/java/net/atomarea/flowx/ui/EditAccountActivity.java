@@ -84,7 +84,8 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             if (!mInitMode && passwordChangedInMagicCreateMode()) {
                 gotoChangePassword(password);
                 return;
-            }            if (mInitMode && mAccount != null) {
+            }
+            if (mInitMode && mAccount != null) {
                 mAccount.setOption(Account.OPTION_DISABLED, false);
             }
             if (mAccount != null && mAccount.getStatus() == Account.State.DISABLED && !accountInfoEdited()) {
@@ -158,7 +159,8 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             if (mAccount != null) {
                 if (mInitMode && mAccount.isOptionSet(Account.OPTION_MAGIC_CREATE)) {
                     mAccount.setOption(Account.OPTION_MAGIC_CREATE, mAccount.getPassword().contains(password));
-                }                mAccount.setJid(jid);
+                }
+                mAccount.setJid(jid);
                 mAccount.setPort(numericPort);
                 mAccount.setHostname(hostname);
                 mAccountJid.setError(null);
@@ -308,13 +310,13 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     }
 
     protected void updateSaveButton() {
-            boolean accountInfoEdited = accountInfoEdited();
+        boolean accountInfoEdited = accountInfoEdited();
 
-            if (!mInitMode && passwordChangedInMagicCreateMode()) {
-                this.mSaveButton.setText(R.string.change_password);
-                this.mSaveButton.setEnabled(true);
-                this.mSaveButton.setTextColor(getPrimaryTextColor());
-            } else if (accountInfoEdited && !mInitMode) {
+        if (!mInitMode && passwordChangedInMagicCreateMode()) {
+            this.mSaveButton.setText(R.string.change_password);
+            this.mSaveButton.setEnabled(true);
+            this.mSaveButton.setTextColor(getPrimaryTextColor());
+        } else if (accountInfoEdited && !mInitMode) {
             this.mSaveButton.setText(R.string.save);
             this.mSaveButton.setEnabled(true);
         } else if (mAccount != null && (mAccount.getStatus() == Account.State.CONNECTING || mFetchingAvatar)) {
@@ -517,7 +519,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         }
         if (Config.DOMAIN_LOCK == null) {
             final KnownHostsAdapter mKnownHostsAdapter = new KnownHostsAdapter(this,
-                    android.R.layout.simple_list_item_1,
+                    R.layout.simple_list_item,
                     xmppConnectionService.getKnownHosts());
         }
         updateSaveButton();
@@ -559,11 +561,15 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 renewCertificate();
                 break;
             case R.id.action_change_presence:
-                				changePresence();
-                				break;
+                changePresence();
+                break;
+            case R.id.action_change_presence2:
+                changePresence();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void gotoChangePassword(String newPassword) {
         final Intent changePasswordIntent = new Intent(this, ChangePasswordActivity.class);
         changePasswordIntent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toString());
@@ -572,14 +578,17 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         }
         startActivity(changePasswordIntent);
     }
+
     private void renewCertificate() {
         KeyChain.choosePrivateKeyAlias(this, this, null, null, null, -1, null);
     }
+
     private void changePresence() {
-        		Intent intent = new Intent(this, SetPresenceActivity.class);
-        		intent.putExtra(SetPresenceActivity.EXTRA_ACCOUNT,mAccount.getJid().toBareJid().toString());
-        		startActivity(intent);
-        	}
+        Intent intent = new Intent(this, SetPresenceActivity.class);
+        intent.putExtra(SetPresenceActivity.EXTRA_ACCOUNT, mAccount.getJid().toBareJid().toString());
+        startActivity(intent);
+    }
+
     @Override
     public void alias(String alias) {
         if (alias != null) {

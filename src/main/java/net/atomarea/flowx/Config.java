@@ -43,7 +43,6 @@ public final class Config {
     public static final boolean DISALLOW_REGISTRATION_IN_UI = false; //hide the register checkbox
     public static final boolean CLOSE_TCP_WHEN_SWITCHING_TO_BACKGROUND = false;
     public static final boolean LEGACY_NAMESPACE_HTTP_UPLOAD = false;
-    public static final boolean REQUEST_DISCO = true;
     public static final int PING_MAX_INTERVAL = 300;
     public static final int PING_MIN_INTERVAL = 30;
     public static final int CONNECT_DISCO_TIMEOUT = 20;

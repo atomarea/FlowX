@@ -27,6 +27,7 @@ import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.persistance.FileBackend;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.ui.adapter.ConversationAdapter;
+import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 
@@ -264,6 +265,8 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 
 	private void share(final Conversation conversation) {
 		final Account account = conversation.getAccount();
+		final XmppConnection connection = account.getXmppConnection();
+		final long max = connection == null ? -1 : connection.getFeatures().getMaxHttpUploadSize();
 		mListView.setEnabled(false);
 		if (conversation.getNextEncryption() == Message.ENCRYPTION_PGP && !hasPgp()) {
 			if (share.uuid == null) {
@@ -275,9 +278,6 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 			return;
 		}
 		if (share.uris.size() != 0) {
-			final long max = account.getXmppConnection()
-					.getFeatures()
-					.getMaxHttpUploadSize();
 			OnPresenceSelected callback = new OnPresenceSelected() {
 				@Override
 				public void onPresenceSelected() {
