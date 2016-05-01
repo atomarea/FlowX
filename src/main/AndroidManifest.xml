@@ -217,6 +217,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.SettingsActivity" />
         </activity>
+        <activity
+            android:name=".ui.LicenseActivity"
+            android:label="@string/title_activity_about"
+            android:parentActivityName=".ui.SettingsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.SettingsActivity" />
+        </activity>
 
         <service android:name=".services.ExportLogsService" />
         <service

@@ -286,8 +286,8 @@
 	<string name="send_omemo_x509_message">Send OMEMO (X.509 verified) encrypted message</string>
 	<string name="pref_about_conversations_summary">Build and licensing information</string>
 	<string name="pref_about_message" translatable="false">
-			FlowX • Instant Messenger.
-			\n\nCopyright © 2014-2016 Dominic Schubert | Steven Burghardt | Daniel Gultsch
+			Copyright © 2014-2016 FlowX Inc.
+			\n\nDevelopers: Dominic Schubert | Steven Burghardt | Daniel Gultsch | Tom Janke | Dominik Wagner
 			\n\nThis program is free software: you can redistribute it and/or modify
 			it under the terms of the GNU General Public License as published by
 			the Free Software Foundation, either version 3 of the License, or
@@ -298,7 +298,10 @@
 			GNU General Public License for more details.
 			\n\nYou should have received a copy of the GNU General Public License
 			along with this program. If not, see https://www.gnu.org/licenses
-			\n\nDownload the full original source code at https://github.com/siacs/Conversations
+			\n\nOriginal Code: https://github.com/siacs/Conversations
+			\n\nSupport Us @Github https://github.com/DoM1niC/FlowX
+			\n\n\nContact: support@flowx.im
+			\nhttp://flowx.im
 	</string>
 	<string name="title_pref_quiet_hours">Quiet Hours</string>
 	<string name="title_pref_quiet_hours_start_time">Start time</string>
@@ -631,4 +634,5 @@
 	<string name="action_share_location">Share Location</string>
 	<string name="location_disabled">Location sharing is disabled</string>
 	<string name="secure_password_generated">A secure password has been generated</string>
+	<string name="device_does_not_support_battery_op">Your device does not support opting out of battery optimization</string>
 </resources>
