@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:emojicon="http://schemas.android.com/tools"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:background="@color/grey200"
@@ -27,6 +28,7 @@
                 android:hint="@string/status_message"
                 android:id="@+id/presence_status_message"
                 android:textColor="@color/black87"
+                emojicon:emojiconSize="30sp"
                 android:layout_marginBottom="8dp"
                 android:textSize="?attr/TextSizeBody"/>
             <Spinner

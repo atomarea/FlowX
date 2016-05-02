@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:emojicon="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="?android:attr/activatedBackgroundIndicator"
@@ -21,6 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/presence_status_message"
+        emojicon:emojiconSize="25sp"
         android:textColor="@color/black87"
         android:textSize="?attr/TextSizeBody"/>
     <TextView

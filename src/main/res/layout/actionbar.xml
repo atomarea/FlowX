@@ -31,24 +31,24 @@
 
             <github.ankushsachdeva.emojicon.EmojiconTextView
                 android:id="@+id/title"
-                android:layout_width="wrap_content"
+                android:layout_width="160dp"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
                 android:textColor="@color/white"
-                android:textSize="20sp"
-                emojicon:emojiconSize="24sp" />
+                android:textSize="17sp"
+                emojicon:emojiconSize="19sp" />
 
             <github.ankushsachdeva.emojicon.EmojiconTextView
                 android:id="@+id/subtitle"
-                android:layout_width="wrap_content"
+                android:layout_width="160dp"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:fontFamily="sans-serif"
                 android:maxLines="1"
                 android:textColor="@color/white70"
-                android:textSize="15sp" />
+                android:textSize="13sp" />
 
         </LinearLayout>
 
@@ -62,6 +62,6 @@
         android:gravity="center"
         android:textColor="@color/white"
         android:textSize="20sp"
-        emojicon:emojiconSize="28sp" />
+        emojicon:emojiconSize="25sp" />
 
 </RelativeLayout>

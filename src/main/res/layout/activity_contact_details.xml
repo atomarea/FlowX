@@ -99,7 +99,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/black87"
-                        android:hint="Welcome to FlowX"
+                        emojicon:emojiconSize="25sp"
                         android:textSize="?attr/TextSizeBody" />
                     <CheckBox
                         android:id="@+id/details_send_presence"
