@@ -635,4 +635,7 @@
 	<string name="location_disabled">Location sharing is disabled</string>
 	<string name="secure_password_generated">A secure password has been generated</string>
 	<string name="device_does_not_support_battery_op">Your device does not support opting out of battery optimization</string>
+	<string name="account_status_bind_failure">Bind failure</string>
+	<string name="openpgp_has_been_published">OpenPGP public key has been published.</string>
+	<string name="republish_pgp_keys">Remember to republish your OpenPGP public keys!</string>
 </resources>

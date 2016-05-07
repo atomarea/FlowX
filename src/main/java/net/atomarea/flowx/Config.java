@@ -81,8 +81,6 @@ public final class Config {
 
     public static final boolean REPORT_WRONG_FILESIZE_IN_OTR_JINGLE = true;
 
-    public static final boolean SHOW_REGENERATE_AXOLOTL_KEYS_BUTTON = true;
-
     public static final long MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
     public static final long MAM_MAX_CATCHUP = MILLISECONDS_IN_DAY / 2;
     public static final int MAM_MAX_MESSAGES = 500;

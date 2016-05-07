@@ -349,12 +349,12 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 				if (requestCode == REQUEST_CHOOSE_PGP_ID) {
 					if (data.getExtras().containsKey(OpenPgpApi.EXTRA_SIGN_KEY_ID)) {
 						selectedAccount.setPgpSignId(data.getExtras().getLong(OpenPgpApi.EXTRA_SIGN_KEY_ID));
-						announcePgp(selectedAccount, null);
+						announcePgp(selectedAccount, null, onOpenPGPKeyPublished);
 					} else {
 						choosePgpSignId(selectedAccount);
 					}
 				} else if (requestCode == REQUEST_ANNOUNCE_PGP) {
-					announcePgp(selectedAccount, null);
+					announcePgp(selectedAccount, null, onOpenPGPKeyPublished);
 				}
 				this.mPostponedActivityResult = null;
 			} else {

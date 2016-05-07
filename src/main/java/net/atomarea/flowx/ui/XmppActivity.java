@@ -110,6 +110,13 @@ public abstract class XmppActivity extends FragmentActivity {
 	protected boolean mUseSubject = true;
 	protected int mTheme;
 	protected boolean mUsingEnterKey = false;
+
+	protected Runnable onOpenPGPKeyPublished = new Runnable() {
+		@Override
+		public void run() {
+			Toast.makeText(XmppActivity.this,R.string.openpgp_has_been_published, Toast.LENGTH_SHORT).show();
+		}
+	};
 	protected ConferenceInvite mPendingConferenceInvite = null;
 	protected ServiceConnection mConnection = new ServiceConnection() {
 
@@ -524,18 +531,24 @@ public abstract class XmppActivity extends FragmentActivity {
 		startActivityForResult(intent, REQUEST_INVITE_TO_CONVERSATION);
 	}
 
-	protected void announcePgp(Account account, final Conversation conversation) {
-		if (account.getPgpId() == -1) {
+	protected void announcePgp(Account account, final Conversation conversation, final Runnable onSuccess) {
+		if (account.getPgpId() == 0) {
 			choosePgpSignId(account);
 		} else {
-			xmppConnectionService.getPgpEngine().generateSignature(account, "", new UiCallback<Account>() {
+			String status = null;
+			if (manuallyChangePresence()) {
+				status = account.getPresenceStatusMessage();
+			}
+			if (status == null) {
+				status = "";
+			}
+			xmppConnectionService.getPgpEngine().generateSignature(account, status, new UiCallback<Account>() {
 
 				@Override
 				public void userInputRequried(PendingIntent pi,
 											  Account account) {
 					try {
-						startIntentSenderForResult(pi.getIntentSender(),
-								REQUEST_ANNOUNCE_PGP, null, 0, 0, 0);
+						startIntentSenderForResult(pi.getIntentSender(), REQUEST_ANNOUNCE_PGP, null, 0, 0, 0);
 					} catch (final SendIntentException ignored) {
 					}
 				}
@@ -548,6 +561,9 @@ public abstract class XmppActivity extends FragmentActivity {
 						conversation.setNextEncryption(Message.ENCRYPTION_PGP);
 						xmppConnectionService.databaseBackend.updateConversation(conversation);
 					}
+					if (onSuccess != null) {
+						runOnUiThread(onSuccess);
+					}
 				}
 
 				@Override
@@ -557,6 +573,17 @@ public abstract class XmppActivity extends FragmentActivity {
 			});
 		}
 	}
+
+	protected  boolean noAccountUsesPgp() {
+		for(Account account : xmppConnectionService.getAccounts()) {
+			if (account.getPgpId() != 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+
 	@SuppressWarnings("deprecation")
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	protected void setListItemBackgroundOnView(View view) {

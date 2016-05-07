@@ -1237,13 +1237,13 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 if (xmppConnectionServiceBound) {
                     if (data.getExtras().containsKey(OpenPgpApi.EXTRA_SIGN_KEY_ID)) {
                         mSelectedConversation.getAccount().setPgpSignId(data.getExtras().getLong(OpenPgpApi.EXTRA_SIGN_KEY_ID));
-                        announcePgp(mSelectedConversation.getAccount(), null);
+                        announcePgp(mSelectedConversation.getAccount(), null, onOpenPGPKeyPublished);
                     } else choosePgpSignId(mSelectedConversation.getAccount());
                     this.mPostponedActivityResult = null;
                 } else this.mPostponedActivityResult = new Pair<>(requestCode, data);
             } else if (requestCode == REQUEST_ANNOUNCE_PGP) {
                 if (xmppConnectionServiceBound) {
-                    announcePgp(mSelectedConversation.getAccount(), mSelectedConversation);
+                    announcePgp(mSelectedConversation.getAccount(), mSelectedConversation, onOpenPGPKeyPublished);
                     this.mPostponedActivityResult = null;
                 } else this.mPostponedActivityResult = new Pair<>(requestCode, data);
             } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_IMAGE) {

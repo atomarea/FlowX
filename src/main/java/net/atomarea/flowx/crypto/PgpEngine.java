@@ -2,6 +2,7 @@ package net.atomarea.flowx.crypto;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.util.Log;
 
 import org.openintents.openpgp.OpenPgpSignatureResult;
 import org.openintents.openpgp.util.OpenPgpApi;
@@ -16,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
+import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
@@ -299,7 +301,7 @@ public class PgpEngine {
 
 	public void generateSignature(final Account account, String status,
 			final UiCallback<Account> callback) {
-		if (account.getPgpId() == -1) {
+		if (account.getPgpId() == 0) {
 			return;
 		}
 		Intent params = new Intent();
@@ -308,6 +310,7 @@ public class PgpEngine {
 		params.putExtra(OpenPgpApi.EXTRA_SIGN_KEY_ID, account.getPgpId());
 		InputStream is = new ByteArrayInputStream(status.getBytes());
 		final OutputStream os = new ByteArrayOutputStream();
+		Log.d(Config.LOGTAG,account.getJid().toBareJid()+": signing status message \""+status+"\"");
 		api.executeApiAsync(params, is, os, new IOpenPgpCallback() {
 
 			@Override

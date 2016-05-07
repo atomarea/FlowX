@@ -51,6 +51,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -555,6 +556,9 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		}
 		this.wakeLock.acquire();
 
+		boolean pingNow = false;
+		HashSet<Account> pingCandidates = new HashSet<>();
+
 		for (Account account : accounts) {
 			if (!account.isOptionSet(Account.OPTION_DISABLED)) {
 				if (!hasInternetConnection()) {
@@ -583,12 +587,13 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 								int secs = (int) (pingTimeoutIn / 1000);
 								this.scheduleWakeUpCall(secs, account.getUuid().hashCode());
 							}
-						} else if (msToNextPing <= 0) {
-							account.getXmppConnection().sendPing();
-							Log.d(Config.LOGTAG, account.getJid().toBareJid() + " send ping");
-							this.scheduleWakeUpCall(Config.PING_TIMEOUT, account.getUuid().hashCode());
 						} else {
-							this.scheduleWakeUpCall((int) (msToNextPing / 1000), account.getUuid().hashCode());
+							pingCandidates.add(account);
+							if (msToNextPing <= 0) {
+								pingNow = true;
+							} else {
+								this.scheduleWakeUpCall((int) (msToNextPing / 1000), account.getUuid().hashCode());
+							}
 						}
 					} else if (account.getStatus() == Account.State.OFFLINE) {
 						reconnectAccount(account, true, interactive);
@@ -617,6 +622,13 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 				}
 			}
 		}
+		if (pingNow) {
+			for (Account account : pingCandidates) {
+				account.getXmppConnection().sendPing();
+				Log.d(Config.LOGTAG, account.getJid().toBareJid() + " send ping");
+				this.scheduleWakeUpCall(Config.PING_TIMEOUT, account.getUuid().hashCode());
+			}
+		}
 		if (wakeLock.isHeld()) {
 			try {
 				wakeLock.release();
@@ -631,7 +643,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	}
 
 	private boolean manuallyChangePresence() {
-		return getPreferences().getBoolean("manually_change_presence", true);
+		return getPreferences().getBoolean("manually_change_presence", false);
 	}
 
 	private boolean treatVibrateAsSilent() {
@@ -2516,7 +2528,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 								callback.success(avatar);
 							}
 							Log.d(Config.LOGTAG, account.getJid().toBareJid()
-									+ ": succesfuly fetched pep avatar for " + avatar.owner);
+									+ ": successfully fetched pep avatar for " + avatar.owner);
 							return;
 						}
 					} else {
@@ -2752,7 +2764,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	}
 
 	public boolean saveEncryptedMessages() {
-		return !getPreferences().getBoolean("dont_save_encrypted", false);
+		return !getPreferences().getBoolean("dont_save_encrypted", true);
 	}
 
 	private boolean respectAutojoin() {
@@ -2990,9 +3002,10 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	}
 
 	public void sendCreateAccountWithCaptchaPacket(Account account, String id, Data data) {
-		XmppConnection connection = account.getXmppConnection();
+		final XmppConnection connection = account.getXmppConnection();
 		if (connection != null) {
-			connection.sendCaptchaRegistryRequest(id, data);
+			IqPacket request = mIqGenerator.generateCreateAccountWithCaptcha(account, id, data);
+			sendIqPacket(account, request, connection.registrationResponseListener);
 		}
 	}
 
@@ -3245,18 +3258,18 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 		return pending;
 	}
 
-	public void changeStatus(Account account, Presence.Status status, String statusMessage) {
+	public void changeStatus(Account account, Presence.Status status, String statusMessage, boolean send) {
 		if (!statusMessage.isEmpty()) {
 			databaseBackend.insertPresenceTemplate(new PresenceTemplate(status, statusMessage));
 		}
-		changeStatusReal(account, status, statusMessage);
+		changeStatusReal(account, status, statusMessage, send);
 	}
 
-	private void changeStatusReal(Account account, Presence.Status status, String statusMessage) {
+	private void changeStatusReal(Account account, Presence.Status status, String statusMessage, boolean send) {
 		account.setPresenceStatus(status);
 		account.setPresenceStatusMessage(statusMessage);
 		databaseBackend.updateAccount(account);
-		if (!account.isOptionSet(Account.OPTION_DISABLED)) {
+		if (!account.isOptionSet(Account.OPTION_DISABLED) && send) {
 			sendPresence(account);
 		}
 	}
@@ -3266,7 +3279,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 			databaseBackend.insertPresenceTemplate(new PresenceTemplate(status, statusMessage));
 		}
 		for(Account account : getAccounts()) {
-			changeStatusReal(account, status, statusMessage);
+			changeStatusReal(account, status, statusMessage, true);
 		}
 	}
 
