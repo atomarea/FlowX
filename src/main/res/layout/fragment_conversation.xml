@@ -64,7 +64,7 @@
                 android:layout_gravity="center_vertical"
                 android:minHeight="40dp">
 
-                <net.atomarea.flowx.ui.EditMessage
+                <net.atomarea.flowx_nobind.ui.EditMessage
                     android:id="@+id/textinput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
                     android:textColor="@color/black87">
 
                     <requestFocus />
-                </net.atomarea.flowx.ui.EditMessage>
+                </net.atomarea.flowx_nobind.ui.EditMessage>
             </LinearLayout>
         </LinearLayout>
 

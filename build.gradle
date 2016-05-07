@@ -61,10 +61,10 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 1423
-        versionName "1.52"
+        versionCode 1
+        versionName "1.0"
         archivesBaseName += "-$versionName"
-        applicationId "net.atomarea.flowx"
+        applicationId "net.atomarea.flowx_nobind"
         multiDexEnabled true
     }
 
@@ -76,7 +76,6 @@ android {
     productFlavors {
         push
         nonpush
-        nobind
     }
     if (project.hasProperty('mStoreFile') &&
             project.hasProperty('mStorePassword') &&

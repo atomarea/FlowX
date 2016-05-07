@@ -56,7 +56,7 @@
         android:visibility="gone" />
 
 
-    <net.atomarea.flowx.ui.widget.Switch
+    <net.atomarea.flowx_nobind.ui.widget.Switch
         android:id="@+id/tgl_trust"
         android:visibility="invisible"
         android:layout_width="wrap_content"

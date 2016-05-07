@@ -2,7 +2,7 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context="net.atomarea.flowx.activities.ShareLocationActivity">
+                tools:context="net.atomarea.flowx_nobind.activities.ShareLocationActivity">
 
     <org.osmdroid.views.MapView android:id="@+id/map"
                                 android:layout_width="match_parent"

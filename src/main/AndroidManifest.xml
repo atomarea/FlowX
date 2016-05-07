@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-    package="net.atomarea.flowx"
+    package="net.atomarea.flowx_nobind"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -132,7 +132,7 @@
             android:name=".activities.ShareLocationActivity"
             android:label="@string/title_activity_share_location" >
             <intent-filter>
-                <action android:name="net.atomarea.flowx.location.request" />
+                <action android:name="net.atomarea.flowx_nobind.location.request" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -140,7 +140,7 @@
             android:name=".activities.ShowLocationActivity"
             android:label="@string/title_activity_show_location" >
             <intent-filter>
-                <action android:name="net.atomarea.flowx.location.show" />
+                <action android:name="net.atomarea.flowx_nobind.location.show" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>

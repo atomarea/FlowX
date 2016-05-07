@@ -1,6 +1,6 @@
 ﻿![screenshots](http://git.atom-area.net/FlowX.git/raw/master/Screenshots/readme.png)
 
-[![Google Play](http://cloud.atom-area.net/pics/GooglePlay.png)](https://play.google.com/store/apps/details?id=net.atomarea.flowx)
+[![Google Play](http://cloud.atom-area.net/pics/GooglePlay.png)](https://play.google.com/store/apps/details?id=net.atomarea.flowx_nobind)
 
 # FlowX
 
