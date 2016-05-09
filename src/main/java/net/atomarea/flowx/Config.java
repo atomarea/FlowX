@@ -33,7 +33,7 @@ public final class Config {
         return (ENCRYPTION_MASK & (ENCRYPTION_MASK - 1)) != 0;
     }
 
-    public static final String LOGTAG = "conversations";
+    public static final String LOGTAG = "flowx";
 
     public static final String DOMAIN_LOCK = "flowx.im"; //only allow account creation for this domain
     public static final String MAGIC_CREATE_DOMAIN = "flowx.im";
