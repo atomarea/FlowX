@@ -3,7 +3,7 @@
 
     <string name="action_settings">Einstellungen</string>
     <string name="action_add">Neue Unterhaltung</string>
-    <string name="action_accounts">Mein Account</string>
+    <string name="action_accounts">Konten</string>
     <string name="action_end_conversation">Unterhaltung beenden</string>
     <string name="action_contact_details">Kontakt anzeigen</string>
     <string name="action_muc_details">Konferenzdetails</string>
@@ -16,7 +16,7 @@
     <string name="action_unblock_contact">Kontakt freigeben</string>
     <string name="action_block_domain">Domain sperren</string>
     <string name="action_unblock_domain">Domain entsperren</string>
-    <string name="title_activity_manage_accounts">Mein Account</string>
+    <string name="title_activity_manage_accounts">Konten</string>
     <string name="title_activity_settings">Einstellungen</string>
     <string name="title_activity_conference_details">Konferenzdetails</string>
     <string name="title_activity_contact_details">Kontakt</string>
