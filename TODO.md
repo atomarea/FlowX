@@ -9,3 +9,6 @@
 * Alle Chats aufräumen (Option)
 * Benutzer optional mit E-Mail verifizieren 
 * Meldeoption für störende Benutzer (Option zum melden mit Text / Bild an support Account)
+* Lastseen Timestamp bei Änderung in DB speichern (gem. https://github.com/siacs/Conversations/blob/master/src/main/java/eu/siacs/conversations/persistance/DatabaseBackend.java#L63 existiert bereits eine Spalte Contact.LAST_TIME in der DB, jedoch ist diese oft nicht aktuell bzw. wird nur in sehr langen Abständen aktualisiert - überprüft auf dem Handy mittels aSQLiteManager; auch nach einem Neustart des Telefons sind die Lastseen Zeiten falsch, liegen oft Tage oder Wochen zurück)
+* markiere alle vorangegangen Nachrichten als gelesen, wenn die letzte gelesen wurde (https://github.com/siacs/Conversations/issues/1593)
+* markiere ungelesene Nachrichten beim Öffnen eines Chats (https://github.com/siacs/Conversations/issues/291)
