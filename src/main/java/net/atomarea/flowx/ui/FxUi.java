@@ -18,6 +18,7 @@ import com.makeramen.roundedimageview.RoundedImageView;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 
@@ -28,9 +29,16 @@ import github.ankushsachdeva.emojicon.EmojiconTextView;
 /**
  * Created by Tom on 10.05.2016.
  */
-public class FxUi extends FxXmppActivity {
+public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConversationUpdate {
 
     private static final String TAG = "FlowX (UI Main)";
+
+    /*
+     Prefixes:
+
+     m -> Main
+     d -> Data, used in some states
+     */
 
     public static FxUi App;
 
@@ -46,6 +54,8 @@ public class FxUi extends FxXmppActivity {
     private boolean backendConnected;
 
     private State mFxState;
+
+    private Conversation dConversation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +101,8 @@ public class FxUi extends FxXmppActivity {
         if (!backendConnected)
             return; // if the backend isn't connected yet, this function can't run
         // refreshFxUi(); // should happen later only if needed, not needed yet
+        // [[ TODO: !! DETECT CHANGES AND APPLY ONLY IF NEEDED ]]
+        refreshFxUi(mFxState, false);
     }
 
     @Override
@@ -119,9 +131,9 @@ public class FxUi extends FxXmppActivity {
     public void refreshFxUi(State toState, boolean animate) {
         Log.i(TAG, "refresh fxui state");
 
-        State fromState = mFxState;
+        //State fromState = mFxState;
 
-        boolean change = toState != mFxState;
+        boolean change = toState != mFxState; // changed?
 
         if (change && animate) {
             // [[ TODO: ANIMATION CODE HERE ]]
@@ -137,7 +149,9 @@ public class FxUi extends FxXmppActivity {
             ArrayList<Conversation> tConversationList = new ArrayList<>();
             xmppConnectionService.populateWithOrderedConversations(tConversationList); // load all recent conversations
 
-            for (Conversation tConversation : tConversationList) { // yay, let's fill up the ram =D
+            for (Conversation tmpConversation : tConversationList) { // yay, let's fill up the ram =D
+                final Conversation tConversation = tmpConversation; // #finalize
+
                 View tRow = getLayoutInflater().inflate(R.layout.fx_row_recent_conversations, mLayout, false); // create the layout
 
                 EmojiconTextView tTvName = (EmojiconTextView) tRow.findViewById(R.id.fx_row_recent_conversations_name); // find places to fill
@@ -155,9 +169,18 @@ public class FxUi extends FxXmppActivity {
                 else
                     tTvLastMessage.setText(tConversation.getLatestMessage().getBody()); // last message
 
-                FxUiHelper.loadAvatar(tConversation, tIvPicture);
+                FxUiHelper.loadAvatar(tConversation, tIvPicture); // load the avatar from backend
 
-                tTvTimestamp.setText(UIHelper.readableTimeDifference(this, tConversation.getLatestMessage().getTimeSent()));
+                tTvTimestamp.setText(UIHelper.readableTimeDifference(this, tConversation.getLatestMessage().getTimeSent())); // create and set timestamp
+
+                tRow.findViewById(R.id.fx_row_recent_conversations_container).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // [[ TODO: OPEN CHAT PANE WITH ANIMATION ]]
+                        dConversation = tConversation; // set "current" conversation
+                        refreshFxUi(State.SINGLE_CONVERSATION, true);
+                    }
+                });
 
                 mLayout.addView(tRow); // add the row to the view tree
             }
@@ -166,6 +189,11 @@ public class FxUi extends FxXmppActivity {
         if (change && animate) {
             // [[ TODO: ANIMATION CODE HERE ]]
         }
+    }
+
+    @Override
+    public void onConversationUpdate() {
+        refreshUi();
     }
 
     public enum State {
