@@ -355,7 +355,7 @@ public class XmppConnection implements Runnable {
 		} catch (final IOException | XmlPullParserException | NoSuchAlgorithmException e) {
 			Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": " + e.getMessage());
 			this.changeStatus(Account.State.OFFLINE);
-			this.attempt--; //don't count attempt when reconnecting instantly anyway
+			this.attempt = Math.max(0, this.attempt - 1);
 		} finally {
 			forceCloseSocket();
 			if (wakeLock.isHeld()) {
@@ -537,12 +537,18 @@ public class XmppConnection implements Runnable {
 				try {
 					final int serverSequence = Integer.parseInt(ack.getAttribute("h"));
 					acknowledgeStanzaUpTo(serverSequence);
-				} catch (NumberFormatException e) {
+				} catch (NumberFormatException | NullPointerException e) {
 					Log.d(Config.LOGTAG,account.getJid().toBareJid()+": server send ack without sequence number");
 				}
 			} else if (nextTag.isStart("failed")) {
-				tagReader.readElement(nextTag);
-				Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": resumption failed");
+				Element failed = tagReader.readElement(nextTag);
+				try {
+					final int serverCount = Integer.parseInt(failed.getAttribute("h"));
+					Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": resumption failed but server acknowledged stanza #"+serverCount);
+					acknowledgeStanzaUpTo(serverCount);
+				} catch (NumberFormatException | NullPointerException e) {
+					Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": resumption failed");
+				}
 				resetStreamId();
 				if (account.getStatus() != Account.State.ONLINE) {
 					sendBindRequest();
@@ -874,6 +880,7 @@ public class XmppConnection implements Runnable {
 	}
 
 	public void resetEverything() {
+		resetAttemptCount();
 		resetStreamId();
 		clearIqCallbacks();
 		mStanzaQueue.clear();
@@ -1167,15 +1174,20 @@ public class XmppConnection implements Runnable {
 	private void processStreamError(final Tag currentTag)
 		throws XmlPullParserException, IOException {
 		final Element streamError = tagReader.readElement(currentTag);
-		if (streamError != null && streamError.hasChild("conflict")) {
+		if (streamError == null) {
+			return;
+		}
+		Log.d(Config.LOGTAG,account.getJid().toBareJid()+": stream error "+streamError.toString());
+		if (streamError.hasChild("conflict")) {
 			final String resource = account.getResource().split("\\.")[0];
 			account.setResource(resource + "." + nextRandomId());
 			Log.d(Config.LOGTAG,
 					account.getJid().toBareJid() + ": switching resource due to conflict ("
 					+ account.getResource() + ")");
-		} else if (streamError != null) {
-			Log.d(Config.LOGTAG,account.getJid().toBareJid()+": stream error "+streamError.toString());
+		} else if (streamError.hasChild("host-unknown")) {
+			changeStatus(Account.State.HOST_UNKNOWN);
 		}
+		forceCloseSocket();
 	}
 
 	private void sendStartStream() throws IOException {

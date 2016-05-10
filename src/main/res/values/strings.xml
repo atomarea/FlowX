@@ -639,4 +639,5 @@
 	<string name="account_status_bind_failure">Bind failure</string>
 	<string name="openpgp_has_been_published">OpenPGP public key has been published.</string>
 	<string name="republish_pgp_keys">Remember to republish your OpenPGP public keys!</string>
+	<string name="account_status_host_unknown">Domain not recognized</string>
 </resources>
