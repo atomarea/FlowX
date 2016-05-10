@@ -18,4 +18,14 @@
         <item name="android:padding">16dp</item>
     </style>
 
+    <style name="fx_base" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+    </style>
+
+    <style name="fx_base_toolbar" parent="Theme.AppCompat.Light">
+        <item name="android:textColorSecondary">#FFFFFF</item>
+    </style>
+
 </resources>

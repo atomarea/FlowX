@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    package="net.atomarea.flowx"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="net.atomarea.flowx">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -16,8 +15,8 @@
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <uses-permission
@@ -25,11 +24,11 @@
         tools:node="remove" />
 
     <application
+        android:name="android.support.multidex.MultiDexApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/ConversationsTheme"
-        android:name="android.support.multidex.MultiDexApplication"
         tools:replace="android:label">
 
         <service android:name=".services.XmppConnectionService" />
@@ -45,22 +44,31 @@
 
         <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
         <activity
-            android:name=".ui.ConversationActivity"
-            android:label="@string/app_name"
-            android:configChanges="orientation|screenSize"
-            android:launchMode="singleTask"
-            android:windowSoftInputMode="stateHidden">
+            android:name=".ui.FxUi"
+            android:label="@string/app_name_dev"
+            android:theme="@style/fx_base"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:theme="@style/ConversationsDialog"
-            android:name=".ui.RecordingActivity"
+            android:name=".ui.ConversationActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
-            android:configChanges="orientation|screenSize">
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.RecordingActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/app_name"
+            android:theme="@style/ConversationsDialog">
             <intent-filter>
                 <action android:name="android.provider.MediaStore.RECORD_SOUND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -70,8 +78,8 @@
         <activity
             android:name=".ui.StartConversationActivity"
             android:configChanges="orientation|screenSize"
-            android:launchMode="singleTask"
-            android:label="@string/title_activity_start_conversation">
+            android:label="@string/title_activity_start_conversation"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />
 
@@ -99,19 +107,19 @@
         <activity
             android:name=".ui.WelcomeActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.MagicCreateActivity"
             android:label="@string/create_account"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.SetPresenceActivity"
-            android:label="@string/change_presence"
             android:configChanges="orientation|screenSize"
-            android:windowSoftInputMode="stateHidden|adjustResize"
-            android:launchMode="singleTask"/>
+            android:label="@string/change_presence"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/title_activity_settings" />
@@ -130,7 +138,7 @@
             android:label="@string/title_activity_manage_accounts" />
         <activity
             android:name=".activities.ShareLocationActivity"
-            android:label="@string/title_activity_share_location" >
+            android:label="@string/title_activity_share_location">
             <intent-filter>
                 <action android:name="net.atomarea.flowx.location.request" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -138,7 +146,7 @@
         </activity>
         <activity
             android:name=".activities.ShowLocationActivity"
-            android:label="@string/title_activity_show_location" >
+            android:label="@string/title_activity_show_location">
             <intent-filter>
                 <action android:name="net.atomarea.flowx.location.show" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -160,9 +168,9 @@
             android:label="@string/title_activity_conference_details"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:theme="@style/ConversationsTheme.ContactDetail"
             android:name=".ui.ContactDetailsActivity"
             android:label="@string/title_activity_contact_details"
+            android:theme="@style/ConversationsTheme.ContactDetail"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.PublishProfilePictureActivity"

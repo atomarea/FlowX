@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:emojicon="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/fx_row_recent_conversations_picture"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:scaleType="centerCrop"
+        app:riv_corner_radius="33dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <github.ankushsachdeva.emojicon.EmojiconTextView
+                android:id="@+id/fx_row_recent_conversations_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/black87"
+                android:textSize="20sp"
+                emojicon:emojiconSize="24dp" />
+
+            <TextView
+                android:id="@+id/fx_row_recent_conversations_timestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:fontFamily="sans-serif"
+                android:textColor="@color/black54"
+                android:textSize="12sp" />
+
+        </RelativeLayout>
+
+        <github.ankushsachdeva.emojicon.EmojiconTextView
+            android:id="@+id/fx_row_recent_conversations_last_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:maxLines="1"
+            android:textColor="@color/black87"
+            android:textSize="18sp"
+            emojicon:emojiconSize="22dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
