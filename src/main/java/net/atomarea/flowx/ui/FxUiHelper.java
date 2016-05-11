@@ -7,6 +7,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
+import android.view.View;
 import android.widget.ImageView;
 
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
@@ -20,6 +22,9 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.RejectedExecutionException;
 
 import github.ankushsachdeva.emojicon.EmojiconEditText;
+import github.ankushsachdeva.emojicon.EmojiconGridView;
+import github.ankushsachdeva.emojicon.EmojiconsPopup;
+import github.ankushsachdeva.emojicon.emoji.Emojicon;
 
 /**
  * Created by Tom on 10.05.2016.
@@ -163,6 +168,53 @@ public class FxUiHelper {
             activity.startActivityForResult(intent, requestCode);
             return true;
         } else return false;
+    }
+
+    public static EmojiconsPopup initEmojiKeyboard(View root, FxUi app, final EmojiconEditText mEditMessage) {
+        final EmojiconsPopup mEmojiKeyboard = new EmojiconsPopup(root, app);
+        mEmojiKeyboard.setSizeForSoftKeyboard();
+
+        mEmojiKeyboard.setOnSoftKeyboardOpenCloseListener(new EmojiconsPopup.OnSoftKeyboardOpenCloseListener() {
+            @Override
+            public void onKeyboardOpen(int keyBoardHeight) {
+            }
+
+            @Override
+            public void onKeyboardClose() {
+                if (mEmojiKeyboard.isShowing()) mEmojiKeyboard.dismiss();
+            }
+        });
+
+        mEmojiKeyboard.setOnEmojiconClickedListener(new EmojiconGridView.OnEmojiconClickedListener() {
+            @Override
+            public void onEmojiconClicked(Emojicon emojicon) {
+                if (mEditMessage == null || emojicon == null) {
+                    return;
+                }
+
+                int start = mEditMessage.getSelectionStart();
+                int end = mEditMessage.getSelectionEnd();
+
+                if (start < 0) {
+                    mEditMessage.append(emojicon.getEmoji());
+                } else {
+                    mEditMessage.getText().replace(Math.min(start, end),
+                            Math.max(start, end), emojicon.getEmoji(), 0,
+                            emojicon.getEmoji().length());
+                }
+            }
+        });
+
+        mEmojiKeyboard.setOnEmojiconBackspaceClickedListener(new EmojiconsPopup.OnEmojiconBackspaceClickedListener() {
+            @Override
+            public void onEmojiconBackspaceClicked(View v) {
+                KeyEvent event = new KeyEvent(
+                        0, 0, 0, KeyEvent.KEYCODE_DEL, 0, 0, 0, 0, KeyEvent.KEYCODE_ENDCALL);
+                mEditMessage.dispatchKeyEvent(event);
+            }
+        });
+
+        return mEmojiKeyboard;
     }
 
 }

@@ -1,5 +1,6 @@
 package net.atomarea.flowx.ui;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 
 import github.ankushsachdeva.emojicon.EmojiconEditText;
 import github.ankushsachdeva.emojicon.EmojiconTextView;
+import github.ankushsachdeva.emojicon.EmojiconsPopup;
 import nl.changer.audiowife.AudioWife;
 
 /**
@@ -66,6 +69,8 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     private boolean InStateRefresh;
     private boolean StateRefreshQueued;
+
+    private EmojiconsPopup mEmojiKeyboard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -244,7 +249,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
                         final Message tMessage = tMessages.get(i); // #finalie
 
-                        boolean GroupConversation = tMessage.getConversation().getMode() == Conversation.MODE_MULTI && tMessage.getMergedStatus() <= Message.STATUS_RECEIVED;
+                        boolean GroupConversation = tMessage.getConversation().getMode() == Conversation.MODE_MULTI && tMessage.getMergedStatus() <= Message.STATUS_RECEIVED; // is it a group conversation
 
                         boolean _Error = false;
 
@@ -365,8 +370,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                         }
                     });
 
-                    if (change)
+                    if (change) {
                         mFooter.addView(getLayoutInflater().inflate(R.layout.fx_msg_input, mFooter, false));
+                        mEmojiKeyboard = FxUiHelper.initEmojiKeyboard(findViewById(R.id.fx_root), App, (EmojiconEditText) findViewById(R.id.message_input));
+                    }
                 }
 
                 Log.i(TAG, "WORK DONE ( " + (System.currentTimeMillis() - workStart) + "ms ) [ refreshFxUi ]");
@@ -417,7 +424,15 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     }
 
     public void fxClickEmojiButton(View v) {
-
+        if (!mEmojiKeyboard.isShowing()) {
+            if (mEmojiKeyboard.isKeyBoardOpen())
+                mEmojiKeyboard.showAtBottom();
+            else {
+                findViewById(R.id.message_input).requestFocus();
+                mEmojiKeyboard.showAtBottomPending();
+                ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(findViewById(R.id.message_input), InputMethodManager.SHOW_IMPLICIT);
+            }
+        } else mEmojiKeyboard.dismiss();
     }
 
     public void fxClickSendButton(View v) {
