@@ -136,219 +136,228 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         }, 600);
     }
 
-    public void refreshFxUi(State toState, boolean animate) {
+    public void refreshFxUi(State toState, final boolean animate) {
         Log.i(TAG, "UI STATE REFRESH [ refreshFxUi ]");
 
         //State fromState = mFxState;
 
-        boolean change = toState != mFxState; // changed?
+        final boolean change = toState != mFxState; // changed?
 
         if (change && animate) {
-            // [[ TODO: ANIMATION CODE HERE ]]
+            Log.i(TAG, "ANIMATION TO ALPHA:0 [ refreshFxUi ]");
+            mParent.animate().alpha(0).setDuration(200).start();
         }
 
         // [[ TODO: "SOFTER" WAY TO REFRESH ONLY ]]
 
         if (change) mFxState = toState;
 
-        mLayout.removeAllViews(); // bye views, won't need you anymore
-        if (change) mFooter.removeAllViews(); // only remove footer when state changes
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "WORKING [ refreshFxUi ]");
+                mLayout.removeAllViews(); // bye views, won't need you anymore
+                if (change) mFooter.removeAllViews(); // only remove footer when state changes
 
-        if (State.RECENT_CONVERSATIONS == mFxState) { // cause we're showing a loading screen (or something like this), we can load everything into the ram... or at least generate everything and let android manage it properly
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle(R.string.app_name); // real title: FlowX
-                getSupportActionBar().setSubtitle(null);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            }
-
-            ArrayList<Conversation> tConversationList = new ArrayList<>();
-            xmppConnectionService.populateWithOrderedConversations(tConversationList); // load all recent conversations
-
-            for (Conversation tmpConversation : tConversationList) { // yay, let's fill up the ram =D
-                final Conversation tConversation = tmpConversation; // #finalize
-
-                View tRow = getLayoutInflater().inflate(R.layout.fx_row_recent_conversations, mLayout, false); // create the layout
-
-                EmojiconTextView tTvName = (EmojiconTextView) tRow.findViewById(R.id.fx_row_recent_conversations_name); // find places to fill
-                EmojiconTextView tTvLastMessage = (EmojiconTextView) tRow.findViewById(R.id.fx_row_recent_conversations_last_message);
-                TextView tTvTimestamp = (TextView) tRow.findViewById(R.id.fx_row_recent_conversations_timestamp);
-                RoundedImageView tIvPicture = (RoundedImageView) tRow.findViewById(R.id.fx_row_recent_conversations_picture);
-
-                if (Conversation.MODE_SINGLE == tConversation.getMode() || useSubjectToIdentifyConference())
-                    tTvName.setText(tConversation.getName()); // set conversation title or
-                else
-                    tTvName.setText(tConversation.getJid().toBareJid().toString()); // name of user
-
-                if (ChatState.COMPOSING.equals(tConversation.getIncomingChatState()))
-                    tTvLastMessage.setText(R.string.contact_is_typing); // contact is typing or
-                else
-                    tTvLastMessage.setText(tConversation.getLatestMessage().getBody()); // last message
-
-                FxUiHelper.loadAvatar(tConversation, tIvPicture, 66); // load the avatar from backend, 66dp width
-
-                tTvTimestamp.setText(UIHelper.readableTimeDifference(this, tConversation.getLatestMessage().getTimeSent())); // create and set timestamp
-
-                tRow.findViewById(R.id.fx_row_recent_conversations_container).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // [[ TODO: OPEN CHAT PANE WITH ANIMATION ]]
-                        dConversation = tConversation; // set "current" conversation
-                        refreshFxUi(State.SINGLE_CONVERSATION, true);
+                if (State.RECENT_CONVERSATIONS == mFxState) { // cause we're showing a loading screen (or something like this), we can load everything into the ram... or at least generate everything and let android manage it properly
+                    if (getSupportActionBar() != null) {
+                        getSupportActionBar().setTitle(R.string.app_name); // real title: FlowX
+                        getSupportActionBar().setSubtitle(null);
+                        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                     }
-                });
 
-                mLayout.addView(tRow); // add the row to the view tree
-            }
-        } else if (State.SINGLE_CONVERSATION == mFxState) { // show a conversation, yay this will become complicated :/
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle(dConversation.getName()); // real title: FlowX
-                if (dConversation.getMode() == Conversation.MODE_SINGLE) {
-                    if (dConversation.getIncomingChatState() == ChatState.COMPOSING)
-                        getSupportActionBar().setSubtitle(R.string.contact_is_typing);
-                    else if (dConversation.getIncomingChatState() == ChatState.PAUSED)
-                        getSupportActionBar().setSubtitle(R.string.contact_has_stopped_typing);
-                    else
-                        getSupportActionBar().setSubtitle(UIHelper.lastseen(this, dConversation.getContact().lastseen.time));
-                } else if (useSubjectToIdentifyConference())
-                    getSupportActionBar().setSubtitle((dConversation.getParticipants() == null ? "-" : dConversation.getParticipants()));
-                
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            }
+                    ArrayList<Conversation> tConversationList = new ArrayList<>();
+                    xmppConnectionService.populateWithOrderedConversations(tConversationList); // load all recent conversations
 
-            ArrayList<Message> tMessages = new ArrayList<>();
-            dConversation.populateWithMessages(tMessages);
+                    for (Conversation tmpConversation : tConversationList) { // yay, let's fill up the ram =D
+                        final Conversation tConversation = tmpConversation; // #finalize
 
-            for (int i = 0; i < tMessages.size(); i++) {
-                if (tMessages.size() - 30 > i)
-                    continue; // show the last 30 messages... more coming soon
+                        View tRow = getLayoutInflater().inflate(R.layout.fx_row_recent_conversations, mLayout, false); // create the layout
 
-                final Message tMessage = tMessages.get(i); // #finalie
+                        EmojiconTextView tTvName = (EmojiconTextView) tRow.findViewById(R.id.fx_row_recent_conversations_name); // find places to fill
+                        EmojiconTextView tTvLastMessage = (EmojiconTextView) tRow.findViewById(R.id.fx_row_recent_conversations_last_message);
+                        TextView tTvTimestamp = (TextView) tRow.findViewById(R.id.fx_row_recent_conversations_timestamp);
+                        RoundedImageView tIvPicture = (RoundedImageView) tRow.findViewById(R.id.fx_row_recent_conversations_picture);
 
-                boolean _Error = false;
-
-                String _FileSize = null;
-                String _Info = null;
-
-                boolean _Received = false;
-                boolean _Read = false;
-
-                if (tMessage.getType() == Message.TYPE_IMAGE || tMessage.getType() == Message.TYPE_FILE || tMessage.getTransferable() != null) { // we have a image or a file, so do something with this
-                    if (tMessage.getFileParams().size > (1024 * 1024))
-                        _FileSize = tMessage.getFileParams().size / (1024 * 1024) + " MB";
-                    else if (tMessage.getFileParams().size > 0)
-                        _FileSize = tMessage.getFileParams().size / 1024 + " KB";
-                    if (tMessage.getTransferable() != null && tMessage.getTransferable().getStatus() == Transferable.STATUS_FAILED)
-                        _Error = true; // something wen't wrong in the backend, let's tell the user
-                }
-
-                if (tMessage.getMergedStatus() == Message.STATUS_WAITING)
-                    _Info = getResources().getString(R.string.waiting);
-                if (tMessage.getMergedStatus() == Message.STATUS_UNSEND) {
-                    if (tMessage.getTransferable() != null)
-                        _Info = getResources().getString(R.string.sending_file, tMessage.getTransferable().getProgress());
-                    else _Info = getResources().getString(R.string.sending);
-                }
-                if (tMessage.getMergedStatus() == Message.STATUS_OFFERED)
-                    _Info = getResources().getString(R.string.offering);
-                if (tMessage.getMergedStatus() == Message.STATUS_SEND_RECEIVED) {
-                    _Received = true;
-                }
-                if (tMessage.getMergedStatus() == Message.STATUS_SEND_DISPLAYED) {
-                    _Received = true;
-                    _Read = true;
-                }
-                if (tMessage.getMergedStatus() == Message.STATUS_SEND_FAILED) {
-                    _Info = getResources().getString(R.string.send_failed);
-                    _Error = true;
-                }
-                if (_Info == null) _Info = UIHelper.getMessageDisplayName(tMessage);
-
-                if (_Error) {
-                    Log.e(TAG, "ERROR IN [ refreshFxUi ] STATE [ SINGLE_CONVERSATION ]");
-                    continue; // error, do not show
-                }
-
-                View tRow = null;
-
-                switch (tMessage.getType()) {
-                    case Message.TYPE_TEXT:
-                        if (FxUiHelper.isMessageReceived(tMessage))
-                            tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_text, mLayout, false);
+                        if (Conversation.MODE_SINGLE == tConversation.getMode() || useSubjectToIdentifyConference())
+                            tTvName.setText(tConversation.getName()); // set conversation title or
                         else
-                            tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_text, mLayout, false);
-                        ((EmojiconTextView) tRow.findViewById(R.id.message_text)).setText(tMessage.getBody());
-                        break;
-                    case Message.TYPE_IMAGE:
-                        tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_image, mLayout, false);
-                        loadBitmap(tMessage, (ImageView) tRow.findViewById(R.id.message_image));
-                        break;
-                    case Message.TYPE_FILE:
-                        if (tMessage.getFileParams().width > 0) { // is it an image?
-                            tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_image, mLayout, false); // then... show it
-                            loadBitmap(tMessage, (ImageView) tRow.findViewById(R.id.message_image));
-                        } else if (tMessage.getMimeType() != null && tMessage.getMimeType().startsWith("audio/")) {
-                            if (FxUiHelper.isMessageReceived(tMessage))
-                                tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_audio, mLayout, false);
+                            tTvName.setText(tConversation.getJid().toBareJid().toString()); // name of user
+
+                        if (ChatState.COMPOSING.equals(tConversation.getIncomingChatState()))
+                            tTvLastMessage.setText(R.string.contact_is_typing); // contact is typing or
+                        else
+                            tTvLastMessage.setText(tConversation.getLatestMessage().getBody()); // last message
+
+                        FxUiHelper.loadAvatar(tConversation, tIvPicture, 66); // load the avatar from backend, 66dp width
+
+                        tTvTimestamp.setText(UIHelper.readableTimeDifference(App, tConversation.getLatestMessage().getTimeSent())); // create and set timestamp
+
+                        tRow.findViewById(R.id.fx_row_recent_conversations_container).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // [[ TODO: OPEN CHAT PANE WITH ANIMATION ]]
+                                dConversation = tConversation; // set "current" conversation
+                                refreshFxUi(State.SINGLE_CONVERSATION, true);
+                            }
+                        });
+
+                        mLayout.addView(tRow); // add the row to the view tree
+                    }
+                } else if (State.SINGLE_CONVERSATION == mFxState) { // show a conversation, yay this will become complicated :/
+                    if (getSupportActionBar() != null) {
+                        getSupportActionBar().setTitle(dConversation.getName()); // real title: FlowX
+                        if (dConversation.getMode() == Conversation.MODE_SINGLE) {
+                            if (dConversation.getIncomingChatState() == ChatState.COMPOSING)
+                                getSupportActionBar().setSubtitle(R.string.contact_is_typing);
+                            else if (dConversation.getIncomingChatState() == ChatState.PAUSED)
+                                getSupportActionBar().setSubtitle(R.string.contact_has_stopped_typing);
                             else
-                                tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_audio, mLayout, false);
-                            AudioWife _AudioPlayer = new AudioWife();
-                            RelativeLayout _AudioPlayerViewGroup = new RelativeLayout(this);
-                            _AudioPlayer.init(this, Uri.fromFile(xmppConnectionService.getFileBackend().getFile(tMessage)));
-                            _AudioPlayer.useDefaultUi(_AudioPlayerViewGroup, getLayoutInflater());
-                            ((LinearLayout) tRow.findViewById(R.id.message_audio)).addView(_AudioPlayer.getPlayerUi());
+                                getSupportActionBar().setSubtitle(UIHelper.lastseen(App, dConversation.getContact().lastseen.time));
+                        } else if (useSubjectToIdentifyConference())
+                            getSupportActionBar().setSubtitle((dConversation.getParticipants() == null ? "-" : dConversation.getParticipants()));
+
+                        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                    }
+
+                    ArrayList<Message> tMessages = new ArrayList<>();
+                    dConversation.populateWithMessages(tMessages);
+
+                    for (int i = 0; i < tMessages.size(); i++) {
+                        if (tMessages.size() - 30 > i)
+                            continue; // show the last 30 messages... more coming soon
+
+                        final Message tMessage = tMessages.get(i); // #finalie
+
+                        boolean _Error = false;
+
+                        String _FileSize = null;
+                        String _Info = null;
+
+                        boolean _Received = false;
+                        boolean _Read = false;
+
+                        if (tMessage.getType() == Message.TYPE_IMAGE || tMessage.getType() == Message.TYPE_FILE || tMessage.getTransferable() != null) { // we have a image or a file, so do something with this
+                            if (tMessage.getFileParams().size > (1024 * 1024))
+                                _FileSize = tMessage.getFileParams().size / (1024 * 1024) + " MB";
+                            else if (tMessage.getFileParams().size > 0)
+                                _FileSize = tMessage.getFileParams().size / 1024 + " KB";
+                            if (tMessage.getTransferable() != null && tMessage.getTransferable().getStatus() == Transferable.STATUS_FAILED)
+                                _Error = true; // something wen't wrong in the backend, let's tell the user
                         }
-                        break;
+
+                        if (tMessage.getMergedStatus() == Message.STATUS_WAITING)
+                            _Info = getResources().getString(R.string.waiting);
+                        if (tMessage.getMergedStatus() == Message.STATUS_UNSEND) {
+                            if (tMessage.getTransferable() != null)
+                                _Info = getResources().getString(R.string.sending_file, tMessage.getTransferable().getProgress());
+                            else _Info = getResources().getString(R.string.sending);
+                        }
+                        if (tMessage.getMergedStatus() == Message.STATUS_OFFERED)
+                            _Info = getResources().getString(R.string.offering);
+                        if (tMessage.getMergedStatus() == Message.STATUS_SEND_RECEIVED) {
+                            _Received = true;
+                        }
+                        if (tMessage.getMergedStatus() == Message.STATUS_SEND_DISPLAYED) {
+                            _Received = true;
+                            _Read = true;
+                        }
+                        if (tMessage.getMergedStatus() == Message.STATUS_SEND_FAILED) {
+                            _Info = getResources().getString(R.string.send_failed);
+                            _Error = true;
+                        }
+                        if (_Info == null) _Info = UIHelper.getMessageDisplayName(tMessage);
+
+                        if (_Error) {
+                            Log.e(TAG, "ERROR IN [ refreshFxUi ] STATE [ SINGLE_CONVERSATION ]");
+                            continue; // error, do not show
+                        }
+
+                        View tRow = null;
+
+                        switch (tMessage.getType()) {
+                            case Message.TYPE_TEXT:
+                                if (FxUiHelper.isMessageReceived(tMessage))
+                                    tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_text, mLayout, false);
+                                else
+                                    tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_text, mLayout, false);
+                                ((EmojiconTextView) tRow.findViewById(R.id.message_text)).setText(tMessage.getBody());
+                                break;
+                            case Message.TYPE_IMAGE:
+                                tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_image, mLayout, false);
+                                loadBitmap(tMessage, (ImageView) tRow.findViewById(R.id.message_image));
+                                break;
+                            case Message.TYPE_FILE:
+                                if (tMessage.getFileParams().width > 0) { // is it an image?
+                                    tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_image, mLayout, false); // then... show it
+                                    loadBitmap(tMessage, (ImageView) tRow.findViewById(R.id.message_image));
+                                } else if (tMessage.getMimeType() != null && tMessage.getMimeType().startsWith("audio/")) {
+                                    if (FxUiHelper.isMessageReceived(tMessage))
+                                        tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_audio, mLayout, false);
+                                    else
+                                        tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_audio, mLayout, false);
+                                    AudioWife _AudioPlayer = new AudioWife();
+                                    RelativeLayout _AudioPlayerViewGroup = new RelativeLayout(App);
+                                    _AudioPlayer.init(App, Uri.fromFile(xmppConnectionService.getFileBackend().getFile(tMessage)));
+                                    _AudioPlayer.useDefaultUi(_AudioPlayerViewGroup, getLayoutInflater());
+                                    ((LinearLayout) tRow.findViewById(R.id.message_audio)).addView(_AudioPlayer.getPlayerUi());
+                                }
+                                break;
+                        }
+
+                        if (tRow == null)
+                            continue; //hm nothing was inflated, why we should go on...
+
+                        String _Time = UIHelper.readableTimeDifference(App, tMessage.getMergedTimeSent());
+
+                        EmojiconTextView tMessageInfo = (EmojiconTextView) tRow.findViewById(R.id.message_information);
+
+                        if (tMessage.getMergedStatus() <= Message.STATUS_RECEIVED) {
+                            if (_FileSize != null && _Info != null)
+                                tMessageInfo.setText(_Time + " \u00B7 " + _FileSize + " \u00B7 " + _Info);
+                            else if (_FileSize == null && _Info != null)
+                                tMessageInfo.setText(_Time + " \u00B7 " + _Info);
+                            else if (_FileSize != null)
+                                tMessageInfo.setText(_Time + " \u00B7 " + _FileSize);
+                            else tMessageInfo.setText(_Time);
+                        } else {
+                            if (_FileSize != null && _Info != null)
+                                tMessageInfo.setText(_FileSize + " \u00B7 " + _Info);
+                            else if (_FileSize == null && _Info != null)
+                                tMessageInfo.setText(_Info + " \u00B7 " + _Time);
+                            else if (_FileSize != null)
+                                tMessageInfo.setText(_FileSize + " \u00B7 " + _Time);
+                            else tMessageInfo.setText(_Time);
+                        }
+
+                        if (tRow.findViewById(R.id.message_received) != null) if (!_Received)
+                            tRow.findViewById(R.id.message_received).setVisibility(View.GONE);
+                        if (tRow.findViewById(R.id.message_read) != null) if (!_Read)
+                            tRow.findViewById(R.id.message_read).setVisibility(View.GONE);
+
+                        if (tMessage.getEncryption() == Message.ENCRYPTION_NONE)
+                            tRow.findViewById(R.id.message_security).setVisibility(View.GONE);
+
+                        mLayout.addView(tRow);
+                    }
+
+                    mScroll.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mScroll.scrollTo(0, mScroll.getBottom()); // Scroll down =3
+                        }
+                    });
+
+                    if (change)
+                        mFooter.addView(getLayoutInflater().inflate(R.layout.fx_msg_input, mFooter, false));
                 }
 
-                if (tRow == null) continue; //hm nothing was inflated, why we should go on...
-
-                String _Time = UIHelper.readableTimeDifference(this, tMessage.getMergedTimeSent());
-
-                EmojiconTextView tMessageInfo = (EmojiconTextView) tRow.findViewById(R.id.message_information);
-
-                if (tMessage.getMergedStatus() <= Message.STATUS_RECEIVED) {
-                    if (_FileSize != null && _Info != null)
-                        tMessageInfo.setText(_Time + " \u00B7 " + _FileSize + " \u00B7 " + _Info);
-                    else if (_FileSize == null && _Info != null)
-                        tMessageInfo.setText(_Time + " \u00B7 " + _Info);
-                    else if (_FileSize != null)
-                        tMessageInfo.setText(_Time + " \u00B7 " + _FileSize);
-                    else tMessageInfo.setText(_Time);
-                } else {
-                    if (_FileSize != null && _Info != null)
-                        tMessageInfo.setText(_FileSize + " \u00B7 " + _Info);
-                    else if (_FileSize == null && _Info != null)
-                        tMessageInfo.setText(_Info + " \u00B7 " + _Time);
-                    else if (_FileSize != null)
-                        tMessageInfo.setText(_FileSize + " \u00B7 " + _Time);
-                    else tMessageInfo.setText(_Time);
+                if (change && animate) {
+                    Log.i(TAG, "ANIMATION TO ALPHA:1 [ refreshFxUi ]");
+                    mParent.animate().alpha(1).setDuration(200).setStartDelay(50).start();
                 }
-
-                if (tRow.findViewById(R.id.message_received) != null) if (!_Received)
-                    tRow.findViewById(R.id.message_received).setVisibility(View.GONE);
-                if (tRow.findViewById(R.id.message_read) != null) if (!_Read)
-                    tRow.findViewById(R.id.message_read).setVisibility(View.GONE);
-
-                if (tMessage.getEncryption() == Message.ENCRYPTION_NONE)
-                    tRow.findViewById(R.id.message_security).setVisibility(View.GONE);
-
-                mLayout.addView(tRow);
             }
-
-            mScroll.post(new Runnable() {
-                @Override
-                public void run() {
-                    mScroll.fullScroll(ScrollView.FOCUS_DOWN); // Scroll down =3
-                }
-            });
-
-            if (change)
-                mFooter.addView(getLayoutInflater().inflate(R.layout.fx_msg_input, mFooter, false));
-        }
-
-        if (change && animate) {
-            // [[ TODO: ANIMATION CODE HERE ]]
-        }
+        }, (change && animate ? 250 : 0));
     }
 
     @Override
