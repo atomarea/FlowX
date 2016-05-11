@@ -106,7 +106,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     @Override
     protected void refreshUiReal() {
-        Log.i(TAG, "backend requested ui refresh");
+        Log.i(TAG, "BACKEND UI REQUEST [ refreshUiReal ]");
         if (!backendConnected)
             return; // if the backend isn't connected yet, this function can't run
         // refreshFxUi(); // should happen later only if needed, not needed yet
@@ -116,7 +116,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     @Override
     void onBackendConnected() {
-        Log.i(TAG, "backend connected");
+        Log.i(TAG, "BACKEND CONNECTED [ onBackendConnected ]");
         backendConnected = true; // backend is now connected
 
         if (mFxState == State.STARTUP) // after startup
@@ -138,7 +138,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     }
 
     public void refreshFxUi(State toState, boolean animate) {
-        Log.i(TAG, "refresh fxui state");
+        Log.i(TAG, "UI STATE REFRESH [ refreshFxUi ]");
 
         //State fromState = mFxState;
 
@@ -320,6 +320,6 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     }
 
     public void fxClickSendButton(View v) {
-        //Log.i(TAG, "message will be sent...");
+        Log.i(TAG, "SEND MESSAGE [ fxClickSendButton ]");
     }
 }
