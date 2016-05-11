@@ -26,6 +26,7 @@ import net.atomarea.flowx.xmpp.chatstate.ChatState;
 
 import java.util.ArrayList;
 
+import github.ankushsachdeva.emojicon.EmojiconEditText;
 import github.ankushsachdeva.emojicon.EmojiconTextView;
 
 /**
@@ -58,14 +59,14 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     private State mFxState;
 
-    private Conversation dConversation;
+    public Conversation dConversation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fx_base_layout); // load layout from xml (base layout)
 
-        Log.i(TAG, "=== [ FlowX Main UI ] ===");
+        Log.i(TAG, "=== [ FLOWX MAIN UI ] ===");
 
         App = this; // static context <3
 
@@ -209,6 +210,9 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 String _FileSize = null;
                 String _Info = null;
 
+                boolean _Received = false;
+                boolean _Read = false;
+
                 if (tMessage.getType() == Message.TYPE_IMAGE || tMessage.getType() == Message.TYPE_FILE || tMessage.getTransferable() != null) { // we have a image or a file, so do something with this
                     if (tMessage.getFileParams().size > (1024 * 1024))
                         _FileSize = tMessage.getFileParams().size / (1024 * 1024) + " MB";
@@ -228,10 +232,11 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 if (tMessage.getMergedStatus() == Message.STATUS_OFFERED)
                     _Info = getResources().getString(R.string.offering);
                 if (tMessage.getMergedStatus() == Message.STATUS_SEND_RECEIVED) {
-                    _Info = "RECEIVED"; // [[ TODO: INDICATOR ]]
+                    _Received = true;
                 }
                 if (tMessage.getMergedStatus() == Message.STATUS_SEND_DISPLAYED) {
-                    _Info = "DISPLAYED"; // [[ TODO: INDICATOR ]]
+                    _Received = true;
+                    _Read = true;
                 }
                 if (tMessage.getMergedStatus() == Message.STATUS_SEND_FAILED) {
                     _Info = getResources().getString(R.string.send_failed);
@@ -239,7 +244,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 }
                 if (_Info == null) _Info = UIHelper.getMessageDisplayName(tMessage);
 
-                if (_Error) continue; // error, do not show
+                if (_Error) {
+                    Log.e(TAG, "ERROR IN [ refreshFxUi ] STATE [ SINGLE_CONVERSATION ]");
+                    continue; // error, do not show
+                }
 
                 View tRow = null;
 
@@ -257,7 +265,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                         break;
                     case Message.TYPE_FILE:
                         if (tMessage.getFileParams().width > 0) { // is it an image?
-                            tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_image, mLayout, false);
+                            tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_image, mLayout, false); // then... show it
                             loadBitmap(tMessage, (ImageView) tRow.findViewById(R.id.message_image));
                         }
                         break;
@@ -287,8 +295,20 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                     else tMessageInfo.setText(_Time);
                 }
 
+                if (tRow.findViewById(R.id.message_received) != null) if (!_Received)
+                    tRow.findViewById(R.id.message_received).setVisibility(View.GONE);
+                if (tRow.findViewById(R.id.message_read) != null) if (!_Read)
+                    tRow.findViewById(R.id.message_read).setVisibility(View.GONE);
+
                 mLayout.addView(tRow);
             }
+
+            mScroll.post(new Runnable() {
+                @Override
+                public void run() {
+                    mScroll.fullScroll(ScrollView.FOCUS_DOWN); // Scroll down =3
+                }
+            });
 
             mFooter.addView(getLayoutInflater().inflate(R.layout.fx_msg_input, mFooter, false));
         }
@@ -321,5 +341,6 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     public void fxClickSendButton(View v) {
         Log.i(TAG, "SEND MESSAGE [ fxClickSendButton ]");
+        FxUiHelper.sendMessage((EmojiconEditText) findViewById(R.id.message_input), dConversation, this); // let's send the text (!) message
     }
 }

@@ -65,7 +65,7 @@ public final class Config {
     public static final int IMAGE_QUALITY = 80;
     public static final int IMAGE_MAX_SIZE = 524288; //512KiB
 
-    public static final int MESSAGE_MERGE_WINDOW = 20;
+    public static final int MESSAGE_MERGE_WINDOW = 1; // don't group messages...
 
     public static final int PAGE_SIZE = 50;
     public static final int MAX_NUM_PAGES = 3;
