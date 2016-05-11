@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -92,11 +93,6 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         mFxLogo = (ImageView) findViewById(R.id.fx_logo);
         mFxLogoParent = (RelativeLayout) findViewById(R.id.fx_logo_parent);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false); // prevent "back" arrow from showing
-            getSupportActionBar().setTitle(R.string.app_name); // real title: FlowX
-        }
-
         mParent.setAlpha(0f); // set alpha value on main layout
 
         mFxLogo.setScaleX(0); // scale logo to 0, not visible
@@ -159,6 +155,12 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         if (change) mFooter.removeAllViews(); // only remove footer when state changes
 
         if (State.RECENT_CONVERSATIONS == mFxState) { // cause we're showing a loading screen (or something like this), we can load everything into the ram... or at least generate everything and let android manage it properly
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(R.string.app_name); // real title: FlowX
+                getSupportActionBar().setSubtitle(null);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            }
+
             ArrayList<Conversation> tConversationList = new ArrayList<>();
             xmppConnectionService.populateWithOrderedConversations(tConversationList); // load all recent conversations
 
@@ -198,6 +200,21 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 mLayout.addView(tRow); // add the row to the view tree
             }
         } else if (State.SINGLE_CONVERSATION == mFxState) { // show a conversation, yay this will become complicated :/
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(dConversation.getName()); // real title: FlowX
+                if (dConversation.getMode() == Conversation.MODE_SINGLE) {
+                    if (dConversation.getIncomingChatState() == ChatState.COMPOSING)
+                        getSupportActionBar().setSubtitle(R.string.contact_is_typing);
+                    else if (dConversation.getIncomingChatState() == ChatState.PAUSED)
+                        getSupportActionBar().setSubtitle(R.string.contact_has_stopped_typing);
+                    else
+                        getSupportActionBar().setSubtitle(UIHelper.lastseen(this, dConversation.getContact().lastseen.time));
+                } else if (useSubjectToIdentifyConference())
+                    getSupportActionBar().setSubtitle((dConversation.getParticipants() == null ? "-" : dConversation.getParticipants()));
+                
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+
             ArrayList<Message> tMessages = new ArrayList<>();
             dConversation.populateWithMessages(tMessages);
 
@@ -340,6 +357,15 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         else {
             refreshFxUi(State.RECENT_CONVERSATIONS, true);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
