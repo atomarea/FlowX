@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:emojicon="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="end"
+    android:layout_marginBottom="2dp"
+    android:layout_marginLeft="5dp"
+    android:layout_marginRight="5dp"
+    android:layout_marginTop="2dp"
+    android:background="@drawable/msg_bbl_sent"
+    android:elevation="1dp"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <github.ankushsachdeva.emojicon.EmojiconTextView
+        android:id="@+id/message_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:autoLink="all"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        emojicon:emojiconSize="24sp" />
+
+    <include layout="@layout/fx_msg_sent__footer" />
+
+</LinearLayout>

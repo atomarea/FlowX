@@ -9,6 +9,7 @@ import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
 import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.utils.UIHelper;
 
 import java.lang.ref.WeakReference;
@@ -106,6 +107,10 @@ public class FxUiHelper {
     public static int getPixel(int dp) {
         DisplayMetrics metrics = FxUi.App.getResources().getDisplayMetrics();
         return ((int) (dp * metrics.density));
+    }
+
+    public static boolean isMessageReceived(Message m) {
+        return m.getType() != Message.TYPE_STATUS && m.getStatus() <= Message.STATUS_RECEIVED;
     }
 
 }

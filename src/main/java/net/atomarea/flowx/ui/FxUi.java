@@ -18,6 +18,8 @@ import com.makeramen.roundedimageview.RoundedImageView;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
@@ -84,8 +86,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         mFxLogo = (ImageView) findViewById(R.id.fx_logo);
         mFxLogoParent = (RelativeLayout) findViewById(R.id.fx_logo_parent);
 
-        if (getSupportActionBar() != null)
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false); // prevent "back" arrow from showing
+            getSupportActionBar().setTitle(R.string.app_name); // real title: FlowX
+        }
 
         mParent.setAlpha(0f); // set alpha value on main layout
 
@@ -186,6 +190,99 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
                 mLayout.addView(tRow); // add the row to the view tree
             }
+        } else if (State.SINGLE_CONVERSATION == mFxState) { // show a conversation, yay this will become complicated :/
+            ArrayList<Message> tMessages = new ArrayList<>();
+            dConversation.populateWithMessages(tMessages);
+
+            for (int i = 0; i < tMessages.size(); i++) {
+                if (tMessages.size() - 30 > i)
+                    continue; // show the last 30 messages... more coming soon
+
+                final Message tMessage = tMessages.get(i); // #finalie
+
+                boolean _Error = false;
+
+                String _FileSize = null;
+                String _Info = null;
+
+                if (tMessage.getType() == Message.TYPE_IMAGE || tMessage.getType() == Message.TYPE_FILE || tMessage.getTransferable() != null) { // we have a image or a file, so do something with this
+                    if (tMessage.getFileParams().size > (1024 * 1024))
+                        _FileSize = tMessage.getFileParams().size / (1024 * 1024) + " MB";
+                    else if (tMessage.getFileParams().size > 0)
+                        _FileSize = tMessage.getFileParams().size / 1024 + " KB";
+                    if (tMessage.getTransferable() != null && tMessage.getTransferable().getStatus() == Transferable.STATUS_FAILED)
+                        _Error = true; // something wen't wrong in the backend, let's tell the user
+                }
+
+                if (tMessage.getMergedStatus() == Message.STATUS_WAITING)
+                    _Info = getResources().getString(R.string.waiting);
+                if (tMessage.getMergedStatus() == Message.STATUS_UNSEND) {
+                    if (tMessage.getTransferable() != null)
+                        _Info = getResources().getString(R.string.sending_file, tMessage.getTransferable().getProgress());
+                    else _Info = getResources().getString(R.string.sending);
+                }
+                if (tMessage.getMergedStatus() == Message.STATUS_OFFERED)
+                    _Info = getResources().getString(R.string.offering);
+                if (tMessage.getMergedStatus() == Message.STATUS_SEND_RECEIVED) {
+                    _Info = "RECEIVED"; // [[ TODO: INDICATOR ]]
+                }
+                if (tMessage.getMergedStatus() == Message.STATUS_SEND_DISPLAYED) {
+                    _Info = "DISPLAYED"; // [[ TODO: INDICATOR ]]
+                }
+                if (tMessage.getMergedStatus() == Message.STATUS_SEND_FAILED) {
+                    _Info = getResources().getString(R.string.send_failed);
+                    _Error = true;
+                }
+                if (_Info == null) _Info = UIHelper.getMessageDisplayName(tMessage);
+
+                View tRow = null;
+
+                switch (tMessage.getType()) {
+                    case Message.TYPE_TEXT:
+                        if (FxUiHelper.isMessageReceived(tMessage))
+                            tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_text, mLayout, false);
+                        else
+                            tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_text, mLayout, false);
+                        ((EmojiconTextView) tRow.findViewById(R.id.message_text)).setText(tMessage.getBody());
+                        break;
+                    case Message.TYPE_IMAGE:
+                        tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_image, mLayout, false);
+                        loadBitmap(tMessage, (ImageView) tRow.findViewById(R.id.message_image));
+                        break;
+                    case Message.TYPE_FILE:
+                        if (tMessage.getFileParams().width > 0) { // is it an image?
+                            tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_image, mLayout, false);
+                            loadBitmap(tMessage, (ImageView) tRow.findViewById(R.id.message_image));
+                        }
+                        break;
+                }
+
+                if (tRow == null) continue; //hm nothing was inflated, why we should go on...
+
+                String _Time = UIHelper.readableTimeDifference(this, tMessage.getMergedTimeSent());
+
+                EmojiconTextView tMessageInfo = (EmojiconTextView) tRow.findViewById(R.id.message_information);
+
+                if (tMessage.getMergedStatus() <= Message.STATUS_RECEIVED) {
+                    if (_FileSize != null && _Info != null)
+                        tMessageInfo.setText(_Time + " \u00B7 " + _FileSize + " \u00B7 " + _Info);
+                    else if (_FileSize == null && _Info != null)
+                        tMessageInfo.setText(_Time + " \u00B7 " + _Info);
+                    else if (_FileSize != null)
+                        tMessageInfo.setText(_Time + " \u00B7 " + _FileSize);
+                    else tMessageInfo.setText(_Time);
+                } else {
+                    if (_FileSize != null && _Info != null)
+                        tMessageInfo.setText(_FileSize + " \u00B7 " + _Info);
+                    else if (_FileSize == null && _Info != null)
+                        tMessageInfo.setText(_Info + " \u00B7 " + _Time);
+                    else if (_FileSize != null)
+                        tMessageInfo.setText(_FileSize + " \u00B7 " + _Time);
+                    else tMessageInfo.setText(_Time);
+                }
+
+                mLayout.addView(tRow);
+            }
         }
 
         if (change && animate) {
@@ -197,7 +294,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     public void onBackPressed() {
         if (mFxState == State.RECENT_CONVERSATIONS) super.onBackPressed();
         else {
-
+            refreshFxUi(State.RECENT_CONVERSATIONS, true);
         }
     }
 
