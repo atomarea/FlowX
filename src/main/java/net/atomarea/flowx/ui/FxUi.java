@@ -64,12 +64,18 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     public Conversation dConversation;
 
+    private boolean InStateRefresh;
+    private boolean StateRefreshQueued;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fx_base_layout); // load layout from xml (base layout)
 
         Log.i(TAG, "=== [ FLOWX MAIN UI ] ===");
+
+        InStateRefresh = false;
+        StateRefreshQueued = false;
 
         App = this; // static context <3
 
@@ -137,6 +143,12 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     }
 
     public void refreshFxUi(State toState, final boolean animate) {
+        if (InStateRefresh) {
+            StateRefreshQueued = true;
+            return;
+        }
+        InStateRefresh = true;
+
         Log.i(TAG, "UI STATE REFRESH [ refreshFxUi ]");
 
         //State fromState = mFxState;
@@ -155,7 +167,8 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.i(TAG, "WORKING [ refreshFxUi ]");
+                long workStart = System.currentTimeMillis();
+
                 mLayout.removeAllViews(); // bye views, won't need you anymore
                 if (change) mFooter.removeAllViews(); // only remove footer when state changes
 
@@ -352,10 +365,23 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                         mFooter.addView(getLayoutInflater().inflate(R.layout.fx_msg_input, mFooter, false));
                 }
 
+                Log.i(TAG, "WORK DONE ( " + (System.currentTimeMillis() - workStart) + "ms ) [ refreshFxUi ]");
+
                 if (change && animate) {
                     Log.i(TAG, "ANIMATION TO ALPHA:1 [ refreshFxUi ]");
-                    mParent.animate().alpha(1).setDuration(200).setStartDelay(50).start();
+                    mParent.animate().alpha(1).setDuration(200).start();
                 }
+
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        InStateRefresh = false;
+                        if (StateRefreshQueued) {
+                            StateRefreshQueued = false;
+                            refreshFxUi(mFxState, false);
+                        }
+                    }
+                }, (change && animate ? 250 : 0));
             }
         }, (change && animate ? 250 : 0));
     }
