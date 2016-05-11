@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/fx_parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,7 +14,9 @@
         <ScrollView
             android:id="@+id/fx_main_scroll"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:layout_above="@+id/fx_main_footer"
+            android:layout_below="@+id/fx_toolbar">
 
             <LinearLayout
                 android:id="@+id/fx_main_layout"
@@ -25,7 +27,14 @@
             </LinearLayout>
         </ScrollView>
 
-    </LinearLayout>
+        <LinearLayout
+            android:id="@+id/fx_main_footer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical" />
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/fx_logo_parent"

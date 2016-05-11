@@ -48,7 +48,8 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     private Handler mHandler;
     private ScrollView mScroll;
     private LinearLayout mLayout;
-    private LinearLayout mParent;
+    private RelativeLayout mParent;
+    private LinearLayout mFooter;
 
     private ImageView mFxLogo;
     private RelativeLayout mFxLogoParent;
@@ -81,7 +82,9 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         mScroll = (ScrollView) findViewById(R.id.fx_main_scroll); // find other necessary view's
         mLayout = (LinearLayout) findViewById(R.id.fx_main_layout);
 
-        mParent = (LinearLayout) findViewById(R.id.fx_parent);
+        mParent = (RelativeLayout) findViewById(R.id.fx_parent);
+
+        mFooter = (LinearLayout) findViewById(R.id.fx_main_footer);
 
         mFxLogo = (ImageView) findViewById(R.id.fx_logo);
         mFxLogoParent = (RelativeLayout) findViewById(R.id.fx_logo_parent);
@@ -150,6 +153,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         if (change) mFxState = toState;
 
         mLayout.removeAllViews(); // bye views, won't need you anymore
+        mFooter.removeAllViews();
 
         if (State.RECENT_CONVERSATIONS == mFxState) { // cause we're showing a loading screen (or something like this), we can load everything into the ram... or at least generate everything and let android manage it properly
             ArrayList<Conversation> tConversationList = new ArrayList<>();
@@ -235,6 +239,8 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 }
                 if (_Info == null) _Info = UIHelper.getMessageDisplayName(tMessage);
 
+                if (_Error) continue; // error, do not show
+
                 View tRow = null;
 
                 switch (tMessage.getType()) {
@@ -283,6 +289,8 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
                 mLayout.addView(tRow);
             }
+
+            mFooter.addView(getLayoutInflater().inflate(R.layout.fx_msg_input, mFooter, false));
         }
 
         if (change && animate) {
@@ -305,5 +313,13 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     public enum State {
         STARTUP, RECENT_CONVERSATIONS, SINGLE_CONVERSATION, CONTACTS, GROUPS
+    }
+
+    public void fxClickEmojiButton(View v) {
+
+    }
+
+    public void fxClickSendButton(View v) {
+        //Log.i(TAG, "message will be sent...");
     }
 }
