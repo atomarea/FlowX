@@ -1,10 +1,14 @@
 package net.atomarea.flowx.ui;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -18,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.makeramen.roundedimageview.RoundedImageView;
 
@@ -80,6 +85,19 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fx_base_layout); // load layout from xml (base layout)
 
+        if (Build.VERSION.SDK_INT >= 23) {
+            Log.i(TAG, "=== [ FLOWX PERMISSION CHECKER ] ===");
+            if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.RECORD_AUDIO,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                }, 1337);
+            }
+        }
+
         Log.i(TAG, "=== [ FLOWX MAIN UI ] ===");
 
         InStateRefresh = false;
@@ -115,6 +133,18 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         mFxLogo.animate().scaleX(1).scaleY(1).setStartDelay(100).setDuration(200).setInterpolator(new DecelerateInterpolator()).start(); // start logo animation -> 1x1 in scale, visible
 
         // [[ wait for backend... @ onBackendConnected() ]]
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 1337) {
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED)
+                    Toast.makeText(this, "We need the permission. Please enable it manually in settings.", Toast.LENGTH_LONG).show();
+            }
+            return;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
