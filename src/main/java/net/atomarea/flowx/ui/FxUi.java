@@ -242,6 +242,8 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
                         final Message tMessage = tMessages.get(i); // #finalie
 
+                        boolean GroupConversation = tMessage.getConversation().getMode() == Conversation.MODE_MULTI && tMessage.getMergedStatus() <= Message.STATUS_RECEIVED;
+
                         boolean _Error = false;
 
                         String _FileSize = null;
@@ -326,17 +328,17 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                         EmojiconTextView tMessageInfo = (EmojiconTextView) tRow.findViewById(R.id.message_information);
 
                         if (tMessage.getMergedStatus() <= Message.STATUS_RECEIVED) {
-                            if (_FileSize != null && _Info != null)
+                            if (_FileSize != null && _Info != null && GroupConversation)
                                 tMessageInfo.setText(_Time + " \u00B7 " + _FileSize + " \u00B7 " + _Info);
-                            else if (_FileSize == null && _Info != null)
+                            else if (_FileSize == null && _Info != null && GroupConversation)
                                 tMessageInfo.setText(_Time + " \u00B7 " + _Info);
                             else if (_FileSize != null)
                                 tMessageInfo.setText(_Time + " \u00B7 " + _FileSize);
                             else tMessageInfo.setText(_Time);
                         } else {
-                            if (_FileSize != null && _Info != null)
+                            if (_FileSize != null && _Info != null && GroupConversation)
                                 tMessageInfo.setText(_FileSize + " \u00B7 " + _Info);
-                            else if (_FileSize == null && _Info != null)
+                            else if (_FileSize == null && _Info != null && GroupConversation)
                                 tMessageInfo.setText(_Info + " \u00B7 " + _Time);
                             else if (_FileSize != null)
                                 tMessageInfo.setText(_FileSize + " \u00B7 " + _Time);
