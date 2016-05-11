@@ -75,6 +75,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     private DisplayMetrics metrics;
 
+
+
     private OnLongClickListener openContextMenu = new OnLongClickListener() {
 
         @Override

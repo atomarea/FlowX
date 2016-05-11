@@ -156,7 +156,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         if (change) mFxState = toState;
 
         mLayout.removeAllViews(); // bye views, won't need you anymore
-        mFooter.removeAllViews();
+        if (change) mFooter.removeAllViews(); // only remove footer when state changes
 
         if (State.RECENT_CONVERSATIONS == mFxState) { // cause we're showing a loading screen (or something like this), we can load everything into the ram... or at least generate everything and let android manage it properly
             ArrayList<Conversation> tConversationList = new ArrayList<>();
@@ -312,6 +312,9 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 if (tRow.findViewById(R.id.message_read) != null) if (!_Read)
                     tRow.findViewById(R.id.message_read).setVisibility(View.GONE);
 
+                if (tMessage.getEncryption() == Message.ENCRYPTION_NONE)
+                    tRow.findViewById(R.id.message_security).setVisibility(View.GONE);
+
                 mLayout.addView(tRow);
             }
 
@@ -322,7 +325,8 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 }
             });
 
-            mFooter.addView(getLayoutInflater().inflate(R.layout.fx_msg_input, mFooter, false));
+            if (change)
+                mFooter.addView(getLayoutInflater().inflate(R.layout.fx_msg_input, mFooter, false));
         }
 
         if (change && animate) {
