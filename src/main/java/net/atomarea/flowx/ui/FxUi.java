@@ -1,6 +1,7 @@
 package net.atomarea.flowx.ui;
 
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.Toolbar;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 
 import github.ankushsachdeva.emojicon.EmojiconEditText;
 import github.ankushsachdeva.emojicon.EmojiconTextView;
+import nl.changer.audiowife.AudioWife;
 
 /**
  * Created by Tom on 10.05.2016.
@@ -267,6 +269,16 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                         if (tMessage.getFileParams().width > 0) { // is it an image?
                             tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_image, mLayout, false); // then... show it
                             loadBitmap(tMessage, (ImageView) tRow.findViewById(R.id.message_image));
+                        } else if (tMessage.getMimeType() != null && tMessage.getMimeType().startsWith("audio/")) {
+                            if (FxUiHelper.isMessageReceived(tMessage))
+                                tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_audio, mLayout, false);
+                            else
+                                tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_audio, mLayout, false);
+                            AudioWife _AudioPlayer = new AudioWife();
+                            RelativeLayout _AudioPlayerViewGroup = new RelativeLayout(this);
+                            _AudioPlayer.init(this, Uri.fromFile(xmppConnectionService.getFileBackend().getFile(tMessage)));
+                            _AudioPlayer.useDefaultUi(_AudioPlayerViewGroup, getLayoutInflater());
+                            ((LinearLayout) tRow.findViewById(R.id.message_audio)).addView(_AudioPlayer.getPlayerUi());
                         }
                         break;
                 }
