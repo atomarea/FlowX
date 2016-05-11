@@ -62,6 +62,8 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fx_base_layout); // load layout from xml (base layout)
 
+        Log.i(TAG, "=== [ FlowX Main UI ] ===");
+
         App = this; // static context <3
 
         mFxState = State.STARTUP; // startup...
@@ -169,7 +171,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 else
                     tTvLastMessage.setText(tConversation.getLatestMessage().getBody()); // last message
 
-                FxUiHelper.loadAvatar(tConversation, tIvPicture); // load the avatar from backend
+                FxUiHelper.loadAvatar(tConversation, tIvPicture, 66); // load the avatar from backend, 66dp width
 
                 tTvTimestamp.setText(UIHelper.readableTimeDifference(this, tConversation.getLatestMessage().getTimeSent())); // create and set timestamp
 
@@ -188,6 +190,14 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
         if (change && animate) {
             // [[ TODO: ANIMATION CODE HERE ]]
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mFxState == State.RECENT_CONVERSATIONS) super.onBackPressed();
+        else {
+
         }
     }
 

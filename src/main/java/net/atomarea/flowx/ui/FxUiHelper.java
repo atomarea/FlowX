@@ -19,9 +19,9 @@ import java.util.concurrent.RejectedExecutionException;
  */
 public class FxUiHelper {
 
-    public static void loadAvatar(Conversation conversation, ImageView imageView) {
+    public static void loadAvatar(Conversation conversation, ImageView imageView, int dp) {
         if (cancelPotentialWork(conversation, imageView)) {
-            final Bitmap bm = FxUi.App.avatarService().get(conversation, getPixel(56), true);
+            final Bitmap bm = FxUi.App.avatarService().get(conversation, getPixel(dp), true);
             if (bm != null) {
                 cancelPotentialWork(conversation, imageView);
                 imageView.setImageBitmap(bm);
