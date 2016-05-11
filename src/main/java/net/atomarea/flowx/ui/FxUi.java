@@ -236,8 +236,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                     ArrayList<Message> tMessages = new ArrayList<>();
                     dConversation.populateWithMessages(tMessages);
 
-                    //Log.i(TAG, "x: " + xmppConnectionService.markRead(dConversation)); // mark as read and
-                    xmppConnectionService.sendReadMarker(dConversation); // force refresh to server
+                    xmppConnectionService.sendReadMarker(dConversation); // mark as read and force refresh to server
 
                     for (int i = 0; i < tMessages.size(); i++) {
                         if (tMessages.size() - 30 > i)
