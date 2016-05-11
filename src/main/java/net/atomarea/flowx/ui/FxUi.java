@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -20,7 +21,9 @@ import android.widget.TextView;
 
 import com.makeramen.roundedimageview.RoundedImageView;
 
+import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
+import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Transferable;
@@ -372,7 +375,45 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
                     if (change) {
                         mFooter.addView(getLayoutInflater().inflate(R.layout.fx_msg_input, mFooter, false));
-                        mEmojiKeyboard = FxUiHelper.initEmojiKeyboard(findViewById(R.id.fx_root), App, (EmojiconEditText) findViewById(R.id.message_input));
+                        EditMessage fxMessageInput = (EditMessage) findViewById(R.id.message_input);
+                        mEmojiKeyboard = FxUiHelper.initEmojiKeyboard(findViewById(R.id.fx_root), App, fxMessageInput);
+                        updateSendButton();
+                        fxMessageInput.setKeyboardListener(new EditMessage.KeyboardListener() {
+                            @Override
+                            public boolean onEnterPressed() {
+                                return false;
+                            }
+
+                            @Override
+                            public void onTypingStarted() {
+                                if (dConversation.getAccount().getStatus() == Account.State.ONLINE && dConversation.setOutgoingChatState(ChatState.COMPOSING))
+                                    xmppConnectionService.sendChatState(dConversation);
+                                updateSendButton();
+                            }
+
+                            @Override
+                            public void onTypingStopped() {
+                                if (dConversation.getAccount().getStatus() == Account.State.ONLINE && dConversation.setOutgoingChatState(ChatState.PAUSED))
+                                    xmppConnectionService.sendChatState(dConversation);
+                            }
+
+                            @Override
+                            public void onTextDeleted() {
+                                if (dConversation.getAccount().getStatus() == Account.State.ONLINE && dConversation.setOutgoingChatState(Config.DEFAULT_CHATSTATE))
+                                    xmppConnectionService.sendChatState(dConversation);
+                                updateSendButton();
+                            }
+
+                            @Override
+                            public void onTextChanged() {
+                                updateSendButton();
+                            }
+
+                            @Override
+                            public boolean onTabPressed(boolean repeated) {
+                                return false;
+                            }
+                        });
                     }
                 }
 
@@ -437,6 +478,41 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     public void fxClickSendButton(View v) {
         Log.i(TAG, "SEND MESSAGE [ fxClickSendButton ]");
-        FxUiHelper.sendMessage((EmojiconEditText) findViewById(R.id.message_input), dConversation, this); // let's send the text (!) message
+        if (dSendButtonAction == null) dSendButtonAction = SendButtonAction.TEXT;
+        if (dSendButtonAction == SendButtonAction.TEXT)
+            FxUiHelper.sendMessage((EmojiconEditText) findViewById(R.id.message_input), dConversation, this); // let's send the text (!) message
+    }
+
+    private SendButtonAction dSendButtonAction;
+
+    public void updateSendButton() {
+        EditMessage fxMessageInput = (EditMessage) findViewById(R.id.message_input);
+        if (fxMessageInput.getText().toString().trim().equals("")) { // nothing
+            String setting = getPreferences().getString("quick_action", "voice");
+            if (!setting.equals("none") && UIHelper.receivedLocationQuestion(dConversation.getLatestMessage())) {
+                setting = "location";
+            } else if (setting.equals("recent")) {
+                setting = getPreferences().getString("recently_used_quick_action", "text");
+            }
+            switch (setting) {
+                case "photo":
+                    dSendButtonAction = SendButtonAction.TAKE_PHOTO;
+                    break;
+                case "location":
+                    dSendButtonAction = SendButtonAction.SEND_LOCATION;
+                    break;
+                case "voice":
+                    dSendButtonAction = SendButtonAction.RECORD_VOICE;
+                    break;
+                case "picture":
+                    dSendButtonAction = SendButtonAction.CHOOSE_PICTURE;
+                    break;
+                default:
+                    dSendButtonAction = SendButtonAction.TEXT;
+                    break;
+            }
+        } else
+            dSendButtonAction = SendButtonAction.TEXT;
+        ((ImageButton) findViewById(R.id.message_send)).setImageResource(FxUiHelper.getSendButtonImageResource(dSendButtonAction));
     }
 }

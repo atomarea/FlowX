@@ -11,11 +11,13 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 
+import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.entities.Presence;
 import net.atomarea.flowx.utils.UIHelper;
 
 import java.lang.ref.WeakReference;
@@ -215,6 +217,24 @@ public class FxUiHelper {
         });
 
         return mEmojiKeyboard;
+    }
+
+    public static int getSendButtonImageResource(SendButtonAction action) {
+        switch (action) {
+            case TEXT:
+                return R.drawable.ic_send_text_offline;
+            case TAKE_PHOTO:
+                return R.drawable.ic_send_photo_offline;
+            case RECORD_VOICE:
+                return R.drawable.ic_send_voice_offline;
+            case SEND_LOCATION:
+                return R.drawable.ic_send_location_offline;
+            case CANCEL:
+                return R.drawable.ic_send_cancel_offline;
+            case CHOOSE_PICTURE:
+                return R.drawable.ic_send_picture_offline;
+        }
+        return R.drawable.ic_send_text_offline;
     }
 
 }
