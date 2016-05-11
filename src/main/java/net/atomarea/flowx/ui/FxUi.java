@@ -357,7 +357,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                     mScroll.post(new Runnable() {
                         @Override
                         public void run() {
-                            mScroll.scrollTo(0, mScroll.getBottom()); // Scroll down =3
+                            mScroll.fullScroll(ScrollView.FOCUS_DOWN); // Scroll down =3
                         }
                     });
 
