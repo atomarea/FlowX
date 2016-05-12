@@ -4,11 +4,13 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -230,14 +232,19 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                         TextView tTvTimestamp = (TextView) tRow.findViewById(R.id.fx_row_recent_conversations_timestamp);
                         RoundedImageView tIvPicture = (RoundedImageView) tRow.findViewById(R.id.fx_row_recent_conversations_picture);
 
+                        if (!tConversation.isRead())
+                            tTvLastMessage.setTypeface(null, Typeface.BOLD); // to see whether a conversation is read or not
+
                         if (Conversation.MODE_SINGLE == tConversation.getMode() || useSubjectToIdentifyConference())
                             tTvName.setText(tConversation.getName()); // set conversation title or
                         else
                             tTvName.setText(tConversation.getJid().toBareJid().toString()); // name of user
 
-                        if (ChatState.COMPOSING.equals(tConversation.getIncomingChatState()))
+                        if (ChatState.COMPOSING.equals(tConversation.getIncomingChatState())) {
                             tTvLastMessage.setText(R.string.contact_is_typing); // contact is typing or
-                        else
+                            tTvLastMessage.setTypeface(null, Typeface.BOLD); // nice bold and
+                            tTvLastMessage.setTextColor(ContextCompat.getColor(App, R.color.green500)); // green text
+                        } else
                             tTvLastMessage.setText(tConversation.getLatestMessage().getBody()); // last message
 
                         FxUiHelper.loadAvatar(tConversation, tIvPicture, 66); // load the avatar from backend, 66dp width
