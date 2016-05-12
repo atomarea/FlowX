@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -135,6 +136,12 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     private List<Uri> mPendingImageUris = new ArrayList<>();
     private List<Uri> mPendingFileUris = new ArrayList<>();
+
+    /***
+     * [[ MENU ITEMS ]]
+     ***/
+
+    private MenuItem miSecurity, miArchive, miMucDetails, miContactDetails, miAttach, miClearHistory, miAdd, miInviteContact, miMute, miUnmute;
 
     /***
      * [[ ENUM FOR THE UI STATE ]]
@@ -278,6 +285,20 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.conversations, menu);
+
+        miAdd = menu.findItem(R.id.action_add);
+        miArchive = menu.findItem(R.id.action_archive);
+        miAttach = menu.findItem(R.id.action_attach_file);
+        miClearHistory = menu.findItem(R.id.action_clear_history);
+        miContactDetails = menu.findItem(R.id.action_contact_details);
+        miInviteContact = menu.findItem(R.id.action_invite);
+        miMucDetails = menu.findItem(R.id.action_muc_details);
+        miMute = menu.findItem(R.id.action_mute);
+        miSecurity = menu.findItem(R.id.action_security);
+        miUnmute = menu.findItem(R.id.action_unmute);
+
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -435,7 +456,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                         if (_Info == null) _Info = UIHelper.getMessageDisplayName(tMessage);
 
                         if (_Error) {
-                            Log.e(TAG, "ERROR IN [ refreshFxUi ] STATE [ SINGLE_CONVERSATION ]");
+                            Log.e(TAG, "ERROR IN [ refreshFxUi ] STATE [ SINGLE_CONVERSATION ]" + (_Info != null ? " : " + _Info : ""));
                             continue; // error, do not show
                         }
 
@@ -597,8 +618,14 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.i(TAG, "ITEM IN MENU SELECTED [ onOptionsItemSelected ]");
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
+            return true;
+        }
+        if (item.getItemId() == miAttach.getItemId()) {
+            Log.i(TAG, "ATTACH");
+            attachFileDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -992,4 +1019,39 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             mPendingFileUris.clear();
         }
     }
+
+    /***
+     * [[ DIALOG TO ATTACH FILE IN CONVERSATION ]]
+     ***/
+
+    protected void attachFileDialog() {
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle("Attach");
+        b.setItems(new String[]{
+                "Choose picture", "take pic", "file", "rec voice", "send loc"
+        }, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        attachFile(ATTACHMENT_CHOICE_CHOOSE_IMAGE);
+                        break;
+                    case 1:
+                        attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
+                        break;
+                    case 2:
+                        attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
+                        break;
+                    case 3:
+                        attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
+                        break;
+                    case 4:
+                        attachFile(ATTACHMENT_CHOICE_LOCATION);
+                        break;
+                }
+            }
+        });
+        b.create().show();
+    }
+
 }
