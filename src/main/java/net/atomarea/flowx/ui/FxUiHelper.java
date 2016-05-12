@@ -17,7 +17,6 @@ import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.entities.Presence;
 import net.atomarea.flowx.utils.UIHelper;
 
 import java.lang.ref.WeakReference;
@@ -127,7 +126,7 @@ public class FxUiHelper {
     }
 
     public static void sendMessage(EmojiconEditText emojiEditText, Conversation conversation, FxUi activity) {
-        String body = emojiEditText.getText().toString();
+        String body = emojiEditText.getText().toString().trim();
         if (body.length() == 0 || conversation == null) return;
         Message message = new Message(conversation, body, conversation.getNextEncryption());
         if (conversation.getMode() == Conversation.MODE_MULTI) {
