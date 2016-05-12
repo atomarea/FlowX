@@ -65,11 +65,20 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     private static final String TAG = "FlowX (UI Main)";
 
+    /***
+     * [[ ATTACHMENT FIELDS ]]
+     ***/
+
     public static final int ATTACHMENT_CHOICE_CHOOSE_IMAGE = 0x0301;
     public static final int ATTACHMENT_CHOICE_TAKE_PHOTO = 0x0302;
     public static final int ATTACHMENT_CHOICE_CHOOSE_FILE = 0x0303;
     public static final int ATTACHMENT_CHOICE_RECORD_VOICE = 0x0304;
     public static final int ATTACHMENT_CHOICE_LOCATION = 0x0305;
+
+    /***
+     * [[ REQUEST CODES FOR ACTIVITY RESULT ]]
+     ***/
+
     public static final int REQUEST_SEND_MESSAGE = 0x0201;
     public static final int REQUEST_DECRYPT_PGP = 0x0202;
     public static final int REQUEST_ENCRYPT_MESSAGE = 0x0207;
@@ -84,7 +93,15 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
      d -> Data, used in some states
      */
 
+    /***
+     * [[ STATIC CONTEXT ]]
+     ***/
+
     public static FxUi App;
+
+    /***
+     * [[ GUI ELEMENTS ]]
+     ***/
 
     private Toolbar mToolbar;
     private Handler mHandler;
@@ -95,6 +112,12 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     private ImageView mFxLogo;
     private RelativeLayout mFxLogoParent;
+
+    /***
+     * [[ STATE & BLOCKING VARS ]]
+     ***/
+
+    private SendButtonAction dSendButtonAction;
 
     private boolean backendConnected;
 
@@ -107,9 +130,24 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     private EmojiconsPopup mEmojiKeyboard;
 
+    /***
+     * [[ PENDING QUEUES ]]
+     ***/
+
     private List<Uri> mPendingImageUris = new ArrayList<>();
     private List<Uri> mPendingFileUris = new ArrayList<>();
-    private Uri mPendingGeoUri = null;
+
+    /***
+     * [[ ENUM FOR THE UI STATE ]]
+     ***/
+
+    public enum State {
+        STARTUP, RECENT_CONVERSATIONS, SINGLE_CONVERSATION, CONTACTS, GROUPS
+    }
+
+    /***
+     * [[ ON CREATE METHOD, CALLED BY ANDROID ]]
+     ***/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +204,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         // [[ wait for backend... @ onBackendConnected() ]]
     }
 
+    /***
+     * [[ RESULT OF THE PERMISSION DIALOG, CALLED BY ANDROID ]]
+     ***/
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == 1337) {
@@ -178,6 +220,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    /***
+     * [[ REQUEST FOR UI REFRESH, CALLED BY BACKEND ]]
+     ***/
+
     @Override
     protected void refreshUiReal() {
         Log.i(TAG, "BACKEND UI REQUEST [ refreshUiReal ]");
@@ -187,6 +233,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         // [[ TODO: !! DETECT CHANGES AND APPLY ONLY IF NEEDED ]]
         refreshFxUi(mFxState, false);
     }
+
+    /***
+     * [[ NOTIFY THAT BACKEND HAS CONNECTED, CALLED BY BACKEND ]]
+     ***/
 
     @Override
     void onBackendConnected() {
@@ -211,10 +261,18 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         }, 600);
     }
 
+    /***
+     * [[ INFLATE AND CREATE THE MENU IN ACTION BAR, CALLED BY ANDROID ]]
+     ***/
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return super.onCreateOptionsMenu(menu);
     }
+
+    /***
+     * [[ LOCAL UI REFRESH ]]
+     ***/
 
     public void refreshFxUi(State toState, final boolean animate) {
         if (InStateRefresh) {
@@ -510,6 +568,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         }, (change && animate ? 250 : 0));
     }
 
+    /***
+     * [[ THE BACK NAV BUTTON, CALLED BY ANDROID ]]
+     ***/
+
     @Override
     public void onBackPressed() {
         if (mFxState == State.RECENT_CONVERSATIONS) super.onBackPressed();
@@ -517,6 +579,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             refreshFxUi(State.RECENT_CONVERSATIONS, true);
         }
     }
+
+    /***
+     * [[ AN ITEM IN MENU WAS SELECTED OR BACK ARROW WAS PRESSED, CALLED BY ANDROID ]]
+     ***/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -527,14 +593,18 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         return super.onOptionsItemSelected(item);
     }
 
+    /***
+     * [[ THE STATE OF THE APPLICATION WAS UPDATED, CALLED BY BACKEND ]]
+     ***/
+
     @Override
     public void onConversationUpdate() {
         refreshUi();
     }
 
-    public enum State {
-        STARTUP, RECENT_CONVERSATIONS, SINGLE_CONVERSATION, CONTACTS, GROUPS
-    }
+    /***
+     * [[ EMOJI BUTTON WAS CLICKED, CALLED BY UI ]]
+     ***/
 
     public void fxClickEmojiButton(View v) {
         if (!mEmojiKeyboard.isShowing()) {
@@ -547,6 +617,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             }
         } else mEmojiKeyboard.dismiss();
     }
+
+    /***
+     * [[ SEND BUTTON WAS CLICKED, CALLED BY UI ]]
+     ***/
 
     public void fxClickSendButton(View v) {
         Log.i(TAG, "SEND MESSAGE [ fxClickSendButton ]");
@@ -563,7 +637,9 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             FxUiHelper.sendMessage((EmojiconEditText) findViewById(R.id.message_input), dConversation, this); // let's send the text (!) message
     }
 
-    private SendButtonAction dSendButtonAction;
+    /***
+     * [[ SEND BUTTON UPDATE, DRAWABLE RESOURCE ]]
+     ***/
 
     public void updateSendButton() {
         EditMessage fxMessageInput = (EditMessage) findViewById(R.id.message_input);
@@ -596,6 +672,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         ((ImageButton) findViewById(R.id.message_send)).setImageResource(FxUiHelper.getSendButtonImageResource(dSendButtonAction));
     }
 
+    /***
+     * [[ CALLED WHEN LOCATION IS ATTACHED ]]
+     ***/
+
     private void attachLocationToConversation(Conversation conversation, Uri uri) {
         if (conversation == null) return;
         xmppConnectionService.attachLocationToConversation(conversation, uri, new UiCallback<Message>() {
@@ -613,6 +693,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             }
         });
     }
+
+    /***
+     * [[ CALLED WHEN FILE IS ATTACHED ]]
+     ***/
 
     private void attachFileToConversation(Conversation conversation, Uri uri) {
         if (conversation == null) return;
@@ -636,6 +720,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             }
         });
     }
+
+    /***
+     * [[ CALLED WHEN IMAGE IS ATTACHED ]]
+     ***/
 
     private void attachImageToConversation(Conversation conversation, Uri uri) {
         if (conversation == null) return;
@@ -662,6 +750,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 });
     }
 
+    /***
+     * [[ HELPER FUNCTION, CALLED BY ATTACHER FUNCTIONS ]]
+     ***/
+
     private void hidePrepareFileToast(final Toast prepareFileToast) {
         if (prepareFileToast != null) runOnUiThread(new Runnable() {
 
@@ -671,6 +763,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             }
         });
     }
+
+    /***
+     * [[ ATTACH A FILE, NO MATTER WHAT ]]
+     ***/
 
     public void attachFile(final int attachmentChoice) {
         if (attachmentChoice != ATTACHMENT_CHOICE_LOCATION) {
@@ -745,6 +841,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             selectPresenceToAttachFile(attachmentChoice, encryption);
     }
 
+    /***
+     * [[ SOMETHING WILL BE ATTACHED ]]
+     ***/
+
     protected void selectPresenceToAttachFile(final int attachmentChoice, final int encryption) {
         final Conversation conversation = dConversation;
         final Account account = conversation.getAccount();
@@ -810,6 +910,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         } else selectPresence(conversation, callback);
     }
 
+    /***
+     * [[ HELPER FUNCTION ]]
+     ***/
+
     private Intent getInstallApkIntent(final String packageId) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("market://details?id=" + packageId));
@@ -820,12 +924,20 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         }
     }
 
+    /***
+     * [[ HELPER FUNCTION ]]
+     ***/
+
     public void runIntent(PendingIntent pi, int requestCode) {
         try {
             this.startIntentSenderForResult(pi.getIntentSender(), requestCode, null, 0, 0, 0);
         } catch (final IntentSender.SendIntentException ignored) {
         }
     }
+
+    /***
+     * [[ ACTIVITY RESULT, CALLED BY ANDROID ]]
+     ***/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode,
@@ -888,17 +1000,19 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             } else if (requestCode == ATTACHMENT_CHOICE_LOCATION) {
                 double latitude = data.getDoubleExtra("latitude", 0);
                 double longitude = data.getDoubleExtra("longitude", 0);
-                mPendingGeoUri = Uri.parse("geo:" + String.valueOf(latitude) + "," + String.valueOf(longitude));
-                if (xmppConnectionServiceBound) {
+                Uri mPendingGeoUri = Uri.parse("geo:" + String.valueOf(latitude) + "," + String.valueOf(longitude));
+                if (xmppConnectionServiceBound)
                     attachLocationToConversation(dConversation, mPendingGeoUri);
-                    mPendingGeoUri = null;
-                }
             }
         } else {
             mPendingImageUris.clear();
             mPendingFileUris.clear();
         }
     }
+
+    /***
+     * [[ HELPER FUNCTION ]]
+     ***/
 
     private static List<Uri> extractUriFromIntent(final Intent intent) {
         List<Uri> uris = new ArrayList<>();
