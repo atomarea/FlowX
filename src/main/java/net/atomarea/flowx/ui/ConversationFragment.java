@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.InputType;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -1005,10 +1006,15 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
     }
 
     private void messageSent() {
-        int size = this.messageList.size();
-        messagesView.setSelection(size - 1);
         mEditMessage.setText("");
         updateChatMsgHint();
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                int size = messageList.size();
+                messagesView.setSelection(size - 1);
+            }
+        });
     }
 
     public void setFocusOnInputField() {

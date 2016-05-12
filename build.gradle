@@ -44,7 +44,7 @@ dependencies {
 	compile 'org.sufficientlysecure:openpgp-api:10.0'
 	compile 'com.yalantis:contextmenu:1.0.6'
 	compile 'com.github.manuelpeinado.fadingactionbar:fadingactionbar:3.1.2'
-	compile 'com.android.support:multidex:1.0.0'
+	compile 'com.android.support:multidex:1.0.1'
 	compile 'org.osmdroid:osmdroid-android:4.3'
 	compile 'org.slf4j:slf4j-simple:1.7.9'
 	compile('eu.livotov.labs.android:CAMView:2.0.1@aar') { transitive = true }
@@ -61,8 +61,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 1423
-        versionName "1.52"
+        versionCode 1424
+        versionName "1.53"
         archivesBaseName += "-$versionName"
         applicationId "net.atomarea.flowx"
         multiDexEnabled true

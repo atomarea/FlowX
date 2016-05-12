@@ -201,13 +201,10 @@ public class SetPresenceActivity extends XmppActivity implements View.OnClickLis
 				setListItemBackgroundOnView(templateLayout);
 				templateLayout.setOnClickListener(this);
 				TextView message = (TextView) templateLayout.findViewById(R.id.presence_status_message);
-				TextView status = (TextView) templateLayout.findViewById(R.id.status);
 				ImageButton button = (ImageButton) templateLayout.findViewById(R.id.delete_button);
 				button.setTag(template);
 				button.setOnClickListener(this);
 				ListItem.Tag tag = UIHelper.getTagForStatus(this, template.getStatus());
-				status.setText(tag.getName());
-				status.setBackgroundColor(tag.getColor());
 				message.setText(template.getStatusMessage());
 				mTemplatesView.addView(templateLayout);
 			}

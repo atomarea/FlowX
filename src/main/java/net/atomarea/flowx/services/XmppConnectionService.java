@@ -643,7 +643,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 	}
 
 	private boolean manuallyChangePresence() {
-		return getPreferences().getBoolean("manually_change_presence", false);
+		return getPreferences().getBoolean("manually_change_presence", true);
 	}
 
 	private boolean treatVibrateAsSilent() {
