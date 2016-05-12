@@ -1,5 +1,6 @@
 package net.atomarea.flowx.ui;
 
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -10,11 +11,14 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
@@ -25,6 +29,8 @@ import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.utils.UIHelper;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
 import github.ankushsachdeva.emojicon.EmojiconEditText;
@@ -268,6 +274,38 @@ public class FxUiHelper {
                 return R.drawable.ic_send_picture_offline;
         }
         return R.drawable.ic_send_text_offline;
+    }
+
+    public static List<Uri> extractUriFromIntent(final Intent intent) {
+        List<Uri> uris = new ArrayList<>();
+        if (intent == null) return uris;
+        Uri uri = intent.getData();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && uri == null) {
+            ClipData clipData = intent.getClipData();
+            for (int i = 0; i < clipData.getItemCount(); ++i)
+                uris.add(clipData.getItemAt(i).getUri());
+        } else uris.add(uri);
+        return uris;
+    }
+
+    public static Intent getInstallApkIntent(final String packageId) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("market://details?id=" + packageId));
+        if (intent.resolveActivity(FxUi.App.getPackageManager()) != null) return intent;
+        else {
+            intent.setData(Uri.parse("http://play.google.com/store/apps/details?id=" + packageId));
+            return intent;
+        }
+    }
+
+    public static void hidePrepareFileToast(final Toast prepareFileToast) {
+        if (prepareFileToast != null) FxUi.App.runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                prepareFileToast.cancel();
+            }
+        });
     }
 
 }

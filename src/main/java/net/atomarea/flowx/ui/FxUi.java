@@ -3,7 +3,6 @@ package net.atomarea.flowx.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -705,13 +704,13 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         xmppConnectionService.attachFileToConversation(conversation, uri, new UiCallback<Message>() {
             @Override
             public void success(Message message) {
-                hidePrepareFileToast(prepareFileToast);
+                FxUiHelper.hidePrepareFileToast(prepareFileToast);
                 xmppConnectionService.sendMessage(message);
             }
 
             @Override
             public void error(int errorCode, Message message) {
-                hidePrepareFileToast(prepareFileToast);
+                FxUiHelper.hidePrepareFileToast(prepareFileToast);
                 displayErrorDialog(errorCode);
             }
 
@@ -733,35 +732,21 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 new UiCallback<Message>() {
                     @Override
                     public void userInputRequried(PendingIntent pi, Message object) {
-                        hidePrepareFileToast(prepareFileToast);
+                        FxUiHelper.hidePrepareFileToast(prepareFileToast);
                     }
 
                     @Override
                     public void success(Message message) {
-                        hidePrepareFileToast(prepareFileToast);
+                        FxUiHelper.hidePrepareFileToast(prepareFileToast);
                         xmppConnectionService.sendMessage(message);
                     }
 
                     @Override
                     public void error(int error, Message message) {
-                        hidePrepareFileToast(prepareFileToast);
+                        FxUiHelper.hidePrepareFileToast(prepareFileToast);
                         displayErrorDialog(error);
                     }
                 });
-    }
-
-    /***
-     * [[ HELPER FUNCTION, CALLED BY ATTACHER FUNCTIONS ]]
-     ***/
-
-    private void hidePrepareFileToast(final Toast prepareFileToast) {
-        if (prepareFileToast != null) runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                prepareFileToast.cancel();
-            }
-        });
     }
 
     /***
@@ -901,7 +886,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                                 attachmentChoice);
                     } else startActivityForResult(intent, attachmentChoice);
                 } else if (fallbackPackageId != null)
-                    startActivity(getInstallApkIntent(fallbackPackageId));
+                    startActivity(FxUiHelper.getInstallApkIntent(fallbackPackageId));
             }
         };
         if ((account.httpUploadAvailable() || attachmentChoice == ATTACHMENT_CHOICE_LOCATION) && encryption != Message.ENCRYPTION_OTR) {
@@ -914,23 +899,9 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
      * [[ HELPER FUNCTION ]]
      ***/
 
-    private Intent getInstallApkIntent(final String packageId) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("market://details?id=" + packageId));
-        if (intent.resolveActivity(getPackageManager()) != null) return intent;
-        else {
-            intent.setData(Uri.parse("http://play.google.com/store/apps/details?id=" + packageId));
-            return intent;
-        }
-    }
-
-    /***
-     * [[ HELPER FUNCTION ]]
-     ***/
-
     public void runIntent(PendingIntent pi, int requestCode) {
         try {
-            this.startIntentSenderForResult(pi.getIntentSender(), requestCode, null, 0, 0, 0);
+            startIntentSenderForResult(pi.getIntentSender(), requestCode, null, 0, 0, 0);
         } catch (final IntentSender.SendIntentException ignored) {
         }
     }
@@ -956,12 +927,12 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         if (resultCode == RESULT_OK) {
             if (requestCode == ATTACHMENT_CHOICE_CHOOSE_IMAGE) {
                 mPendingImageUris.clear();
-                mPendingImageUris.addAll(extractUriFromIntent(data));
+                mPendingImageUris.addAll(FxUiHelper.extractUriFromIntent(data));
                 if (xmppConnectionServiceBound)
                     for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove())
                         attachImageToConversation(dConversation, i.next());
             } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_FILE || requestCode == ATTACHMENT_CHOICE_RECORD_VOICE) {
-                final List<Uri> uris = extractUriFromIntent(data);
+                final List<Uri> uris = FxUiHelper.extractUriFromIntent(data);
                 final Conversation c = dConversation;
                 final long max = c.getAccount()
                         .getXmppConnection()
@@ -1008,21 +979,5 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             mPendingImageUris.clear();
             mPendingFileUris.clear();
         }
-    }
-
-    /***
-     * [[ HELPER FUNCTION ]]
-     ***/
-
-    private static List<Uri> extractUriFromIntent(final Intent intent) {
-        List<Uri> uris = new ArrayList<>();
-        if (intent == null) return uris;
-        Uri uri = intent.getData();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && uri == null) {
-            ClipData clipData = intent.getClipData();
-            for (int i = 0; i < clipData.getItemCount(); ++i)
-                uris.add(clipData.getItemAt(i).getUri());
-        } else uris.add(uri);
-        return uris;
     }
 }
