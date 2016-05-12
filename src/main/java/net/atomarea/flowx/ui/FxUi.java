@@ -1,7 +1,12 @@
 package net.atomarea.flowx.ui;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -9,10 +14,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +39,7 @@ import com.makeramen.roundedimageview.RoundedImageView;
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Transferable;
@@ -40,6 +48,7 @@ import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import github.ankushsachdeva.emojicon.EmojiconEditText;
 import github.ankushsachdeva.emojicon.EmojiconTextView;
@@ -52,6 +61,13 @@ import nl.changer.audiowife.AudioWife;
 public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConversationUpdate {
 
     private static final String TAG = "FlowX (UI Main)";
+
+    public static final int ATTACHMENT_CHOICE_CHOOSE_IMAGE = 0x0301;
+    public static final int ATTACHMENT_CHOICE_TAKE_PHOTO = 0x0302;
+    public static final int ATTACHMENT_CHOICE_CHOOSE_FILE = 0x0303;
+    public static final int ATTACHMENT_CHOICE_RECORD_VOICE = 0x0304;
+    public static final int ATTACHMENT_CHOICE_LOCATION = 0x0305;
+    public static final int ATTACHMENT_CHOICE_INVALID = 0x0306;
 
     /*
      Prefixes:
@@ -82,6 +98,9 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     private boolean StateRefreshQueued;
 
     private EmojiconsPopup mEmojiKeyboard;
+
+    private List<Uri> mPendingImageUris = new ArrayList<>();
+    private List<Uri> mPendingFileUris = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -523,6 +542,14 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     public void fxClickSendButton(View v) {
         Log.i(TAG, "SEND MESSAGE [ fxClickSendButton ]");
         if (dSendButtonAction == null) dSendButtonAction = SendButtonAction.TEXT;
+        if (dSendButtonAction == SendButtonAction.TAKE_PHOTO)
+            attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
+        if (dSendButtonAction == SendButtonAction.CHOOSE_PICTURE)
+            attachFile(ATTACHMENT_CHOICE_CHOOSE_IMAGE);
+        if (dSendButtonAction == SendButtonAction.SEND_LOCATION)
+            attachFile(ATTACHMENT_CHOICE_LOCATION);
+        if (dSendButtonAction == SendButtonAction.RECORD_VOICE)
+            attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
         if (dSendButtonAction == SendButtonAction.TEXT)
             FxUiHelper.sendMessage((EmojiconEditText) findViewById(R.id.message_input), dConversation, this); // let's send the text (!) message
     }
@@ -558,5 +585,251 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         } else
             dSendButtonAction = SendButtonAction.TEXT;
         ((ImageButton) findViewById(R.id.message_send)).setImageResource(FxUiHelper.getSendButtonImageResource(dSendButtonAction));
+    }
+
+    private void attachLocationToConversation(Conversation conversation, Uri uri) {
+        if (conversation == null) return;
+        xmppConnectionService.attachLocationToConversation(conversation, uri, new UiCallback<Message>() {
+            @Override
+            public void success(Message message) {
+                xmppConnectionService.sendMessage(message);
+            }
+
+            @Override
+            public void error(int errorCode, Message object) {
+            }
+
+            @Override
+            public void userInputRequried(PendingIntent pi, Message object) {
+            }
+        });
+    }
+
+    private void attachFileToConversation(Conversation conversation, Uri uri) {
+        if (conversation == null) return;
+        final Toast prepareFileToast = Toast.makeText(getApplicationContext(), getText(R.string.preparing_file), Toast.LENGTH_LONG);
+        prepareFileToast.show();
+        xmppConnectionService.attachFileToConversation(conversation, uri, new UiCallback<Message>() {
+            @Override
+            public void success(Message message) {
+                hidePrepareFileToast(prepareFileToast);
+                xmppConnectionService.sendMessage(message);
+            }
+
+            @Override
+            public void error(int errorCode, Message message) {
+                hidePrepareFileToast(prepareFileToast);
+                displayErrorDialog(errorCode);
+            }
+
+            @Override
+            public void userInputRequried(PendingIntent pi, Message message) {
+            }
+        });
+    }
+
+    private void attachImageToConversation(Conversation conversation, Uri uri) {
+        if (conversation == null) return;
+        final Toast prepareFileToast = Toast.makeText(getApplicationContext(), getText(R.string.preparing_image), Toast.LENGTH_LONG);
+        prepareFileToast.show();
+        xmppConnectionService.attachImageToConversation(conversation, uri,
+                new UiCallback<Message>() {
+                    @Override
+                    public void userInputRequried(PendingIntent pi, Message object) {
+                        hidePrepareFileToast(prepareFileToast);
+                    }
+
+                    @Override
+                    public void success(Message message) {
+                        hidePrepareFileToast(prepareFileToast);
+                        xmppConnectionService.sendMessage(message);
+                    }
+
+                    @Override
+                    public void error(int error, Message message) {
+                        hidePrepareFileToast(prepareFileToast);
+                        displayErrorDialog(error);
+                    }
+                });
+    }
+
+    private void hidePrepareFileToast(final Toast prepareFileToast) {
+        if (prepareFileToast != null) runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                prepareFileToast.cancel();
+            }
+        });
+    }
+
+    public void attachFile(final int attachmentChoice) {
+        if (attachmentChoice != ATTACHMENT_CHOICE_LOCATION) {
+            if (!hasStoragePermission(attachmentChoice)) return;
+        }
+        switch (attachmentChoice) {
+            case ATTACHMENT_CHOICE_LOCATION:
+                getPreferences().edit().putString("recently_used_quick_action", "location").apply();
+                break;
+            case ATTACHMENT_CHOICE_RECORD_VOICE:
+                getPreferences().edit().putString("recently_used_quick_action", "voice").apply();
+                break;
+            case ATTACHMENT_CHOICE_TAKE_PHOTO:
+                getPreferences().edit().putString("recently_used_quick_action", "photo").apply();
+                break;
+            case ATTACHMENT_CHOICE_CHOOSE_IMAGE:
+                getPreferences().edit().putString("recently_used_quick_action", "picture").apply();
+                break;
+        }
+        final Conversation conversation = dConversation;
+        final int encryption = conversation.getNextEncryption();
+        final int mode = conversation.getMode();
+        if (encryption == Message.ENCRYPTION_PGP) {
+            if (hasPgp()) {
+                if (mode == Conversation.MODE_SINGLE && conversation.getContact().getPgpKeyId() != 0) {
+                    xmppConnectionService.getPgpEngine().hasKey(
+                            conversation.getContact(),
+                            new UiCallback<Contact>() {
+                                @Override
+                                public void userInputRequried(PendingIntent pi, Contact contact) {
+                                    App.runIntent(pi, attachmentChoice);
+                                }
+
+                                @Override
+                                public void success(Contact contact) {
+                                    selectPresenceToAttachFile(attachmentChoice, encryption);
+                                }
+
+                                @Override
+                                public void error(int error, Contact contact) {
+                                    displayErrorDialog(error);
+                                }
+                            });
+                } else if (mode == Conversation.MODE_MULTI && conversation.getMucOptions().pgpKeysInUse()) {
+                    if (!conversation.getMucOptions().everybodyHasKeys()) {
+                        Toast warning = Toast.makeText(this, R.string.missing_public_keys, Toast.LENGTH_LONG);
+                        warning.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                        warning.show();
+                    }
+                    selectPresenceToAttachFile(attachmentChoice, encryption);
+                } else {
+                    final ConversationFragment fragment = (ConversationFragment) getFragmentManager()
+                            .findFragmentByTag("conversation");
+                    if (fragment != null) {
+                        fragment.showNoPGPKeyDialog(false,
+                                new DialogInterface.OnClickListener() {
+
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which) {
+                                        conversation.setNextEncryption(Message.ENCRYPTION_NONE);
+                                        xmppConnectionService.databaseBackend.updateConversation(conversation);
+                                        selectPresenceToAttachFile(attachmentChoice, Message.ENCRYPTION_NONE);
+                                    }
+                                });
+                    }
+                }
+            } else {
+                showInstallPgpDialog();
+            }
+        } else if (encryption != Message.ENCRYPTION_AXOLOTL || !FxUiHelper.axolotlTrustKeys(0x0209, App))
+            selectPresenceToAttachFile(attachmentChoice, encryption);
+    }
+
+    protected void selectPresenceToAttachFile(final int attachmentChoice, final int encryption) {
+        final Conversation conversation = dConversation;
+        final Account account = conversation.getAccount();
+        final FxXmppActivity.OnPresenceSelected callback = new FxXmppActivity.OnPresenceSelected() {
+            @Override
+            public void onPresenceSelected() {
+                Intent intent = new Intent();
+                boolean chooser = false;
+                String fallbackPackageId = null;
+                switch (attachmentChoice) {
+                    case ATTACHMENT_CHOICE_CHOOSE_IMAGE:
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                        }
+                        intent.setType("image/*");
+                        chooser = true;
+                        break;
+                    case ATTACHMENT_CHOICE_TAKE_PHOTO:
+                        Uri uri = xmppConnectionService.getFileBackend().getTakePhotoUri();
+                        intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                        mPendingImageUris.clear();
+                        mPendingImageUris.add(uri);
+                        break;
+                    case ATTACHMENT_CHOICE_CHOOSE_FILE:
+                        chooser = true;
+                        intent.setType("*/*");
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        break;
+                    case ATTACHMENT_CHOICE_RECORD_VOICE:
+                        if (Build.VERSION.SDK_INT >= 23) {
+                            int hasMicPerm = checkSelfPermission(Manifest.permission.RECORD_AUDIO);
+                            if (hasMicPerm == PackageManager.PERMISSION_GRANTED) {
+                                intent.setAction(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+                                intent.setPackage("net.atomarea.flowx");
+                            } else
+                                Toast.makeText(getApplicationContext(), "No perm 4 mic... -> change in settings of phone", Toast.LENGTH_SHORT).show(); // TODO: !Txt in strings.xml
+                        } else {
+                            intent.setAction(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+                            intent.setPackage("net.atomarea.flowx");
+                        }
+                        break;
+                    case ATTACHMENT_CHOICE_LOCATION:
+                        intent.setAction("net.atomarea.flowx.location.request");
+                        intent.setPackage("net.atomarea.flowx");
+                        break;
+                }
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    if (chooser) {
+                        startActivityForResult(
+                                Intent.createChooser(intent, getString(R.string.perform_action_with)),
+                                attachmentChoice);
+                    } else startActivityForResult(intent, attachmentChoice);
+                } else if (fallbackPackageId != null)
+                    startActivity(getInstallApkIntent(fallbackPackageId));
+            }
+        };
+        if ((account.httpUploadAvailable() || attachmentChoice == ATTACHMENT_CHOICE_LOCATION) && encryption != Message.ENCRYPTION_OTR) {
+            conversation.setNextCounterpart(null);
+            callback.onPresenceSelected();
+        } else selectPresence(conversation, callback);
+    }
+
+    private Intent getInstallApkIntent(final String packageId) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("market://details?id=" + packageId));
+        if (intent.resolveActivity(getPackageManager()) != null) return intent;
+        else {
+            intent.setData(Uri.parse("http://play.google.com/store/apps/details?id=" + packageId));
+            return intent;
+        }
+    }
+
+    public void runIntent(PendingIntent pi, int requestCode) {
+        try {
+            this.startIntentSenderForResult(pi.getIntentSender(), requestCode, null, 0, 0, 0);
+        } catch (final IntentSender.SendIntentException ignored) {
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode,
+                                 final Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == ConversationActivity.REQUEST_TRUST_KEYS_TEXT) {
+                final String body = ((EditMessage) findViewById(R.id.message_input)).getText().toString();
+                Message message = new Message(dConversation, body, dConversation.getNextEncryption());
+                FxUiHelper.sendMessage(message, App);
+            } else if (requestCode == ConversationActivity.REQUEST_TRUST_KEYS_MENU) {
+                int choice = data.getIntExtra("choice", ConversationActivity.ATTACHMENT_CHOICE_INVALID);
+                selectPresenceToAttachFile(choice, dConversation.getNextEncryption());
+            }
+        }
     }
 }
