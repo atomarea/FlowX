@@ -203,6 +203,12 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         // [[ wait for backend... @ onBackendConnected() ]]
     }
 
+    /*@Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(newBase);
+        MultiDex.install(this);
+    }*/
+
     /***
      * [[ RESULT OF THE PERMISSION DIALOG, CALLED BY ANDROID ]]
      ***/
@@ -240,6 +246,12 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     @Override
     void onBackendConnected() {
         Log.i(TAG, "BACKEND CONNECTED [ onBackendConnected ]");
+
+        if (xmppConnectionService.getAccounts().size() == 0) {
+            // #CONFIG : X509_VERIFICATION FALSE
+            startActivity(new Intent(this, WelcomeActivity.class));
+        }
+
         backendConnected = true; // backend is now connected
 
         if (mFxState == State.STARTUP) // after startup
