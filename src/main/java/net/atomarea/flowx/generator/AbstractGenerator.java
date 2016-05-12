@@ -42,7 +42,7 @@ public abstract class AbstractGenerator {
 			"urn:xmpp:message-correct:0"
 	};
 	private String mVersion = null;
-	protected final String IDENTITY_NAME = "Conversations";
+	protected final String IDENTITY_NAME = "FlowX";
 	protected final String IDENTITY_TYPE = "phone";
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
