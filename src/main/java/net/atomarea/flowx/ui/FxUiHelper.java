@@ -3,6 +3,11 @@ package net.atomarea.flowx.ui;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -42,7 +47,7 @@ public class FxUiHelper {
             } else {
                 imageView.setBackgroundColor(UIHelper.getColorForName(conversation.getName()));
                 imageView.setImageDrawable(null);
-                final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+                final BitmapWorkerTask task = new BitmapWorkerTask(imageView, dp);
                 final AsyncDrawable asyncDrawable = new AsyncDrawable(FxUi.App.getResources(),
                         null, task);
                 imageView.setImageDrawable(asyncDrawable);
@@ -52,7 +57,34 @@ public class FxUiHelper {
                 }
             }
         }
+    }
 
+    public static Bitmap createCircleBitmap(Bitmap bitmapimg) {
+        Bitmap output = Bitmap.createBitmap(bitmapimg.getWidth(),
+                bitmapimg.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmapimg.getWidth(),
+                bitmapimg.getHeight());
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        canvas.drawCircle(bitmapimg.getWidth() / 2,
+                bitmapimg.getHeight() / 2, bitmapimg.getWidth() / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmapimg, rect, rect, paint);
+        return output;
+    }
+
+    public static BitmapDrawable loadAvatarForToolbar(Conversation c) {
+        return new BitmapDrawable(FxUi.App.getResources(), createCircleBitmap(loadAvatar(c, 33)));
+    }
+
+    public static Bitmap loadAvatar(Conversation conv, int dp) {
+        return FxUi.App.avatarService().get(conv, getPixel(dp), false);
     }
 
     public static boolean cancelPotentialWork(Conversation conversation, ImageView imageView) {
@@ -94,14 +126,16 @@ public class FxUiHelper {
     static class BitmapWorkerTask extends AsyncTask<Conversation, Void, Bitmap> {
         private final WeakReference<ImageView> imageViewReference;
         private Conversation conversation = null;
+        private int dp;
 
-        public BitmapWorkerTask(ImageView imageView) {
+        public BitmapWorkerTask(ImageView imageView, int adp) {
             imageViewReference = new WeakReference<>(imageView);
+            dp = adp;
         }
 
         @Override
         protected Bitmap doInBackground(Conversation... params) {
-            return FxUi.App.avatarService().get(params[0], getPixel(56), isCancelled());
+            return FxUi.App.avatarService().get(params[0], getPixel(dp), isCancelled());
         }
 
         @Override

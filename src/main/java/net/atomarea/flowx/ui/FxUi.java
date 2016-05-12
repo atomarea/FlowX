@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -182,6 +183,11 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         }, 600);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
+    }
+
     public void refreshFxUi(State toState, final boolean animate) {
         if (InStateRefresh) {
             StateRefreshQueued = true;
@@ -217,6 +223,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                         getSupportActionBar().setTitle(R.string.app_name); // real title: FlowX
                         getSupportActionBar().setSubtitle(null);
                         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                        getSupportActionBar().setLogo(null);
                     }
 
                     ArrayList<Conversation> tConversationList = new ArrayList<>();
@@ -274,7 +281,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                                 getSupportActionBar().setSubtitle(UIHelper.lastseen(App, dConversation.getContact().lastseen.time));
                         } else if (useSubjectToIdentifyConference())
                             getSupportActionBar().setSubtitle((dConversation.getParticipants() == null ? "-" : dConversation.getParticipants()));
-
+                        getSupportActionBar().setLogo(FxUiHelper.loadAvatarForToolbar(dConversation));
                         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                     }
 
