@@ -20,7 +20,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +39,6 @@ import com.makeramen.roundedimageview.RoundedImageView;
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Transferable;
@@ -793,76 +791,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
      ***/
 
     public void attachFile(final int attachmentChoice) {
-        if (attachmentChoice != ATTACHMENT_CHOICE_LOCATION) {
+        if (attachmentChoice != ATTACHMENT_CHOICE_LOCATION)
             if (!hasStoragePermission(attachmentChoice)) return;
-        }
-        switch (attachmentChoice) {
-            case ATTACHMENT_CHOICE_LOCATION:
-                getPreferences().edit().putString("recently_used_quick_action", "location").apply();
-                break;
-            case ATTACHMENT_CHOICE_RECORD_VOICE:
-                getPreferences().edit().putString("recently_used_quick_action", "voice").apply();
-                break;
-            case ATTACHMENT_CHOICE_TAKE_PHOTO:
-                getPreferences().edit().putString("recently_used_quick_action", "photo").apply();
-                break;
-            case ATTACHMENT_CHOICE_CHOOSE_IMAGE:
-                getPreferences().edit().putString("recently_used_quick_action", "picture").apply();
-                break;
-        }
-        final Conversation conversation = dConversation;
-        final int encryption = conversation.getNextEncryption();
-        final int mode = conversation.getMode();
-        if (encryption == Message.ENCRYPTION_PGP) {
-            if (hasPgp()) {
-                if (mode == Conversation.MODE_SINGLE && conversation.getContact().getPgpKeyId() != 0) {
-                    xmppConnectionService.getPgpEngine().hasKey(
-                            conversation.getContact(),
-                            new UiCallback<Contact>() {
-                                @Override
-                                public void userInputRequried(PendingIntent pi, Contact contact) {
-                                    App.runIntent(pi, attachmentChoice);
-                                }
-
-                                @Override
-                                public void success(Contact contact) {
-                                    selectPresenceToAttachFile(attachmentChoice, encryption);
-                                }
-
-                                @Override
-                                public void error(int error, Contact contact) {
-                                    displayErrorDialog(error);
-                                }
-                            });
-                } else if (mode == Conversation.MODE_MULTI && conversation.getMucOptions().pgpKeysInUse()) {
-                    if (!conversation.getMucOptions().everybodyHasKeys()) {
-                        Toast warning = Toast.makeText(this, R.string.missing_public_keys, Toast.LENGTH_LONG);
-                        warning.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                        warning.show();
-                    }
-                    selectPresenceToAttachFile(attachmentChoice, encryption);
-                } else {
-                    final ConversationFragment fragment = (ConversationFragment) getFragmentManager()
-                            .findFragmentByTag("conversation");
-                    if (fragment != null) {
-                        fragment.showNoPGPKeyDialog(false,
-                                new DialogInterface.OnClickListener() {
-
-                                    @Override
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
-                                        conversation.setNextEncryption(Message.ENCRYPTION_NONE);
-                                        xmppConnectionService.databaseBackend.updateConversation(conversation);
-                                        selectPresenceToAttachFile(attachmentChoice, Message.ENCRYPTION_NONE);
-                                    }
-                                });
-                    }
-                }
-            } else {
-                showInstallPgpDialog();
-            }
-        } else if (encryption != Message.ENCRYPTION_AXOLOTL || !FxUiHelper.axolotlTrustKeys(REQUEST_TRUST_KEYS_MENU, App))
-            selectPresenceToAttachFile(attachmentChoice, encryption);
+        if (dConversation.getNextEncryption() != Message.ENCRYPTION_AXOLOTL || !FxUiHelper.axolotlTrustKeys(REQUEST_TRUST_KEYS_MENU, App))
+            selectPresenceToAttachFile(attachmentChoice, dConversation.getNextEncryption());
     }
 
     /***
@@ -870,9 +802,8 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
      ***/
 
     protected void selectPresenceToAttachFile(final int attachmentChoice, final int encryption) {
-        final Conversation conversation = dConversation;
-        final Account account = conversation.getAccount();
-        final FxXmppActivity.OnPresenceSelected callback = new FxXmppActivity.OnPresenceSelected() {
+        Account account = dConversation.getAccount();
+        FxXmppActivity.OnPresenceSelected callback = new FxXmppActivity.OnPresenceSelected() {
             @Override
             public void onPresenceSelected() {
                 Intent intent = new Intent();
@@ -929,9 +860,9 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             }
         };
         if ((account.httpUploadAvailable() || attachmentChoice == ATTACHMENT_CHOICE_LOCATION) && encryption != Message.ENCRYPTION_OTR) {
-            conversation.setNextCounterpart(null);
+            dConversation.setNextCounterpart(null);
             callback.onPresenceSelected();
-        } else selectPresence(conversation, callback);
+        } else selectPresence(dConversation, callback);
     }
 
     /***
@@ -968,8 +899,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 mPendingImageUris.clear();
                 mPendingImageUris.addAll(FxUiHelper.extractUriFromIntent(data));
                 if (xmppConnectionServiceBound)
-                    for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove())
+                    for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove()) {
                         attachImageToConversation(dConversation, i.next());
+                        Log.i(TAG, ":D");
+                    }
             } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_FILE || requestCode == ATTACHMENT_CHOICE_RECORD_VOICE) {
                 final List<Uri> uris = FxUiHelper.extractUriFromIntent(data);
                 final Conversation c = dConversation;
