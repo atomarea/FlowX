@@ -56,6 +56,7 @@
             android:id="@+id/fx_row_recent_conversations_last_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:fontFamily="sans-serif"
             android:maxLines="1"
             android:textColor="@color/black87"
