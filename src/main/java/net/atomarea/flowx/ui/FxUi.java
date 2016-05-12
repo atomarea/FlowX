@@ -3,6 +3,7 @@ package net.atomarea.flowx.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -43,11 +44,13 @@ import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Transferable;
+import net.atomarea.flowx.persistance.FileBackend;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import github.ankushsachdeva.emojicon.EmojiconEditText;
@@ -67,7 +70,12 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     public static final int ATTACHMENT_CHOICE_CHOOSE_FILE = 0x0303;
     public static final int ATTACHMENT_CHOICE_RECORD_VOICE = 0x0304;
     public static final int ATTACHMENT_CHOICE_LOCATION = 0x0305;
-    public static final int ATTACHMENT_CHOICE_INVALID = 0x0306;
+    public static final int REQUEST_SEND_MESSAGE = 0x0201;
+    public static final int REQUEST_DECRYPT_PGP = 0x0202;
+    public static final int REQUEST_ENCRYPT_MESSAGE = 0x0207;
+    public static final int REQUEST_TRUST_KEYS_TEXT = 0x0208;
+    public static final int REQUEST_TRUST_KEYS_MENU = 0x0209;
+    public static final int REQUEST_START_DOWNLOAD = 0x0210;
 
     /*
      Prefixes:
@@ -101,6 +109,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     private List<Uri> mPendingImageUris = new ArrayList<>();
     private List<Uri> mPendingFileUris = new ArrayList<>();
+    private Uri mPendingGeoUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -732,7 +741,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             } else {
                 showInstallPgpDialog();
             }
-        } else if (encryption != Message.ENCRYPTION_AXOLOTL || !FxUiHelper.axolotlTrustKeys(0x0209, App))
+        } else if (encryption != Message.ENCRYPTION_AXOLOTL || !FxUiHelper.axolotlTrustKeys(REQUEST_TRUST_KEYS_MENU, App))
             selectPresenceToAttachFile(attachmentChoice, encryption);
     }
 
@@ -822,14 +831,84 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     public void onActivityResult(int requestCode, int resultCode,
                                  final Intent data) {
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == ConversationActivity.REQUEST_TRUST_KEYS_TEXT) {
+            if (requestCode == REQUEST_TRUST_KEYS_TEXT) {
                 final String body = ((EditMessage) findViewById(R.id.message_input)).getText().toString();
                 Message message = new Message(dConversation, body, dConversation.getNextEncryption());
                 FxUiHelper.sendMessage(message, App);
-            } else if (requestCode == ConversationActivity.REQUEST_TRUST_KEYS_MENU) {
+            } else if (requestCode == REQUEST_TRUST_KEYS_MENU) {
                 int choice = data.getIntExtra("choice", ConversationActivity.ATTACHMENT_CHOICE_INVALID);
                 selectPresenceToAttachFile(choice, dConversation.getNextEncryption());
             }
         }
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == ATTACHMENT_CHOICE_CHOOSE_IMAGE) {
+                mPendingImageUris.clear();
+                mPendingImageUris.addAll(extractUriFromIntent(data));
+                if (xmppConnectionServiceBound)
+                    for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove())
+                        attachImageToConversation(dConversation, i.next());
+            } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_FILE || requestCode == ATTACHMENT_CHOICE_RECORD_VOICE) {
+                final List<Uri> uris = extractUriFromIntent(data);
+                final Conversation c = dConversation;
+                final long max = c.getAccount()
+                        .getXmppConnection()
+                        .getFeatures()
+                        .getMaxHttpUploadSize();
+                final FxXmppActivity.OnPresenceSelected callback = new FxXmppActivity.OnPresenceSelected() {
+                    @Override
+                    public void onPresenceSelected() {
+                        mPendingFileUris.clear();
+                        mPendingFileUris.addAll(uris);
+                        if (xmppConnectionServiceBound) {
+                            for (Iterator<Uri> i = mPendingFileUris.iterator(); i.hasNext(); i.remove()) {
+                                attachFileToConversation(c, i.next());
+                            }
+                        }
+                    }
+                };
+                if (c.getMode() == Conversation.MODE_MULTI
+                        || FileBackend.allFilesUnderSize(this, uris, max)
+                        || c.getNextEncryption() == Message.ENCRYPTION_OTR) {
+                    callback.onPresenceSelected();
+                } else {
+                    selectPresence(c, callback);
+                }
+            } else if (requestCode == ATTACHMENT_CHOICE_TAKE_PHOTO) {
+                if (mPendingImageUris.size() == 1) {
+                    Uri uri = mPendingImageUris.get(0);
+                    if (xmppConnectionServiceBound) {
+                        attachImageToConversation(dConversation, uri);
+                        mPendingImageUris.clear();
+                    }
+                    Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    intent.setData(uri);
+                    sendBroadcast(intent);
+                } else mPendingImageUris.clear();
+            } else if (requestCode == ATTACHMENT_CHOICE_LOCATION) {
+                double latitude = data.getDoubleExtra("latitude", 0);
+                double longitude = data.getDoubleExtra("longitude", 0);
+                mPendingGeoUri = Uri.parse("geo:" + String.valueOf(latitude) + "," + String.valueOf(longitude));
+                if (xmppConnectionServiceBound) {
+                    attachLocationToConversation(dConversation, mPendingGeoUri);
+                    mPendingGeoUri = null;
+                }
+            }
+        } else {
+            mPendingImageUris.clear();
+            mPendingFileUris.clear();
+        }
+    }
+
+    private static List<Uri> extractUriFromIntent(final Intent intent) {
+        List<Uri> uris = new ArrayList<>();
+        if (intent == null) return uris;
+        Uri uri = intent.getData();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && uri == null) {
+            ClipData clipData = intent.getClipData();
+            for (int i = 0; i < clipData.getItemCount(); ++i)
+                uris.add(clipData.getItemAt(i).getUri());
+        } else uris.add(uri);
+        return uris;
     }
 }
