@@ -461,7 +461,7 @@ public abstract class XmppActivity extends FragmentActivity {
 
 	private void switchToConversation(Conversation conversation, String text, String nick, boolean pm, boolean newTask) {
 		Intent viewConversationIntent = new Intent(this,
-				ConversationActivity.class);
+				FxUi.class);
 		viewConversationIntent.setAction(Intent.ACTION_VIEW);
 		viewConversationIntent.putExtra(ConversationActivity.CONVERSATION,
 				conversation.getUuid());
