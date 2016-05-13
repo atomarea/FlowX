@@ -1,23 +1,27 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/action_add"
         android:icon="?attr/icon_new"
         android:orderInCategory="10"
         android:showAsAction="always"
-        android:title="@string/action_add" />
+        android:title="@string/action_add"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_security"
         android:icon="?attr/icon_not_secure"
         android:orderInCategory="20"
         android:showAsAction="always"
-        android:title="@string/action_secure" />
+        android:title="@string/action_secure"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_attach_file"
         android:icon="?attr/icon_new_attachment"
         android:orderInCategory="30"
         android:showAsAction="always"
-        android:title="@string/attach_file" />
+        android:title="@string/attach_file"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_contact_details"
         android:orderInCategory="40"

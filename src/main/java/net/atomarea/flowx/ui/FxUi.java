@@ -118,6 +118,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     private SendButtonAction dSendButtonAction;
 
     private boolean backendConnected;
+    private boolean menuInflated;
 
     private State mFxState;
 
@@ -139,7 +140,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
      * [[ MENU ITEMS ]]
      ***/
 
-    private MenuItem miSecurity, miArchive, miMucDetails, miContactDetails, miAttach, miClearHistory, miAdd, miInviteContact, miMute, miUnmute;
+    private MenuItem miSecurity, miArchive, miMucDetails, miContactDetails, miAttach, miClearHistory, miAdd, miInviteContact, miMute, miUnmute, miMyAccount, miSettings;
 
     /***
      * [[ ENUM FOR THE UI STATE ]]
@@ -181,6 +182,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         mFxState = State.STARTUP; // startup...
 
         backendConnected = false; // backend isn't connected at startup
+        menuInflated = false;
 
         mToolbar = (Toolbar) findViewById(R.id.fx_toolbar); // find toolbar and
         mToolbar.setTitleTextColor(Color.WHITE); // set toolbar options and
@@ -295,7 +297,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         miMute = menu.findItem(R.id.action_mute);
         miSecurity = menu.findItem(R.id.action_security);
         miUnmute = menu.findItem(R.id.action_unmute);
+        miMyAccount = menu.findItem(R.id.action_accounts);
+        miSettings = menu.findItem(R.id.action_settings);
 
+        menuInflated = true;
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -340,6 +345,21 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                         getSupportActionBar().setSubtitle(null);
                         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                         getSupportActionBar().setLogo(null);
+                    }
+
+                    if (menuInflated) {
+                        miAdd.setVisible(true);
+                        miArchive.setVisible(false);
+                        miAttach.setVisible(false);
+                        miClearHistory.setVisible(false);
+                        miContactDetails.setVisible(false);
+                        miInviteContact.setVisible(false);
+                        miMucDetails.setVisible(false);
+                        miMute.setVisible(false);
+                        miSecurity.setVisible(false);
+                        miUnmute.setVisible(false);
+                        miMyAccount.setVisible(true);
+                        miSettings.setVisible(true);
                     }
 
                     ArrayList<Conversation> tConversationList = new ArrayList<>();
@@ -401,6 +421,27 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                     }
 
+                    boolean GroupConversation = dConversation.getMode() == Conversation.MODE_MULTI; // is it a group conversation
+
+                    if (menuInflated) {
+                        miAdd.setVisible(false);
+                        miArchive.setVisible(true);
+                        miAttach.setVisible(true);
+                        miClearHistory.setVisible(true);
+                        if (!GroupConversation) miContactDetails.setVisible(true);
+                        else miContactDetails.setVisible(false);
+                        if (GroupConversation) miInviteContact.setVisible(true);
+                        else miInviteContact.setVisible(false);
+                        if (GroupConversation) miMucDetails.setVisible(true);
+                        else miMucDetails.setVisible(false);
+                        miMute.setVisible(true);
+                        if (!GroupConversation) miSecurity.setVisible(true);
+                        else miSecurity.setVisible(false);
+                        miUnmute.setVisible(true);
+                        miMyAccount.setVisible(true);
+                        miSettings.setVisible(true);
+                    }
+
                     ArrayList<Message> tMessages = new ArrayList<>();
                     dConversation.populateWithMessages(tMessages);
 
@@ -411,8 +452,6 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                             continue; // show the last 30 messages... more coming soon
 
                         final Message tMessage = tMessages.get(i); // #finalie
-
-                        boolean GroupConversation = tMessage.getConversation().getMode() == Conversation.MODE_MULTI && tMessage.getMergedStatus() <= Message.STATUS_RECEIVED; // is it a group conversation
 
                         boolean _Error = false;
 
@@ -790,7 +829,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
      * [[ ATTACH A FILE, NO MATTER WHAT ]]
      ***/
 
-    public void attachFile(final int attachmentChoice) {
+    public void attachFile(int attachmentChoice) {
         if (attachmentChoice != ATTACHMENT_CHOICE_LOCATION)
             if (!hasStoragePermission(attachmentChoice)) return;
         if (dConversation.getNextEncryption() != Message.ENCRYPTION_AXOLOTL || !FxUiHelper.axolotlTrustKeys(REQUEST_TRUST_KEYS_MENU, App))
@@ -801,7 +840,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
      * [[ SOMETHING WILL BE ATTACHED ]]
      ***/
 
-    protected void selectPresenceToAttachFile(final int attachmentChoice, final int encryption) {
+    protected void selectPresenceToAttachFile(final int attachmentChoice, int encryption) {
         Account account = dConversation.getAccount();
         FxXmppActivity.OnPresenceSelected callback = new FxXmppActivity.OnPresenceSelected() {
             @Override
