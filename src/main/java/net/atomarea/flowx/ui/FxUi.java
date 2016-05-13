@@ -309,7 +309,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
      * [[ LOCAL UI REFRESH ]]
      ***/
 
-    public void refreshFxUi(State toState, final boolean animate) {
+    public void refreshFxUi(State toState, final boolean animate, final int... args) {
         if (InStateRefresh) {
             StateRefreshQueued = true;
             return;
@@ -447,8 +447,21 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
                     xmppConnectionService.sendReadMarker(dConversation); // mark as read and force refresh to server
 
+                    final int MessageCountToShow = (args.length >= 1 ? args[0] : 30);
+
+                    if (tMessages.size() - MessageCountToShow > 0) {
+                        View vLoadMoreMessages = getLayoutInflater().inflate(R.layout.fx_row_load_more_messages, mLayout, false);
+                        vLoadMoreMessages.findViewById(R.id.fx_row_load_more_messages_button).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                refreshFxUi(State.SINGLE_CONVERSATION, false, MessageCountToShow + 30);
+                            }
+                        });
+                        mLayout.addView(vLoadMoreMessages);
+                    }
+
                     for (int i = 0; i < tMessages.size(); i++) {
-                        if (tMessages.size() - 30 > i)
+                        if (tMessages.size() - MessageCountToShow > i)
                             continue; // show the last 30 messages... more coming soon
 
                         final Message tMessage = tMessages.get(i); // #finalie

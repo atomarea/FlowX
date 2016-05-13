@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fx_row_load_more_messages_button"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/grey200"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:padding="12dp"
+        android:text="@string/load_more_messages"
+        android:textSize="16sp" />
+
+</LinearLayout>
