@@ -447,14 +447,14 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
                     xmppConnectionService.sendReadMarker(dConversation); // mark as read and force refresh to server
 
-                    final int MessageCountToShow = (args.length >= 1 ? args[0] : 30);
+                    final int MessageCountToShow = (args.length >= 2 ? args[1] : 30);
 
                     if (tMessages.size() - MessageCountToShow > 0) {
                         View vLoadMoreMessages = getLayoutInflater().inflate(R.layout.fx_row_load_more_messages, mLayout, false);
                         vLoadMoreMessages.findViewById(R.id.fx_row_load_more_messages_button).setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                refreshFxUi(State.SINGLE_CONVERSATION, false, MessageCountToShow + 30);
+                                refreshFxUi(State.SINGLE_CONVERSATION, false, 1, MessageCountToShow + 30);
                             }
                         });
                         mLayout.addView(vLoadMoreMessages);
@@ -581,7 +581,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                     mScroll.post(new Runnable() {
                         @Override
                         public void run() {
-                            mScroll.fullScroll(ScrollView.FOCUS_DOWN); // Scroll down =3
+                            if (args.length == 0 || args.length >= 1 && args[0] == 0)
+                                mScroll.fullScroll(ScrollView.FOCUS_DOWN); // Scroll down =3
+                            else if (args.length >= 1 && args[0] == 1)
+                                mScroll.fullScroll(ScrollView.FOCUS_UP); // Scroll up =3
                         }
                     });
 

@@ -3,6 +3,11 @@ package net.atomarea.flowx.entities;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.xmpp.chatstate.ChatState;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
 import net.java.otr4j.OtrException;
 import net.java.otr4j.crypto.OtrCryptoException;
 import net.java.otr4j.session.SessionID;
@@ -18,14 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.xmpp.chatstate.ChatState;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class Conversation extends AbstractEntity implements Blockable {
     public static final String TABLENAME = "conversations";
@@ -228,13 +226,14 @@ public class Conversation extends AbstractEntity implements Blockable {
         }
         return null;
     }
+
     public Message findMessageWithRemoteIdAndCounterpart(String id, Jid counterpart, boolean received, boolean carbon) {
         synchronized (this.messages) {
-            for(int i = this.messages.size() - 1; i >= 0; --i) {
+            for (int i = this.messages.size() - 1; i >= 0; --i) {
                 Message message = messages.get(i);
                 if (counterpart.equals(message.getCounterpart())
                         && ((message.getStatus() == Message.STATUS_RECEIVED) == received)
-                        && (carbon == message.isCarbon() || received) ) {
+                        && (carbon == message.isCarbon() || received)) {
                     if (id.equals(message.getRemoteMsgId())) {
                         return message;
                     } else {
@@ -245,6 +244,7 @@ public class Conversation extends AbstractEntity implements Blockable {
         }
         return null;
     }
+
     public Message findSentMessageWithUuid(String id) {
         synchronized (this.messages) {
             for (Message message : this.messages) {
@@ -261,11 +261,11 @@ public class Conversation extends AbstractEntity implements Blockable {
             messages.clear();
             messages.addAll(this.messages);
         }
-        for (Iterator<Message> iterator = messages.iterator(); iterator.hasNext(); ) {
+        /*for (Iterator<Message> iterator = messages.iterator(); iterator.hasNext(); ) {
             if (iterator.next().wasMergedIntoPrevious()) {
                 iterator.remove();
             }
-        }
+        }*/
     }
 
     @Override
@@ -324,9 +324,11 @@ public class Conversation extends AbstractEntity implements Blockable {
     public Message getCorrectingMessage() {
         return this.correctingMessage;
     }
+
     public boolean withSelf() {
         return getContact().isSelf();
     }
+
     public interface OnMessageFound {
         void onMessageFound(final Message message);
     }
@@ -825,7 +827,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 
     public boolean setAttribute(String key, List<Jid> jids) {
         JSONArray array = new JSONArray();
-        for(Jid jid : jids) {
+        for (Jid jid : jids) {
             array.put(jid.toBareJid().toString());
         }
         synchronized (this.attributes) {
