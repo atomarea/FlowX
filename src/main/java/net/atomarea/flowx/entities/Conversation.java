@@ -183,13 +183,7 @@ public class Conversation extends AbstractEntity implements Blockable {
     }
 
     public void trim() {
-        synchronized (this.messages) {
-            final int size = messages.size();
-            final int maxsize = Config.PAGE_SIZE * Config.MAX_NUM_PAGES;
-            if (size > maxsize) {
-                this.messages.subList(0, size - maxsize).clear();
-            }
-        }
+        // not used :)
     }
 
     public void findUnsentMessagesWithEncryption(int encryptionType, OnMessageFound onMessageFound) {
