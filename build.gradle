@@ -47,6 +47,7 @@ dependencies {
 	compile 'com.android.support:multidex:1.0.1'
 	compile 'org.osmdroid:osmdroid-android:4.3'
 	compile 'org.slf4j:slf4j-simple:1.7.9'
+    compile 'com.google.android.gms:play-services:6.5.87'
 	compile('eu.livotov.labs.android:CAMView:2.0.1@aar') { transitive = true }
 	playstoreCompile 'com.google.android.gms:play-services-gcm:8.4.0'
 }
@@ -64,8 +65,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 1424
-        versionName "1.53"
+        versionCode 1425
+        versionName "1.54"
         archivesBaseName += "-$versionName"
         applicationId "net.atomarea.flowx"
         multiDexEnabled true
@@ -79,6 +80,9 @@ android {
     productFlavors {
         push
         nonpush
+    }
+    dexOptions {
+        javaMaxHeapSize "4g"
     }
     if (project.hasProperty('mStoreFile') &&
             project.hasProperty('mStorePassword') &&

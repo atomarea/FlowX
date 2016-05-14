@@ -64,6 +64,7 @@ public final class Config {
     public static final Bitmap.CompressFormat IMAGE_FORMAT = Bitmap.CompressFormat.JPEG;
     public static final int IMAGE_QUALITY = 80;
     public static final int IMAGE_MAX_SIZE = 524288; //512KiB
+    public static final int DEFAULT_ZOOM = 15; //for locations
 
     public static final int MESSAGE_MERGE_WINDOW = 1; // don't group messages...
 
