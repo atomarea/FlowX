@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 
@@ -40,6 +41,7 @@ public class GeoHelper {
 			return intents;
 		}
 		final Conversation conversation = message.getConversation();
+		final Contact contact = message.getContact();
 		String label;
 		if (conversation.getMode() == Conversation.MODE_SINGLE && message.getStatus() == Message.STATUS_RECEIVED) {
 			try {
@@ -60,6 +62,18 @@ public class GeoHelper {
 				locationPluginIntent.putExtra("jid",message.getCounterpart().toString());
 			}
 			else {
+				locationPluginIntent.putExtra("name", conversation.getAccount().getUsername());
+				locationPluginIntent.putExtra("jid",conversation.getAccount().getJid().toString());
+			}
+		} else {
+			if (message.getStatus() == Message.STATUS_RECEIVED) {
+				if (contact != null) {
+					locationPluginIntent.putExtra("name",contact.getDisplayName());
+				} 
+				locationPluginIntent.putExtra("jid",message.getCounterpart().toString());
+			}
+			else {
+				locationPluginIntent.putExtra("name", conversation.getAccount().getUsername());
 				locationPluginIntent.putExtra("jid",conversation.getAccount().getJid().toString());
 			}
 		}
