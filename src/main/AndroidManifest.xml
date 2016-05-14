@@ -19,6 +19,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 
     <uses-permission
         android:name="android.permission.READ_PHONE_STATE"
@@ -128,24 +129,27 @@
             android:name=".ui.ManageAccountActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_manage_accounts" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="@string/google_maps_api_key" />
+
         <activity
-            android:name=".activities.ShareLocationActivity"
-            android:label="@string/title_activity_share_location" >
+            android:name=".ui.ShareLocationActivity"
+            android:label="@string/share_location" >
             <intent-filter>
                 <action android:name="net.atomarea.flowx.location.request" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".activities.ShowLocationActivity"
-            android:label="@string/title_activity_show_location" >
+            android:name=".ui.ShowLocationActivity"
+            android:label="@string/show_location" >
             <intent-filter>
                 <action android:name="net.atomarea.flowx.location.show" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <data android:scheme="geo" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
