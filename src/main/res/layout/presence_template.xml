@@ -25,7 +25,7 @@
         emojicon:emojiconSize="25sp"
         android:textColor="@color/black87"
         android:textSize="?attr/TextSizeBody"/>
-    <TextView
+    <github.ankushsachdeva.emojicon.EmojiconTextView
         android:id="@+id/status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.atomarea.flowx.xml.Element;
 
@@ -54,6 +55,16 @@ public class Presences {
 		}
 	}
 
+	public List<PresenceTemplate> asTemplates() {
+		synchronized (this.presences) {
+			ArrayList<PresenceTemplate> templates = new ArrayList<>(presences.size());
+			for(Presence p : presences.values()) {
+				templates.add(new PresenceTemplate(p.getStatus(),p.getMessage()));
+			}
+			return templates;
+		}
+	}
+
 	public boolean has(String presence) {
 		synchronized (this.presences) {
 			return presences.containsKey(presence);
@@ -64,11 +75,24 @@ public class Presences {
 		ArrayList<String> messages = new ArrayList<>();
 		synchronized (this.presences) {
 			for(Presence presence : this.presences.values()) {
-				if (presence.message != null && !presence.message.trim().isEmpty()) {
-					messages.add(presence.message.trim());
+				String message = presence.getMessage() == null ? null : presence.getMessage().trim();
+				if (message != null && !message.isEmpty() && !messages.contains(message)) {
+					messages.add(message);
 				}
 			}
 		}
 		return messages;
+	}
+
+	public boolean allOrNonSupport(String namespace) {
+		synchronized (this.presences) {
+			for(Presence presence : this.presences.values()) {
+				ServiceDiscoveryResult disco = presence.getServiceDiscoveryResult();
+				if (disco == null || !disco.getFeatures().contains(namespace)) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }
