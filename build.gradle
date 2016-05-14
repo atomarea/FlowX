@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.1.0'
     }
 }
 
@@ -44,9 +44,10 @@ dependencies {
 	compile 'org.sufficientlysecure:openpgp-api:10.0'
 	compile 'com.yalantis:contextmenu:1.0.6'
 	compile 'com.github.manuelpeinado.fadingactionbar:fadingactionbar:3.1.2'
-	compile 'com.android.support:multidex:1.0.0'
+	compile 'com.android.support:multidex:1.0.1'
 	compile 'org.osmdroid:osmdroid-android:4.3'
 	compile 'org.slf4j:slf4j-simple:1.7.9'
+    compile 'com.google.android.gms:play-services:6.5.87'
 	compile('eu.livotov.labs.android:CAMView:2.0.1@aar') { transitive = true }
 	playstoreCompile 'com.google.android.gms:play-services-gcm:8.4.0'
 }
@@ -61,8 +62,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
         archivesBaseName += "-$versionName"
         applicationId "net.atomarea.flowx_nobind"
         multiDexEnabled true
@@ -76,6 +77,9 @@ android {
     productFlavors {
         push
         nonpush
+    }
+    dexOptions {
+        javaMaxHeapSize "4g"
     }
     if (project.hasProperty('mStoreFile') &&
             project.hasProperty('mStorePassword') &&

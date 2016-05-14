@@ -1,14 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:map="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context="net.atomarea.flowx_nobind.activities.ShareLocationActivity">
+                android:background="@color/ripple_material_dark">
+    <fragment
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:id="@+id/map_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/snackbar"
+        map:mapType="normal"
+        map:uiCompass="false"
+        map:uiRotateGestures="false"
+        map:uiScrollGestures="true"
+        map:uiTiltGestures="false"
+        map:uiZoomControls="false"
+        map:uiZoomGestures="true"
+        tools:ignore="MissingPrefix"/>
 
-    <org.osmdroid.views.MapView android:id="@+id/map"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent" />
-
-    <!-- Parts of this resource are copied from the official location sharing plugin by iNPUTmice -->
     <RelativeLayout
         android:id="@+id/snackbar"
         android:layout_width="fill_parent"
@@ -26,14 +37,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/snackbar_action"
-            android:layout_toStartOf="@+id/snackbar_action"
             android:paddingLeft="24dp"
-            android:textColor="@color/ondarktext"
+            android:textColor="@color/grey50"
             android:textSize="?attr/TextSizeBody"
-            android:text="@string/location_disabled"/>
+            android:text="@string/location_sharing_disabled"/>
 
         <TextView
             android:id="@+id/snackbar_action"
@@ -44,7 +53,7 @@
             android:paddingRight="24dp"
             android:paddingTop="16dp"
             android:textAllCaps="true"
-            android:textColor="@color/ondarktext"
+            android:textColor="@color/grey50"
             android:textSize="?attr/TextSizeBody"
             android:textStyle="bold"
             android:text="@string/enable"
@@ -53,14 +62,38 @@
             android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/location"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_above="@+id/button_bar"
+        android:background="@drawable/snackbar"
+        android:minHeight="24dp"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@id/snackbar_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:paddingLeft="24dp"
+            android:textColor="@color/grey50"
+            android:textSize="?attr/TextSizeBody"
+            android:layout_centerVertical="true" />
+
+    </RelativeLayout>
+
     <LinearLayout
         android:id="@+id/button_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        tools:ignore="RtlHardcoded">
+        android:layout_alignParentRight="true" >
 
         <Button
             android:id="@+id/cancel_button"
@@ -69,14 +102,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/cancel"
-            android:textColor="@color/primarytext" />
+            android:textColor="@color/primary" />
 
         <View
             android:layout_width="1dp"
             android:layout_height="fill_parent"
             android:layout_marginBottom="7dp"
             android:layout_marginTop="7dp"
-            android:background="@color/divider" />
+            android:background="@color/primary" />
 
         <Button
             android:id="@+id/share_button"
@@ -86,7 +119,6 @@
             android:layout_weight="1"
             android:enabled="false"
             android:text="@string/share"
-            android:textColor="@color/secondarytext" />
+            android:textColor="@color/secondary_text_disabled_material_light" />
     </LinearLayout>
-
 </RelativeLayout>
