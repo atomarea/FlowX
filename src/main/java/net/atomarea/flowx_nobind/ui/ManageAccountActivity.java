@@ -199,7 +199,7 @@ public class ManageAccountActivity extends XmppActivity implements OnAccountUpda
 		switch (item.getItemId()) {
 			case R.id.action_add_account:
 				startActivity(new Intent(getApplicationContext(),
-						EditAccountActivity.class));
+						RegisterActivity.class));
 				break;
 			case R.id.action_disable_all:
 				disableAllAccounts();
