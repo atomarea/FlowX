@@ -1840,8 +1840,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
                     final MucOptions mucOptions = conversation.getMucOptions();
                     final Jid joinJid = mucOptions.getSelf().getFullJid();
                     Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": joining conversation " + joinJid.toString());
-                    PresencePacket packet = new PresencePacket();
-                    packet.setFrom(conversation.getAccount().getJid());
+                    PresencePacket packet = mPresenceGenerator.selfPresence(account, Presence.Status.ONLINE);
                     packet.setTo(joinJid);
                     Element x = packet.addChild("x", "http://jabber.org/protocol/muc");
                     if (conversation.getMucOptions().getPassword() != null) {
@@ -1854,10 +1853,6 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
                     } else {
                         // Fallback to muc history
                         x.addChild("history").setAttribute("since", PresenceGenerator.getTimestamp(conversation.getLastMessageTransmitted()));
-                    }
-                    String sig = account.getPgpSignature();
-                    if (sig != null) {
-                        packet.addChild("x", "jabber:x:signed").setContent(sig);
                     }
                     sendPresencePacket(account, packet);
                     if (onConferenceJoined != null) {
@@ -1906,11 +1901,26 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 
             @Override
             public void onIqPacketReceived(Account account, IqPacket packet) {
+
                 Element query = packet.query("http://jabber.org/protocol/muc#admin");
                 if (packet.getType() == IqPacket.TYPE.RESULT && query != null) {
-                    for (Element child : query.getChildren()) {
+                    final String local = conversation.getJid().getLocalpart();
+                    final String domain = conversation.getJid().getDomainpart();
+                    for(Element child : query.getChildren()) {
                         if ("item".equals(child.getName())) {
-                            conversation.getMucOptions().putMember(child.getAttributeAsJid("jid"));
+                            String affiliation = child.getAttribute("affiliation");
+                            String role = child.getAttribute("role");
+                            String nick = child.getAttribute("nick");
+                            Jid fullJid;
+                            try {
+                                fullJid = nick != null ? Jid.fromParts(local, domain, nick) : null;
+                            } catch (InvalidJidException e) {
+                                fullJid = null;
+                            }
+                            Jid realJid = child.getAttributeAsJid("jid");
+                            if (realJid != null && !realJid.equals(account.getJid().toBareJid())) {
+                                conversation.getMucOptions().putMember(fullJid, realJid, affiliation, role);
+                            }
                         }
                     }
                 } else {
@@ -2182,13 +2192,16 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
         }
     }
 
-    public void changeAffiliationInConference(final Conversation conference, Jid user, MucOptions.Affiliation affiliation, final OnAffiliationChanged callback) {
+
+    public void changeAffiliationInConference(final Conversation conference, Jid user, final MucOptions.Affiliation affiliation, final OnAffiliationChanged callback) {
         final Jid jid = user.toBareJid();
         IqPacket request = this.mIqGenerator.changeAffiliation(conference, jid, affiliation.toString());
         sendIqPacket(conference.getAccount(), request, new OnIqPacketReceived() {
             @Override
             public void onIqPacketReceived(Account account, IqPacket packet) {
                 if (packet.getType() == IqPacket.TYPE.RESULT) {
+                    conference.getMucOptions().changeAffiliation(jid, affiliation);
+                    getAvatarService().clear(conference);
                     callback.onAffiliationChangedSuccessful(jid);
                 } else {
                     callback.onAffiliationChangeFailed(jid, R.string.could_not_change_affiliation);
@@ -2200,8 +2213,8 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
     public void changeAffiliationsInConference(final Conversation conference, MucOptions.Affiliation before, MucOptions.Affiliation after) {
         List<Jid> jids = new ArrayList<>();
         for (MucOptions.User user : conference.getMucOptions().getUsers()) {
-            if (user.getAffiliation() == before && user.getJid() != null) {
-                jids.add(user.getJid());
+            if (user.getAffiliation() == before && user.getRealJid() != null) {
+                jids.add(user.getRealJid());
             }
         }
         IqPacket request = this.mIqGenerator.changeAffiliation(conference, jids, after.toString());
@@ -2581,7 +2594,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
                             } else {
                                 Conversation conversation = find(account, avatar.owner.toBareJid());
                                 if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI) {
-                                    MucOptions.User user = conversation.getMucOptions().findUser(avatar.owner.getResourcepart());
+                                    MucOptions.User user = conversation.getMucOptions().findUserByFullJid(avatar.owner);
                                     if (user != null) {
                                         if (user.setAvatar(avatar)) {
                                             getAvatarService().clear(user);
