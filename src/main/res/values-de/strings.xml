@@ -536,7 +536,7 @@
     <string name="your_full_jid_will_be"></string>
     <string name="create_account">Account erstellen</string>
     <string name="use_own_provider">Anmelden</string>
-    <string name="pick_your_username">Wähle dein Benuternamen</string>
+    <string name="pick_your_username">Wähle dein Accountname</string>
     <string name="change_presence">Status</string>
     <string name="status_message">Status Nachricht</string>
     <string name="title_activity_share_location">Standort teilen</string>

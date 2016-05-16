@@ -654,7 +654,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
     }
 
     private boolean awayWhenScreenOff() {
-        return getPreferences().getBoolean("away_when_screen_off", false);
+        return getPreferences().getBoolean("away_when_screen_off", true);
     }
 
     private String getCompressPicturesPreference() {
@@ -782,7 +782,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
     }
 
     public void toggleScreenEventReceiver() {
-        if (awayWhenScreenOff() && !manuallyChangePresence()) {
+        if (awayWhenScreenOff()) {
             final IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
             filter.addAction(Intent.ACTION_SCREEN_OFF);
             registerReceiver(this.mEventReceiver, filter);
