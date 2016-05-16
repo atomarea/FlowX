@@ -1,12 +1,17 @@
 package net.atomarea.flowx.parser;
 
+import android.text.Html;
 import android.util.Log;
 import android.util.Pair;
 
+import net.atomarea.flowx.entities.Presence;
+import net.atomarea.flowx.entities.ServiceDiscoveryResult;
 import net.java.otr4j.session.Session;
 import net.java.otr4j.session.SessionStatus;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,8 +36,10 @@ import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.MessagePacket;
 
-public class MessageParser extends AbstractParser implements
-        OnMessagePacketReceived {
+public class MessageParser extends AbstractParser implements OnMessagePacketReceived {
+
+    private static final List<String> CLIENTS_SENDING_HTML_IN_OTR = Arrays.asList(new String[]{"Pidgin","Adium"});
+
     public MessageParser(XmppConnectionService service) {
         super(service);
     }
@@ -95,6 +102,11 @@ public class MessageParser extends AbstractParser implements
                 conversation.setSymmetricKey(CryptoHelper.hexToBytes(key));
                 return null;
             }
+            if (clientMightSendHtml(conversation.getAccount(), from)) {
+                Log.d(Config.LOGTAG,conversation.getAccount().getJid().toBareJid()+": received OTR message from bad behaving client. escaping HTML…");
+                body = Html.fromHtml(body).toString();
+            }
+
             final OtrService otrService = conversation.getAccount().getOtrService();
             Message finishedMessage = new Message(conversation, body, Message.ENCRYPTION_OTR, Message.STATUS_RECEIVED);
             finishedMessage.setFingerprint(otrService.getFingerprint(otrSession.getRemotePublicKey()));
@@ -105,6 +117,29 @@ public class MessageParser extends AbstractParser implements
             conversation.resetOtrSession();
             return null;
         }
+    }
+    private static boolean clientMightSendHtml(Account account, Jid from) {
+        String resource = from.getResourcepart();
+        if (resource == null) {
+            return false;
+        }
+        Presence presence = account.getRoster().getContact(from).getPresences().getPresences().get(resource);
+        ServiceDiscoveryResult disco = presence == null ? null : presence.getServiceDiscoveryResult();
+        if (disco == null) {
+            return false;
+        }
+        return hasIdentityKnowForSendingHtml(disco.getIdentities());
+    }
+
+    private static boolean hasIdentityKnowForSendingHtml(List<ServiceDiscoveryResult.Identity> identities) {
+        for(ServiceDiscoveryResult.Identity identity : identities) {
+            if (identity.getName() != null) {
+                if (CLIENTS_SENDING_HTML_IN_OTR.contains(identity.getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private Message parseAxolotlChat(Element axolotlMessage, Jid from, Conversation conversation, int status) {
@@ -312,7 +347,7 @@ public class MessageParser extends AbstractParser implements
         }
 
         boolean isTypeGroupChat = packet.getType() == MessagePacket.TYPE_GROUPCHAT;
-        boolean isProperlyAddressed = (to != null) && (!to.isBareJid() || account.countPresences() <= 1);
+        boolean isProperlyAddressed = (to != null ) && (!to.isBareJid() || account.countPresences() == 0);
         boolean isMucStatusMessage = from.isBareJid() && mucUserElement != null && mucUserElement.hasChild("status");
         if (packet.fromAccount(account)) {
             status = Message.STATUS_SEND;
@@ -366,7 +401,7 @@ public class MessageParser extends AbstractParser implements
             } else if (axolotlEncrypted != null && Config.supportOmemo()) {
                 Jid origin;
                 if (conversation.getMode() == Conversation.MODE_MULTI) {
-                    origin = conversation.getMucOptions().getTrueCounterpart(counterpart.getResourcepart());
+                    origin = conversation.getMucOptions().getTrueCounterpart(counterpart);
                     if (origin == null) {
                         Log.d(Config.LOGTAG, "axolotl message in non anonymous conference received");
                         return;
@@ -394,7 +429,7 @@ public class MessageParser extends AbstractParser implements
             message.setOob(isOob);
             message.markable = packet.hasChild("markable", "urn:xmpp:chat-markers:0");
             if (conversation.getMode() == Conversation.MODE_MULTI) {
-                Jid trueCounterpart = conversation.getMucOptions().getTrueCounterpart(counterpart.getResourcepart());
+                Jid trueCounterpart = conversation.getMucOptions().getTrueCounterpart(counterpart);
                 message.setTrueCounterpart(trueCounterpart);
                 if (trueCounterpart != null) {
                     updateLastseen(timestamp, account, trueCounterpart, false);
