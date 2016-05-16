@@ -379,7 +379,7 @@
     <string name="disable_all_accounts">Offline-Modus</string>
     <string name="perform_action_with">Aktion durchführen mit</string>
     <string name="no_affiliation">Keine Zugehörigkeit</string>
-    <string name="no_role">Keine Rolle</string>
+    <string name="no_role">Offline</string>
     <string name="outcast">Ausgeschlossen</string>
     <string name="member">Mitglied</string>
     <string name="advanced_mode">Experten Modus</string>
@@ -545,4 +545,5 @@
     <string name="action_share_location">Standort teilen</string>
     <string name="location_disabled">Standort teilen nicht möglich!</string>
     <string name="create_contact_info">Gebe hier den Benutzernamen eines Freundes ein!</string>
+    <string name="account_status_host_unknown">Host unbekannt</string>
 </resources>

@@ -418,7 +418,7 @@
 	<string name="disable_all_accounts">Disable all accounts</string>
 	<string name="perform_action_with">Perform action with</string>
 	<string name="no_affiliation">No affiliation</string>
-	<string name="no_role">No role</string>
+	<string name="no_role">Offline</string>
 	<string name="outcast">Outcast</string>
 	<string name="member">Member</string>
 	<string name="advanced_mode">Advanced mode</string>
@@ -638,5 +638,5 @@
 	<string name="account_status_bind_failure">Bind failure</string>
 	<string name="openpgp_has_been_published">OpenPGP public key has been published.</string>
 	<string name="republish_pgp_keys">Remember to republish your OpenPGP public keys!</string>
-	<string name="account_status_host_unknown">Domain not recognized</string>
+	<string name="account_status_host_unknown">Host unknown</string>
 </resources>
