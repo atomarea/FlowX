@@ -145,7 +145,7 @@ public class ServiceDiscoveryResult {
 		this.hash = hash;
 		this.ver = ver;
 
-		JSONArray identities = o.optJSONArray("identities");
+		JSONArray identities = o.optJSONArray("identites");
 		if (identities != null) {
 			for (int i = 0; i < identities.length(); i++) {
 				this.identities.add(new Identity(identities.getJSONObject(i)));
