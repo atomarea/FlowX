@@ -44,6 +44,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:autoLink="all"
+                android:maxLines="256"
                 android:fontFamily="sans-serif"
                 android:textColor="@color/black12"
                 android:textColorHighlight="@color/grey800"

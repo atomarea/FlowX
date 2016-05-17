@@ -8,8 +8,11 @@ import java.util.Locale;
 
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
+import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.entities.MucOptions;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.xml.Element;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.stanzas.AbstractStanza;
 
@@ -69,5 +72,24 @@ public abstract class AbstractParser {
             return null;
         }
         return item.findChildContent("data", "urn:xmpp:avatar:data");
+    }
+    public static MucOptions.User parseItem(Conversation conference, Element item) {
+        final String local = conference.getJid().getLocalpart();
+        final String domain = conference.getJid().getDomainpart();
+        String affiliation = item.getAttribute("affiliation");
+        String role = item.getAttribute("role");
+        String nick = item.getAttribute("nick");
+        Jid fullJid;
+        try {
+            fullJid = nick != null ? Jid.fromParts(local, domain, nick) : null;
+        } catch (InvalidJidException e) {
+            fullJid = null;
+        }
+        Jid realJid = item.getAttributeAsJid("jid");
+        MucOptions.User user = new MucOptions.User(conference.getMucOptions(), nick == null ? null : fullJid);
+        user.setRealJid(realJid);
+        user.setAffiliation(affiliation);
+        user.setRole(role);
+        return user;
     }
 }
