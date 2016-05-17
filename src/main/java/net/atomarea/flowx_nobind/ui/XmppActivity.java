@@ -511,7 +511,7 @@ public abstract class XmppActivity extends FragmentActivity {
 				ChooseContactActivity.class);
 		List<String> contacts = new ArrayList<>();
 		if (conversation.getMode() == Conversation.MODE_MULTI) {
-			for (MucOptions.User user : conversation.getMucOptions().getUsers()) {
+			for (MucOptions.User user : conversation.getMucOptions().getUsers(false)) {
 				Jid jid = user.getRealJid();
 				if (jid != null) {
 					contacts.add(jid.toBareJid().toString());

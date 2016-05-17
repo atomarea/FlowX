@@ -38,7 +38,7 @@ import net.atomarea.flowx_nobind.xmpp.stanzas.MessagePacket;
 
 public class MessageParser extends AbstractParser implements OnMessagePacketReceived {
 
-    private static final List<String> CLIENTS_SENDING_HTML_IN_OTR = Arrays.asList(new String[]{"Pidgin","Adium"});
+    private static final List<String> CLIENTS_SENDING_HTML_IN_OTR = Arrays.asList(new String[]{"Pidgin", "Adium"});
 
     public MessageParser(XmppConnectionService service) {
         super(service);
@@ -103,7 +103,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                 return null;
             }
             if (clientMightSendHtml(conversation.getAccount(), from)) {
-                Log.d(Config.LOGTAG,conversation.getAccount().getJid().toBareJid()+": received OTR message from bad behaving client. escaping HTML…");
+                Log.d(Config.LOGTAG, conversation.getAccount().getJid().toBareJid() + ": received OTR message from bad behaving client. escaping HTML…");
                 body = Html.fromHtml(body).toString();
             }
 
@@ -118,6 +118,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
             return null;
         }
     }
+
     private static boolean clientMightSendHtml(Account account, Jid from) {
         String resource = from.getResourcepart();
         if (resource == null) {
@@ -132,7 +133,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
     }
 
     private static boolean hasIdentityKnowForSendingHtml(List<ServiceDiscoveryResult.Identity> identities) {
-        for(ServiceDiscoveryResult.Identity identity : identities) {
+        for (ServiceDiscoveryResult.Identity identity : identities) {
             if (identity.getName() != null) {
                 if (CLIENTS_SENDING_HTML_IN_OTR.contains(identity.getName())) {
                     return true;
@@ -347,7 +348,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
         }
 
         boolean isTypeGroupChat = packet.getType() == MessagePacket.TYPE_GROUPCHAT;
-        boolean isProperlyAddressed = (to != null ) && (!to.isBareJid() || account.countPresences() == 0);
+        boolean isProperlyAddressed = (to != null) && (!to.isBareJid() || account.countPresences() == 0);
         boolean isMucStatusMessage = from.isBareJid() && mucUserElement != null && mucUserElement.hasChild("status");
         if (packet.fromAccount(account)) {
             status = Message.STATUS_SEND;
@@ -535,8 +536,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                 }
             }
         } else if (!packet.hasChild("body")) { //no body
+            Conversation conversation = mXmppConnectionService.find(account, from.toBareJid());
             if (isTypeGroupChat) {
-                Conversation conversation = mXmppConnectionService.find(account, from.toBareJid());
                 if (packet.hasChild("subject")) {
                     if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI) {
                         conversation.setHasMessagesLeftOnServer(conversation.countMessages() > 0);
@@ -553,11 +554,22 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                     }
                 }
 
-                if (conversation != null && isMucStatusMessage) {
+            }
+            if (conversation != null && mucUserElement != null && from.isBareJid()) {
+                if (mucUserElement.hasChild("status")) {
                     for (Element child : mucUserElement.getChildren()) {
                         if (child.getName().equals("status")
                                 && MucOptions.STATUS_CODE_ROOM_CONFIG_CHANGED.equals(child.getAttribute("code"))) {
                             mXmppConnectionService.fetchConferenceConfiguration(conversation);
+                        }
+                    }
+                } else if (mucUserElement.hasChild("item")) {
+                    for (Element child : mucUserElement.getChildren()) {
+                        if ("item".equals(child.getName())) {
+                            MucOptions.User user = AbstractParser.parseItem(conversation, child);
+                            if (!user.realJidMatchesAccount()) {
+                                conversation.getMucOptions().addUser(user);
+                            }
                         }
                     }
                 }

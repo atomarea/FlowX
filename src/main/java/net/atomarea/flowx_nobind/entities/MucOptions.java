@@ -133,7 +133,7 @@ public class MucOptions {
 
 	}
 
-	public static class User {
+	public static class User implements Comparable<User> {
 		private Role role = Role.NONE;
 		private Affiliation affiliation = Affiliation.NONE;
 		private Jid realJid;
@@ -222,7 +222,13 @@ public class MucOptions {
 		}
 
 		public Contact getContact() {
-			return getAccount().getRoster().getContactFromRoster(getRealJid());
+			if (fullJid != null) {
+				return getAccount().getRoster().getContactFromRoster(realJid);
+			} else if (realJid != null){
+				return getAccount().getRoster().getContact(realJid);
+			} else {
+				return null;
+			}
 		}
 
 		public boolean setAvatar(Avatar avatar) {
@@ -273,6 +279,25 @@ public class MucOptions {
 		@Override
 		public String toString() {
 			return "[fulljid:"+String.valueOf(fullJid)+",realjid:"+String.valueOf(realJid)+",affiliation"+affiliation.toString()+"]";
+		}
+
+		public boolean realJidMatchesAccount() {
+			return realJid != null && realJid.equals(options.account.getJid().toBareJid());
+		}
+
+		@Override
+		public int compareTo(User another) {
+			Contact ourContact = getContact();
+			Contact anotherContact = another.getContact();
+			if (ourContact != null && anotherContact != null) {
+				return ourContact.compareTo(anotherContact);
+			} else if (ourContact == null && anotherContact != null) {
+				return getName().compareToIgnoreCase(anotherContact.getDisplayName());
+			} else if (ourContact != null) {
+				return ourContact.getDisplayName().compareToIgnoreCase(another.getName());
+			} else {
+				return getName().compareToIgnoreCase(another.getName());
+			}
 		}
 	}
 
@@ -349,7 +374,7 @@ public class MucOptions {
 		User user = findUserByFullJid(jid);
 		if (user != null) {
 			users.remove(user);
-			if (user.affiliation.ranks(Affiliation.MEMBER)) {
+			if (user.affiliation.ranks(Affiliation.MEMBER) && user.realJid != null) {
 				user.role = Role.NONE;
 				user.avatar = null;
 				user.fullJid = null;
@@ -417,7 +442,21 @@ public class MucOptions {
 	}
 
 	public ArrayList<User> getUsers() {
-		return new ArrayList<>(users);
+		return getUsers(true);
+	}
+
+	public ArrayList<User> getUsers(boolean includeOffline) {
+		if (includeOffline) {
+			return new ArrayList<>(users);
+		} else {
+			ArrayList<User> onlineUsers = new ArrayList<>();
+			for(User user : users) {
+				if(user.getRole().ranks(Role.PARTICIPANT)) {
+					onlineUsers.add(user);
+				}
+			}
+			return onlineUsers;
+		}
 	}
 
 	public List<User> getUsers(int max) {
@@ -573,14 +612,6 @@ public class MucOptions {
 
 	public Conversation getConversation() {
 		return this.conversation;
-	}
-
-	public void putMember(Jid fullJid, Jid realJid, String affiliation, String role) {
-		User user = new User(this, fullJid);
-		user.setRealJid(realJid);
-		user.setAffiliation(affiliation);
-		user.setRole(role);
-		addUser(user);
 	}
 
 	public List<Jid> getMembers() {

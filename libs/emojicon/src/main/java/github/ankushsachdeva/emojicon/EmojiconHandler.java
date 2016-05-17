@@ -470,6 +470,7 @@ public final class EmojiconHandler {
         sEmojisMap.put(0x1f4d4, R.drawable.emoji_1f4d4);
         sEmojisMap.put(0x1f4d2, R.drawable.emoji_1f4d2);
         sEmojisMap.put(0x1f4da, R.drawable.emoji_1f4da);
+        sEmojisMap.put(0x1f577, R.drawable.emoji_1f577);
         sEmojisMap.put(0x1f4d6, R.drawable.emoji_1f4d6);
         sEmojisMap.put(0x1f516, R.drawable.emoji_1f516);
         sEmojisMap.put(0x1f4db, R.drawable.emoji_1f4db);
@@ -1455,6 +1456,7 @@ public final class EmojiconHandler {
         sSoftbanksMap.put(0x1f324, R.drawable.emoji_1f324);
         sSoftbanksMap.put(0x1f325, R.drawable.emoji_1f325);
         sSoftbanksMap.put(0x1f326, R.drawable.emoji_1f326);
+        sSoftbanksMap.put(0x1f577, R.drawable.emoji_1f577);
         sSoftbanksMap.put(0x1f32d, R.drawable.emoji_1f32d);
         sSoftbanksMap.put(0x1f32e, R.drawable.emoji_1f32e);
         sSoftbanksMap.put(0x1f32f, R.drawable.emoji_1f32f);
