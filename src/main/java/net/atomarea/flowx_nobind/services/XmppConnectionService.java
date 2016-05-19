@@ -1770,7 +1770,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
         }
     }
 
-    private boolean checkListeners() {
+    public boolean checkListeners() {
         return (this.mOnAccountUpdate == null
                 && this.mOnConversationUpdate == null
                 && this.mOnRosterUpdate == null
@@ -3186,7 +3186,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
         }
     }
 
-    private ServiceDiscoveryResult getCachedServiceDiscoveryResult(Pair<String, String> key) {
+    public ServiceDiscoveryResult getCachedServiceDiscoveryResult(Pair<String, String> key) {
         ServiceDiscoveryResult result = discoCache.get(key);
         if (result != null) {
             return result;
