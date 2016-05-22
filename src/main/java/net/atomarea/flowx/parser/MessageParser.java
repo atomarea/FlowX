@@ -537,8 +537,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
             }
         } else if (!packet.hasChild("body")) { //no body
             if (Config.BACKGROUND_STANZA_LOGGING && !mXmppConnectionService.checkListeners()) {
-                				Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": " + original);
-                			}
+                Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": " + original);
+            }
             Conversation conversation = mXmppConnectionService.find(account, from.toBareJid());
             if (isTypeGroupChat) {
                 if (packet.hasChild("subject")) {
@@ -570,11 +570,14 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
                     for (Element child : mucUserElement.getChildren()) {
                         if ("item".equals(child.getName())) {
                             MucOptions.User user = AbstractParser.parseItem(conversation, child);
-                            Log.d(Config.LOGTAG,account.getJid()+": changing affiliation for "
-                                    									+user.getRealJid()+" to "+user.getAffiliation()+" in "
-                                    									+conversation.getJid().toBareJid());
+                            Log.d(Config.LOGTAG, account.getJid() + ": changing affiliation for "
+                                    + user.getRealJid() + " to " + user.getAffiliation() + " in "
+                                    + conversation.getJid().toBareJid());
                             if (!user.realJidMatchesAccount()) {
                                 conversation.getMucOptions().addUser(user);
+                                mXmppConnectionService.getAvatarService().clear(conversation);
+                                mXmppConnectionService.updateMucRosterUi();
+                                mXmppConnectionService.updateConversationUi();
                             }
                         }
                     }

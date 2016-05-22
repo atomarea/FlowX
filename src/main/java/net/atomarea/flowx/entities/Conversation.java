@@ -94,6 +94,20 @@ public class Conversation extends AbstractEntity implements Blockable {
         this.messagesLeftOnServer = value;
     }
 
+    public Message getFirstUnreadMessage() {
+        Message first = null;
+        synchronized (this.messages) {
+            for (int i = messages.size() - 1; i >= 0; --i) {
+                if (messages.get(i).isRead()) {
+                    return first;
+                } else {
+                    first = messages.get(i);
+                }
+            }
+        }
+        return first;
+    }
+
     public Message findUnsentMessageWithUuid(String uuid) {
         synchronized (this.messages) {
             for (final Message message : this.messages) {
@@ -228,13 +242,14 @@ public class Conversation extends AbstractEntity implements Blockable {
         }
         return null;
     }
+
     public Message findMessageWithRemoteIdAndCounterpart(String id, Jid counterpart, boolean received, boolean carbon) {
         synchronized (this.messages) {
-            for(int i = this.messages.size() - 1; i >= 0; --i) {
+            for (int i = this.messages.size() - 1; i >= 0; --i) {
                 Message message = messages.get(i);
                 if (counterpart.equals(message.getCounterpart())
                         && ((message.getStatus() == Message.STATUS_RECEIVED) == received)
-                        && (carbon == message.isCarbon() || received) ) {
+                        && (carbon == message.isCarbon() || received)) {
                     if (id.equals(message.getRemoteMsgId())) {
                         return message;
                     } else {
@@ -245,6 +260,7 @@ public class Conversation extends AbstractEntity implements Blockable {
         }
         return null;
     }
+
     public Message findSentMessageWithUuid(String id) {
         synchronized (this.messages) {
             for (Message message : this.messages) {
@@ -324,9 +340,11 @@ public class Conversation extends AbstractEntity implements Blockable {
     public Message getCorrectingMessage() {
         return this.correctingMessage;
     }
+
     public boolean withSelf() {
         return getContact().isSelf();
     }
+
     public interface OnMessageFound {
         void onMessageFound(final Message message);
     }
@@ -807,7 +825,7 @@ public class Conversation extends AbstractEntity implements Blockable {
 
     public boolean setAttribute(String key, List<Jid> jids) {
         JSONArray array = new JSONArray();
-        for(Jid jid : jids) {
+        for (Jid jid : jids) {
             array.put(jid.toBareJid().toString());
         }
         synchronized (this.attributes) {
