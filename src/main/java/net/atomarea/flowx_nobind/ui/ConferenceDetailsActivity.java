@@ -257,6 +257,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             @Override
             public void onClick(View v) {
                 quickEdit(mConversation.getMucOptions().getActualNick(),
+                        0,
                         new OnValueEdited() {
 
                             @Override
@@ -283,7 +284,9 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
                 break;
             case R.id.action_edit_subject:
                 if (mConversation != null) {
-                    quickEdit(mConversation.getName(), this.onSubjectEdited);
+                    quickEdit(mConversation.getMucOptions().getSubject(),
+                            R.string.action_edit_subject,
+                            this.onSubjectEdited);
                 }
                 break;
             case R.id.action_share:

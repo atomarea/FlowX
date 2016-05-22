@@ -197,26 +197,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
 
         }
 
-        private int getIndexOf(String uuid, List<Message> messages) {
-            if (uuid == null) {
-                return messages.size() - 1;
-            }
-            for (int i = 0; i < messages.size(); ++i) {
-                if (uuid.equals(messages.get(i).getUuid())) {
-                    return i;
-                } else {
-                    Message next = messages.get(i);
-                    while (next != null && next.wasMergedIntoPrevious()) {
-                        if (uuid.equals(next.getUuid())) {
-                            return i;
-                        }
-                        next = next.next();
-                    }
-
-                }
-            }
-            return 0;
-        }
 
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem,
@@ -243,7 +223,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                                     final Message message;
                                     if (oldPosition < messageList.size()) {
                                         message = messageList.get(oldPosition);
-                                    }  else {
+                                    } else {
                                         message = null;
                                     }
                                     String uuid = message != null ? message.getUuid() : null;
@@ -286,6 +266,28 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             }
         }
     };
+
+    private int getIndexOf(String uuid, List<Message> messages) {
+        if (uuid == null) {
+            return messages.size() - 1;
+        }
+        for (int i = 0; i < messages.size(); ++i) {
+            if (uuid.equals(messages.get(i).getUuid())) {
+                return i;
+            } else {
+                Message next = messages.get(i);
+                while (next != null && next.wasMergedIntoPrevious()) {
+                    if (uuid.equals(next.getUuid())) {
+                        return i;
+                    }
+                    next = next.next();
+                }
+
+            }
+        }
+        return 0;
+    }
+
     private OnEditorActionListener mEditorActionListener = new OnEditorActionListener() {
 
         @Override
@@ -606,7 +608,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         final Message m = this.selectedMessage;
         final Transferable t = m.getTransferable();
         Message relevantForCorrection = m;
-        while(relevantForCorrection.mergeable(relevantForCorrection.next())) {
+        while (relevantForCorrection.mergeable(relevantForCorrection.next())) {
             relevantForCorrection = relevantForCorrection.next();
         }
         if (m.getType() != Message.TYPE_STATUS) {
@@ -649,7 +651,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 copyUrl.setVisible(true);
             }
             if ((m.getType() == Message.TYPE_TEXT && t == null && m.treatAsDownloadable() != Message.Decision.NEVER)
-                    || (m.isFileOrImage() && t instanceof TransferablePlaceholder && m.hasFileOnRemoteHost())){
+                    || (m.isFileOrImage() && t instanceof TransferablePlaceholder && m.hasFileOnRemoteHost())) {
                 downloadFile.setVisible(true);
                 downloadFile.setTitle(activity.getString(R.string.download_x_file, UIHelper.getFileDescriptionString(activity, m)));
             }
@@ -729,6 +731,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                     Toast.LENGTH_SHORT).show();
         }
     }
+
     private void deleteFile(Message message) {
         if (activity.xmppConnectionService.getFileBackend().deleteFile(message)) {
             message.setTransferable(new TransferablePlaceholder(Transferable.STATUS_DELETED));
@@ -736,6 +739,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             updateMessages();
         }
     }
+
     private void resendMessage(Message message) {
         if (message.getType() == Message.TYPE_FILE || message.getType() == Message.TYPE_IMAGE) {
             DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
@@ -782,12 +786,14 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             activity.xmppConnectionService.markMessage(message, Message.STATUS_SEND_FAILED);
         }
     }
+
     private void retryDecryption(Message message) {
         message.setEncryption(Message.ENCRYPTION_PGP);
         activity.updateConversationList();
         updateMessages();
         conversation.getAccount().getPgpDecryptionService().add(message);
     }
+
     protected void privateMessageWith(final Jid counterpart) {
         this.mEditMessage.setText("");
         this.conversation.setNextCounterpart(counterpart);
@@ -872,9 +878,15 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         this.messagesView.setAdapter(messageListAdapter);
         updateMessages();
         this.messagesLoaded = true;
-        int size = this.messageList.size();
-        if (size > 0) {
-            messagesView.setSelection(size - 1);
+        synchronized (this.messageList) {
+            final Message first = conversation.getFirstUnreadMessage();
+            final int pos;
+            if (first == null) {
+                pos = Math.max(0,this.messageList.size() - 1);
+            } else {
+                pos = getIndexOf(first.getUuid(), this.messageList);
+            }
+            messagesView.setSelection(pos);
         }
     }
 
@@ -1198,7 +1210,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
     private boolean showLoadMoreMessages(final Conversation c) {
         final boolean mam = hasMamSupport(c);
         final MessageArchiveService service = activity.xmppConnectionService.getMessageArchiveService();
-        return mam && (c.getLastClearHistory() != 0  || (c.countMessages() == 0 && c.hasMessagesLeftOnServer()  && !service.queryInProgress(c)));
+        return mam && (c.getLastClearHistory() != 0 || (c.countMessages() == 0 && c.hasMessagesLeftOnServer() && !service.queryInProgress(c)));
     }
 
     private boolean hasMamSupport(final Conversation c) {
