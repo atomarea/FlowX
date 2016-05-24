@@ -168,7 +168,6 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         setContentView(R.layout.fx_base_layout); // load layout from xml (base layout)
 
         if (Build.VERSION.SDK_INT >= 23) {
-            Log.i(TAG, "=== [ FLOWX PERMISSION CHECKER ] ===");
             if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -240,7 +239,6 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     @Override
     protected void refreshUiReal() {
-        Log.i(TAG, "BACKEND UI REQUEST [ refreshUiReal ]");
         if (!backendConnected)
             return; // if the backend isn't connected yet, this function can't run
         // refreshFxUi(); // should happen later only if needed, not needed yet
@@ -325,7 +323,6 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         final boolean change = toState != mFxState; // changed?
 
         if (change && animate) {
-            Log.i(TAG, "ANIMATION TO ALPHA:0 [ refreshFxUi ]");
             mParent.animate().alpha(0).setDuration(200).start();
         }
 
@@ -649,10 +646,9 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                     }
                 }
 
-                Log.i(TAG, "WORK DONE ( " + (System.currentTimeMillis() - workStart) + "ms ) [ refreshFxUi ]");
+                Log.d(TAG, "WORK DONE ( " + (System.currentTimeMillis() - workStart) + "ms ) [ refreshFxUi ]");
 
                 if (change && animate) {
-                    Log.i(TAG, "ANIMATION TO ALPHA:1 [ refreshFxUi ]");
                     mParent.animate().alpha(1).setDuration(200).start();
                 }
 
@@ -688,13 +684,11 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.i(TAG, "ITEM IN MENU SELECTED [ onOptionsItemSelected ]");
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
             return true;
         }
         if (item.getItemId() == miAttach.getItemId()) {
-            Log.i(TAG, "ATTACH");
             attachFileDialog();
             return true;
         }
@@ -731,7 +725,6 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
      ***/
 
     public void fxClickSendButton(View v) {
-        Log.i(TAG, "SEND MESSAGE [ fxClickSendButton ]");
         if (dSendButtonAction == null) dSendButtonAction = SendButtonAction.TEXT;
         if (dSendButtonAction == SendButtonAction.TAKE_PHOTO)
             attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
@@ -835,7 +828,6 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     private void attachImageToConversation(Conversation conversation, Uri uri) {
         if (conversation == null) return;
-        Log.d(TAG, "Attached Image");
         final Toast prepareFileToast = Toast.makeText(getApplicationContext(), getText(R.string.preparing_image), Toast.LENGTH_LONG);
         prepareFileToast.show();
         xmppConnectionService.attachImageToConversation(conversation, uri,
@@ -957,9 +949,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     public void onActivityResult(int requestCode, int resultCode,
                                  final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "ACTIVITY RESULT : " + requestCode + " : " + resultCode);
         if (resultCode == Activity.RESULT_OK) {
-            Log.d(TAG, "Result OK");
             if (requestCode == REQUEST_TRUST_KEYS_TEXT) {
                 final String body = ((EditMessage) findViewById(R.id.message_input)).getText().toString();
                 Message message = new Message(dConversation, body, dConversation.getNextEncryption());
@@ -973,7 +963,6 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 if (backendConnected)
                     for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove()) {
                         attachImageToConversation(dConversation, i.next());
-                        Log.i(TAG, ":D");
                     }
             } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_FILE || requestCode == ATTACHMENT_CHOICE_RECORD_VOICE) {
                 final List<Uri> uris = FxUiHelper.extractUriFromIntent(data);
