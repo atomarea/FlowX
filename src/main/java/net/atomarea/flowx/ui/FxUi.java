@@ -210,12 +210,6 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         // [[ wait for backend... @ onBackendConnected() ]]
     }
 
-    /*@Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(newBase);
-        MultiDex.install(this);
-    }*/
-
     /***
      * [[ RESULT OF THE PERMISSION DIALOG, CALLED BY ANDROID ]]
      ***/
@@ -818,6 +812,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
     private void attachImageToConversation(Conversation conversation, Uri uri) {
         if (conversation == null) return;
+        Log.d(TAG, "Attached Image");
         final Toast prepareFileToast = Toast.makeText(getApplicationContext(), getText(R.string.preparing_image), Toast.LENGTH_LONG);
         prepareFileToast.show();
         xmppConnectionService.attachImageToConversation(conversation, uri,
@@ -941,6 +936,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "ACTIVITY RESULT : " + requestCode + " : " + resultCode);
         if (resultCode == Activity.RESULT_OK) {
+            Log.d(TAG, "Result OK");
             if (requestCode == REQUEST_TRUST_KEYS_TEXT) {
                 final String body = ((EditMessage) findViewById(R.id.message_input)).getText().toString();
                 Message message = new Message(dConversation, body, dConversation.getNextEncryption());
@@ -951,7 +947,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_IMAGE) {
                 mPendingImageUris.clear();
                 mPendingImageUris.addAll(FxUiHelper.extractUriFromIntent(data));
-                if (xmppConnectionServiceBound)
+                if (backendConnected)
                     for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove()) {
                         attachImageToConversation(dConversation, i.next());
                         Log.i(TAG, ":D");
@@ -968,7 +964,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                     public void onPresenceSelected() {
                         mPendingFileUris.clear();
                         mPendingFileUris.addAll(uris);
-                        if (xmppConnectionServiceBound) {
+                        if (backendConnected) {
                             for (Iterator<Uri> i = mPendingFileUris.iterator(); i.hasNext(); i.remove()) {
                                 attachFileToConversation(c, i.next());
                             }
@@ -985,7 +981,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             } else if (requestCode == ATTACHMENT_CHOICE_TAKE_PHOTO) {
                 if (mPendingImageUris.size() == 1) {
                     Uri uri = mPendingImageUris.get(0);
-                    if (xmppConnectionServiceBound) {
+                    if (backendConnected) {
                         attachImageToConversation(dConversation, uri);
                         mPendingImageUris.clear();
                     }
@@ -997,7 +993,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                 double latitude = data.getDoubleExtra("latitude", 0);
                 double longitude = data.getDoubleExtra("longitude", 0);
                 Uri mPendingGeoUri = Uri.parse("geo:" + String.valueOf(latitude) + "," + String.valueOf(longitude));
-                if (xmppConnectionServiceBound)
+                if (backendConnected)
                     attachLocationToConversation(dConversation, mPendingGeoUri);
             }
         } else {
