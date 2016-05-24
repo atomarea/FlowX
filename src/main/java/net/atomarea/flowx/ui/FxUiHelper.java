@@ -162,7 +162,9 @@ public class FxUiHelper {
     }
 
     public static boolean isMessageReceived(Message m) {
-        return m.getType() != Message.TYPE_STATUS && m.getStatus() <= Message.STATUS_RECEIVED;
+        if (m.getType() == Message.TYPE_STATUS) return false;
+        else if (m.getStatus() <= Message.STATUS_RECEIVED) return true;
+        return false;
     }
 
     public static void sendMessage(EmojiconEditText emojiEditText, Conversation conversation, FxUi activity) {

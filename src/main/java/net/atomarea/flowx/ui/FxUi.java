@@ -515,12 +515,18 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                                 ((EmojiconTextView) tRow.findViewById(R.id.message_text)).setText(tMessage.getBody());
                                 break;
                             case Message.TYPE_IMAGE:
-                                tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_image, mLayout, false);
+                                if (FxUiHelper.isMessageReceived(tMessage))
+                                    tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_image, mLayout, false);
+                                else
+                                    tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_image, mLayout, false);
                                 loadBitmap(tMessage, (ImageView) tRow.findViewById(R.id.message_image));
                                 break;
                             case Message.TYPE_FILE:
                                 if (tMessage.getFileParams().width > 0) { // is it an image?
-                                    tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_image, mLayout, false); // then... show it
+                                    if (FxUiHelper.isMessageReceived(tMessage))
+                                        tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_image, mLayout, false);
+                                    else
+                                        tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_image, mLayout, false);
                                     loadBitmap(tMessage, (ImageView) tRow.findViewById(R.id.message_image));
                                 } else if (tMessage.getMimeType() != null && tMessage.getMimeType().startsWith("audio/")) {
                                     if (FxUiHelper.isMessageReceived(tMessage))
