@@ -48,8 +48,10 @@ import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import github.ankushsachdeva.emojicon.EmojiconEditText;
 import github.ankushsachdeva.emojicon.EmojiconTextView;
@@ -149,6 +151,12 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     public enum State {
         STARTUP, RECENT_CONVERSATIONS, SINGLE_CONVERSATION, CONTACTS, GROUPS
     }
+
+    /***
+     * [[ BLOCKING QUEUES, PREVENTING BUGS ]]
+     ***/
+
+    private HashMap<String, AudioWife> hAudioPlayer = new HashMap<>();
 
     /***
      * [[ ON CREATE METHOD, CALLED BY ANDROID ]]
@@ -332,6 +340,10 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
 
                 mLayout.removeAllViews(); // bye views, won't need you anymore
                 if (change) mFooter.removeAllViews(); // only remove footer when state changes
+
+                if (change) {
+                    hAudioPlayer.clear(); // cleanup blocking queues
+                }
 
                 if (State.RECENT_CONVERSATIONS == mFxState) { // cause we're showing a loading screen (or something like this), we can load everything into the ram... or at least generate everything and let android manage it properly
                     if (getSupportActionBar() != null) {
@@ -528,15 +540,20 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                                     else
                                         tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_image, mLayout, false);
                                     loadBitmap(tMessage, (ImageView) tRow.findViewById(R.id.message_image));
-                                } else if (tMessage.getMimeType() != null && tMessage.getMimeType().startsWith("audio/")) {
+                                } else if (tMessage.getMimeType() != null && tMessage.getMimeType().toLowerCase(Locale.getDefault()).startsWith("audio/")) {
                                     if (FxUiHelper.isMessageReceived(tMessage))
                                         tRow = getLayoutInflater().inflate(R.layout.fx_msg_recv_audio, mLayout, false);
                                     else
                                         tRow = getLayoutInflater().inflate(R.layout.fx_msg_sent_audio, mLayout, false);
-                                    AudioWife _AudioPlayer = new AudioWife();
-                                    RelativeLayout _AudioPlayerViewGroup = new RelativeLayout(App);
-                                    _AudioPlayer.init(App, Uri.fromFile(xmppConnectionService.getFileBackend().getFile(tMessage)));
-                                    _AudioPlayer.useDefaultUi(_AudioPlayerViewGroup, getLayoutInflater());
+                                    AudioWife _AudioPlayer = hAudioPlayer.get(tMessage.getBody());
+                                    if (_AudioPlayer != null) {
+                                        _AudioPlayer.cleanPlayerUi();
+                                    } else {
+                                        _AudioPlayer = new AudioWife();
+                                        _AudioPlayer.init(App, Uri.fromFile(xmppConnectionService.getFileBackend().getFile(tMessage)));
+                                        RelativeLayout _AudioPlayerViewGroup = new RelativeLayout(App);
+                                        _AudioPlayer.useDefaultUi(_AudioPlayerViewGroup, getLayoutInflater());
+                                    }
                                     ((LinearLayout) tRow.findViewById(R.id.message_audio)).addView(_AudioPlayer.getPlayerUi());
                                 }
                                 break;
@@ -567,9 +584,9 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                             else tMessageInfo.setText(_Time);
                         }
 
-                        if (tRow.findViewById(R.id.message_received) != null) if (!_Received)
+                        if (tRow.findViewById(R.id.message_received) != null && !_Received)
                             tRow.findViewById(R.id.message_received).setVisibility(View.GONE);
-                        if (tRow.findViewById(R.id.message_read) != null) if (!_Read)
+                        if (tRow.findViewById(R.id.message_read) != null && !_Read)
                             tRow.findViewById(R.id.message_read).setVisibility(View.GONE);
 
                         if (tMessage.getEncryption() == Message.ENCRYPTION_NONE)
