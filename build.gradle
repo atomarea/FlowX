@@ -56,6 +56,9 @@ android {
         config {
         }
     }
+    dexOptions {
+        javaMaxHeapSize "4g" // 4GB Ram for Builds -> Faster
+    }
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
     defaultConfig {
