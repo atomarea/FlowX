@@ -938,6 +938,8 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "ACTIVITY RESULT : " + requestCode + " : " + resultCode);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_TRUST_KEYS_TEXT) {
                 final String body = ((EditMessage) findViewById(R.id.message_input)).getText().toString();
@@ -946,11 +948,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
             } else if (requestCode == REQUEST_TRUST_KEYS_MENU) {
                 int choice = data.getIntExtra("choice", ConversationActivity.ATTACHMENT_CHOICE_INVALID);
                 selectPresenceToAttachFile(choice, dConversation.getNextEncryption());
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == ATTACHMENT_CHOICE_CHOOSE_IMAGE) {
+            } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_IMAGE) {
                 mPendingImageUris.clear();
                 mPendingImageUris.addAll(FxUiHelper.extractUriFromIntent(data));
                 if (xmppConnectionServiceBound)
