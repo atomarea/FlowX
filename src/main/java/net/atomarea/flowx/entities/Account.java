@@ -99,6 +99,7 @@ public class Account extends AbstractEntity {
 		INCOMPATIBLE_SERVER(true),
 		TOR_NOT_AVAILABLE(true),
 		BIND_FAILURE(true),
+		REGISTRATION_PLEASE_WAIT(true),
 		HOST_UNKNOWN(true);
 
 		private final boolean isError;
@@ -149,6 +150,8 @@ public class Account extends AbstractEntity {
 					return R.string.account_status_bind_failure;
 				case HOST_UNKNOWN:
 					return R.string.account_status_host_unknown;
+				case REGISTRATION_PLEASE_WAIT:
+					return R.string.registration_please_wait;
 				default:
 					return R.string.account_status_unknown;
 			}
