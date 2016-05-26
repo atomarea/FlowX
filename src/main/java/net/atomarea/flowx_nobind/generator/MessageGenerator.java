@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import net.atomarea.flowx_nobind.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx_nobind.crypto.axolotl.XmppAxolotlMessage;
 import net.atomarea.flowx_nobind.entities.Account;
 import net.atomarea.flowx_nobind.entities.Conversation;
@@ -20,6 +21,10 @@ import net.atomarea.flowx_nobind.xmpp.jid.Jid;
 import net.atomarea.flowx_nobind.xmpp.stanzas.MessagePacket;
 
 public class MessageGenerator extends AbstractGenerator {
+	public static final String OTR_FALLBACK_MESSAGE = "I would like to start a private (OTR encrypted) conversation but your client doesn’t seem to support that";
+	private static final String OMEMO_FALLBACK_MESSAGE = "I sent you an OMEMO encrypted message but your client doesn’t seem to support that. Find more information on https://conversations.im/omemo";
+	private static final String PGP_FALLBACK_MESSAGE = "I sent you a PGP encrypted message but your client doesn’t seem to support that.";
+
 	public MessageGenerator(XmppConnectionService service) {
 		super(service);
 	}
@@ -67,9 +72,16 @@ public class MessageGenerator extends AbstractGenerator {
 		if (axolotlMessage == null) {
 			return null;
 		}
+		if (!recipientSupportsOmemo(message)) {
+			packet.setBody(OMEMO_FALLBACK_MESSAGE);
+		}
 		packet.setAxolotlMessage(axolotlMessage.toElement());
 		packet.addChild("store", "urn:xmpp:hints");
 		return packet;
+	}
+
+	private static boolean recipientSupportsOmemo(Message message) {
+		return message.getContact().getPresences().allOrNonSupport(AxolotlService.PEP_DEVICE_LIST_NOTIFY);
 	}
 
 	public static void addMessageHints(MessagePacket packet) {
@@ -116,7 +128,7 @@ public class MessageGenerator extends AbstractGenerator {
 
 	public MessagePacket generatePgpChat(Message message) {
 		MessagePacket packet = preparePacket(message);
-		packet.setBody("This is an XEP-0027 encrypted message");
+		packet.setBody(PGP_FALLBACK_MESSAGE);
 		if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
 			packet.addChild("x", "jabber:x:encrypted").setContent(message.getEncryptedBody());
 		} else if (message.getEncryption() == Message.ENCRYPTION_PGP) {

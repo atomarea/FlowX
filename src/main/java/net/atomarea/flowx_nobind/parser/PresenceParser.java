@@ -15,6 +15,7 @@ import net.atomarea.flowx_nobind.entities.Message;
 import net.atomarea.flowx_nobind.entities.MucOptions;
 import net.atomarea.flowx_nobind.entities.Presence;
 import net.atomarea.flowx_nobind.entities.ServiceDiscoveryResult;
+import net.atomarea.flowx_nobind.generator.IqGenerator;
 import net.atomarea.flowx_nobind.generator.PresenceGenerator;
 import net.atomarea.flowx_nobind.services.XmppConnectionService;
 import net.atomarea.flowx_nobind.xml.Element;
@@ -79,6 +80,15 @@ public class PresenceParser extends AbstractParser implements
                             }
                         } else {
                             mucOptions.addUser(user);
+                        }
+                        if (codes.contains(MucOptions.STATUS_CODE_ROOM_CREATED)) {
+                            Log.d(Config.LOGTAG, mucOptions.getAccount().getJid().toBareJid()
+                                    + ": room '"
+                                    + mucOptions.getConversation().getJid().toBareJid()
+                                    + "' created. pushing default configuration");
+                            mXmppConnectionService.pushConferenceConfiguration(mucOptions.getConversation(),
+                                    IqGenerator.defaultRoomConfiguration(),
+                                    null);
                         }
                         if (mXmppConnectionService.getPgpEngine() != null) {
                             Element signed = packet.findChild("x", "jabber:x:signed");

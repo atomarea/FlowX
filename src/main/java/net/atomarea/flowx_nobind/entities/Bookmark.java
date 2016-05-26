@@ -50,9 +50,8 @@ public class Bookmark extends Element implements ListItem {
 
 	@Override
 	public String getDisplayName() {
-		if (this.mJoinedConversation != null
-				&& (this.mJoinedConversation.getMucOptions().getSubject() != null)) {
-			return this.mJoinedConversation.getMucOptions().getSubject();
+		if (this.mJoinedConversation != null) {
+			return this.mJoinedConversation.getName();
 		} else if (getBookmarkName() != null) {
 			return getBookmarkName();
 		} else {
@@ -63,9 +62,7 @@ public class Bookmark extends Element implements ListItem {
 	@Override
 	public String getDisplayJid() {
 		Jid jid = getJid();
-		if (Config.LOCK_DOMAINS_IN_CONVERSATIONS && jid != null && jid.getDomainpart().equals(Config.CONFERENCE_DOMAIN_LOCK)) {
-			return jid.getLocalpart();
-		} else if (jid != null) {
+		if (jid != null) {
 			return jid.toString();
 		} else {
 			return null;

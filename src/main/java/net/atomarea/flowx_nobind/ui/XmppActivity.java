@@ -1217,7 +1217,7 @@ public abstract class XmppActivity extends FragmentActivity {
                 }
             } else {
                 jids.add(conversation.getJid().toBareJid());
-                service.createAdhocConference(conversation.getAccount(), jids, activity.adhocCallback);
+                service.createAdhocConference(conversation.getAccount(), null, jids, activity.adhocCallback);
             }
         }
     }
