@@ -546,4 +546,6 @@
     <string name="location_disabled">Standort teilen nicht möglich!</string>
     <string name="create_contact_info">Gebe hier den Benutzernamen eines Freundes ein!</string>
     <string name="account_status_host_unknown">Host unbekannt</string>
+    <string name="registration_please_wait">Registration fehlgeschlagen: Bitte später erneut probieren</string>
+
 </resources>
