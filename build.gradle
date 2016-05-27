@@ -49,6 +49,7 @@ dependencies {
 	compile 'org.slf4j:slf4j-simple:1.7.9'
     compile 'com.google.android.gms:play-services:6.5.87'
 	compile('eu.livotov.labs.android:CAMView:2.0.1@aar') { transitive = true }
+	compile 'com.github.bumptech.glide:glide:3.5.2'
 	playstoreCompile 'com.google.android.gms:play-services-gcm:8.4.0'
 }
 
