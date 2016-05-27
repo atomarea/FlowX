@@ -99,8 +99,8 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 	private Invite mPendingInvite = null;
 	private EditText mSearchEditText;
 	private AtomicBoolean mRequestedContactsPermission = new AtomicBoolean(false);
-	private final int REQUEST_SYNC_CONTACTS = 0x3b28cf;
-	private final int REQUEST_CREATE_CONFERENCE = 0x3b39da;
+	private final int REQUEST_SYNC_CONTACTS = 0x101;
+	private final int REQUEST_CREATE_CONFERENCE = 0x102;
 
 	private MenuItem.OnActionExpandListener mOnActionExpandListener = new MenuItem.OnActionExpandListener() {
 
@@ -464,11 +464,10 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 		builder.setTitle(R.string.join_conference);
 		final View dialogView = getLayoutInflater().inflate(R.layout.join_conference_dialog, null);
 		final Spinner spinner = (Spinner) dialogView.findViewById(R.id.account);
-		final AutoCompleteTextView jid = (AutoCompleteTextView) dialogView.findViewById(R.id.jid);
+		final TextView jid = (TextView) dialogView.findViewById(R.id.jid);
 		final TextView jabberIdDesc = (TextView) dialogView.findViewById(R.id.jabber_id);
 		jabberIdDesc.setText(R.string.conference_address);
 		jid.setHint(R.string.conference_address_example);
-		jid.setAdapter(new KnownHostsAdapter(this, R.layout.simple_list_item, mKnownConferenceHosts));
 		if (prefilledJid != null) {
 			jid.append(prefilledJid);
 		}
@@ -494,7 +493,7 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 						}
 						final Jid conferenceJid;
 						try {
-							conferenceJid = Jid.fromString(jid.getText().toString());
+							conferenceJid = Jid.fromString(jid.getText().toString().concat("@conference.flowx.im"));
 						} catch (final InvalidJidException e) {
 							jid.setError(getString(R.string.invalid_jid));
 							return;
