@@ -1,6 +1,5 @@
 package net.atomarea.flowx.ui;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
@@ -8,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -43,7 +41,6 @@ import org.openintents.openpgp.util.OpenPgpUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import github.ankushsachdeva.emojicon.EmojiconTextView;
@@ -285,7 +282,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             case R.id.action_edit_subject:
                 if (mConversation != null) {
                     quickEdit(mConversation.getMucOptions().getSubject(),
-                            R.string.action_edit_subject,
+                            R.string.edit_subject_hint,
                             this.onSubjectEdited);
                 }
                 break;
@@ -488,16 +485,8 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
     }
 
     protected void saveAsBookmark() {
-        Account account = mConversation.getAccount();
-        Bookmark bookmark = new Bookmark(account, mConversation.getJid().toBareJid());
-        if (!mConversation.getJid().isBareJid()) {
-            bookmark.setNick(mConversation.getJid().getResourcepart());
-        }
-        bookmark.setBookmarkName(mConversation.getMucOptions().getSubject());
-        bookmark.setAutojoin(getPreferences().getBoolean("autojoin", true));
-        account.getBookmarks().add(bookmark);
-        xmppConnectionService.pushBookmarks(account);
-        mConversation.setBookmark(bookmark);
+        xmppConnectionService.saveConversationAsBookmark(mConversation,
+                mConversation.getMucOptions().getSubject());
     }
 
     protected void deleteBookmark() {
