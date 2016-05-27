@@ -640,4 +640,10 @@
 	<string name="republish_pgp_keys">Remember to republish your OpenPGP public keys!</string>
 	<string name="account_status_host_unknown">Host unbekannt</string>
 	<string name="registration_please_wait">Registration failed: Try again later</string>
+	<string name="edit_subject_hint">The subject of this Group</string>
+	<string name="create_conference">Create Group</string>
+	<string name="join_or_create_conference">Join or create Group</string>
+	<string name="conference_subject">Subject</string>
+	<string name="choose_participants">Choose participants</string>
+	<string name="creating_conference">Creating Group…</string>
 </resources>
