@@ -110,6 +110,18 @@ public abstract class XmppActivity extends FragmentActivity {
     protected boolean mUseSubject = true;
     protected int mTheme;
     protected boolean mUsingEnterKey = false;
+    protected Toast mToast;
+    protected void hideToast() {
+        if (mToast != null) {
+            mToast.cancel();
+        }
+    }
+
+    protected void replaceToast(String msg) {
+        hideToast();
+        mToast = Toast.makeText(this, msg ,Toast.LENGTH_LONG);
+        mToast.show();
+    }
 
     protected Runnable onOpenPGPKeyPublished = new Runnable() {
         @Override
@@ -150,12 +162,11 @@ public abstract class XmppActivity extends FragmentActivity {
     private UiCallback<Conversation> adhocCallback = new UiCallback<Conversation>() {
         @Override
         public void success(final Conversation conversation) {
-            switchToConversation(conversation);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(XmppActivity.this, R.string.conference_created, Toast.LENGTH_LONG).show();
-                }
+                    switchToConversation(conversation);
+                    hideToast();                }
             });
         }
 
@@ -164,8 +175,7 @@ public abstract class XmppActivity extends FragmentActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(XmppActivity.this, errorCode, Toast.LENGTH_LONG).show();
-                }
+                    replaceToast(getString(errorCode));                }
             });
         }
 
@@ -975,6 +985,8 @@ public abstract class XmppActivity extends FragmentActivity {
             mPendingConferenceInvite = ConferenceInvite.parse(data);
             if (xmppConnectionServiceBound && mPendingConferenceInvite != null) {
                 mPendingConferenceInvite.execute(this);
+                mToast = Toast.makeText(this, R.string.creating_conference,Toast.LENGTH_LONG);
+                mToast.show();
                 mPendingConferenceInvite = null;
             }
         }

@@ -34,7 +34,7 @@ public final class Config {
     }
 
     public static final String LOGTAG = "flowx";
-
+    public static final String BUG_REPORTS = "bugs@flowx.im";
     public static final String DOMAIN_LOCK = "flowx.im"; //only allow account creation for this domain
     public static final String MAGIC_CREATE_DOMAIN = "flowx.im";
     public static final String CONFERENCE_DOMAIN_LOCK = "conference.flowx.im"; //only allow conference creation for this domain
