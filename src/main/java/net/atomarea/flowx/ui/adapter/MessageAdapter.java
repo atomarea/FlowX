@@ -55,6 +55,7 @@ import net.atomarea.flowx.utils.UIHelper;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -346,24 +347,41 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.messageBody.setText(span);
             }
             int urlCount = 0;
-            Matcher matcher = Patterns.WEB_URL.matcher(body);
+            final Matcher matcher = Patterns.WEB_URL.matcher(body);
+            int beginWebURL = Integer.MAX_VALUE;
+            int endWebURL = 0;
             while (matcher.find()) {
+                MatchResult result = matcher.toMatchResult();
+                beginWebURL = result.start();
+                endWebURL = result.end();
                 urlCount++;
             }
-            viewHolder.messageBody.setTextIsSelectable(urlCount <= 1);
-            viewHolder.messageBody.setAutoLinkMask(0);
-            Linkify.addLinks(viewHolder.messageBody, Linkify.WEB_URLS);
-            Linkify.addLinks(viewHolder.messageBody, XMPP_PATTERN, "xmpp");
-        } else {
-            viewHolder.messageBody.setText("");
-            viewHolder.messageBody.setTextIsSelectable(false);
+            final Matcher geoMatcher = GeoHelper.GEO_URI.matcher(body);
+            while (geoMatcher.find()) {
+                urlCount++;
+            }
+            final Matcher xmppMatcher = XMPP_PATTERN.matcher(body);
+            while (xmppMatcher.find()) {
+                MatchResult result = xmppMatcher.toMatchResult();
+                if (beginWebURL < result.start() || endWebURL > result.end()) {
+                    urlCount++;
+                }
+            }
+                viewHolder.messageBody.setTextIsSelectable(urlCount <= 1);
+                viewHolder.messageBody.setAutoLinkMask(0);
+                Linkify.addLinks(viewHolder.messageBody, Linkify.WEB_URLS);
+                Linkify.addLinks(viewHolder.messageBody, XMPP_PATTERN, "xmpp");
+                Linkify.addLinks(viewHolder.messageBody, GeoHelper.GEO_URI, "geo");
+            }else{
+                viewHolder.messageBody.setText("");
+                viewHolder.messageBody.setTextIsSelectable(false);
+            }
+            viewHolder.messageBody.setTextColor(this.getMessageTextColor(darkBackground, true));
+            viewHolder.messageBody.setLinkTextColor(this.getMessageTextColor(darkBackground, true));
+            viewHolder.messageBody.setHighlightColor(ContextCompat.getColor(activity, darkBackground ? R.color.grey800 : R.color.grey500));
+            viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
+            viewHolder.messageBody.setOnLongClickListener(openContextMenu);
         }
-        viewHolder.messageBody.setTextColor(this.getMessageTextColor(darkBackground, true));
-        viewHolder.messageBody.setLinkTextColor(this.getMessageTextColor(darkBackground, true));
-        viewHolder.messageBody.setHighlightColor(ContextCompat.getColor(activity, darkBackground ? R.color.grey800 : R.color.grey500));
-        viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
-        viewHolder.messageBody.setOnLongClickListener(openContextMenu);
-    }
 
     private void displayDownloadableMessage(ViewHolder viewHolder,
                                             final Message message, String text) {
