@@ -1120,6 +1120,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
         if (mPendingConferenceInvite != null) {
             mPendingConferenceInvite.execute(this);
+            mToast = Toast.makeText(this, R.string.creating_conference,Toast.LENGTH_LONG);
+            mToast.show();
             mPendingConferenceInvite = null;
         }
 
