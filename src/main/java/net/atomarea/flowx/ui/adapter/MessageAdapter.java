@@ -470,6 +470,25 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.image.setOnLongClickListener(openContextMenu);
     }
 
+    private void displayVideoMessage(ViewHolder viewHolder,
+                                     final Message message) {
+        viewHolder.aw_player.setVisibility(View.GONE);
+        if (viewHolder.download_button != null) {
+            viewHolder.download_button.setVisibility(View.GONE);
+        }
+        viewHolder.messageBody.setVisibility(View.GONE);
+        viewHolder.image.setVisibility(View.VISIBLE);
+        activity.loadVideoPreview(message, viewHolder.image);
+        viewHolder.image.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                openDownloadable(message);
+            }
+        });
+        viewHolder.image.setOnLongClickListener(openContextMenu);
+    }
+
 
     @Override
     public View getView(int position, View unused, ViewGroup parent) {
@@ -541,6 +560,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
 
         final Transferable transferable = message.getTransferable();
+        String mimeType = message.getMimeType();
         if (transferable != null && transferable.getStatus() != Transferable.STATUS_UPLOADING) {
             if (transferable.getStatus() == Transferable.STATUS_OFFER) {
                 displayDownloadableMessage(viewHolder, message, activity.getString(R.string.download_x_file, UIHelper.getFileDescriptionString(activity, message)));
@@ -560,11 +580,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (message.getFileParams().width > 0) {
                 displayImageMessage(viewHolder, message);
             } else {
-                String mimeType = message.getMimeType();
                 if (mimeType != null) {
-                    if (message.getMimeType().startsWith("audio/"))
+                    if (message.getMimeType().startsWith("audio/")) {
                         displayAudioMessage(viewHolder, message, position);
-                    else displayOpenableMessage(viewHolder, message);
+                    } else if (message.getMimeType().startsWith("video/")) {
+                        displayVideoMessage(viewHolder, message);
+                        //ToDo add overlay e.g. play button
+                    } else displayOpenableMessage(viewHolder, message);
                 } else displayOpenableMessage(viewHolder, message);
             }
         } else if (message.getEncryption() == Message.ENCRYPTION_PGP) {
