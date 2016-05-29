@@ -37,10 +37,14 @@ public final class Config {
 
     public static final String DOMAIN_LOCK = null; //only allow account creation for this domain
     public static final String MAGIC_CREATE_DOMAIN = "flowx.im";
+    public static final String BUG_REPORTS = "bugs@flowx.im";
     public static final String CONFERENCE_DOMAIN_LOCK = null; //only allow conference creation for this domain
+    public static boolean AlwayUseOMEMO = false; //true makes OMEMO as default on every 1 to 1 chat
     public static final boolean LOCK_DOMAINS_IN_CONVERSATIONS = true; //only add contacts and conferences for own domains
     public static final boolean LOCK_SETTINGS = true; //set to true to allow only one account
+    public static final int MAX_DISPLAY_MESSAGE_CHARS = 4096;
     public static final boolean DISALLOW_REGISTRATION_IN_UI = false; //hide the register checkbox
+    public static final int IDLE_PING_INTERVAL = 600; //540 is minimum according to docs;
     public static final boolean CLOSE_TCP_WHEN_SWITCHING_TO_BACKGROUND = false;
     public static final boolean LEGACY_NAMESPACE_HTTP_UPLOAD = false;
     public static final boolean BACKGROUND_STANZA_LOGGING = false;
@@ -65,6 +69,7 @@ public final class Config {
     public static final Bitmap.CompressFormat IMAGE_FORMAT = Bitmap.CompressFormat.JPEG;
     public static final int IMAGE_QUALITY = 80;
     public static final int IMAGE_MAX_SIZE = 524288; //512KiB
+    public static final int DEFAULT_ZOOM = 15; //for locations
 
     public static final int MESSAGE_MERGE_WINDOW = 20;
 
@@ -77,7 +82,7 @@ public final class Config {
     public static final boolean RESET_ATTEMPT_COUNT_ON_NETWORK_CHANGE = true; //setting to true might increase power consumption
 
     public static final boolean IGNORE_ID_REWRITE_IN_MUC = true;
-    public static final int DEFAULT_ZOOM = 15; //for locations
+
     public static final boolean ENCRYPT_ON_HTTP_UPLOADED = false;
 
     public static final boolean REPORT_WRONG_FILESIZE_IN_OTR_JINGLE = true;
@@ -86,7 +91,7 @@ public final class Config {
     public static final long MAM_MAX_CATCHUP = MILLISECONDS_IN_DAY / 2;
     public static final int MAM_MAX_MESSAGES = 500;
 
-    public static final ChatState DEFAULT_CHATSTATE = ChatState.ACTIVE;
+    public static final net.atomarea.flowx_nobind.xmpp.chatstate.ChatState DEFAULT_CHATSTATE = net.atomarea.flowx_nobind.xmpp.chatstate.ChatState.ACTIVE;
     public static final int TYPING_TIMEOUT = 8;
 
     public static final String ENABLED_CIPHERS[] = {

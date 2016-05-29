@@ -83,27 +83,57 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
         ImageView notificationStatus = (ImageView) view.findViewById(R.id.notification_status);
 
         Message message = conversation.getLatestMessage();
+        String mimeType = message.getMimeType();
 
         if (!conversation.isRead()) convName.setTypeface(null, Typeface.BOLD);
         else convName.setTypeface(null, Typeface.NORMAL);
 
-        if (message.getFileParams().width > 0
-                && (message.getTransferable() == null
+        if ((message.getTransferable() == null
                 || message.getTransferable().getStatus() != Transferable.STATUS_DELETED)) {
-            mLastMessage.setVisibility(View.GONE);
-            imagePreview.setVisibility(View.VISIBLE);
-            activity.loadBitmap(message, imagePreview);
+            if (mimeType != null && message.getMimeType().startsWith("video/")) {
+                mLastMessage.setVisibility(View.GONE);
+                imagePreview.setVisibility(View.VISIBLE);
+                activity.loadVideoPreview(message, imagePreview);
+            } else if (message.getFileParams().width > 0) {
+                mLastMessage.setVisibility(View.GONE);
+                imagePreview.setVisibility(View.VISIBLE);
+                activity.loadBitmap(message, imagePreview);
+            } else {
+                Pair<String, Boolean> preview = UIHelper.getMessagePreview(activity, message);
+                mLastMessage.setVisibility(View.VISIBLE);
+                imagePreview.setVisibility(View.GONE);
+                mLastMessage.setText(preview.first);
+                if (preview.second) {
+                    if (conversation.isRead()) {
+                        mLastMessage.setTypeface(null, Typeface.ITALIC);
+                    } else {
+                        mLastMessage.setTypeface(null, Typeface.BOLD_ITALIC);
+                    }
+                } else {
+                    if (conversation.isRead()) {
+                        mLastMessage.setTypeface(null, Typeface.NORMAL);
+                    } else {
+                        mLastMessage.setTypeface(null, Typeface.BOLD);
+                    }
+                }
+            }
         } else {
             Pair<String, Boolean> preview = UIHelper.getMessagePreview(activity, message);
             mLastMessage.setVisibility(View.VISIBLE);
             imagePreview.setVisibility(View.GONE);
             mLastMessage.setText(preview.first);
             if (preview.second) {
-                if (conversation.isRead()) mLastMessage.setTypeface(null, Typeface.ITALIC);
-                else mLastMessage.setTypeface(null, Typeface.BOLD_ITALIC);
+                if (conversation.isRead()) {
+                    mLastMessage.setTypeface(null, Typeface.ITALIC);
+                } else {
+                    mLastMessage.setTypeface(null, Typeface.BOLD_ITALIC);
+                }
             } else {
-                if (conversation.isRead()) mLastMessage.setTypeface(null, Typeface.NORMAL);
-                else mLastMessage.setTypeface(null, Typeface.BOLD);
+                if (conversation.isRead()) {
+                    mLastMessage.setTypeface(null, Typeface.NORMAL);
+                } else {
+                    mLastMessage.setTypeface(null, Typeface.BOLD);
+                }
             }
         }
 

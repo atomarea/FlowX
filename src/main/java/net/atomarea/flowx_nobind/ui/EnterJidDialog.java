@@ -2,12 +2,13 @@ package net.atomarea.flowx_nobind.ui;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -46,11 +47,8 @@ public class EnterJidDialog {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		builder.setTitle(title);
 		View dialogView = LayoutInflater.from(context).inflate(R.layout.enter_jid_dialog, null);
-		final TextView jabberIdDesc = (TextView) dialogView.findViewById(R.id.jabber_id);
-		jabberIdDesc.setText(R.string.account_settings_jabber_id);
 		final Spinner spinner = (Spinner) dialogView.findViewById(R.id.account);
-		final AutoCompleteTextView jid = (AutoCompleteTextView) dialogView.findViewById(R.id.jid);
-		jid.setAdapter(new KnownHostsAdapter(context, R.layout.simple_list_item, knownHosts));
+		final EditText jid = (EditText) dialogView.findViewById(R.id.jid);
 		if (prefilledJid != null) {
 			jid.append(prefilledJid);
 			if (!allowEditJid) {
@@ -61,16 +59,15 @@ public class EnterJidDialog {
 			}
 		}
 
-		jid.setHint(R.string.account_settings_example_jabber_id);
 
 		if (account == null) {
 			StartConversationActivity.populateAccountSpinner(context, activatedAccounts, spinner);
 		} else {
 			ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
-					R.layout.simple_list_item,
+				android.R.layout.simple_spinner_item,
 					new String[] { account });
 			spinner.setEnabled(false);
-			adapter.setDropDownViewResource(R.layout.simple_list_item);
+			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			spinner.setAdapter(adapter);
 		}
 
