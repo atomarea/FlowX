@@ -67,8 +67,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 1433
-        versionName "1.62"
+        versionCode 1434
+        versionName "1.63"
         archivesBaseName += "-$versionName"
         applicationId "net.atomarea.flowx"
         multiDexEnabled true
