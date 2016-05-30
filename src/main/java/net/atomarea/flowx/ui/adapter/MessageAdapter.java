@@ -40,6 +40,7 @@ import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.beardedhen.androidbootstrap.BootstrapProgressBar;
 import com.beardedhen.androidbootstrap.api.defaults.DefaultBootstrapBrand;
 
+import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
 import net.atomarea.flowx.entities.Conversation;
@@ -306,6 +307,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             } catch (ArrayIndexOutOfBoundsException e) {
                 body = message.getMergedBody();
             }
+            if (body.length() > Config.MAX_DISPLAY_MESSAGE_CHARS) {
+                body = body.substring(0, Config.MAX_DISPLAY_MESSAGE_CHARS)+"\u2026";
+            }
+
             final SpannableString formattedBody = new SpannableString(body);
             int i = body.indexOf(Message.MERGE_SEPARATOR);
             while (i >= 0) {
@@ -369,21 +374,21 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                     urlCount++;
                 }
             }
-                viewHolder.messageBody.setTextIsSelectable(urlCount <= 1);
-                viewHolder.messageBody.setAutoLinkMask(0);
-                Linkify.addLinks(viewHolder.messageBody, Linkify.WEB_URLS);
-                Linkify.addLinks(viewHolder.messageBody, XMPP_PATTERN, "xmpp");
-                Linkify.addLinks(viewHolder.messageBody, GeoHelper.GEO_URI, "geo");
-            }else{
-                viewHolder.messageBody.setText("");
-                viewHolder.messageBody.setTextIsSelectable(false);
-            }
-            viewHolder.messageBody.setTextColor(this.getMessageTextColor(darkBackground, true));
-            viewHolder.messageBody.setLinkTextColor(this.getMessageTextColor(darkBackground, true));
-            viewHolder.messageBody.setHighlightColor(ContextCompat.getColor(activity, darkBackground ? R.color.grey800 : R.color.grey500));
-            viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
-            viewHolder.messageBody.setOnLongClickListener(openContextMenu);
+            viewHolder.messageBody.setTextIsSelectable(urlCount <= 1);
+            viewHolder.messageBody.setAutoLinkMask(0);
+            Linkify.addLinks(viewHolder.messageBody, Linkify.WEB_URLS);
+            Linkify.addLinks(viewHolder.messageBody, XMPP_PATTERN, "xmpp");
+            Linkify.addLinks(viewHolder.messageBody, GeoHelper.GEO_URI, "geo");
+        } else {
+            viewHolder.messageBody.setText("");
+            viewHolder.messageBody.setTextIsSelectable(false);
         }
+        viewHolder.messageBody.setTextColor(this.getMessageTextColor(darkBackground, true));
+        viewHolder.messageBody.setLinkTextColor(this.getMessageTextColor(darkBackground, true));
+        viewHolder.messageBody.setHighlightColor(ContextCompat.getColor(activity, darkBackground ? R.color.grey800 : R.color.grey500));
+        viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
+        viewHolder.messageBody.setOnLongClickListener(openContextMenu);
+    }
 
     private void displayDownloadableMessage(ViewHolder viewHolder,
                                             final Message message, String text) {

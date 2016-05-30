@@ -45,6 +45,7 @@ dependencies {
 	compile 'com.yalantis:contextmenu:1.0.6'
 	compile 'com.github.manuelpeinado.fadingactionbar:fadingactionbar:3.1.2'
 	compile 'com.android.support:multidex:1.0.1'
+    compile 'com.github.bumptech.glide:glide:3.5.2'
 	compile 'org.osmdroid:osmdroid-android:4.3'
 	compile 'org.slf4j:slf4j-simple:1.7.9'
     compile 'com.google.android.gms:play-services:6.5.87'

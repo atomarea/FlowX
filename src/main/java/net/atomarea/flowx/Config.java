@@ -37,11 +37,11 @@ public final class Config {
     public static final String BUG_REPORTS = "bugs@flowx.im";
     public static final String DOMAIN_LOCK = "flowx.im"; //only allow account creation for this domain
     public static final String MAGIC_CREATE_DOMAIN = "flowx.im";
-    public static final String CONFERENCE_DOMAIN_LOCK = "conference.flowx.im"; //only allow conference creation for this domain
     public static boolean AlwayUseOMEMO = false; //true makes OMEMO as default on every 1 to 1 chat
     public static final boolean LOCK_DOMAINS_IN_CONVERSATIONS = true; //only add contacts and conferences for own domains
     public static final boolean LOCK_SETTINGS = true; //set to true to allow only one account
     public static final boolean DISALLOW_REGISTRATION_IN_UI = false; //hide the register checkbox
+    public static final int MAX_DISPLAY_MESSAGE_CHARS = 4096;
     public static final int IDLE_PING_INTERVAL = 600; //540 is minimum according to docs;
     public static final boolean CLOSE_TCP_WHEN_SWITCHING_TO_BACKGROUND = false;
     public static final boolean LEGACY_NAMESPACE_HTTP_UPLOAD = false;
