@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.PendingIntent;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -16,6 +17,11 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -85,16 +91,35 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import de.timroes.android.listview.EnhancedListView;
 import github.ankushsachdeva.emojicon.EmojiconTextView;
 
-public class ConversationActivity extends XmppActivity implements OnAccountUpdate, OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, View.OnClickListener {
+public class ConversationActivity extends XmppActivity implements OnAccountUpdate, OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, View.OnClickListener, SensorEventListener {
 
     public static final String ACTION_DOWNLOAD = "net.atomarea.flowx.action.DOWNLOAD";
 
     public static final String VIEW_CONVERSATION = "viewConversation";
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.values[0] < mSensor.getMaximumRange()) {
+            mAudioManager.setSpeakerphoneOn(false);
+        } else {
+            mAudioManager.setSpeakerphoneOn(true);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
     public static final String CONVERSATION = "conversationUuid";
     public static final String MESSAGE = "messageUuid";
     public static final String TEXT = "text";
     public static final String NICK = "nick";
     public static final String PRIVATE_MESSAGE = "pm";
+
+    private SensorManager mSensorManager;
+    private AudioManager mAudioManager;
+    private Sensor mSensor;
 
     public static final int REQUEST_SEND_MESSAGE = 0x0201;
     public static final int REQUEST_DECRYPT_PGP = 0x0202;
@@ -229,6 +254,9 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 mPendingImageUris.add(Uri.parse(pending));
             }
         }
+
+        mSensor = (mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE)).getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         setContentView(R.layout.fragment_conversations_overview);
 
@@ -1075,6 +1103,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     public void onPause() {
         listView.discardUndo();
         super.onPause();
+        mAudioManager.setMode(AudioManager.MODE_NORMAL);
+        mSensorManager.unregisterListener(this);
         this.mActivityPaused = true;
         if (this.xmppConnectionServiceBound)
             this.xmppConnectionService.getNotificationService().setIsInForeground(false);
@@ -1083,6 +1113,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     @Override
     public void onResume() {
         super.onResume();
+        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_FASTEST);
+        mAudioManager.setMode(AudioManager.MODE_IN_CALL);
         final int theme = findTheme();
         final boolean usingEnterKey = usingEnterKey();
         if (this.mTheme != theme || usingEnterKey != mUsingEnterKey) recreate();
@@ -1120,7 +1152,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
         if (mPendingConferenceInvite != null) {
             mPendingConferenceInvite.execute(this);
-            mToast = Toast.makeText(this, R.string.creating_conference,Toast.LENGTH_LONG);
+            mToast = Toast.makeText(this, R.string.creating_conference, Toast.LENGTH_LONG);
             mToast.show();
             mPendingConferenceInvite = null;
         }
