@@ -99,16 +99,23 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        Log.e("AS distance", String.valueOf(event.values[0]));
+        Log.e("AS maxRange", String.valueOf(mSensor.getMaximumRange()));
+
         if (event.values[0] < mSensor.getMaximumRange()) {
+            mAudioManager.setMode(AudioManager.MODE_IN_CALL);
             mAudioManager.setSpeakerphoneOn(false);
+            Log.e("AS", "Mode:Call:SKPfalse");
         } else {
             mAudioManager.setSpeakerphoneOn(true);
+            mAudioManager.setMode(AudioManager.MODE_NORMAL);
+            Log.e("AS", "Mode:Normal:SKPtrue");
         }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+        // ignored, f*cking interfaces... hate them
     }
 
     public static final String CONVERSATION = "conversationUuid";
@@ -1114,7 +1121,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     public void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_FASTEST);
-        mAudioManager.setMode(AudioManager.MODE_IN_CALL);
         final int theme = findTheme();
         final boolean usingEnterKey = usingEnterKey();
         if (this.mTheme != theme || usingEnterKey != mUsingEnterKey) recreate();
