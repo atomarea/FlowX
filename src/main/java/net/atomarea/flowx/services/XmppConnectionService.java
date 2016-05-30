@@ -553,10 +553,10 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
                     }
                     break;
                 case ACTION_IDLE_PING:
-                    					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    						scheduleNextIdlePing();
-                    					}
-                    					break;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        scheduleNextIdlePing();
+                    }
+                    break;
                 case ACTION_GCM_TOKEN_REFRESH:
                     refreshAllGcmTokens();
                     break;
@@ -637,7 +637,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
         if (pingNow) {
             for (Account account : pingCandidates) {
                 account.getXmppConnection().sendPing();
-                Log.d(Config.LOGTAG, account.getJid().toBareJid() + " send ping (action="+action+")");
+                Log.d(Config.LOGTAG, account.getJid().toBareJid() + " send ping (action=" + action + ")");
                 this.scheduleWakeUpCall(Config.PING_TIMEOUT, account.getUuid().hashCode());
             }
         }
@@ -769,6 +769,9 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
         toggleForegroundService();
         updateUnreadCountBadge();
         toggleScreenEventReceiver();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            scheduleNextIdlePing();
+        }
     }
 
     @Override
@@ -851,6 +854,7 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
 
     public void scheduleWakeUpCall(int seconds, int requestCode) {
         final long timeToWake = SystemClock.elapsedRealtime() + (seconds < 0 ? 1 : seconds + 1) * 1000;
+        Log.d(Config.LOGTAG, "schedule next idle ping");
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, EventReceiver.class);
         intent.setAction("ping");
@@ -864,8 +868,8 @@ public class XmppConnectionService extends Service implements OnPhoneContactsLoa
         Intent intent = new Intent(this, EventReceiver.class);
         intent.setAction(ACTION_IDLE_PING);
         alarmManager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime()+(Config.IDLE_PING_INTERVAL * 1000),
-                PendingIntent.getBroadcast(this,0,intent,0)
+                SystemClock.elapsedRealtime() + (Config.IDLE_PING_INTERVAL * 1000),
+                PendingIntent.getBroadcast(this, 0, intent, 0)
         );
     }
 

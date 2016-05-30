@@ -1145,7 +1145,7 @@ public abstract class XmppActivity extends FragmentActivity {
         bm = xmppConnectionService.getFileBackend().getFile(message, true);
         Glide.with(this)
                 .load(bm)
-                .override(400, 400)
+                .override(600, 600)
                 .fitCenter()
                 //.centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.RESULT)
