@@ -53,7 +53,7 @@ public class UpdaterActivity extends Activity {
             //check if the broadcast message is for our Enqueued download
             long referenceId = intent.getExtras().getLong(DownloadManager.EXTRA_DOWNLOAD_ID);
             if (downloadReference == referenceId) {
-                File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "FlowX.apk");
+                File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "flowx.apk");
                 Log.d(Config.LOGTAG, "AppUpdater: Downloading of the new app version complete. Starting installation from " + file);
 
                 //start the installation of the latest version
@@ -297,7 +297,7 @@ public class UpdaterActivity extends Activity {
                                                 //request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
                                                 //request.setAllowedOverRoaming(false);
                                                 request.setTitle("FlowX Messenger Update");
-                                                request.setDestinationInExternalFilesDir(UpdaterActivity.this, Environment.DIRECTORY_DOWNLOADS, "FlowX.apk");
+                                                request.setDestinationInExternalFilesDir(UpdaterActivity.this, Environment.DIRECTORY_DOWNLOADS, "flowx.apk");
                                                 downloadReference = downloadManager.enqueue(request);
                                                 Toast.makeText(getApplicationContext(),
                                                         getText(R.string.download_started),

@@ -665,4 +665,6 @@
 	<string name="changelog">Changes</string>
 	<string name="import_failed">The import has failed</string>
 	<string name="uninstall">Uninstall</string>
+	<string name="uninstall_plugins">We have integrated the VoiceRecorder and ShareLocation plugin directly into the messenger. You should uninstall the plugins.</string>
+	<string name="title_activity_updater">Update Service</string>
 </resources>
