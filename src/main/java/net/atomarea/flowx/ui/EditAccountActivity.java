@@ -539,6 +539,9 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toBareJid().toString());
                 startActivity(intent);
                 break;
+            case R.id.action_check_updates:
+                startActivity(new Intent(this, UpdaterActivity.class));
+                break;
             case R.id.action_restart:
                 if (xmppConnectionServiceBound) {
                     unbindService(mConnection);

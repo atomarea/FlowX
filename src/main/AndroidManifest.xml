@@ -34,6 +34,8 @@
         tools:replace="android:label">
 
         <service android:name=".services.XmppConnectionService" />
+        <service android:name=".services.UpdaterWebService" />
+        <service android:name=".services.CheckAppVersionService" />
 
         <receiver android:name=".services.EventReceiver">
             <intent-filter>
@@ -249,7 +251,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.SettingsActivity" />
         </activity>
-
+        <activity
+            android:name=".ui.UpdaterActivity"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/ConversationsTheme"
+            android:label="@string/title_activity_updater" >
+        </activity>
         <service android:name=".services.ExportLogsService" />
         <service
             android:name=".services.ContactChooserTargetService"
