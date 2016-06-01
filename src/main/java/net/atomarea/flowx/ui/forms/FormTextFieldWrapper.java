@@ -7,11 +7,11 @@ import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.xmpp.forms.Field;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FormTextFieldWrapper extends FormFieldWrapper {
 

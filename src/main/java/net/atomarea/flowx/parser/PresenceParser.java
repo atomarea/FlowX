@@ -2,10 +2,6 @@ package net.atomarea.flowx.parser;
 
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.PgpEngine;
 import net.atomarea.flowx.entities.Account;
@@ -14,17 +10,17 @@ import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.MucOptions;
 import net.atomarea.flowx.entities.Presence;
-import net.atomarea.flowx.entities.ServiceDiscoveryResult;
 import net.atomarea.flowx.generator.IqGenerator;
 import net.atomarea.flowx.generator.PresenceGenerator;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.xml.Element;
-import net.atomarea.flowx.xmpp.OnIqPacketReceived;
 import net.atomarea.flowx.xmpp.OnPresencePacketReceived;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
-import net.atomarea.flowx.xmpp.stanzas.IqPacket;
 import net.atomarea.flowx.xmpp.stanzas.PresencePacket;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PresenceParser extends AbstractParser implements
         OnPresencePacketReceived {

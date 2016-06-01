@@ -41,7 +41,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.Checkable;
 import android.widget.EditText;
@@ -53,13 +52,6 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
@@ -70,13 +62,18 @@ import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.ListItem;
 import net.atomarea.flowx.entities.Presence;
 import net.atomarea.flowx.services.XmppConnectionService.OnRosterUpdate;
-import net.atomarea.flowx.ui.adapter.KnownHostsAdapter;
 import net.atomarea.flowx.ui.adapter.ListItemAdapter;
 import net.atomarea.flowx.utils.XmppUri;
 import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
 import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import eu.livotov.labs.android.camview.ScannerLiveView;
 

@@ -26,7 +26,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import github.ankushsachdeva.emojicon.EmojiconGridView.OnEmojiconClickedListener;
-import github.ankushsachdeva.emojicon.R;
 import github.ankushsachdeva.emojicon.emoji.Emojicon;
 
 /**

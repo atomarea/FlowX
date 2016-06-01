@@ -4,11 +4,11 @@ import android.content.Context;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.xmpp.forms.Field;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FormBooleanFieldWrapper extends FormFieldWrapper {
 

@@ -1,8 +1,8 @@
 package net.atomarea.flowx.entities;
 
-import java.io.File;
-
 import net.atomarea.flowx.utils.MimeUtils;
+
+import java.io.File;
 
 public class DownloadableFile extends File {
 

@@ -5,6 +5,18 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.entities.Contact;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.Xmlns;
+import net.atomarea.flowx.xml.Element;
+import net.atomarea.flowx.xmpp.OnIqPacketReceived;
+import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
+import net.atomarea.flowx.xmpp.jid.Jid;
+import net.atomarea.flowx.xmpp.stanzas.IqPacket;
+
 import org.whispersystems.libaxolotl.IdentityKey;
 import org.whispersystems.libaxolotl.ecc.Curve;
 import org.whispersystems.libaxolotl.ecc.ECPublicKey;
@@ -21,18 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.entities.Contact;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.Xmlns;
-import net.atomarea.flowx.xml.Element;
-import net.atomarea.flowx.xmpp.OnIqPacketReceived;
-import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
-import net.atomarea.flowx.xmpp.jid.Jid;
-import net.atomarea.flowx.xmpp.stanzas.IqPacket;
 
 public class IqParser extends AbstractParser implements OnIqPacketReceived {
 

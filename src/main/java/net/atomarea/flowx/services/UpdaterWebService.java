@@ -6,6 +6,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.ui.UpdaterActivity.UpdateReceiver;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -19,10 +23,6 @@ import org.apache.http.params.HttpParams;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.ui.UpdaterActivity.UpdateReceiver;
 
 public class UpdaterWebService extends IntentService {
     public static final String REQUEST_STRING = "";

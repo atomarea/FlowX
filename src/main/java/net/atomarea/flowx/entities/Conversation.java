@@ -3,6 +3,11 @@ package net.atomarea.flowx.entities;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.xmpp.chatstate.ChatState;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
 import net.java.otr4j.OtrException;
 import net.java.otr4j.crypto.OtrCryptoException;
 import net.java.otr4j.session.SessionID;
@@ -20,12 +25,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.xmpp.chatstate.ChatState;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class Conversation extends AbstractEntity implements Blockable {
     public static final String TABLENAME = "conversations";

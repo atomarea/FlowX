@@ -4,6 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.utils.UIHelper;
+import net.atomarea.flowx.xml.Element;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
+import net.atomarea.flowx.xmpp.pep.Avatar;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,13 +18,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.utils.UIHelper;
-import net.atomarea.flowx.xml.Element;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
-import net.atomarea.flowx.xmpp.pep.Avatar;
 
 public class Contact implements ListItem, Blockable {
 	public static final String TABLENAME = "contacts";

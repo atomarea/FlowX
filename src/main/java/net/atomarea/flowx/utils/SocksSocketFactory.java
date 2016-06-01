@@ -1,5 +1,7 @@
 package net.atomarea.flowx.utils;
 
+import net.atomarea.flowx.Config;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,8 +9,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-
-import net.atomarea.flowx.Config;
 
 public class SocksSocketFactory {
 

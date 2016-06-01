@@ -1,8 +1,6 @@
 package net.atomarea.flowx.ui;
 
-import android.app.AlertDialog;
 import android.app.FragmentManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -14,22 +12,18 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.util.Log;
 import android.widget.Toast;
 
-import java.security.KeyStoreException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
-import de.duenndns.ssl.MemorizingTrustManager;
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.services.ExportLogsService;
 import net.atomarea.flowx.xmpp.XmppConnection;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 public class SettingsActivity extends XmppActivity implements
 		OnSharedPreferenceChangeListener {

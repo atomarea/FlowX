@@ -3,22 +3,23 @@ package net.atomarea.flowx.entities;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Base64;
+
+import net.atomarea.flowx.xml.Element;
+import net.atomarea.flowx.xmpp.forms.Data;
+import net.atomarea.flowx.xmpp.forms.Field;
+import net.atomarea.flowx.xmpp.stanzas.IqPacket;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
-import java.lang.Comparable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import net.atomarea.flowx.xml.Element;
-import net.atomarea.flowx.xmpp.forms.Data;
-import net.atomarea.flowx.xmpp.forms.Field;
-import net.atomarea.flowx.xmpp.stanzas.IqPacket;
 
 public class ServiceDiscoveryResult {
 	public static final String TABLENAME = "discovery_results";

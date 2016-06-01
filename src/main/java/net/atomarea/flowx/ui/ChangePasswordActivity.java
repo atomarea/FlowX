@@ -11,8 +11,6 @@ import android.widget.Toast;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class ChangePasswordActivity extends XmppActivity implements XmppConnectionService.OnAccountPasswordChanged {
 

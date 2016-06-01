@@ -5,12 +5,12 @@ import android.text.Editable;
 import android.view.View;
 import android.widget.AdapterView;
 
-import java.util.Collections;
-
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.util.Collections;
 
 public class BlocklistActivity extends AbstractSearchableListItemActivity implements OnUpdateBlocklist {
 

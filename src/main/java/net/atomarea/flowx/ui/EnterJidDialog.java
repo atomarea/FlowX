@@ -2,21 +2,18 @@ package net.atomarea.flowx.ui;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import java.util.List;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.ui.adapter.KnownHostsAdapter;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.util.List;
 
 public class EnterJidDialog {
 	public interface OnEnterJidDialogPositiveListener {

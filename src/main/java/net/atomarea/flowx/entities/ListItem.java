@@ -2,9 +2,9 @@ package net.atomarea.flowx.entities;
 
 import android.content.Context;
 
-import java.util.List;
-
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.util.List;
 
 public interface ListItem extends Comparable<ListItem> {
 	String getDisplayName();

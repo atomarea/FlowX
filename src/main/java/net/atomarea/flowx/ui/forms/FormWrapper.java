@@ -3,11 +3,11 @@ package net.atomarea.flowx.ui.forms;
 import android.content.Context;
 import android.widget.LinearLayout;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.forms.Field;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FormWrapper {
 

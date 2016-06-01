@@ -3,12 +3,6 @@ package net.atomarea.flowx.services;
 import android.util.Log;
 import android.util.Pair;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
@@ -19,6 +13,12 @@ import net.atomarea.flowx.xmpp.OnAdvancedStreamFeaturesLoaded;
 import net.atomarea.flowx.xmpp.OnIqPacketReceived;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
 public class MessageArchiveService implements OnAdvancedStreamFeaturesLoaded {
 

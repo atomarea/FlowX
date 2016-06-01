@@ -16,6 +16,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.persistance.DatabaseBackend;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -23,10 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.persistance.DatabaseBackend;
 
 public class WelcomeActivity extends Activity {
 

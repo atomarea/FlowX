@@ -15,9 +15,6 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -28,6 +25,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
 
 import java.util.List;
 import java.util.Locale;

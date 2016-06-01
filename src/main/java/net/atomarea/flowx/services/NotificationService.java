@@ -26,7 +26,6 @@ import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.ui.ConversationActivity;
-import net.atomarea.flowx.ui.ManageAccountActivity;
 import net.atomarea.flowx.ui.TimePreference;
 import net.atomarea.flowx.utils.GeoHelper;
 import net.atomarea.flowx.utils.UIHelper;

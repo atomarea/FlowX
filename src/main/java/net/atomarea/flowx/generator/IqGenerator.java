@@ -5,17 +5,6 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 
-import org.whispersystems.libaxolotl.IdentityKey;
-import org.whispersystems.libaxolotl.ecc.ECPublicKey;
-import org.whispersystems.libaxolotl.state.PreKeyRecord;
-import org.whispersystems.libaxolotl.state.SignedPreKeyRecord;
-
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.entities.Account;
@@ -29,6 +18,17 @@ import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
+
+import org.whispersystems.libaxolotl.IdentityKey;
+import org.whispersystems.libaxolotl.ecc.ECPublicKey;
+import org.whispersystems.libaxolotl.state.PreKeyRecord;
+import org.whispersystems.libaxolotl.state.SignedPreKeyRecord;
+
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class IqGenerator extends AbstractGenerator {
 

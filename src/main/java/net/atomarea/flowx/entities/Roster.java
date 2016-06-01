@@ -1,11 +1,11 @@
 package net.atomarea.flowx.entities;
 
+import net.atomarea.flowx.xmpp.jid.Jid;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class Roster {
 	final Account account;
