@@ -648,4 +648,21 @@
 	<string name="choose_participants">Choose participants</string>
 	<string name="creating_conference">Creating Group…</string>
 	<string name="invite_again">Invite again</string>
+	<string name="update_available">Version %1$s is available.\n\nFilesize: %2$s\n\nUpdate to version %1$s now?</string>
+	<string name="no_update_available">No update available</string>
+	<string name="update_info">FlowX Messenger is checking for an update. If an update is available you will be asked, if you want to update your version. The update process is downloading and installing the new version automatically.\n\nPlease wait…</string>
+	<string name="cancel_update">Cancel update check?</string>
+	<string name="action_check_update">Check for Updates</string>
+	<string name="checking_for_updates">Checking for FlowX Messenger updates</string>
+	<string name="download_started">Download started</string>
+	<string name="remind_later">later</string>
+	<string name="update">update</string>
+	<string name="import_text">There is a backup on your device which can be imported.\nPossibly you will be asked to uninstall the old version, your Messenger will be restarted during backup process. Shall the backup be imported? </string>
+	<string name="import_database">Import backup</string>
+	<string name="uninstall_app_text">There is an old version of FlowX Messenger or Conversations installed. If you have an old FlowX Messenger installed, you should uninstall this version. After uninstalled the old versoin, you should choose \'import backup\' again and we will import your data to the new version.</string>
+	<string name="yes">Yes</string>
+	<string name="no">No</string>
+	<string name="changelog">Changes</string>
+	<string name="import_failed">The import has failed</string>
+	<string name="uninstall">Uninstall</string>
 </resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="net.atomarea.flowx.ui.UpdaterActivity">
+
+    <TextView android:id="@+id/updater" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true" android:layout_marginTop="6dp"
+        android:text="Current" android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="normal"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>

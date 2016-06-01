@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="snackbar_location_message" type="id" />
+    <item name="message_image_view" type="id" />
+    <item name="message_video_view" type="id" />
+    <item name="import_text" type="id" />
+</resources>
