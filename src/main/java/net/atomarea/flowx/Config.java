@@ -44,6 +44,7 @@ public final class Config {
     public static final int MAX_DISPLAY_MESSAGE_CHARS = 4096;
     public static final int IDLE_PING_INTERVAL = 600; //540 is minimum according to docs;
     public static final boolean CLOSE_TCP_WHEN_SWITCHING_TO_BACKGROUND = false;
+    public static final boolean ALWAYS_NOTIFY_BY_DEFAULT = false;
     public static final boolean LEGACY_NAMESPACE_HTTP_UPLOAD = false;
     public static final boolean BACKGROUND_STANZA_LOGGING = false;
     public static final int PING_MAX_INTERVAL = 300;
