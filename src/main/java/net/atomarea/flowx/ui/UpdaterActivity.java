@@ -23,6 +23,11 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.persistance.DatabaseBackend;
+import net.atomarea.flowx.services.UpdaterWebService;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,11 +37,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.persistance.DatabaseBackend;
-import net.atomarea.flowx.services.UpdaterWebService;
 
 public class UpdaterActivity extends Activity {
 

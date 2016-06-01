@@ -3,12 +3,12 @@ package net.atomarea.flowx.ui.forms;
 import android.content.Context;
 import android.text.InputType;
 
-import java.util.List;
-
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.xmpp.forms.Field;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.util.List;
 
 public class FormJidSingleFieldWrapper extends FormTextFieldWrapper {
 

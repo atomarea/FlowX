@@ -4,17 +4,6 @@ import android.text.Html;
 import android.util.Log;
 import android.util.Pair;
 
-import net.atomarea.flowx.entities.Presence;
-import net.atomarea.flowx.entities.ServiceDiscoveryResult;
-import net.java.otr4j.session.Session;
-import net.java.otr4j.session.SessionStatus;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.OtrService;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
@@ -25,6 +14,8 @@ import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.MucOptions;
+import net.atomarea.flowx.entities.Presence;
+import net.atomarea.flowx.entities.ServiceDiscoveryResult;
 import net.atomarea.flowx.http.HttpConnectionManager;
 import net.atomarea.flowx.services.MessageArchiveService;
 import net.atomarea.flowx.services.XmppConnectionService;
@@ -35,6 +26,14 @@ import net.atomarea.flowx.xmpp.chatstate.ChatState;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.MessagePacket;
+import net.java.otr4j.session.Session;
+import net.java.otr4j.session.SessionStatus;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public class MessageParser extends AbstractParser implements OnMessagePacketReceived {
 

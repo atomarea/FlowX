@@ -4,6 +4,18 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.util.Log;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.entities.Contact;
+import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.entities.DownloadableFile;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.http.HttpConnectionManager;
+import net.atomarea.flowx.persistance.FileBackend;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.ui.UiCallback;
+
 import org.openintents.openpgp.OpenPgpSignatureResult;
 import org.openintents.openpgp.util.OpenPgpApi;
 import org.openintents.openpgp.util.OpenPgpApi.IOpenPgpCallback;
@@ -16,18 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.entities.Contact;
-import net.atomarea.flowx.entities.Conversation;
-import net.atomarea.flowx.entities.DownloadableFile;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.http.HttpConnectionManager;
-import net.atomarea.flowx.persistance.FileBackend;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.ui.UiCallback;
 
 public class PgpEngine {
 	private OpenPgpApi api;

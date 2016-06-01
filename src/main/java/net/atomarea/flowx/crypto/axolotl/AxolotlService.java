@@ -7,6 +7,22 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.entities.Contact;
+import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.parser.IqParser;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.CryptoHelper;
+import net.atomarea.flowx.utils.SerialSingleThreadExecutor;
+import net.atomarea.flowx.xml.Element;
+import net.atomarea.flowx.xmpp.OnAdvancedStreamFeaturesLoaded;
+import net.atomarea.flowx.xmpp.OnIqPacketReceived;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
+import net.atomarea.flowx.xmpp.stanzas.IqPacket;
+
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.whispersystems.libaxolotl.AxolotlAddress;
 import org.whispersystems.libaxolotl.IdentityKey;
@@ -32,22 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.entities.Contact;
-import net.atomarea.flowx.entities.Conversation;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.parser.IqParser;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.CryptoHelper;
-import net.atomarea.flowx.utils.SerialSingleThreadExecutor;
-import net.atomarea.flowx.xml.Element;
-import net.atomarea.flowx.xmpp.OnAdvancedStreamFeaturesLoaded;
-import net.atomarea.flowx.xmpp.OnIqPacketReceived;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
-import net.atomarea.flowx.xmpp.stanzas.IqPacket;
 
 public class AxolotlService implements OnAdvancedStreamFeaturesLoaded {
 

@@ -24,7 +24,6 @@ import android.widget.GridView;
 
 import java.util.Arrays;
 
-import github.ankushsachdeva.emojicon.R;
 import github.ankushsachdeva.emojicon.emoji.Emojicon;
 import github.ankushsachdeva.emojicon.emoji.People;
 

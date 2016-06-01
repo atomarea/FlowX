@@ -16,15 +16,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.lang.ref.WeakReference;
-import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
-
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.ListItem;
 import net.atomarea.flowx.ui.XmppActivity;
 import net.atomarea.flowx.utils.UIHelper;
-import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.lang.ref.WeakReference;
+import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 
 public class ListItemAdapter extends ArrayAdapter<ListItem> {
 

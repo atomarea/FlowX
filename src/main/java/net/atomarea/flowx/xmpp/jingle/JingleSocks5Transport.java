@@ -3,25 +3,22 @@ package net.atomarea.flowx.xmpp.jingle;
 import android.os.PowerManager;
 import android.util.Log;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.UnknownHostException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.entities.DownloadableFile;
 import net.atomarea.flowx.persistance.FileBackend;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.SocksSocketFactory;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class JingleSocks5Transport extends JingleTransport {
 	private JingleCandidate candidate;

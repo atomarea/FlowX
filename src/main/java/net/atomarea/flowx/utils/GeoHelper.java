@@ -3,15 +3,15 @@ package net.atomarea.flowx.utils;
 import android.content.Intent;
 import android.net.Uri;
 
+import net.atomarea.flowx.entities.Contact;
+import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.entities.Message;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.atomarea.flowx.entities.Contact;
-import net.atomarea.flowx.entities.Conversation;
-import net.atomarea.flowx.entities.Message;
 
 public class GeoHelper {
 	public static Pattern GEO_URI = Pattern.compile("geo:([\\-0-9.]+),([\\-0-9.]+)(?:,([\\-0-9.]+))?(?:\\?(.*))?", Pattern.CASE_INSENSITIVE);

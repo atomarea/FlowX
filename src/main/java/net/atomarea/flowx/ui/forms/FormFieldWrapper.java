@@ -4,15 +4,13 @@ import android.content.Context;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
-import java.util.List;
-
-import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.xmpp.forms.Field;
+
+import java.util.List;
 
 public abstract class FormFieldWrapper {
 

@@ -2,14 +2,13 @@ package net.atomarea.flowx.entities;
 
 import android.content.Context;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import net.atomarea.flowx.Config;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class Bookmark extends Element implements ListItem {
 

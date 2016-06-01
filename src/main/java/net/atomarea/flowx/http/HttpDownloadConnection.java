@@ -3,6 +3,17 @@ package net.atomarea.flowx.http;
 import android.os.PowerManager;
 import android.util.Log;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.entities.DownloadableFile;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.entities.Transferable;
+import net.atomarea.flowx.entities.TransferablePlaceholder;
+import net.atomarea.flowx.persistance.FileBackend;
+import net.atomarea.flowx.services.AbstractConnectionManager;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.CryptoHelper;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,17 +25,6 @@ import java.util.concurrent.CancellationException;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.entities.DownloadableFile;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.entities.Transferable;
-import net.atomarea.flowx.entities.TransferablePlaceholder;
-import net.atomarea.flowx.persistance.FileBackend;
-import net.atomarea.flowx.services.AbstractConnectionManager;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.CryptoHelper;
 
 public class HttpDownloadConnection implements Transferable {
 

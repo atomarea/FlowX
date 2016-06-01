@@ -16,9 +16,6 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import net.java.otr4j.OtrException;
-import net.java.otr4j.session.Session;
-
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
@@ -28,6 +25,8 @@ import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.XmppUri;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
+import net.java.otr4j.OtrException;
+import net.java.otr4j.session.Session;
 
 public class VerifyOTRActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate {
 

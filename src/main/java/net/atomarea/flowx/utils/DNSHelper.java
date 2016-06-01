@@ -11,6 +11,9 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.xmpp.jid.Jid;
+
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -19,9 +22,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import de.measite.minidns.Client;
@@ -34,8 +37,6 @@ import de.measite.minidns.record.AAAA;
 import de.measite.minidns.record.Data;
 import de.measite.minidns.record.SRV;
 import de.measite.minidns.util.NameUtil;
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class DNSHelper {
 

@@ -10,14 +10,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.whispersystems.libaxolotl.IdentityKey;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
@@ -26,6 +18,14 @@ import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import org.whispersystems.libaxolotl.IdentityKey;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdated {
 	private List<Jid> contactJids;

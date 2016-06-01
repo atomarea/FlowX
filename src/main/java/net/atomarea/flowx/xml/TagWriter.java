@@ -1,11 +1,11 @@
 package net.atomarea.flowx.xml;
 
+import net.atomarea.flowx.xmpp.stanzas.AbstractStanza;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import net.atomarea.flowx.xmpp.stanzas.AbstractStanza;
 
 public class TagWriter {
 

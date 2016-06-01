@@ -2,11 +2,8 @@ package net.atomarea.flowx.services;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
-
-import net.atomarea.flowx.Config;
 
 public class PushMessageReceiver extends GcmListenerService {
 

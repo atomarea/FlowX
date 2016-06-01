@@ -18,21 +18,12 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import android.util.Log;
-
-import org.openintents.openpgp.util.OpenPgpApi;
-
-import java.util.List;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.entities.ListItem;
 import net.atomarea.flowx.entities.Presence;
 import net.atomarea.flowx.entities.PresenceTemplate;
-import net.atomarea.flowx.utils.UIHelper;
+
+import java.util.List;
 
 public class SetPresenceActivity extends XmppActivity implements View.OnClickListener {
 

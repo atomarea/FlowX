@@ -11,6 +11,21 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.crypto.axolotl.SQLiteAxolotlStore;
+import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
+import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.entities.Contact;
+import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.entities.PresenceTemplate;
+import net.atomarea.flowx.entities.Roster;
+import net.atomarea.flowx.entities.ServiceDiscoveryResult;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
+
+import org.json.JSONException;
 import org.whispersystems.libaxolotl.AxolotlAddress;
 import org.whispersystems.libaxolotl.IdentityKey;
 import org.whispersystems.libaxolotl.IdentityKeyPair;
@@ -31,21 +46,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.json.JSONException;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.crypto.axolotl.SQLiteAxolotlStore;
-import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
-import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.entities.Contact;
-import net.atomarea.flowx.entities.Conversation;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.entities.PresenceTemplate;
-import net.atomarea.flowx.entities.Roster;
-import net.atomarea.flowx.entities.ServiceDiscoveryResult;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class DatabaseBackend extends SQLiteOpenHelper {
 

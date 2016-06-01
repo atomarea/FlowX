@@ -19,7 +19,6 @@ package github.ankushsachdeva.emojicon;
 import android.content.Context;
 import android.widget.GridView;
 
-import github.ankushsachdeva.emojicon.R;
 import github.ankushsachdeva.emojicon.emoji.Emojicon;
 
 /**
