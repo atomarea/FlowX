@@ -1154,20 +1154,21 @@ public abstract class XmppActivity extends FragmentActivity {
     }
 
     public void loadVideoPreview(Message message, ImageView imageView) {
+        File vp = xmppConnectionService.getFileBackend().getFile(message, true);
         try {
-            File vp = xmppConnectionService.getFileBackend().getFile(message, true);
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            //use one of overloaded setDataSource() functions to set your data source
             retriever.setDataSource(this, Uri.fromFile(vp));
             String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             long microSecond = Long.parseLong(time);
-            int duration = (int) microSecond / 2; //preview at half of video
+            int duration = (int) Math.ceil(microSecond / 2); //preview at half of video
             BitmapPool bitmapPool = Glide.get(getApplicationContext()).getBitmapPool();
             VideoBitmapDecoder videoBitmapDecoder = new VideoBitmapDecoder(duration);
             FileDescriptorBitmapDecoder fileDescriptorBitmapDecoder = new FileDescriptorBitmapDecoder(videoBitmapDecoder, bitmapPool, DecodeFormat.PREFER_ARGB_8888);
             Glide.with(getApplicationContext())
                     .load(vp)
                     .asBitmap()
-                    .override(400, 400)
+                    .override(500, 500)
                     .fitCenter()
                     //.centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.RESULT)

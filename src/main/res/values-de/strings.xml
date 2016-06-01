@@ -554,4 +554,7 @@
     <string name="choose_participants">Teilnehmer auswählen</string>
     <string name="creating_conference">Gruppe wird erstellt…</string>
     <string name="invite_again">Erneut einladen</string>
+    <string name="import_database">Backup importieren</string>
+    <string name="import_text">Es wurde ein Backup gefunden, welches importiert werden kann.\nMöglicherweise wirst du gefragt, ob du eine ältere Version oder Conversations deinstallieren möchtest und dein Messenger startet während des Importvorgangs neu. Soll das Backup importiert werden?</string>
+    <string name="uninstall_app_text">Es ist eine alte Version von FlowX Messenger oder Conversations installiert. Falls du einen alten FlowX Messenger installiert hast, solltest du diesen deinstallieren. Nach der Deinstallation, solltest du erneut auf \'Backup importieren\' klicken, damit deine Daten in die neue Version importiert werden.</string>
 </resources>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    package="net.atomarea.flowx"
+<manifest package="net.atomarea.flowx"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -16,8 +15,8 @@
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 
@@ -31,6 +30,7 @@
         android:label="@string/app_name"
         android:theme="@style/ConversationsTheme"
         android:name="android.support.multidex.MultiDexApplication"
+        android:largeHeap="true"
         tools:replace="android:label">
 
         <service android:name=".services.XmppConnectionService" />
@@ -97,32 +97,36 @@
                 <data android:scheme="xmpp" />
             </intent-filter>
         </activity>
+
         <intent-filter android:autoVerify="true">
             <action android:name="android.intent.action.VIEW" />
+
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
+
             <data android:scheme="https" />
             <data android:host="flowx.im" />
-            <data android:pathPrefix="/i/"/>
+            <data android:pathPrefix="/i/" />
             <data android:pathPrefix="/i/" />
             <data android:pathPrefix="/j/" />
         </intent-filter>
+
         <activity
             android:name=".ui.WelcomeActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.MagicCreateActivity"
             android:label="@string/create_account"
             android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.SetPresenceActivity"
             android:label="@string/change_presence"
             android:configChanges="orientation|screenSize"
             android:windowSoftInputMode="stateHidden|adjustResize"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/title_activity_settings" />
@@ -139,6 +143,7 @@
             android:name=".ui.ManageAccountActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_manage_accounts" />
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -148,7 +153,7 @@
 
         <activity
             android:name=".ui.ShareLocationActivity"
-            android:label="@string/share_location" >
+            android:label="@string/share_location">
             <intent-filter>
                 <action android:name="net.atomarea.flowx.location.request" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -157,7 +162,7 @@
 
         <activity
             android:name=".ui.ShowLocationActivity"
-            android:label="@string/show_location" >
+            android:label="@string/show_location">
             <intent-filter>
                 <action android:name="net.atomarea.flowx.location.show" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -214,6 +219,11 @@
             <meta-data
                 android:name="android.service.chooser.chooser_target_service"
                 android:value=".services.ContactChooserTargetService" />
+        </activity>
+        <activity
+            android:name=".ui.ShowFullscreenMessageActivity"
+            android:configChanges="orientation|screenSize">
+
         </activity>
         <activity
             android:name=".ui.TrustKeysActivity"

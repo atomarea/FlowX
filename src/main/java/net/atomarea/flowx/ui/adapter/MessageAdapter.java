@@ -49,6 +49,7 @@ import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Message.FileParams;
 import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.ui.ConversationActivity;
+import net.atomarea.flowx.ui.ShowFullscreenMessageActivity;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.GeoHelper;
 import net.atomarea.flowx.utils.UIHelper;
@@ -657,22 +658,46 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             Toast.makeText(activity, R.string.file_deleted, Toast.LENGTH_SHORT).show();
             return;
         }
-        Intent openIntent = new Intent(Intent.ACTION_VIEW);
         String mime = file.getMimeType();
-        if (mime == null) mime = "*/*";
+
+        if (mime.startsWith("image/")) {
+            Intent intent = new Intent(getContext(), ShowFullscreenMessageActivity.class);
+            intent.putExtra("image", Uri.fromFile(file));
+            try {
+                activity.startActivity(intent);
+                return;
+            } catch (ActivityNotFoundException e) {
+                //ignored
+            }
+        } else if (mime.startsWith("video/")) {
+            Intent intent = new Intent(getContext(), ShowFullscreenMessageActivity.class);
+            intent.putExtra("video", Uri.fromFile(file));
+            try {
+                activity.startActivity(intent);
+                return;
+            } catch (ActivityNotFoundException e) {
+                //ignored
+            }
+        }
+        Intent openIntent = new Intent(Intent.ACTION_VIEW);
+        if (mime == null) {
+            mime = "*/*";
+        }
         openIntent.setDataAndType(Uri.fromFile(file), mime);
         PackageManager manager = activity.getPackageManager();
         List<ResolveInfo> infos = manager.queryIntentActivities(openIntent, 0);
-        if (infos.size() == 0) openIntent.setDataAndType(Uri.fromFile(file), "*/*");
+        if (infos.size() == 0) {
+            openIntent.setDataAndType(Uri.fromFile(file), "*/*");
+        }
         try {
             getContext().startActivity(openIntent);
             return;
         } catch (ActivityNotFoundException e) {
-            Log.e("MessageAdapter", e.getMessage());
+            //ignored
         }
         Toast.makeText(activity, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
-    }
 
+    }
     public void showLocation(Message message) {
         for (Intent intent : GeoHelper.createGeoIntentsFromMessage(message)) {
             if (intent.resolveActivity(getContext().getPackageManager()) != null) {

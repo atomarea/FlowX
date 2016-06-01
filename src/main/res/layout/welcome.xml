@@ -38,6 +38,25 @@
                 android:text="@string/welcome_text"
                 android:textColor="@color/black87"
                 android:textSize="?attr/TextSizeBody"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/import_text"
+                android:textColor="@color/black87"
+                android:textSize="?attr/TextSizeBody"
+                android:visibility="gone"
+                android:id="@id/import_text" />
+
+            <Button
+                android:id="@+id/import_database"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="@string/import_database"
+                android:textColor="@color/accent"
+                android:visibility="gone" />
             <Button
                 android:id="@+id/create_account"
                 style="?android:attr/borderlessButtonStyle"
