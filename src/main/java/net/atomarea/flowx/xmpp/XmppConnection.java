@@ -183,14 +183,21 @@ public class XmppConnection implements Runnable {
 				account.setOption(Account.OPTION_REGISTER, false);
 				forceCloseSocket();
 				changeStatus(Account.State.REGISTRATION_SUCCESSFUL);
-			} else if (packet.hasChild("error")
-					&& (packet.findChild("error").hasChild("conflict"))) {
-				forceCloseSocket();
-				changeStatus(Account.State.REGISTRATION_CONFLICT);
 			} else {
-				forceCloseSocket();
-				changeStatus(Account.State.REGISTRATION_FAILED);
-				Log.d(Config.LOGTAG, packet.toString());
+				Element error = packet.findChild("error");
+				if (error != null && error.hasChild("conflict")) {
+					forceCloseSocket();
+					changeStatus(Account.State.REGISTRATION_CONFLICT);
+				} else if (error != null
+						&& "wait".equals(error.getAttribute("type"))
+						&& error.hasChild("resource-constraint")) {
+					forceCloseSocket();
+					changeStatus(Account.State.REGISTRATION_PLEASE_WAIT);
+				} else {
+					forceCloseSocket();
+					changeStatus(Account.State.REGISTRATION_FAILED);
+					Log.d(Config.LOGTAG, packet.toString());
+				}
 			}
 		}
 	};
@@ -917,7 +924,8 @@ public class XmppConnection implements Runnable {
 					if (jid != null && jid.getContent() != null) {
 						try {
 							account.setResource(Jid.fromString(jid.getContent()).getResourcepart());
-							if (streamFeatures.hasChild("session")) {
+							if (streamFeatures.hasChild("session")
+									&& !streamFeatures.findChild("session").hasChild("optional")) {
 								sendStartSession();
 							} else {
 								sendPostBindInitialization();
@@ -983,6 +991,7 @@ public class XmppConnection implements Runnable {
 	}
 
 	private void sendStartSession() {
+		Log.d(Config.LOGTAG,account.getJid().toBareJid()+": sending legacy session to outdated server");
 		final IqPacket startSession = new IqPacket(IqPacket.TYPE.SET);
 		startSession.addChild("session", "urn:ietf:params:xml:ns:xmpp-session");
 		this.sendUnmodifiedIqPacket(startSession, new OnIqPacketReceived() {

@@ -104,6 +104,8 @@
             <data android:scheme="https" />
             <data android:host="flowx.im" />
             <data android:pathPrefix="/i/"/>
+            <data android:pathPrefix="/i/" />
+            <data android:pathPrefix="/j/" />
         </intent-filter>
         <activity
             android:name=".ui.WelcomeActivity"

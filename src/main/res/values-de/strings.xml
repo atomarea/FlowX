@@ -553,4 +553,5 @@
     <string name="conference_subject">Name</string>
     <string name="choose_participants">Teilnehmer auswählen</string>
     <string name="creating_conference">Gruppe wird erstellt…</string>
+    <string name="invite_again">Erneut einladen</string>
 </resources>

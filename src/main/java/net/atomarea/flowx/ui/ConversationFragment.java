@@ -232,7 +232,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                                     ConversationFragment.this.conversation.populateWithMessages(ConversationFragment.this.messageList);
                                     updateStatusMessages();
                                     messageListAdapter.notifyDataSetChanged();
-                                    int pos = getIndexOf(uuid, messageList);
+                                    int pos = Math.max(getIndexOf(uuid, messageList), 0);
                                     messagesView.setSelectionFromTop(pos, pxOffset);
                                     messagesLoaded = true;
                                     if (messageLoaderToast != null) {
@@ -285,7 +285,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
 
             }
         }
-        return 0;
+        return -1;
     }
 
     private OnEditorActionListener mEditorActionListener = new OnEditorActionListener() {
@@ -880,11 +880,13 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         this.messagesLoaded = true;
         synchronized (this.messageList) {
             final Message first = conversation.getFirstUnreadMessage();
+            final int bottom = Math.max(0, this.messageList.size() - 1);
             final int pos;
             if (first == null) {
-                pos = Math.max(0,this.messageList.size() - 1);
+                pos = bottom;
             } else {
-                pos = getIndexOf(first.getUuid(), this.messageList);
+                int i = getIndexOf(first.getUuid(), this.messageList);
+                pos = i < 0 ? bottom : i;
             }
             messagesView.setSelection(pos);
         }
