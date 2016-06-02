@@ -14,58 +14,42 @@
             android:id="@+id/account_main_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
+            android:orientation="vertical"
+            android:weightSum="1">
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/avater"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:contentDescription="@string/account_image_description"
+                app:riv_corner_radius="180dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentStart="false"
+                android:layout_alignParentEnd="false"
+                android:layout_gravity="center" />
             <RelativeLayout
                 android:id="@+id/editor"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="150dp"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
                 android:background="@drawable/infocard_border"
                 android:orientation="vertical"
-                android:padding="@dimen/infocard_padding">
-                <com.makeramen.roundedimageview.RoundedImageView
-                    android:id="@+id/avater"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginRight="16dp"
-                    android:contentDescription="@string/account_image_description"
-                    app:riv_corner_radius="50dp"/>
+                android:padding="@dimen/infocard_padding"
+                android:layout_weight="0.64"
+                android:layout_gravity="center">
                 <LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_toRightOf="@+id/avater">
-                    <TextView
-                        android:id="@+id/account_jid_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/account_settings_jabber_id"
-                        android:textColor="@color/black87"
-                        android:textSize="?attr/TextSizeBody" />
-
-                    <com.beardedhen.androidbootstrap.BootstrapEditText
-                        android:id="@+id/account_jid"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:enabled="false"
-                        android:hint="@string/account_settings_example_jabber_id"
-                        app:roundedCorners="true"
-                        android:inputType="textEmailAddress"
-                        app:bootstrapSize="md"
-                        app:bootstrapBrand="regular"
-                        android:textColor="@color/black87"
-                        android:textColorHint="@color/black54"
-                        android:textSize="?attr/TextSizeBody" />
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:visibility="gone"
                         android:text="@string/account_settings_password"
                         android:textColor="@color/black87"
                         android:textSize="?attr/TextSizeBody" />
@@ -76,6 +60,7 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/password"
                         android:inputType="textPassword"
+                        android:visibility="gone"
                         app:bootstrapSize="md"
                         app:bootstrapBrand="regular"
                         app:roundedCorners="true"
@@ -101,7 +86,8 @@
                                 android:text="@string/account_settings_hostname"
                                 android:textColor="@color/black87"
                                 android:textSize="?attr/TextSizeBody"
-                                android:id="@+id/textView"/>
+                                android:id="@+id/textView"
+                                android:visibility="gone" />
                             <EditText
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
@@ -110,7 +96,8 @@
                                 android:textSize="?attr/TextSizeBody"
                                 android:id="@+id/hostname"
                                 android:inputType="textNoSuggestions"
-                                android:hint="@string/hostname_or_onion"/>
+                                android:hint="@string/hostname_or_onion"
+                                android:visibility="gone" />
                         </LinearLayout>
                         <LinearLayout
                             android:orientation="vertical"
@@ -123,7 +110,8 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/account_settings_port"
                                 android:textColor="@color/black87"
-                                android:textSize="?attr/TextSizeBody"/>
+                                android:textSize="?attr/TextSizeBody"
+                                android:visibility="gone" />
                             <EditText
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
@@ -132,7 +120,8 @@
                                 android:textColor="@color/black87"
                                 android:textColorHint="@color/black54"
                                 android:textSize="?attr/TextSizeBody"
-                                android:id="@+id/port"/>
+                                android:id="@+id/port"
+                                android:visibility="gone" />
                         </LinearLayout>
                     </LinearLayout>
                     <CheckBox
@@ -142,7 +131,8 @@
                         android:layout_marginTop="8dp"
                         android:text="@string/register_account"
                         android:textColor="@color/black87"
-                        android:textSize="?attr/TextSizeBody" />
+                        android:textSize="?attr/TextSizeBody"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/account_confirm_password_desc"
@@ -171,6 +161,7 @@
                         android:id="@+id/save_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:visibility="gone"
                         android:layout_marginTop="8dp"
                         android:enabled="false"
                         android:text="@string/save"
@@ -190,6 +181,43 @@
                         android:text="@string/cancel"
                         android:textColor="@color/black87"/>
                 </LinearLayout>
+
+                <EditText
+                    android:id="@+id/account_jid"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:textColor="@color/primary"
+                    android:textSize="@dimen/bootstrap_h3_text_size"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentLeft="false"
+                    android:layout_alignWithParentIfMissing="false"
+                    android:layout_alignParentRight="false"
+                    android:layout_marginLeft="100dp" />
+
+                <TextView
+                    android:id="@+id/root3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/info_username"
+                    android:textColor="@color/black54"
+                    android:textSize="?attr/TextSizeBody"
+                    android:layout_alignParentBottom="false"
+                    android:layout_alignParentRight="false"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true" />
+                <TextView
+                    android:id="@+id/account_jid_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/info_username"
+                    android:textColor="@color/black54"
+                    android:visibility="gone"
+                    android:textSize="?attr/TextSizeBody"
+                    android:layout_alignParentBottom="false"
+                    android:layout_alignParentRight="false"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true" />
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/qr"

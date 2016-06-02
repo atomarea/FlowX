@@ -168,7 +168,7 @@
     <string name="mgmt_account_are_you_sure">Bist du dir sicher?</string>
     <string name="mgmt_account_delete_confirm_text">Wenn du dein Account löscht, gehen alle Gesprächsverläufe verloren</string>
     <string name="attach_record_voice">Sprachnachricht</string>
-    <string name="account_settings_jabber_id">Name:</string>
+    <string name="account_settings_jabber_id">Benutzername</string>
     <string name="account_settings_password">Passwort</string>
     <string name="account_settings_example_jabber_id"></string>
     <string name="account_settings_confirm_password">Passwort bestätigen</string>
@@ -569,4 +569,5 @@
     <string name="cancel_update">Update abbrechen?</string>
     <string name="no">Nein</string>
     <string name="yes">Ja</string>
+    <string name="info_username">Dein Benutzername ist die Identifikation für deine Kontakte, dieser Name wird primär sichbar sein und kann nicht geändert werden.</string>
 </resources>
