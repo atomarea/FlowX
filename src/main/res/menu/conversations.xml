@@ -33,6 +33,7 @@
         android:id="@+id/action_invite"
         android:orderInCategory="45"
         android:showAsAction="never"
+        android:visible="false"
         android:title="@string/invite_contact"/>
     <item
         android:id="@+id/action_clear_history"

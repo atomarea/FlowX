@@ -607,7 +607,7 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.start_conversation, menu);
 		MenuItem menuCreateContact = menu.findItem(R.id.action_create_contact);
-		MenuItem menuCreateConference = menu.findItem(R.id.action_conference);
+		MenuItem menuCreateConference = menu.findItem(R.id.action_create_conference);
 		MenuItem menuHideOffline = menu.findItem(R.id.action_hide_offline);
 		menuHideOffline.setChecked(this.mHideOfflineContacts);
 		mMenuSearchView = menu.findItem(R.id.action_search);
@@ -635,9 +635,6 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 		switch (item.getItemId()) {
 			case R.id.action_create_contact:
 				showCreateContactDialog(null,null);
-				return true;
-			case R.id.action_join_conference:
-				showJoinConferenceDialog(null);
 				return true;
 			case R.id.action_create_conference:
 				showCreateConferenceDialog();

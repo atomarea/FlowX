@@ -547,7 +547,7 @@
     <string name="create_contact_info">Gebe hier den Benutzernamen eines Freundes ein!</string>
     <string name="account_status_host_unknown">Host unbekannt</string>
     <string name="registration_please_wait">Registration fehlgeschlagen: Bitte später erneut probieren</string>
-    <string name="edit_subject_hint">...</string>
+    <string name="edit_subject_hint">Name/Thema der Gruppe</string>
     <string name="create_conference">Gruppe erstellen</string>
     <string name="join_or_create_conference">Betrete oder erstelle eine Gruppe</string>
     <string name="conference_subject">Name</string>

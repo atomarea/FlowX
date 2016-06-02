@@ -1163,7 +1163,7 @@ public abstract class XmppActivity extends FragmentActivity {
             Glide.with(getApplicationContext())
                     .load(vp)
                     .asBitmap()
-                    .override(500, 500)
+                    .override(600, 600)
                     .fitCenter()
                     //.centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.RESULT)
