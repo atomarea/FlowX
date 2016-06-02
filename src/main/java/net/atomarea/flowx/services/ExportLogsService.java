@@ -4,8 +4,23 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.widget.Toast;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
@@ -13,21 +28,13 @@ import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.persistance.DatabaseBackend;
 import net.atomarea.flowx.persistance.FileBackend;
+import net.atomarea.flowx.ui.UpdaterActivity;
 import net.atomarea.flowx.xmpp.jid.Jid;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ExportLogsService extends Service {
 
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    private static final String DIRECTORY_STRING_FORMAT = FileBackend.getConversationsFileDirectory() + "/logs/%s";
+    private static final String DIRECTORY_STRING_FORMAT = FileBackend.getConversationsDirectory() + "/chats/%s";
     private static final String MESSAGE_STRING_FORMAT = "(%s) %s: %s\n";
     private static final int NOTIFICATION_ID = 1;
     private static AtomicBoolean running = new AtomicBoolean(false);
@@ -46,9 +53,14 @@ public class ExportLogsService extends Service {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    running.set(false);
+                    try {
+                        ExportDatabase();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     export();
                     stopForeground(true);
+                    running.set(false);
                     stopSelf();
                 }
             }).start();
@@ -79,7 +91,7 @@ public class ExportLogsService extends Service {
         Jid accountJid = resolveAccountUuid(conversation.getAccountUuid());
         Jid contactJid = conversation.getJid();
 
-        File dir = new File(String.format(DIRECTORY_STRING_FORMAT, accountJid.toBareJid().toString()));
+        File dir = new File(String.format(DIRECTORY_STRING_FORMAT,accountJid.toBareJid().toString()));
         dir.mkdirs();
 
         BufferedWriter bw = null;
@@ -138,6 +150,35 @@ public class ExportLogsService extends Service {
         } else {
             return message.getCounterpart().toString();
         }
+    }
+
+    public void ExportDatabase() throws IOException {
+
+        // Get hold of the db:
+        InputStream myInput = new FileInputStream(this.getDatabasePath(DatabaseBackend.DATABASE_NAME));
+
+        // Set the output folder on the SDcard
+        File directory = new File(FileBackend.getConversationsDirectory() + "/.Database/");
+
+        // Create the folder if it doesn't exist:
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        // Set the output file stream up:
+        OutputStream myOutput = new FileOutputStream(directory.getPath() + "/Database.bak");
+
+        // Transfer bytes from the input file to the output file
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = myInput.read(buffer)) > 0) {
+            myOutput.write(buffer, 0, length);
+        }
+
+        // Close and clear the streams
+        myOutput.flush();
+        myOutput.close();
+        myInput.close();
     }
 
     @Override

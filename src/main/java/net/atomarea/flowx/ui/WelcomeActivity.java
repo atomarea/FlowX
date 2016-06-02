@@ -125,35 +125,9 @@ public class WelcomeActivity extends Activity {
 		myOutput.flush();
 		myOutput.close();
 		myInput.close();
-
-		Log.d(Config.LOGTAG, "New Features - Uninstall old version of FlowX Messenger");
-		if (isPackageInstalled("net.atomarea.flowx")) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage(R.string.uninstall_app_text)
-					.setPositiveButton(R.string.uninstall, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialogInterface, int i) {
-							//start the deinstallation of old version
-							if (isPackageInstalled("net.atomarea.flowx")) {
-								Uri packageURI_VR = Uri.parse("package:net.atomarea.flowx");
-								Intent uninstallIntent_VR = new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageURI_VR);
-								if (uninstallIntent_VR.resolveActivity(getPackageManager()) != null) {
-									startActivity(uninstallIntent_VR);
-								}
-							}
-						}
-					})
-					.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialogInterface, int i) {
-							Log.d(Config.LOGTAG, "New Features - Uninstall cancled");
-							restart();
-						}
-					});
-			builder.create().show();
-		} else {
 			restart();
 		}
 
-	}
 
 	private void restart() {
 		//restart app
@@ -163,17 +137,6 @@ public class WelcomeActivity extends Activity {
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(intent);
 		System.exit(0);
-	}
-
-	private boolean isPackageInstalled(String targetPackage) {
-		List<ApplicationInfo> packages;
-		PackageManager pm;
-		pm = getPackageManager();
-		packages = pm.getInstalledApplications(0);
-		for (ApplicationInfo packageInfo : packages) {
-			if (packageInfo.packageName.equals(targetPackage)) return true;
-		}
-		return false;
 	}
 
 }

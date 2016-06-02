@@ -237,12 +237,14 @@ public class UpdaterActivity extends Activity {
                     reponseObj = new JSONObject(responseMessage);
                     boolean success = reponseObj.getBoolean("success");
                     if (success) {
-                        //start backing up database
-                        try {
-                            ExportDatabase();
-                            Log.d(Config.LOGTAG,"AppUpdater: Database successfully exported");
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        if (isStoragePermissionGranted()) {
+                            //start backing up database
+                            try {
+                                ExportDatabase();
+                                Log.d(Config.LOGTAG, "AppUpdater: Database successfully exported");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                         //Overall information about the contents of a package
                         //This corresponds to all of the information collected from AndroidManifest.xml.
