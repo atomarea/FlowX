@@ -166,7 +166,7 @@
 	<string name="mgmt_account_are_you_sure">Are you sure?</string>
 	<string name="mgmt_account_delete_confirm_text">If you delete your account your entire conversation history will be lost</string>
 	<string name="attach_record_voice">Record voice</string>
-	<string name="account_settings_jabber_id">Jabber ID</string>
+	<string name="account_settings_jabber_id">Username</string>
 	<string name="account_settings_password">Password</string>
 	<string name="account_settings_example_jabber_id">username@example.com</string>
 	<string name="account_settings_confirm_password">Confirm password</string>
@@ -337,7 +337,7 @@
 	<string name="message_copied_to_clipboard">Message copied to clipboard</string>
 	<string name="image_transmission_failed">Image transmission failed</string>
 	<string name="scan_qr_code">Scan QR code</string>
-	<string name="show_qr_code">Show QR code</string>
+	<string name="show_qr_code">QR code</string>
 	<string name="show_block_list">Show block list</string>
 	<string name="account_details">Account details</string>
 	<string name="verify_otr">Verify OTR</string>
@@ -667,4 +667,5 @@
 	<string name="uninstall">Uninstall</string>
 	<string name="uninstall_plugins">We have integrated the VoiceRecorder and ShareLocation plugin directly into the messenger. You should uninstall the plugins.</string>
 	<string name="title_activity_updater">Update Service</string>
+	<string name="info_username">Dein Benutzername ist die identifikation für deine Kontakte, dieser Name wird primär sichbar sein und kann nicht geändert werden.</string>
 </resources>

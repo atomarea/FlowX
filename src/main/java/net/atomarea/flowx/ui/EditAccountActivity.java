@@ -50,9 +50,9 @@ import java.util.Set;
 public class EditAccountActivity extends XmppActivity implements OnAccountUpdate,
         OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast {
 
-    private BootstrapEditText mAccountJid;
-    private BootstrapEditText mPassword;
-    private BootstrapEditText mPasswordConfirm;
+    private EditText mAccountJid;
+    private EditText mPassword;
+    private EditText mPasswordConfirm;
     private CheckBox mRegisterNew;
     private BootstrapButton mSaveButton;
     private Button mCancelButton;
@@ -381,16 +381,16 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_account);
-        this.mAccountJid = (BootstrapEditText) findViewById(R.id.account_jid);
+        this.mAccountJid = (EditText) findViewById(R.id.account_jid);
         this.mAccountJid.addTextChangedListener(this.mTextWatcher);
         this.mAccountJidLabel = (TextView) findViewById(R.id.account_jid_label);
         if (Config.DOMAIN_LOCK != null) {
             this.mAccountJidLabel.setText(R.string.username);
             this.mAccountJid.setHint(R.string.username_hint);
         }
-        this.mPassword = (BootstrapEditText) findViewById(R.id.account_password);
+        this.mPassword = (EditText) findViewById(R.id.account_password);
         this.mPassword.addTextChangedListener(this.mTextWatcher);
-        this.mPasswordConfirm = (BootstrapEditText) findViewById(R.id.account_password_confirm);
+        this.mPasswordConfirm = (EditText) findViewById(R.id.account_password_confirm);
         this.mAvatar = (ImageView) findViewById(R.id.avater);
         this.mAvatar.setOnClickListener(this.mAvatarClickListener);
         this.mRegisterNew = (CheckBox) findViewById(R.id.account_register_new);
@@ -614,7 +614,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         }
         if (!mInitMode) {
             this.mAvatar.setVisibility(View.VISIBLE);
-            this.mAvatar.setImageBitmap(avatarService().get(this.mAccount, getPixel(72)));
+            this.mAvatar.setImageBitmap(avatarService().get(this.mAccount, getPixel(180)));
             BitmapDrawable bm = getQrCode();
             if (bm != null) ((ImageView) findViewById(R.id.iv_cqr)).setImageDrawable(bm);
         }
