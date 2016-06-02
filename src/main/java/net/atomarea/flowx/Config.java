@@ -60,7 +60,7 @@ public final class Config {
     public static final boolean ALLOW_NON_TLS_CONNECTIONS = false; //very dangerous. you should have a good reason to set this to true
     public static final boolean FORCE_ORBOT = false; // always use TOR
     public static final boolean DISABLE_PROXY_LOOKUP = false; //useful to debug ibb
-    public static final String UPDATE_URL = "http://dom1nic.eu/update/";
+    public static final String UPDATE_URL = "http://files.flowx.im/update/";
     public static final boolean DISABLE_HTTP_UPLOAD = false;
     public static final boolean EXTENDED_SM_LOGGING = false; // log stanza counts
     public static final int AVATAR_SIZE = 1920;

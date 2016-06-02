@@ -585,7 +585,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         final MenuItem menuAttach = menu.findItem(R.id.action_attach_file);
         final MenuItem menuClearHistory = menu.findItem(R.id.action_clear_history);
         final MenuItem menuAdd = menu.findItem(R.id.action_add);
-        final MenuItem menuInviteContact = menu.findItem(R.id.action_invite);
+        //final MenuItem menuInviteContact = menu.findItem(R.id.action_invite);
         final MenuItem menuMute = menu.findItem(R.id.action_mute);
         final MenuItem menuUnmute = menu.findItem(R.id.action_unmute);
 
@@ -594,7 +594,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             menuMucDetails.setVisible(false);
             menuContactDetails.setVisible(false);
             menuSecure.setVisible(false);
-            menuInviteContact.setVisible(false);
+            //menuInviteContact.setVisible(false);
             menuAttach.setVisible(false);
             menuClearHistory.setVisible(false);
             menuMute.setVisible(false);
@@ -610,7 +610,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 if (this.getSelectedConversation().getMode() == Conversation.MODE_MULTI) {
                     menuContactDetails.setVisible(false);
                     menuAttach.setVisible(getSelectedConversation().getAccount().httpUploadAvailable() && getSelectedConversation().getMucOptions().participating());
-                    menuInviteContact.setVisible(getSelectedConversation().getMucOptions().canInvite());
+                    //menuInviteContact.setVisible(getSelectedConversation().getMucOptions().canInvite());
+
                     menuSecure.setVisible(false); // !Config.HIDE_PGP_IN_UI && !Config.X509_VERIFICATION <- Sinnfreiii :D
                 } else menuMucDetails.setVisible(false);
                 if (this.getSelectedConversation().isMuted()) menuMute.setVisible(false);

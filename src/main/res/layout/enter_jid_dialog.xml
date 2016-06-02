@@ -36,6 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Name"
+        android:visibility="gone"
         android:textColor="@color/black87"
         android:textSize="?attr/TextSizeBody" />
 
