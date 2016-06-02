@@ -26,7 +26,8 @@
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentStart="false"
                 android:layout_alignParentEnd="false"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp" />
             <RelativeLayout
                 android:id="@+id/editor"
                 android:layout_width="fill_parent"
