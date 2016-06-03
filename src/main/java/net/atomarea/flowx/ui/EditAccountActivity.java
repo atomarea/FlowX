@@ -47,6 +47,8 @@ import net.atomarea.flowx.xmpp.pep.Avatar;
 
 import java.util.Set;
 
+import github.ankushsachdeva.emojicon.EmojiconTextView;
+
 public class EditAccountActivity extends XmppActivity implements OnAccountUpdate,
         OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast {
 
@@ -444,7 +446,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             }
 
             Set<Integer> otherDevices = mAccount.getAxolotlService().getOwnDeviceIds();
-            if (otherDevices == null || otherDevices.isEmpty()) {
+            if (otherDevices == null || otherDevices.isEmpty() || !Config.supportOmemo()) {
                 clearDevices.setVisible(false);
             }
             changePresence.setVisible(manuallyChangePresence());
@@ -504,6 +506,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 updateAccountInformation(true);
             }
         }
+        ((TextView) findViewById(R.id.status_message)).setText(mAccount.getPresenceStatusMessage());
         if ((Config.MAGIC_CREATE_DOMAIN == null && this.xmppConnectionService.getAccounts().size() == 0)
                 || (this.mAccount != null && this.mAccount == xmppConnectionService.getPendingAccount())) {
             if (getActionBar() != null) {

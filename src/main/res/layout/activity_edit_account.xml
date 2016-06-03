@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:emojicon="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey200">
@@ -75,6 +76,7 @@
                         android:orientation="horizontal"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
+                        android:visibility="gone"
                         android:weightSum="1">
                         <LinearLayout
                             android:orientation="vertical"
@@ -185,16 +187,14 @@
 
                 <EditText
                     android:id="@+id/account_jid"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:layout_marginTop="70dp"
+                    android:background="#00000000"
                     android:enabled="false"
                     android:textColor="@color/primary"
-                    android:textSize="@dimen/bootstrap_h3_text_size"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentLeft="false"
-                    android:layout_alignWithParentIfMissing="false"
-                    android:layout_alignParentRight="false"
-                    android:layout_marginLeft="100dp" />
+                    android:textSize="@dimen/bootstrap_h3_text_size" />
 
                 <TextView
                     android:id="@+id/root3"
@@ -221,6 +221,40 @@
                     android:layout_alignParentTop="true" />
             </RelativeLayout>
             <RelativeLayout
+                android:id="@+id/status"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:background="@drawable/infocard_border"
+                android:padding="@dimen/infocard_padding">
+                <TextView
+                    android:id="@+id/root5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="false"
+                    android:layout_marginTop="0dp"
+                    android:text="Status"
+                    android:textColor="@color/primary"
+                    android:typeface="normal"
+                    android:divider="?android:dividerHorizontal"
+                    android:showDividers="middle"
+                    android:textSize="@dimen/bootstrap_h5_text_size"
+                    android:visibility="visible" />
+                <github.ankushsachdeva.emojicon.EmojiconTextView
+                    android:layout_marginTop="30dp"
+                    android:layout_marginBottom="15dp"
+                    android:id="@+id/status_message"
+                    android:hint="@string/no_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black87"
+                    emojicon:emojiconSize="25sp"
+                    android:textSize="?attr/TextSizeBody" />
+            </RelativeLayout>
+            <RelativeLayout
                 android:id="@+id/qr"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -230,7 +264,7 @@
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:background="@drawable/infocard_border"
                 android:padding="@dimen/infocard_padding">
-                <github.ankushsachdeva.emojicon.EmojiconTextView
+                <TextView
                     android:id="@+id/root2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

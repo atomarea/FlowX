@@ -666,5 +666,6 @@
 	<string name="uninstall">Uninstall</string>
 	<string name="uninstall_plugins">We have integrated the VoiceRecorder and ShareLocation plugin directly into the messenger. You should uninstall the plugins.</string>
 	<string name="title_activity_updater">Update Service</string>
+	<string name="no_status">...</string>
 	<string name="info_username">Dein Benutzername ist die identifikation für deine Kontakte, dieser Name wird primär sichbar sein und kann nicht geändert werden.</string>
 </resources>
