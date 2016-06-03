@@ -1,5 +1,16 @@
 FlowX Changelogs:
 
+1.69
+-> UI optimiert
+-> Clear Device fixed
+
+1.68
+-> UI optimiert
+-> Chatverlauf sichern / wiederherstellen
+
+1.67
+-> UI optimiert
+
 1.66
 -> UI optimiert
 

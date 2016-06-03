@@ -37,7 +37,7 @@ public class ChangePasswordActivity extends XmppActivity implements XmppConnecti
 					mNewPasswordConfirm.setError(null);
 					xmppConnectionService.updateAccountPasswordOnServer(mAccount, newPassword, ChangePasswordActivity.this);
 					mChangePasswordButton.setEnabled(false);
-					mChangePasswordButton.setTextColor(getSecondaryTextColor());
+					mChangePasswordButton.setTextColor(getPrimaryTextColor());
 					mChangePasswordButton.setText(R.string.updating);
 				}
 			}
