@@ -60,14 +60,14 @@
 	<string name="unblock">Unblock</string>
 	<string name="save">Save</string>
 	<string name="ok">OK</string>
-	<string name="crash_report_title">Conversations has crashed</string>
+	<string name="crash_report_title">FlowX has crashed</string>
 	<string name="crash_report_message">By sending in stack traces you are helping the ongoing development of Conversations\n<b>Warning:</b> This will use your XMPP account to send the stack trace to the developer.</string>
 	<string name="send_now">Send now</string>
 	<string name="send_never">Never ask again</string>
 	<string name="problem_connecting_to_account">Unable to connect to account</string>
 	<string name="problem_connecting_to_accounts">Unable to connect to multiple accounts</string>
 	<string name="touch_to_fix">Touch here to manage your accounts</string>
-	<string name="attach_file">Attach file</string>
+	<string name="attach_file">File</string>
 	<string name="not_in_roster">The contact is not in your roster. Would you like to add it?</string>
 	<string name="add_contact">Add contact</string>
 	<string name="send_failed">delivery failed</string>
@@ -131,8 +131,8 @@
 	<string name="send_presence_updates">Authorized</string>
 	<string name="receive_presence_updates">Receive presence</string>
 	<string name="ask_for_presence_updates">Ask for presence</string>
-	<string name="attach_choose_picture">Choose picture</string>
-	<string name="attach_take_picture">Take picture</string>
+	<string name="attach_choose_picture">Picture</string>
+	<string name="attach_take_picture">Camera</string>
 	<string name="preemptively_grant">Preemptively grant subscription request</string>
 	<string name="error_not_an_image_file">The file you selected is not an image</string>
 	<string name="error_compressing_image">Error while converting the image file</string>
@@ -165,7 +165,7 @@
 	<string name="mgmt_account_enable">Enable account</string>
 	<string name="mgmt_account_are_you_sure">Are you sure?</string>
 	<string name="mgmt_account_delete_confirm_text">If you delete your account your entire conversation history will be lost</string>
-	<string name="attach_record_voice">Record voice</string>
+	<string name="attach_record_voice">Voice message</string>
 	<string name="account_settings_jabber_id">Username</string>
 	<string name="account_settings_password">Password</string>
 	<string name="account_settings_example_jabber_id">username@example.com</string>
@@ -196,14 +196,14 @@
 	<string name="server_info_available">available</string>
 	<string name="server_info_unavailable">unavailable</string>
 	<string name="missing_public_keys">Missing public key announcements</string>
-	<string name="last_seen_now">last seen just now</string>
+	<string name="last_seen_now">online</string>
 	<string name="last_seen_min">last seen 1 minute ago</string>
 	<string name="last_seen_mins">last seen %d minutes ago</string>
 	<string name="last_seen_hour">last seen 1 hour ago</string>
 	<string name="last_seen_hours">last seen %d hours ago</string>
 	<string name="last_seen_day">last seen 1 day ago</string>
 	<string name="last_seen_days">last seen %d days ago</string>
-	<string name="never_seen">never seen</string>
+	<string name="never_seen"></string>
 	<string name="install_openkeychain">Encrypted message. Please install OpenKeychain to decrypt.</string>
 	<string name="unknown_otr_fingerprint">Unknown OTR fingerprint</string>
 	<string name="openpgp_messages_found">OpenPGP encrypted messages found</string>
@@ -338,7 +338,7 @@
 	<string name="image_transmission_failed">Image transmission failed</string>
 	<string name="scan_qr_code">Scan QR code</string>
 	<string name="show_qr_code">QR code</string>
-	<string name="show_block_list">Show block list</string>
+	<string name="show_block_list">Blocklist</string>
 	<string name="account_details">Account details</string>
 	<string name="verify_otr">Verify OTR</string>
 	<string name="remote_fingerprint">Remote Fingerprint</string>
@@ -360,10 +360,10 @@
 	<string name="conversations_foreground_service">FlowX</string>
 	<string name="pref_keep_foreground_service">Keep service in foreground</string>
 	<string name="pref_keep_foreground_service_summary">Prevents the operating system from killing your connection</string>
-	<string name="pref_export_logs">Export Logs</string>
+	<string name="pref_export_logs">Save Chat history</string>
 	<string name="pref_export_logs_summary">Write logs to SD card</string>
 	<string name="notification_export_logs_title">Writing logs to SD card</string>
-	<string name="choose_file">Choose file</string>
+	<string name="choose_file">File</string>
 	<string name="receiving_x_file">Receiving %1$s (%2$d%% completed)</string>
 	<string name="download_x_file">Download %s</string>
 	<string name="file">file</string>
@@ -467,11 +467,11 @@
 	<string name="offering_x_file">Offering %s</string>
 	<string name="hide_offline">Hide offline</string>
 	<string name="disable_account">Disable Account</string>
-	<string name="contact_is_typing">%s is typing...</string>
-	<string name="contact_has_stopped_typing">%s has stopped typing</string>
+	<string name="contact_is_typing">is typing...</string>
+	<string name="contact_has_stopped_typing">stopped typing</string>
 	<string name="pref_chat_states">Typing notifications</string>
 	<string name="pref_chat_states_summary">Let your contact know when you are writing a new message</string>
-	<string name="send_location">Send location</string>
+	<string name="send_location">Location</string>
 	<string name="show_location">Show location</string>
 	<string name="no_application_found_to_display_location">No application found to display location</string>
 	<string name="location">Location</string>
@@ -668,5 +668,5 @@
 	<string name="uninstall_plugins">We have integrated the VoiceRecorder and ShareLocation plugin directly into the messenger. You should uninstall the plugins.</string>
 	<string name="title_activity_updater">Update Service</string>
 	<string name="no_status">...</string>
-	<string name="info_username">Dein Benutzername ist die identifikation für deine Kontakte, dieser Name wird primär sichbar sein und kann nicht geändert werden.</string>
+	<string name="info_username">This is your Username to identified you by friends. This Username is not changeable and will show as your name.</string>
 </resources>
