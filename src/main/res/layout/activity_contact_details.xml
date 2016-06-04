@@ -80,7 +80,7 @@
                         app:bootstrapSize="md"
                         app:roundedCorners="true" />
                     <github.ankushsachdeva.emojicon.EmojiconTextView
-                        android:id="@+id/root"
+                        android:id="@+id/status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
