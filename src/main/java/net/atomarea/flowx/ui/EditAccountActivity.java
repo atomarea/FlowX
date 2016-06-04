@@ -511,7 +511,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         if(mAccount.getPresenceStatusMessage() == null) {
             mStatusMessage.setVisibility(View.GONE);
         } else {
-            mSaveButton.setText(mAccount.getPresenceStatusMessage());
+            mStatusMessage.setText(mAccount.getPresenceStatusMessage());
         }
         if ((Config.MAGIC_CREATE_DOMAIN == null && this.xmppConnectionService.getAccounts().size() == 0)
                 || (this.mAccount != null && this.mAccount == xmppConnectionService.getPendingAccount())) {
