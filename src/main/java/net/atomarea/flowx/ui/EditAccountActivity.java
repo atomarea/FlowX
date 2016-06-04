@@ -62,6 +62,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     private Button mCancelButton;
     private TextView mAccountJidLabel;
     private TextView mStatusMessage;
+    private TextView mStatus;
     private RelativeLayout mStatusView;
     private ImageView mAvatar;
     private LinearLayout mNamePort;
@@ -391,6 +392,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         this.mAccountJid.addTextChangedListener(this.mTextWatcher);
         this.mAccountJidLabel = (TextView) findViewById(R.id.account_jid_label);
         this.mStatusMessage = (TextView) findViewById(R.id.status_message);
+        this.mStatus = (TextView) findViewById(R.id.status);
         this.mStatusView = (RelativeLayout) findViewById(R.id.statusView);
         if (Config.DOMAIN_LOCK != null) {
             this.mAccountJidLabel.setText(R.string.username);
@@ -512,10 +514,12 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 updateAccountInformation(true);
             }
         }
-        mStatusMessage.setText(mAccount.getPresenceStatusMessage());
-        Log.d(Config.LOGTAG, "Status Message: " + mAccount.getPresenceStatusMessage());
-        if(mAccount.getPresenceStatusMessage() != null && mAccount.getPresenceStatusMessage().length() >= 1) {
-            mStatusView.setVisibility(View.VISIBLE);
+        if(mAccount.getPresenceStatusMessage() == null) {
+            mStatusMessage.setVisibility(View.GONE);
+            mStatusView.setVisibility(View.GONE);
+            mStatus.setVisibility(View.GONE);
+        } else {
+            mStatusMessage.setText(mAccount.getPresenceStatusMessage());
         }
         if ((Config.MAGIC_CREATE_DOMAIN == null && this.xmppConnectionService.getAccounts().size() == 0)
                 || (this.mAccount != null && this.mAccount == xmppConnectionService.getPendingAccount())) {
