@@ -229,10 +229,9 @@
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:background="@drawable/infocard_border"
-                android:padding="@dimen/infocard_padding"
-                android:visibility="gone">
+                android:padding="@dimen/infocard_padding">
                 <TextView
-                    android:id="@+id/root5"
+                    android:id="@+id/status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="false"
@@ -242,8 +241,7 @@
                     android:typeface="normal"
                     android:divider="?android:dividerHorizontal"
                     android:showDividers="middle"
-                    android:textSize="@dimen/bootstrap_h5_text_size"
-                    android:visibility="visible" />
+                    android:textSize="@dimen/bootstrap_h5_text_size" />
                 <github.ankushsachdeva.emojicon.EmojiconTextView
                     android:layout_marginTop="30dp"
                     android:layout_marginBottom="15dp"
