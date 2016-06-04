@@ -421,8 +421,10 @@ public class Conversation extends AbstractEntity implements Blockable {
         if (getMode() == MODE_MULTI) {
             if (getMucOptions().getSubject() != null) {
                 return getMucOptions().getSubject();
-            } else if (bookmark != null && bookmark.getBookmarkName() != null) {
-                return bookmark.getBookmarkName();
+            } else if (bookmark != null
+                    && bookmark.getBookmarkName() != null
+                    && !bookmark.getBookmarkName().trim().isEmpty()) {
+                return bookmark.getBookmarkName().trim();
             } else {
                 String generatedName = getMucOptions().createNameFromParticipants();
                 if (generatedName != null) {
@@ -685,8 +687,8 @@ public class Conversation extends AbstractEntity implements Blockable {
                     && axolotlService.isConversationAxolotlCapable(this)
                     && getAccount().getSelfContact().getPresences().allOrNonSupport(AxolotlService.PEP_DEVICE_LIST_NOTIFY)
                     && getContact().getPresences().allOrNonSupport(AxolotlService.PEP_DEVICE_LIST_NOTIFY)
-                    && Config.AlwayUseOMEMO){
-            return Message.ENCRYPTION_AXOLOTL;
+                    && Config.AlwayUseOMEMO) {
+                return Message.ENCRYPTION_AXOLOTL;
             } else {
                 next = this.getMostRecentlyUsedIncomingEncryption();
             }
