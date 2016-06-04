@@ -13,6 +13,7 @@ import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +25,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,6 +62,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     private Button mCancelButton;
     private TextView mAccountJidLabel;
     private TextView mStatusMessage;
+    private RelativeLayout mStatusView;
     private ImageView mAvatar;
     private LinearLayout mNamePort;
     private EditText mHostname;
@@ -388,6 +391,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         this.mAccountJid.addTextChangedListener(this.mTextWatcher);
         this.mAccountJidLabel = (TextView) findViewById(R.id.account_jid_label);
         this.mStatusMessage = (TextView) findViewById(R.id.status_message);
+        this.mStatusView = (RelativeLayout) findViewById(R.id.statusView);
         if (Config.DOMAIN_LOCK != null) {
             this.mAccountJidLabel.setText(R.string.username);
             this.mAccountJid.setHint(R.string.username_hint);
@@ -508,10 +512,10 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 updateAccountInformation(true);
             }
         }
-        if(mAccount.getPresenceStatusMessage() == null) {
-            mStatusMessage.setVisibility(View.GONE);
-        } else {
-            mStatusMessage.setText(mAccount.getPresenceStatusMessage());
+        mStatusMessage.setText(mAccount.getPresenceStatusMessage());
+        Log.d(Config.LOGTAG, "Status Message: " + mAccount.getPresenceStatusMessage());
+        if(mAccount.getPresenceStatusMessage() != null && mAccount.getPresenceStatusMessage().length() >= 1) {
+            mStatusView.setVisibility(View.VISIBLE);
         }
         if ((Config.MAGIC_CREATE_DOMAIN == null && this.xmppConnectionService.getAccounts().size() == 0)
                 || (this.mAccount != null && this.mAccount == xmppConnectionService.getPendingAccount())) {
