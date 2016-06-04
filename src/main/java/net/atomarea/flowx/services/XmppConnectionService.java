@@ -1562,7 +1562,12 @@ public class XmppConnectionService extends Service {
                 }
             }
             if (account.getXmppConnection() != null) {
-                this.disconnect(account, true);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        disconnect(account, true);
+                    }
+                });
             }
             Runnable runnable = new Runnable() {
                 @Override
@@ -3118,8 +3123,9 @@ public class XmppConnectionService extends Service {
         }
         return contacts;
     }
+
     public Conversation findFirstMuc(Jid jid) {
-        for(Conversation conversation : getConversations()) {
+        for (Conversation conversation : getConversations()) {
             if (conversation.getJid().toBareJid().equals(jid.toBareJid())
                     && conversation.getMode() == Conversation.MODE_MULTI) {
                 return conversation;
