@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:custom="http://schemas.android.com/tools"
     android:background="@color/grey200">
 
     <ScrollView
@@ -31,32 +32,21 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
-                <TextView
-                    android:id="@+id/willkommen"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Um FlowX nutzen zu können, benötigst du ein Konto. Logge dich ein oder registriere dir einfach ein neues Konto."
-                    android:textColor="@color/black54"
-                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                    android:visibility="gone"
-                    android:textSize="?attr/TextSizeBody" />
                     <TextView
                         android:id="@+id/account_jid_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/account_settings_jabber_id"
+                        android:visibility="gone"
                         android:layout_marginTop="@dimen/bootstrap_h1_hori_padding"
                         android:textColor="@color/black87"
                         android:textSize="?attr/TextSizeBody" />
-                    <com.beardedhen.androidbootstrap.BootstrapEditText
+                    <EditText
                         android:id="@+id/account_jid"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Benutername"
                         android:inputType="textEmailAddress"
-                        app:bootstrapSize="md"
-                        app:bootstrapBrand="regular"
-                        app:roundedCorners="true"
+                        android:hint="@string/username_hint"
                         android:textColor="@color/black87"
                         android:textColorHint="@color/black54"
                         android:textSize="?attr/TextSizeBody" />
@@ -65,17 +55,16 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="@string/account_settings_password"
+                        android:visibility="gone"
                         android:textColor="@color/black87"
                         android:textSize="?attr/TextSizeBody" />
-                    <com.beardedhen.androidbootstrap.BootstrapEditText
+                    <EditText
                         android:id="@+id/account_password"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Passwort"
                         android:inputType="textPassword"
-                        app:bootstrapSize="md"
-                        app:bootstrapBrand="regular"
-                        app:roundedCorners="true"
+                        android:layout_marginTop="20dp"
                         android:textColor="@color/black87"
                         android:textColorHint="@color/black54"
                         android:textSize="?attr/TextSizeBody" />
@@ -114,8 +103,7 @@
                             android:orientation="vertical"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_weight="0.2"
-                            >
+                            android:layout_weight="0.2">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -151,7 +139,7 @@
                         android:textSize="?attr/TextSizeBody"
                         android:visibility="gone" />
 
-                    <com.beardedhen.androidbootstrap.BootstrapEditText
+                    <EditText
                         android:id="@+id/account_password_confirm"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -159,28 +147,32 @@
                         android:hint="@string/confirm_password"
                         android:inputType="textPassword"
                         android:visibility="gone"
-                        app:bootstrapSize="md"
-                        app:bootstrapBrand="regular"
-                        app:roundedCorners="true"
                         android:textColor="@color/black87"
                         android:textColorHint="@color/black54"
                         android:textSize="?attr/TextSizeBody" />
-                    <com.beardedhen.androidbootstrap.BootstrapButton
+                    <com.dd.processbutton.iml.ActionProcessButton
                         android:id="@+id/save_button"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:textSize="18sp"
                         android:enabled="false"
+                        android:layout_gravity="center"
                         android:text="@string/save"
                         android:textColor="@color/white"
-                        app:bootstrapBrand="success"
-                        app:bootstrapSize="md"
-                        app:roundedCorners="true"
                         android:textColorHighlight="@color/white"
                         android:textColorHint="@color/white"
                         android:textColorLink="@color/white"
                         android:textIsSelectable="false"
-                        android:autoText="false" />
+                        custom:pb_colorComplete="@color/green_complete"
+                        custom:pb_colorNormal="@color/blue_normal"
+                        custom:pb_colorPressed="@color/blue_pressed"
+                        custom:pb_colorProgress="@color/purple_progress"
+                        custom:pb_textComplete="Success"
+                        custom:pb_textProgress="Loading"
+                        custom:pb_textError="Error"
+                        custom:pb_colorError="@color/red_error" />
+
                 </LinearLayout>
             </RelativeLayout>
                 </LinearLayout>

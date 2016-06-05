@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.beardedhen.androidbootstrap.BootstrapEditText;
+import com.google.android.gms.common.api.Releasable;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
@@ -59,7 +60,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     private EditText mPasswordConfirm;
     private CheckBox mRegisterNew;
     private BootstrapButton mSaveButton;
-    private Button mCancelButton;
     private TextView mAccountJidLabel;
     private TextView mStatusMessage;
     private TextView mStatus;
@@ -75,6 +75,10 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     private boolean mShowOptions = false;
     private Account mAccount;
     private String messageFingerprint;
+    private RelativeLayout mQR_View;
+    private TextView mQR_Text;
+    private TextView mAccount_info;
+
 
     private boolean mFetchingAvatar = false;
 
@@ -197,13 +201,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 updateAccountInformation(true);
             }
 
-        }
-    };
-    private final OnClickListener mCancelButtonClickListener = new OnClickListener() {
-
-        @Override
-        public void onClick(final View v) {
-            finish();
         }
     };
 
@@ -404,6 +401,11 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         this.mAvatar = (ImageView) findViewById(R.id.avater);
         this.mAvatar.setOnClickListener(this.mAvatarClickListener);
         this.mRegisterNew = (CheckBox) findViewById(R.id.account_register_new);
+
+        this.mAccount_info = (TextView) findViewById(R.id.account_info);
+        this.mQR_View = (RelativeLayout) findViewById(R.id.qrview);
+        this.mQR_Text = (TextView) findViewById(R.id.qrcode);
+
         this.mNamePort = (LinearLayout) findViewById(R.id.name_port);
         this.mHostname = (EditText) findViewById(R.id.hostname);
         this.mHostname.addTextChangedListener(mTextWatcher);
@@ -412,8 +414,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         this.mPort.addTextChangedListener(mTextWatcher);
         this.mSaveButton = (BootstrapButton) findViewById(R.id.save_button);
         this.mSaveButton.setOnClickListener(this.mSaveButtonClickListener);
-        this.mCancelButton = (Button) findViewById(R.id.cancel_button);
-        this.mCancelButton.setOnClickListener(this.mCancelButtonClickListener);
         final OnCheckedChangeListener OnCheckedShowConfirmPassword = new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(final CompoundButton buttonView,
@@ -528,8 +528,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 getActionBar().setDisplayShowHomeEnabled(false);
                 getActionBar().setHomeButtonEnabled(false);
             }
-            this.mCancelButton.setEnabled(false);
-            this.mCancelButton.setTextColor(getSecondaryTextColor());
         }
         if (Config.DOMAIN_LOCK == null) {
             final KnownHostsAdapter mKnownHostsAdapter = new KnownHostsAdapter(this,
@@ -637,6 +635,13 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         }
         if (this.mAccount.isOptionSet(Account.OPTION_REGISTER)) {
             this.mRegisterNew.setVisibility(View.VISIBLE);
+            this.mAccount_info.setVisibility(View.GONE);
+            this.mQR_View.setVisibility(View.GONE);
+            this.mQR_Text.setVisibility(View.GONE);
+            this.mAvatar.setVisibility(View.GONE);
+            this.mAccountJid.setEnabled(true);
+            Intent intent = new Intent(EditAccountActivity.this, RegisterActivity.class);
+            this.startActivity(intent);
             this.mRegisterNew.setChecked(true);
             this.mPasswordConfirm.setText(this.mAccount.getPassword());
         } else {

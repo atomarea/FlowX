@@ -44,7 +44,7 @@
         android:id="@+id/jid"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint=""
+        android:hint="Name"
         android:inputType="textEmailAddress"
         android:textColor="@color/black87"
         android:textColorHint="@color/black54"/>
