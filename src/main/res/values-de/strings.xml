@@ -451,7 +451,7 @@
     <string name="search_for_contacts_or_groups">Nach Kontakten oder Gruppen suchen</string>
     <string name="send_private_message">private Nachricht senden</string>
     <string name="username">Name</string>
-    <string name="username_hint"></string>
+    <string name="username_hint">Name</string>
     <string name="invalid_username">falscher Login bitte erneut versuchen!</string>
     <string name="omemo_fingerprint">Fingerabdruck</string>
     <string name="omemo_fingerprint_selected_message">Fingerabdruck von Nachricht</string>

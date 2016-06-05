@@ -19,6 +19,7 @@ repositories {
 allprojects {
         repositories {
                 maven { url "https://jitpack.io" }
+            jcenter()
             }
     }
 
@@ -58,6 +59,7 @@ dependencies {
     compile 'com.github.chrisbanes:PhotoView:1.2.6'
     compile 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
     compile 'com.github.rtoshiro.fullscreenvideoview:fullscreenvideoview:1.1.0'
+    compile 'com.github.dmytrodanylyk.android-process-button:library:1.0.4'
     compile 'jetty:javax.servlet:5.1.12'
 	compile('eu.livotov.labs.android:CAMView:2.0.1@aar') { transitive = true }
 	compile 'com.github.bumptech.glide:glide:3.5.2'
@@ -74,8 +76,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 1441
-        versionName "1.70"
+        versionCode 1442
+        versionName "1.71"
         archivesBaseName += "-$versionName"
         applicationId "net.atomarea.flowx"
         multiDexEnabled true

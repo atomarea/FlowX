@@ -23,6 +23,8 @@ import android.widget.Toast;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.beardedhen.androidbootstrap.BootstrapEditText;
+import com.dd.processbutton.FlatButton;
+import com.dd.processbutton.iml.ActionProcessButton;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
@@ -42,11 +44,11 @@ import net.atomarea.flowx.xmpp.pep.Avatar;
 public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
         OnKeyStatusUpdated, OnCaptchaRequested, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast {
 
-    private BootstrapEditText mAccountJid;
-    private BootstrapEditText mPassword;
-    private BootstrapEditText mPasswordConfirm;
+    private EditText mAccountJid;
+    private EditText mPassword;
+    private EditText mPasswordConfirm;
     private CheckBox mRegisterNew;
-    private BootstrapButton mSaveButton;
+    private ActionProcessButton mSaveButton;
 
     private TextView mAccountJidLabel;
     private LinearLayout mNamePort;
@@ -302,6 +304,7 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
             this.mSaveButton.setEnabled(true);
         } else if (mAccount != null && (mAccount.getStatus() == Account.State.CONNECTING || mFetchingAvatar)) {
             this.mSaveButton.setEnabled(false);
+            this.mSaveButton.setProgress(1);
             this.mSaveButton.setText(R.string.account_status_connecting);
         } else if (mAccount != null && mAccount.getStatus() == Account.State.DISABLED && !mInitMode) {
             this.mSaveButton.setEnabled(true);
@@ -365,16 +368,17 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        this.mAccountJid = (BootstrapEditText) findViewById(R.id.account_jid);
+        this.mAccountJid = (EditText) findViewById(R.id.account_jid);
         this.mAccountJid.addTextChangedListener(this.mTextWatcher);
+        this.mAccountJid.setHint(R.string.username_hint);
         this.mAccountJidLabel = (TextView) findViewById(R.id.account_jid_label);
         if (Config.DOMAIN_LOCK != null) {
             this.mAccountJidLabel.setText(R.string.username);
             this.mAccountJid.setHint(R.string.username_hint);
         }
-        this.mPassword = (BootstrapEditText) findViewById(R.id.account_password);
+        this.mPassword = (EditText) findViewById(R.id.account_password);
         this.mPassword.addTextChangedListener(this.mTextWatcher);
-        this.mPasswordConfirm = (BootstrapEditText) findViewById(R.id.account_password_confirm);
+        this.mPasswordConfirm = (EditText) findViewById(R.id.account_password_confirm);
         this.mRegisterNew = (CheckBox) findViewById(R.id.account_register_new);
         this.mNamePort = (LinearLayout) findViewById(R.id.name_port);
         this.mHostname = (EditText) findViewById(R.id.hostname);
@@ -382,7 +386,7 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
         this.mPort = (EditText) findViewById(R.id.port);
         this.mPort.setText("5222");
         this.mPort.addTextChangedListener(mTextWatcher);
-        this.mSaveButton = (BootstrapButton) findViewById(R.id.save_button);
+        this.mSaveButton = (ActionProcessButton) findViewById(R.id.save_button);
         this.mSaveButton.setOnClickListener(this.mSaveButtonClickListener);
         final OnCheckedChangeListener OnCheckedShowConfirmPassword = new OnCheckedChangeListener() {
             @Override

@@ -175,14 +175,6 @@
                         app:roundedCorners="true"
                         android:textColorHint="@color/white"
                         android:textColorHighlight="@color/white" />
-                    <Button
-                        android:id="@+id/cancel_button"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        android:layout_weight="1"
-                        android:text="@string/cancel"
-                        android:textColor="@color/black87"/>
                 </LinearLayout>
 
                 <EditText
@@ -197,7 +189,7 @@
                     android:textSize="@dimen/bootstrap_h3_text_size" />
 
                 <TextView
-                    android:id="@+id/root3"
+                    android:id="@+id/account_info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/info_username"
@@ -254,7 +246,7 @@
                     android:textSize="?attr/TextSizeBody" />
             </RelativeLayout>
             <RelativeLayout
-                android:id="@+id/qr"
+                android:id="@+id/qrview"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
@@ -264,7 +256,7 @@
                 android:background="@drawable/infocard_border"
                 android:padding="@dimen/infocard_padding">
                 <TextView
-                    android:id="@+id/root2"
+                    android:id="@+id/qrcode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="false"
