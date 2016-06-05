@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="net.atomarea.flowx">
+<manifest package="net.atomarea.flowx"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -18,17 +18,19 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 
     <uses-permission
         android:name="android.permission.READ_PHONE_STATE"
         tools:node="remove" />
 
     <application
-        android:name="android.support.multidex.MultiDexApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/ConversationsTheme"
+        android:name="android.support.multidex.MultiDexApplication"
+        android:largeHeap="true"
         tools:replace="android:label">
 
         <service android:name=".services.XmppConnectionService" />
@@ -43,8 +45,6 @@
                 <action android:name="android.media.RINGER_MODE_CHANGED" />
             </intent-filter>
         </receiver>
-
-        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
         <activity
             android:name=".ui.FxUi"
             android:label="@string/app_name_dev"
@@ -55,22 +55,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
         <activity
             android:name=".ui.ConversationActivity"
-            android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
+            android:configChanges="orientation|screenSize"
             android:launchMode="singleTask"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
+            android:theme="@style/ConversationsDialog"
             android:name=".ui.RecordingActivity"
-            android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/ConversationsDialog">
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.provider.MediaStore.RECORD_SOUND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -80,8 +82,8 @@
         <activity
             android:name=".ui.StartConversationActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_start_conversation"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:label="@string/title_activity_start_conversation">
             <intent-filter>
                 <action android:name="android.intent.action.SENDTO" />
 
@@ -106,32 +108,36 @@
                 <data android:scheme="xmpp" />
             </intent-filter>
         </activity>
+
         <intent-filter android:autoVerify="true">
             <action android:name="android.intent.action.VIEW" />
+
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
+
             <data android:scheme="https" />
             <data android:host="flowx.im" />
-            <data android:pathPrefix="/i/"/>
+            <data android:pathPrefix="/i/" />
             <data android:pathPrefix="/i/" />
             <data android:pathPrefix="/j/" />
         </intent-filter>
+
         <activity
             android:name=".ui.WelcomeActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.MagicCreateActivity"
             android:label="@string/create_account"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.SetPresenceActivity"
-            android:configChanges="orientation|screenSize"
             android:label="@string/change_presence"
-            android:launchMode="singleTask"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
+            android:configChanges="orientation|screenSize"
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:launchMode="singleTask" />
         <activity
             android:name=".ui.SettingsActivity"
             android:label="@string/title_activity_settings" />
@@ -148,24 +154,28 @@
             android:name=".ui.ManageAccountActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_manage_accounts" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="@string/google_maps_api_key" />
+
         <activity
-            android:name=".activities.ShareLocationActivity"
-            android:label="@string/title_activity_share_location">
+            android:name=".ui.ShareLocationActivity"
+            android:label="@string/share_location">
             <intent-filter>
                 <action android:name="net.atomarea.flowx.location.request" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".activities.ShowLocationActivity"
-            android:label="@string/title_activity_show_location">
+            android:name=".ui.ShowLocationActivity"
+            android:label="@string/show_location">
             <intent-filter>
                 <action android:name="net.atomarea.flowx.location.show" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <data android:scheme="geo" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -180,9 +190,9 @@
             android:label="@string/title_activity_conference_details"
             android:windowSoftInputMode="stateHidden" />
         <activity
+            android:theme="@style/ConversationsTheme.ContactDetail"
             android:name=".ui.ContactDetailsActivity"
             android:label="@string/title_activity_contact_details"
-            android:theme="@style/ConversationsTheme.ContactDetail"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.PublishProfilePictureActivity"
@@ -220,6 +230,11 @@
             <meta-data
                 android:name="android.service.chooser.chooser_target_service"
                 android:value=".services.ContactChooserTargetService" />
+        </activity>
+        <activity
+            android:name=".ui.ShowFullscreenMessageActivity"
+            android:configChanges="orientation|screenSize">
+
         </activity>
         <activity
             android:name=".ui.TrustKeysActivity"

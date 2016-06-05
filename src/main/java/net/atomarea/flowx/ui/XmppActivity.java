@@ -19,18 +19,16 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -52,6 +50,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DecodeFormat;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
+import com.bumptech.glide.load.resource.bitmap.FileDescriptorBitmapDecoder;
+import com.bumptech.glide.load.resource.bitmap.VideoBitmapDecoder;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
@@ -80,12 +84,10 @@ import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.java.otr4j.session.SessionID;
 
-import java.io.FileNotFoundException;
-import java.lang.ref.WeakReference;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.RejectedExecutionException;
 
 public abstract class XmppActivity extends FragmentActivity {
 
@@ -110,11 +112,23 @@ public abstract class XmppActivity extends FragmentActivity {
 	protected boolean mUseSubject = true;
 	protected int mTheme;
 	protected boolean mUsingEnterKey = false;
+	protected Toast mToast;
+	protected void hideToast() {
+		if (mToast != null) {
+			mToast.cancel();
+		}
+	}
+
+	protected void replaceToast(String msg) {
+		hideToast();
+		mToast = Toast.makeText(this, msg ,Toast.LENGTH_LONG);
+		mToast.show();
+	}
 
 	protected Runnable onOpenPGPKeyPublished = new Runnable() {
 		@Override
 		public void run() {
-			Toast.makeText(XmppActivity.this,R.string.openpgp_has_been_published, Toast.LENGTH_SHORT).show();
+			Toast.makeText(XmppActivity.this, R.string.openpgp_has_been_published, Toast.LENGTH_SHORT).show();
 		}
 	};
 	protected ConferenceInvite mPendingConferenceInvite = null;
@@ -150,12 +164,11 @@ public abstract class XmppActivity extends FragmentActivity {
 	private UiCallback<Conversation> adhocCallback = new UiCallback<Conversation>() {
 		@Override
 		public void success(final Conversation conversation) {
-			switchToConversation(conversation);
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					Toast.makeText(XmppActivity.this, R.string.conference_created, Toast.LENGTH_LONG).show();
-				}
+					switchToConversation(conversation);
+					hideToast();                }
 			});
 		}
 
@@ -164,8 +177,7 @@ public abstract class XmppActivity extends FragmentActivity {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					Toast.makeText(XmppActivity.this, errorCode, Toast.LENGTH_LONG).show();
-				}
+					replaceToast(getString(errorCode));                }
 			});
 		}
 
@@ -175,31 +187,6 @@ public abstract class XmppActivity extends FragmentActivity {
 		}
 	};
 
-	public static boolean cancelPotentialWork(Message message, ImageView imageView) {
-		final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-
-		if (bitmapWorkerTask != null) {
-			final Message oldMessage = bitmapWorkerTask.message;
-			if (oldMessage == null || message != oldMessage) {
-				bitmapWorkerTask.cancel(true);
-			} else {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
-		if (imageView != null) {
-			final Drawable drawable = imageView.getDrawable();
-			if (drawable instanceof AsyncDrawable) {
-				final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
-				return asyncDrawable.getBitmapWorkerTask();
-			}
-		}
-		return null;
-	}
-
 	protected final void refreshUi() {
 		final long diff = SystemClock.elapsedRealtime() - mLastUiRefresh;
 		if (diff > Config.REFRESH_UI_INTERVAL) {
@@ -208,7 +195,7 @@ public abstract class XmppActivity extends FragmentActivity {
 		} else {
 			final long next = Config.REFRESH_UI_INTERVAL - diff;
 			mRefreshUiHandler.removeCallbacks(mRefreshUiRunnable);
-			mRefreshUiHandler.postDelayed(mRefreshUiRunnable,next);
+			mRefreshUiHandler.postDelayed(mRefreshUiRunnable, next);
 		}
 	}
 
@@ -230,7 +217,7 @@ public abstract class XmppActivity extends FragmentActivity {
 
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	protected boolean shouldRegisterListeners() {
-		if  (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
 			return !isDestroyed() && !isFinishing();
 		} else {
 			return !isFinishing();
@@ -289,7 +276,7 @@ public abstract class XmppActivity extends FragmentActivity {
 							xmppConnectionServiceBound = false;
 						}
 						stopService(new Intent(XmppActivity.this,
-									XmppConnectionService.class));
+								XmppConnectionService.class));
 						finish();
 					}
 				});
@@ -299,13 +286,13 @@ public abstract class XmppActivity extends FragmentActivity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						Uri uri = Uri
-							.parse("market://details?id=org.sufficientlysecure.keychain");
+								.parse("market://details?id=org.sufficientlysecure.keychain");
 						Intent marketIntent = new Intent(Intent.ACTION_VIEW,
 								uri);
 						PackageManager manager = getApplicationContext()
-							.getPackageManager();
+								.getPackageManager();
 						List<ResolveInfo> infos = manager
-							.queryIntentActivities(marketIntent, 0);
+								.queryIntentActivities(marketIntent, 0);
 						if (infos.size() > 0) {
 							startActivity(marketIntent);
 						} else {
@@ -415,7 +402,7 @@ public abstract class XmppActivity extends FragmentActivity {
 		this.mUsingEnterKey = usingEnterKey();
 		mUseSubject = getPreferences().getBoolean("use_subject", true);
 		final ActionBar ab = getActionBar();
-		if (ab!=null) {
+		if (ab != null) {
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
 	}
@@ -435,7 +422,7 @@ public abstract class XmppActivity extends FragmentActivity {
 
 	protected SharedPreferences getPreferences() {
 		return PreferenceManager
-			.getDefaultSharedPreferences(getApplicationContext());
+				.getDefaultSharedPreferences(getApplicationContext());
 	}
 
 	public boolean useSubjectToIdentifyConference() {
@@ -447,8 +434,8 @@ public abstract class XmppActivity extends FragmentActivity {
 	}
 
 	public void switchToConversation(Conversation conversation, String text,
-			boolean newTask) {
-		switchToConversation(conversation,text,null,false,newTask);
+									 boolean newTask) {
+		switchToConversation(conversation, text, null, false, newTask);
 	}
 
 	public void highlightInMuc(Conversation conversation, String nick) {
@@ -470,7 +457,7 @@ public abstract class XmppActivity extends FragmentActivity {
 		}
 		if (nick != null) {
 			viewConversationIntent.putExtra(ConversationActivity.NICK, nick);
-			viewConversationIntent.putExtra(ConversationActivity.PRIVATE_MESSAGE,pm);
+			viewConversationIntent.putExtra(ConversationActivity.PRIVATE_MESSAGE, pm);
 		}
 		viewConversationIntent.setType(ConversationActivity.VIEW_CONVERSATION);
 		if (newTask) {
@@ -574,8 +561,8 @@ public abstract class XmppActivity extends FragmentActivity {
 		}
 	}
 
-	protected  boolean noAccountUsesPgp() {
-		for(Account account : xmppConnectionService.getAccounts()) {
+	protected boolean noAccountUsesPgp() {
+		for (Account account : xmppConnectionService.getAccounts()) {
 			if (account.getPgpId() != 0) {
 				return false;
 			}
@@ -594,6 +581,7 @@ public abstract class XmppActivity extends FragmentActivity {
 			view.setBackground(getResources().getDrawable(R.drawable.greybackground));
 		}
 	}
+
 	protected void choosePgpSignId(Account account) {
 		xmppConnectionService.getPgpEngine().chooseKey(account, new UiCallback<Account>() {
 			@Override
@@ -678,7 +666,7 @@ public abstract class XmppActivity extends FragmentActivity {
 	}
 
 	private void warnMutalPresenceSubscription(final Conversation conversation,
-			final OnPresenceSelected listener) {
+											   final OnPresenceSelected listener) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(conversation.getContact().getJid().toString());
 		builder.setMessage(R.string.without_mutual_presence_updates);
@@ -696,18 +684,19 @@ public abstract class XmppActivity extends FragmentActivity {
 		builder.create().show();
 	}
 
-	protected void quickEdit(String previousValue, OnValueEdited callback) {
-		quickEdit(previousValue, callback, false);
+	protected void quickEdit(String previousValue, int hint, OnValueEdited callback) {
+		quickEdit(previousValue, callback, hint, false);
 	}
 
-	protected void quickPasswordEdit(String previousValue,
-			OnValueEdited callback) {
-		quickEdit(previousValue, callback, true);
+	protected void quickPasswordEdit(String previousValue, OnValueEdited callback) {
+		quickEdit(previousValue, callback, R.string.password, true);
 	}
 
 	@SuppressLint("InflateParams")
 	private void quickEdit(final String previousValue,
-			final OnValueEdited callback, boolean password) {
+						   final OnValueEdited callback,
+						   final int hint,
+						   boolean password) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		View view = getLayoutInflater().inflate(R.layout.quickedit, null);
 		final EditText editor = (EditText) view.findViewById(R.id.editor);
@@ -716,7 +705,7 @@ public abstract class XmppActivity extends FragmentActivity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				String value = editor.getText().toString();
-				if (!previousValue.equals(value) && value.trim().length() > 0) {
+				if (!value.equals(previousValue) && value.trim().length() > 0) {
 					callback.onValueEdited(value);
 				}
 			}
@@ -724,13 +713,18 @@ public abstract class XmppActivity extends FragmentActivity {
 		if (password) {
 			editor.setInputType(InputType.TYPE_CLASS_TEXT
 					| InputType.TYPE_TEXT_VARIATION_PASSWORD);
-			editor.setHint(R.string.password);
 			builder.setPositiveButton(R.string.accept, mClickListener);
 		} else {
 			builder.setPositiveButton(R.string.edit, mClickListener);
 		}
+		if (hint != 0) {
+			editor.setHint(hint);
+		}
 		editor.requestFocus();
-		editor.setText(previousValue);
+		editor.setText("");
+		if (previousValue != null) {
+			editor.getText().append(previousValue);
+		}
 		builder.setView(view);
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.create().show();
@@ -765,13 +759,13 @@ public abstract class XmppActivity extends FragmentActivity {
 	}
 
 	protected boolean addFingerprintRowWithListeners(LinearLayout keys, final Account account,
-	                                                 final String fingerprint,
-	                                                 boolean highlight,
-	                                                 XmppAxolotlSession.Trust trust,
-	                                                 boolean showTag,
-	                                                 CompoundButton.OnCheckedChangeListener
-			                                                 onCheckedChangeListener,
-	                                                 View.OnClickListener onClickListener,
+													 final String fingerprint,
+													 boolean highlight,
+													 XmppAxolotlSession.Trust trust,
+													 boolean showTag,
+													 CompoundButton.OnCheckedChangeListener
+															 onCheckedChangeListener,
+													 View.OnClickListener onClickListener,
 													 View.OnClickListener onKeyClickedListener) {
 		if (trust == XmppAxolotlSession.Trust.COMPROMISED) {
 			return false;
@@ -883,7 +877,7 @@ public abstract class XmppActivity extends FragmentActivity {
 	}
 
 	public void selectPresence(final Conversation conversation,
-			final OnPresenceSelected listener) {
+							   final OnPresenceSelected listener) {
 		final Contact contact = conversation.getContact();
 		if (conversation.hasValidOtrSession()) {
 			SessionID id = conversation.getOtrSession().getSessionID();
@@ -895,7 +889,7 @@ public abstract class XmppActivity extends FragmentActivity {
 			}
 			conversation.setNextCounterpart(jid);
 			listener.onPresenceSelected();
-		} else 	if (!contact.showInRoster()) {
+		} else if (!contact.showInRoster()) {
 			showAddToRosterDialog(conversation);
 		} else {
 			Presences presences = contact.getPresences();
@@ -914,7 +908,7 @@ public abstract class XmppActivity extends FragmentActivity {
 			} else if (presences.size() == 1) {
 				String presence = presences.asStringArray()[0];
 				try {
-					conversation.setNextCounterpart(Jid.fromParts(contact.getJid().getLocalpart(),contact.getJid().getDomainpart(),presence));
+					conversation.setNextCounterpart(Jid.fromParts(contact.getJid().getLocalpart(), contact.getJid().getDomainpart(), presence));
 				} catch (InvalidJidException e) {
 					conversation.setNextCounterpart(null);
 				}
@@ -938,7 +932,7 @@ public abstract class XmppActivity extends FragmentActivity {
 
 							@Override
 							public void onClick(DialogInterface dialog,
-									int which) {
+												int which) {
 								presence.delete(0, presence.length());
 								presence.append(presencesArray[which]);
 							}
@@ -949,7 +943,7 @@ public abstract class XmppActivity extends FragmentActivity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						try {
-							conversation.setNextCounterpart(Jid.fromParts(contact.getJid().getLocalpart(),contact.getJid().getDomainpart(),presence.toString()));
+							conversation.setNextCounterpart(Jid.fromParts(contact.getJid().getLocalpart(), contact.getJid().getDomainpart(), presence.toString()));
 						} catch (InvalidJidException e) {
 							conversation.setNextCounterpart(null);
 						}
@@ -962,12 +956,14 @@ public abstract class XmppActivity extends FragmentActivity {
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode,
-			final Intent data) {
+									final Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUEST_INVITE_TO_CONVERSATION && resultCode == RESULT_OK) {
 			mPendingConferenceInvite = ConferenceInvite.parse(data);
 			if (xmppConnectionServiceBound && mPendingConferenceInvite != null) {
 				mPendingConferenceInvite.execute(this);
+				mToast = Toast.makeText(this, R.string.creating_conference,Toast.LENGTH_LONG);
+				mToast.show();
 				mPendingConferenceInvite = null;
 			}
 		}
@@ -1035,14 +1031,16 @@ public abstract class XmppActivity extends FragmentActivity {
 	protected boolean neverCompressPictures() {
 		return getPreferences().getString("picture_compression", "auto").equals("never");
 	}
+
 	protected boolean manuallyChangePresence() {
 		return getPreferences().getBoolean("manually_change_presence", true);
 	}
+
 	protected void unregisterNdefPushMessageCallback() {
 
 		NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 		if (nfcAdapter != null && nfcAdapter.isEnabled()) {
-			nfcAdapter.setNdefPushMessageCallback(null,this);
+			nfcAdapter.setNdefPushMessageCallback(null, this);
 		}
 	}
 
@@ -1053,7 +1051,7 @@ public abstract class XmppActivity extends FragmentActivity {
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (this.getShareableUri()!=null) {
+		if (this.getShareableUri() != null) {
 			this.registerNdefPushMessageCallback();
 		}
 	}
@@ -1074,7 +1072,7 @@ public abstract class XmppActivity extends FragmentActivity {
 
 	protected void showQrCode() {
 		String uri = getShareableUri();
-		if (uri!=null) {
+		if (uri != null) {
 			Point size = new Point();
 			getWindowManager().getDefaultDisplay().getSize(size);
 			final int width = (size.x < size.y ? size.x : size.y);
@@ -1100,7 +1098,7 @@ public abstract class XmppActivity extends FragmentActivity {
 	}
 
 	protected Bitmap createQrCodeBitmap(String input, int size) {
-		Log.d(Config.LOGTAG,"qr code requested size: "+size);
+		Log.d(Config.LOGTAG, "qr code requested size: " + size);
 		try {
 			final QRCodeWriter QR_CODE_WRITER = new QRCodeWriter();
 			final Hashtable<EncodeHintType, Object> hints = new Hashtable<>();
@@ -1116,7 +1114,7 @@ public abstract class XmppActivity extends FragmentActivity {
 				}
 			}
 			final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-			Log.d(Config.LOGTAG,"output size: "+width+"x"+height);
+			Log.d(Config.LOGTAG, "output size: " + width + "x" + height);
 			bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
 			return bitmap;
 		} catch (final WriterException e) {
@@ -1138,33 +1136,44 @@ public abstract class XmppActivity extends FragmentActivity {
 	}
 
 	public void loadBitmap(Message message, ImageView imageView) {
-		Bitmap bm;
+		File bm;
+		bm = xmppConnectionService.getFileBackend().getFile(message, true);
+		Glide.with(this)
+				.load(bm)
+				.override(600, 600)
+				.fitCenter()
+				//.centerCrop()
+				.diskCacheStrategy(DiskCacheStrategy.RESULT)
+				.into(imageView);
+		//Log.d(Config.LOGTAG,"Load image with glide");
+	}
+
+	public void loadVideoPreview(Message message, ImageView imageView) {
+		File vp = xmppConnectionService.getFileBackend().getFile(message, true);
 		try {
-			bm = xmppConnectionService.getFileBackend().getThumbnail(message,
-					(int) (metrics.density * 288), true);
-		} catch (FileNotFoundException e) {
-			bm = null;
-		}
-		if (bm != null) {
-			cancelPotentialWork(message, imageView);
-			imageView.setImageBitmap(bm);
-			imageView.setBackgroundColor(0x00000000);
-		} else {
-			if (cancelPotentialWork(message, imageView)) {
-				imageView.setBackgroundColor(0xff333333);
-				imageView.setImageDrawable(null);
-				final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-				final AsyncDrawable asyncDrawable = new AsyncDrawable(
-						getResources(), null, task);
-				imageView.setImageDrawable(asyncDrawable);
-				try {
-					task.execute(message);
-				} catch (final RejectedExecutionException ignored) {
-					ignored.printStackTrace();
-				}
-			}
+			MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+			//use one of overloaded setDataSource() functions to set your data source
+			retriever.setDataSource(this, Uri.fromFile(vp));
+			String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+			long microSecond = Long.parseLong(time);
+			int duration = (int) Math.ceil(microSecond / 2); //preview at half of video
+			BitmapPool bitmapPool = Glide.get(getApplicationContext()).getBitmapPool();
+			VideoBitmapDecoder videoBitmapDecoder = new VideoBitmapDecoder(duration);
+			FileDescriptorBitmapDecoder fileDescriptorBitmapDecoder = new FileDescriptorBitmapDecoder(videoBitmapDecoder, bitmapPool, DecodeFormat.PREFER_ARGB_8888);
+			Glide.with(getApplicationContext())
+					.load(vp)
+					.asBitmap()
+					.override(600, 600)
+					.fitCenter()
+					//.centerCrop()
+					.diskCacheStrategy(DiskCacheStrategy.RESULT)
+					.videoDecoder(fileDescriptorBitmapDecoder)
+					.into(imageView);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
+
 
 	protected interface OnValueEdited {
 		public void onValueEdited(String value);
@@ -1211,56 +1220,7 @@ public abstract class XmppActivity extends FragmentActivity {
 				}
 			} else {
 				jids.add(conversation.getJid().toBareJid());
-				service.createAdhocConference(conversation.getAccount(), jids, activity.adhocCallback);
-			}
-		}
-	}
-
-	static class AsyncDrawable extends BitmapDrawable {
-		private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
-
-		public AsyncDrawable(Resources res, Bitmap bitmap,
-				BitmapWorkerTask bitmapWorkerTask) {
-			super(res, bitmap);
-			bitmapWorkerTaskReference = new WeakReference<>(
-					bitmapWorkerTask);
-		}
-
-		public BitmapWorkerTask getBitmapWorkerTask() {
-			return bitmapWorkerTaskReference.get();
-		}
-	}
-
-	class BitmapWorkerTask extends AsyncTask<Message, Void, Bitmap> {
-		private final WeakReference<ImageView> imageViewReference;
-		private Message message = null;
-
-		public BitmapWorkerTask(ImageView imageView) {
-			imageViewReference = new WeakReference<>(imageView);
-		}
-
-		@Override
-		protected Bitmap doInBackground(Message... params) {
-			if (isCancelled()) {
-				return null;
-			}
-			message = params[0];
-			try {
-				return xmppConnectionService.getFileBackend().getThumbnail(
-						message, (int) (metrics.density * 288), false);
-			} catch (FileNotFoundException e) {
-				return null;
-			}
-		}
-
-		@Override
-		protected void onPostExecute(Bitmap bitmap) {
-			if (bitmap != null && !isCancelled()) {
-				final ImageView imageView = imageViewReference.get();
-				if (imageView != null) {
-					imageView.setImageBitmap(bitmap);
-					imageView.setBackgroundColor(0x00000000);
-				}
+				service.createAdhocConference(conversation.getAccount(), null, jids, activity.adhocCallback);
 			}
 		}
 	}

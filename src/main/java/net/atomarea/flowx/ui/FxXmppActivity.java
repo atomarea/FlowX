@@ -515,7 +515,7 @@ public abstract class FxXmppActivity extends AppCompatActivity {
         List<String> contacts = new ArrayList<>();
         if (conversation.getMode() == Conversation.MODE_MULTI) {
             for (MucOptions.User user : conversation.getMucOptions().getUsers()) {
-                Jid jid = user.getJid();
+                Jid jid = user.getRealJid();
                 if (jid != null) {
                     contacts.add(jid.toBareJid().toString());
                 }
@@ -1214,7 +1214,7 @@ public abstract class FxXmppActivity extends AppCompatActivity {
                 }
             } else {
                 jids.add(conversation.getJid().toBareJid());
-                service.createAdhocConference(conversation.getAccount(), jids, activity.adhocCallback);
+                service.createAdhocConference(conversation.getAccount(), null, jids, activity.adhocCallback);
             }
         }
     }
