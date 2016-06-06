@@ -3,6 +3,13 @@ package net.atomarea.flowx.xmpp.jingle;
 import android.util.Base64;
 import android.util.Log;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.DownloadableFile;
@@ -12,13 +19,6 @@ import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.OnIqPacketReceived;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 public class JingleInbandTransport extends JingleTransport {
 

@@ -668,4 +668,7 @@
 	<string name="title_activity_updater">Update Service</string>
 	<string name="no_status">...</string>
 	<string name="info_username">This is your Username to identified you by friends. This Username is not changeable and will show as your name.</string>
+	<string name="gp_short">Short</string>
+	<string name="gp_medium">Medium</string>
+	<string name="gp_long">Long</string>
 </resources>

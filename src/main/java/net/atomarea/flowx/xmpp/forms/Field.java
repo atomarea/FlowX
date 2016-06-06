@@ -1,11 +1,11 @@
 package net.atomarea.flowx.xmpp.forms;
 
-import net.atomarea.flowx.xml.Element;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
+import net.atomarea.flowx.xml.Element;
 
 public class Field extends Element {
 

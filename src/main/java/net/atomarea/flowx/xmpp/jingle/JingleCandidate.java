@@ -1,10 +1,10 @@
 package net.atomarea.flowx.xmpp.jingle;
 
-import net.atomarea.flowx.xml.Element;
-import net.atomarea.flowx.xmpp.jid.Jid;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import net.atomarea.flowx.xml.Element;
+import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class JingleCandidate {
 

@@ -2,11 +2,11 @@ package net.atomarea.flowx.xmpp.jid;
 
 import android.util.LruCache;
 
-import net.atomarea.flowx.Config;
 import net.java.otr4j.session.SessionID;
 
 import java.net.IDN;
 
+import net.atomarea.flowx.Config;
 import gnu.inet.encoding.Stringprep;
 import gnu.inet.encoding.StringprepException;
 

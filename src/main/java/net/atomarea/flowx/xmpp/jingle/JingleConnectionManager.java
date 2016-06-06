@@ -3,6 +3,12 @@ package net.atomarea.flowx.xmpp.jingle;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Message;
@@ -15,12 +21,6 @@ import net.atomarea.flowx.xmpp.OnIqPacketReceived;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.jingle.stanzas.JinglePacket;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
-
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class JingleConnectionManager extends AbstractConnectionManager {
 	private List<JingleConnection> connections = new CopyOnWriteArrayList<>();

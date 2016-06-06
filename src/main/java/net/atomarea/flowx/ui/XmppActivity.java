@@ -920,7 +920,7 @@ public abstract class XmppActivity extends FragmentActivity {
                 final String[] presencesArray = presences.asStringArray();
                 int preselectedPresence = 0;
                 for (int i = 0; i < presencesArray.length; ++i) {
-                    if (presencesArray[i].equals(contact.lastseen.presence)) {
+                    if (presencesArray[i].equals(contact.getLastPresence())) {
                         preselectedPresence = i;
                         break;
                     }

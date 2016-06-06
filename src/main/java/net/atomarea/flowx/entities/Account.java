@@ -5,15 +5,7 @@ import android.database.Cursor;
 import android.os.SystemClock;
 import android.util.Pair;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.OtrService;
 import net.atomarea.flowx.crypto.PgpDecryptionService;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.xmpp.XmppConnection;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.crypto.OtrCryptoException;
 
@@ -27,6 +19,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.crypto.OtrService;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.xmpp.XmppConnection;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class Account extends AbstractEntity {
 
@@ -98,8 +99,8 @@ public class Account extends AbstractEntity {
 		INCOMPATIBLE_SERVER(true),
 		TOR_NOT_AVAILABLE(true),
 		BIND_FAILURE(true),
-		REGISTRATION_PLEASE_WAIT(true),
-		HOST_UNKNOWN(true);
+		HOST_UNKNOWN(true),
+		REGISTRATION_PLEASE_WAIT(true);
 
 		private final boolean isError;
 
@@ -541,9 +542,8 @@ public class Account extends AbstractEntity {
 		return this.avatar;
 	}
 
-	public void activateGracePeriod() {
-		this.mEndGracePeriod = SystemClock.elapsedRealtime()
-			+ (Config.CARBON_GRACE_PERIOD * 1000);
+	public void activateGracePeriod(long duration) {
+		this.mEndGracePeriod = SystemClock.elapsedRealtime() + duration;
 	}
 
 	public void deactivateGracePeriod() {
