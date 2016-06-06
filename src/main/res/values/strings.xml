@@ -671,4 +671,5 @@
 	<string name="gp_short">Short</string>
 	<string name="gp_medium">Medium</string>
 	<string name="gp_long">Long</string>
+	<string name="app_name_dev">FlowX Dev</string>
 </resources>

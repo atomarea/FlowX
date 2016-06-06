@@ -417,7 +417,7 @@ public class FxUi extends FxXmppActivity implements XmppConnectionService.OnConv
                             else if (dConversation.getIncomingChatState() == ChatState.PAUSED)
                                 getSupportActionBar().setSubtitle(R.string.contact_has_stopped_typing);
                             else
-                                getSupportActionBar().setSubtitle(UIHelper.lastseen(App, dConversation.getContact().lastseen.time));
+                                getSupportActionBar().setSubtitle(UIHelper.lastseen(App, dConversation.getContact().isActive(), dConversation.getContact().getLastseen()));
                         } else if (useSubjectToIdentifyConference())
                             getSupportActionBar().setSubtitle((dConversation.getParticipants() == null ? "-" : dConversation.getParticipants()));
                         getSupportActionBar().setLogo(FxUiHelper.loadAvatarForToolbar(dConversation));
