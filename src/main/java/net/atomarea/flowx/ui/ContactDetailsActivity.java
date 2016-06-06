@@ -117,7 +117,8 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     private LinearLayout keys;
     private TextView statusMessage;
     private LinearLayout tags;
-    private boolean showDynamicTags;
+    private boolean showDynamicTags = false;
+    private boolean showLastSeen = true;
     private String messageFingerprint;
 
     private OnClickListener onBadgeClick = new OnClickListener() {
@@ -300,6 +301,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
 
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         this.showDynamicTags = preferences.getBoolean("show_dynamic_tags", false);
+        this.showLastSeen = preferences.getBoolean("last_activity", true);
 
         if (getActionBar() == null) return; // lol
 
@@ -307,7 +309,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         getActionBar().setDisplayShowCustomEnabled(true);
 
         ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.title)).setText(contact.getDisplayName());
-        ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), contact.lastseen.time));
+        ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));
 
         invalidateOptionsMenu();
 
@@ -382,9 +384,14 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         }
 
         if (contact.isBlocked() && !this.showDynamicTags) {
+            lastseen.setVisibility(View.VISIBLE);
             lastseen.setText(R.string.contact_blocked);
         } else {
-            lastseen.setText(UIHelper.lastseen(getApplicationContext(), contact.lastseen.time));
+            if (showLastSeen && contact.getLastseen() > 0) {
+                lastseen.setVisibility(View.GONE);
+            } else {
+                lastseen.setVisibility(View.GONE);
+            }
         }
 
         if (contact.getPresences().size() > 1) {

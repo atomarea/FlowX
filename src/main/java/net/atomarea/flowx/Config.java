@@ -54,7 +54,6 @@ public final class Config {
     public static final int PING_TIMEOUT = 10;
     public static final int SOCKET_TIMEOUT = 15;
     public static final int CONNECT_TIMEOUT = 60;
-    public static final int CARBON_GRACE_PERIOD = 90;
     public static final int MINI_GRACE_PERIOD = 750;
     public static final boolean X509_VERIFICATION = false; //use x509 certificates to verify OMEMO keys
     public static final boolean ALLOW_NON_TLS_CONNECTIONS = false; //very dangerous. you should have a good reason to set this to true

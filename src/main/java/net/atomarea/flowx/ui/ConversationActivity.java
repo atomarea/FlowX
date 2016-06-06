@@ -530,7 +530,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                         tv_subtitle.setText(getString(R.string.contact_has_stopped_typing));
                         v.setOnClickListener(this);
                     } else
-                        tv_subtitle.setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().lastseen.time));
+                        tv_subtitle.setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
                 } else if (useSubjectToIdentifyConference()) {
                     tv_subtitle.setText((conversation.getParticipants() == null ? "-" : conversation.getParticipants()));
                 }
@@ -1065,7 +1065,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 upKey = KeyEvent.KEYCODE_DPAD_UP;
                 downKey = KeyEvent.KEYCODE_DPAD_DOWN;
         }
-        final boolean modifier = event.isCtrlPressed() || event.isAltPressed();
+        final boolean modifier = event.isCtrlPressed() || (event.getMetaState() & KeyEvent.META_ALT_LEFT_ON) != 0;
         if (modifier && key == KeyEvent.KEYCODE_TAB && isConversationsOverviewHideable()) {
             toggleConversationsOverview();
             return true;
