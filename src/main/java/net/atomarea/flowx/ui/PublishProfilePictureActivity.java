@@ -136,7 +136,7 @@ public class PublishProfilePictureActivity extends XmppActivity {
 			@Override
 			public void onClick(View v) {
 				if (hasStoragePermission(REQUEST_CHOOSE_FILE)) {
-					chooseAvatar(false);
+					chooseAvatar(true);
 				}
 
 			}
