@@ -23,7 +23,7 @@ import java.io.IOException;
 
 public class PushManagementService {
 
-	private static final String APP_SERVER = "flowx.im";
+	private static final String APP_SERVER = "https://flowx.im/push/";
 
 	protected final XmppConnectionService mXmppConnectionService;
 

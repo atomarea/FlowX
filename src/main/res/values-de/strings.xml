@@ -569,4 +569,7 @@
     <string name="no">Nein</string>
     <string name="yes">Ja</string>
     <string name="info_username">Dein Benutzername ist die Identifikation für deine Kontakte, dieser Name wird primär sichbar sein und kann nicht geändert werden.</string>
+    <string name="request_permissions_message">FlowX wird dich nach ein paar Berechtigungen fragen. Es ist wichtig, dass du alle Berechtigungen erlaubst, um alle Funktionen nutzen zu können. Falls du eine dieser Berechtigungen ablehnst wird sich die App schließen.</string>
+    <string name="request_permissions_message_again">Du hast eine oder alle Berechtigungen, welche für FlowX benötigt werden abgelehnt. Willst du zu den Einstellungen springen, um diese Berechtigungen zu erlauben? Falls du eine dieser Berechtigungen ablehnst wird sich die App schließen.</string>
+    <string name="request_permissions_title">FlowX Berechtigungen</string>
 </resources>

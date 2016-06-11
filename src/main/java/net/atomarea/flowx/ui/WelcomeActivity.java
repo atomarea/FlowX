@@ -1,20 +1,17 @@
 package net.atomarea.flowx.ui;
-
+import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.os.Build;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
@@ -26,11 +23,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
+
 
 public class WelcomeActivity extends Activity {
 
-	boolean dbExist = checkDatabase();
+	private static final int REQUEST_READ_EXTERNAL_STORAGE = 0XD737;
+	boolean dbExist = false;
 	boolean backup_existing = false;
 
 	@Override
@@ -38,11 +36,15 @@ public class WelcomeActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.welcome);
 
-
 		//check if there is a backed up database --
+		if (hasStoragePermission(REQUEST_READ_EXTERNAL_STORAGE)) {
+			dbExist = checkDatabase();
+		}
+
 		if (dbExist) {
 			backup_existing = true;
 		}
+
 
 		final Button ImportDatabase = (Button) findViewById(R.id.import_database);
 		final TextView ImportText = (TextView) findViewById(R.id.import_text);
@@ -87,19 +89,28 @@ public class WelcomeActivity extends Activity {
 		SQLiteDatabase checkDB = null;
 		String DB_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlowX/.Database/";
 		String DB_NAME = "Database.bak";
+		int DB_Version = DatabaseBackend.DATABASE_VERSION;
+		int Backup_DB_Version = 0;
 
 		try {
-			String myPath = DB_PATH + DB_NAME;
-			checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
-			Log.d(Config.LOGTAG,"Backup found");
+			String dbPath = DB_PATH + DB_NAME;
+			checkDB = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READONLY);
+			Backup_DB_Version = checkDB.getVersion();
+			Log.d(Config.LOGTAG, "Backup found: " + checkDB + " Version: " + checkDB.getVersion());
+
 		} catch (SQLiteException e) {
 			//database does't exist yet.
+			Log.d(Config.LOGTAG, "No backup found: " + checkDB);
 		}
 
 		if (checkDB != null) {
 			checkDB.close();
 		}
-		return checkDB != null ? true : false;
+		if (checkDB != null && Backup_DB_Version <= DB_Version) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private void ImportDatabase() throws IOException {
@@ -138,5 +149,16 @@ public class WelcomeActivity extends Activity {
 		startActivity(intent);
 		System.exit(0);
 	}
-
+	public boolean hasStoragePermission(int requestCode) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, requestCode);
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			return true;
+		}
+	}
 }

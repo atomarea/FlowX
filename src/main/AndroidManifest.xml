@@ -48,16 +48,22 @@
 
         <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
         <activity
-            android:name=".ui.ConversationActivity"
+            android:name=".ui.startUI"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:label="@string/app_name"
-            android:configChanges="orientation|screenSize"
             android:launchMode="singleTask"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.ConversationActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
             android:theme="@style/ConversationsDialog"

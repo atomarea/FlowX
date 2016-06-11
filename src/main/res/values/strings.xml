@@ -671,4 +671,7 @@
 	<string name="gp_short">Short</string>
 	<string name="gp_medium">Medium</string>
 	<string name="gp_long">Long</string>
+	<string name="request_permissions_title">FlowX permissions</string>
+	<string name="request_permissions_message">FlowX will ask you to allow a few permissions. It is important that you allow all these permissions to use all features of this messenger. If you deny any of these permissions the app will close itself.</string>
+	<string name="request_permissions_message_again">You have denied some or all permissions needed for FlowX. Would you like to jump to the settings and allow these permissions? If you denie any of these permissions, the app will close itself.</string>
 </resources>

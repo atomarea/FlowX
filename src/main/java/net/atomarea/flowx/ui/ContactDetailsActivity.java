@@ -309,7 +309,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         getActionBar().setDisplayShowCustomEnabled(true);
 
         ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.title)).setText(contact.getDisplayName());
-        ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));
 
         invalidateOptionsMenu();
 
@@ -388,7 +387,8 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
             lastseen.setText(R.string.contact_blocked);
         } else {
             if (showLastSeen && contact.getLastseen() > 0) {
-                lastseen.setVisibility(View.GONE);
+                ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));
+                lastseen.setVisibility(View.VISIBLE);
             } else {
                 lastseen.setVisibility(View.GONE);
             }

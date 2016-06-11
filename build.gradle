@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.1.2'
     }
 }
 
@@ -54,7 +54,8 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.5.2'
 	compile 'org.osmdroid:osmdroid-android:4.3'
 	compile 'org.slf4j:slf4j-simple:1.7.9'
-    compile 'com.google.android.gms:play-services:6.5.87'
+    compile 'com.google.android.gms:play-services:9.0.2'
+    compile 'com.google.android.gms:play-services-gcm:9.0.2'
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.github.chrisbanes:PhotoView:1.2.6'
     compile 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
@@ -63,6 +64,7 @@ dependencies {
     compile 'jetty:javax.servlet:5.1.12'
 	compile('eu.livotov.labs.android:CAMView:2.0.1@aar') { transitive = true }
 	compile 'com.github.bumptech.glide:glide:3.5.2'
+    compile 'pub.devrel:easypermissions:0.1.7'
 	playstoreCompile 'com.google.android.gms:play-services-gcm:8.4.0'
 }
 
@@ -76,8 +78,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 1442
-        versionName "1.71"
+        versionCode 1445
+        versionName "1.74"
         archivesBaseName += "-$versionName"
         applicationId "net.atomarea.flowx"
         multiDexEnabled true

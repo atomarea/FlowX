@@ -1,5 +1,20 @@
 FlowX Changelogs:
 
+1.72
+-> 72 neue Emoji's
+-> Fehler behoben
+
+1.72
+-> UI optimiert
+-> Fehler behoben
+
+1.71
+-> UI optimiert
+-> Fehler behoben
+
+1.70
+-> UI optimiert
+
 1.69
 -> UI optimiert
 -> Clear Device fixed
