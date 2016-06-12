@@ -48,6 +48,7 @@ import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
 import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
+import net.atomarea.flowx.xmpp.pep.Avatar;
 
 import org.openintents.openpgp.util.OpenPgpUtils;
 
@@ -116,9 +117,8 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     private BootstrapButton addContactButton;
     private LinearLayout keys;
     private TextView statusMessage;
+    private ImageView avatar;
     private LinearLayout tags;
-    private boolean showDynamicTags = false;
-    private boolean showLastSeen = true;
     private String messageFingerprint;
 
     private OnClickListener onBadgeClick = new OnClickListener() {
@@ -279,6 +279,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         accountJidTv = (TextView) findViewById(R.id.details_account);
         lastseen = (TextView) findViewById(R.id.details_lastseen);
         statusMessage = (TextView) findViewById(R.id.status_message);
+        avatar = (ImageView) findViewById(R.id.details_contact_photo);
         status = (TextView) findViewById(R.id.status);
         send = (CheckBox) findViewById(R.id.details_send_presence);
         receive = (CheckBox) findViewById(R.id.details_receive_presence);
@@ -300,8 +301,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         if (bm != null) ((ImageView) findViewById(R.id.iv_cqr)).setImageDrawable(bm);
 
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        this.showDynamicTags = preferences.getBoolean("show_dynamic_tags", false);
-        this.showLastSeen = preferences.getBoolean("last_activity", true);
 
         if (getActionBar() == null) return; // lol
 
@@ -362,6 +361,9 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
                     receive.setChecked(true);
                 } else {
                     receive.setChecked(false);
+                    status.setVisibility(View.VISIBLE);
+                    ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText("");
+                    statusMessage.setVisibility(View.GONE);
                 }
             }
             if (contact.getAccount().isOnlineAndConnected()) {
@@ -382,13 +384,13 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
             receive.setVisibility(View.GONE);
         }
 
-        if (contact.isBlocked() && !this.showDynamicTags) {
-            lastseen.setVisibility(View.VISIBLE);
-            lastseen.setText(R.string.contact_blocked);
+        if (contact.isBlocked()) {
+            status.setVisibility(View.VISIBLE);
+            statusMessage.setVisibility(View.GONE);
         } else {
-            if (showLastSeen && contact.getLastseen() > 0) {
+            if (contact.getLastseen() > 0) {
                 ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));
-                lastseen.setVisibility(View.VISIBLE);
+                lastseen.setVisibility(View.GONE);
             } else {
                 lastseen.setVisibility(View.GONE);
             }
@@ -463,20 +465,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
             keys.setVisibility(View.VISIBLE);
         } else {
             keys.setVisibility(View.GONE);
-        }
-
-        List<ListItem.Tag> tagList = contact.getTags(this);
-        if (tagList.size() == 0 || !this.showDynamicTags) {
-            tags.setVisibility(View.GONE);
-        } else {
-            tags.setVisibility(View.VISIBLE);
-            tags.removeAllViewsInLayout();
-            for (final ListItem.Tag tag : tagList) {
-                final TextView tv = (TextView) inflater.inflate(R.layout.list_item_tag, tags, false);
-                tv.setText(tag.getName());
-                tv.setBackgroundColor(tag.getColor());
-                tags.addView(tv);
-            }
         }
     }
 
