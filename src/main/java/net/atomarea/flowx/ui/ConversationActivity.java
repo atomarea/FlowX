@@ -29,6 +29,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -148,6 +149,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     final private List<Uri> mPendingImageUris = new ArrayList<>();
     final private List<Uri> mPendingFileUris = new ArrayList<>();
     private String mOpenConverstaion = null;
+    private boolean showLastSeen = true;
     private boolean mPanelOpen = true;
     private Uri mPendingGeoUri = null;
     private boolean forbidProcessingPendings = false;
@@ -518,6 +520,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     }
                 }, 250);
             }
+            final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            this.showLastSeen = preferences.getBoolean("last_activity", true);
             if (conversation.getMode() == Conversation.MODE_SINGLE || useSubjectToIdentifyConference()) {
                 tv_title.setText(conversation.getName());
                 v.setOnClickListener(this);
@@ -529,7 +533,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     } else if (state == ChatState.PAUSED) {
                         tv_subtitle.setText(getString(R.string.contact_has_stopped_typing));
                         v.setOnClickListener(this);
-                    } else if (conversation.getContact().getLastseen() > 0) {
+                    } else if (showLastSeen && conversation.getContact().getLastseen() > 0) {
                         tv_subtitle.setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
                     } else {
                         tv_subtitle.setText("..."); }

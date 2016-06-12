@@ -47,30 +47,6 @@
                         android:textStyle="bold"
                         emojicon:emojiconSize="28sp" />
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:id="@+id/tags"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="4dp"
-                            android:visibility="gone"
-                            android:layout_marginTop="4dp"
-                            android:orientation="horizontal">
-                        </LinearLayout>
-
-                        <github.ankushsachdeva.emojicon.EmojiconTextView
-                            android:id="@+id/details_lastseen"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/black54"
-                            android:visibility="gone"
-                            android:textSize="?attr/TextSizeBody" />
-                    </LinearLayout>
-
                     <com.beardedhen.androidbootstrap.BootstrapButton
                         android:id="@+id/add_contact_button"
                         android:layout_width="wrap_content"

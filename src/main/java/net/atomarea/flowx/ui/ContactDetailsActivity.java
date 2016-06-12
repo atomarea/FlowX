@@ -112,7 +112,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     private TextView contactJidTv;
     private TextView accountJidTv;
     private TextView status;
-    private TextView lastseen;
     private CheckBox send;
     private CheckBox receive;
     private RelativeLayout statusView;
@@ -122,6 +121,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     private ImageView avatar;
     private LinearLayout tags;
     private String messageFingerprint;
+    private boolean showLastSeen = true;
 
     private OnClickListener onBadgeClick = new OnClickListener() {
 
@@ -279,7 +279,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
 
         contactJidTv = (TextView) findViewById(R.id.details_contactjid);
         accountJidTv = (TextView) findViewById(R.id.details_account);
-        lastseen = (TextView) findViewById(R.id.details_lastseen);
         statusMessage = (TextView) findViewById(R.id.status_message);
         avatar = (ImageView) findViewById(R.id.details_contact_photo);
         status = (TextView) findViewById(R.id.status);
@@ -304,6 +303,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         if (bm != null) ((ImageView) findViewById(R.id.iv_cqr)).setImageDrawable(bm);
 
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        this.showLastSeen = preferences.getBoolean("last_activity", true);
 
         if (getActionBar() == null) return; // lol
 
@@ -399,12 +399,10 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
             send.setVisibility(View.GONE);
             receive.setVisibility(View.GONE);
         } else {
-            if (contact.getLastseen() > 0) {
+            if (showLastSeen && contact.getLastseen() > 0) {
                 ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));
-                lastseen.setVisibility(View.GONE);
             } else {
                 ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText("...");
-                lastseen.setVisibility(View.GONE);
             }
         }
 

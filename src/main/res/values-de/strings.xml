@@ -462,7 +462,7 @@
     <string name="regenerate_omemo_key">Fingerabdrücke zurücksetzen</string>
     <string name="pref_use_white_background">Weiße Sprechblasen benutzen</string>
     <string name="pref_use_white_background_summary">Empfangene Nachrichten mit schwarzen Text auf weißen Sprechblasen.</string>
-    <string name="pref_presence_settings">Status / Privatsphäre</string>
+    <string name="pref_presence_settings">Privatsphäre</string>
     <string name="pref_away_when_screen_off">Abwesend, wenn Bildschirm aus.</string>
     <string name="pref_away_when_screen_off_summary">Zeigt Status als Abwesend an, wenn der Bildschirm aus ist.</string>
     <string name="pref_xa_on_silent_mode">Beschäftigt. wenn Handy stumm ist.</string>
@@ -572,4 +572,6 @@
     <string name="request_permissions_message">FlowX wird dich nach ein paar Berechtigungen fragen. Es ist wichtig, dass du alle Berechtigungen erlaubst, um alle Funktionen nutzen zu können. Falls du eine dieser Berechtigungen ablehnst wird sich die App schließen.</string>
     <string name="request_permissions_message_again">Du hast eine oder alle Berechtigungen, welche für FlowX benötigt werden abgelehnt. Willst du zu den Einstellungen springen, um diese Berechtigungen zu erlauben? Falls du eine dieser Berechtigungen ablehnst wird sich die App schließen.</string>
     <string name="request_permissions_title">FlowX Berechtigungen</string>
+    <string name="pref_broadcast_last_activity">Zuletzt online</string>
+    <string name="pref_broadcast_last_activity_summary">Zeigt deinen Kontakten, wann du zuletzt online warst.</string>
 </resources>
