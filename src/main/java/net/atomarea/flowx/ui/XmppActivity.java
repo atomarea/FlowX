@@ -627,7 +627,7 @@ public abstract class XmppActivity extends FragmentActivity {
 
     protected void showAddToRosterDialog(final Contact contact) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(contact.getJid().toString());
+        builder.setTitle(contact.getJid().getLocalpart().toString());
         builder.setMessage(getString(R.string.not_in_roster));
         builder.setNegativeButton(getString(R.string.cancel), null);
         builder.setPositiveButton(getString(R.string.add_contact),

@@ -515,9 +515,9 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             }
         }
         if(mAccount.getPresenceStatusMessage() == null) {
-            mStatusMessage.setVisibility(View.GONE);
-            mStatusView.setVisibility(View.GONE);
-            mStatus.setVisibility(View.GONE);
+            mStatusMessage.setText(R.string.no_status);
+            mStatusView.setVisibility(View.VISIBLE);
+            mStatus.setVisibility(View.VISIBLE);
         } else {
             mStatusMessage.setText(mAccount.getPresenceStatusMessage());
         }

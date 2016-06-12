@@ -27,6 +27,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
@@ -114,6 +115,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     private TextView lastseen;
     private CheckBox send;
     private CheckBox receive;
+    private RelativeLayout statusView;
     private BootstrapButton addContactButton;
     private LinearLayout keys;
     private TextView statusMessage;
@@ -281,6 +283,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         statusMessage = (TextView) findViewById(R.id.status_message);
         avatar = (ImageView) findViewById(R.id.details_contact_photo);
         status = (TextView) findViewById(R.id.status);
+        statusView = (RelativeLayout) findViewById(R.id.statusView);
         send = (CheckBox) findViewById(R.id.details_send_presence);
         receive = (CheckBox) findViewById(R.id.details_receive_presence);
         addContactButton = (BootstrapButton) findViewById(R.id.add_contact_button);
@@ -312,19 +315,23 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         invalidateOptionsMenu();
 
         if (contact.showInRoster()) {
-            send.setVisibility(View.VISIBLE);
-            receive.setVisibility(View.VISIBLE);
+            send.setVisibility(View.GONE);
+            receive.setVisibility(View.GONE);
             status.setVisibility(View.VISIBLE);
             addContactButton.setVisibility(View.GONE);
             send.setOnCheckedChangeListener(null);
             receive.setOnCheckedChangeListener(null);
 
-            List<String> statusMessages = contact.getPresences().getStatusMessages();
+                List<String> statusMessages = contact.getPresences().getStatusMessages();
             if (statusMessages.size() == 0) {
-                statusMessage.setVisibility(View.GONE);
+                status.setVisibility(View.VISIBLE);
+                statusView.setVisibility(View.VISIBLE);
+                statusMessage.setText(R.string.no_status);
             } else {
                 StringBuilder builder = new StringBuilder();
                 statusMessage.setVisibility(View.VISIBLE);
+                statusView.setVisibility(View.VISIBLE);
+                status.setVisibility(View.VISIBLE);
                 int s = statusMessages.size();
                 for(int i = 0; i < s; ++i) {
                     if (s > 1) {
@@ -361,9 +368,10 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
                     receive.setChecked(true);
                 } else {
                     receive.setChecked(false);
-                    status.setVisibility(View.VISIBLE);
-                    ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText("");
+                    statusView.setVisibility(View.GONE);
+                    status.setVisibility(View.GONE);
                     statusMessage.setVisibility(View.GONE);
+                    ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText("...");
                 }
             }
             if (contact.getAccount().isOnlineAndConnected()) {
@@ -373,7 +381,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
                 receive.setEnabled(false);
                 send.setEnabled(false);
             }
-
             send.setOnCheckedChangeListener(this.mOnSendCheckedChange);
             receive.setOnCheckedChangeListener(this.mOnReceiveCheckedChange);
         } else {
@@ -389,6 +396,8 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
             ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(R.string.contact_blocked);
             statusMessage.setVisibility(View.VISIBLE);
             statusMessage.setText(R.string.contact_blocked);
+            send.setVisibility(View.GONE);
+            receive.setVisibility(View.GONE);
         } else {
             if (contact.getLastseen() > 0) {
                 ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));

@@ -19,6 +19,7 @@
             android:orientation="vertical">
 
             <RelativeLayout
+                android:id="@+id/statusView"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
@@ -87,7 +88,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
                         android:layout_marginTop="0dp"
-                        android:text="@string/pref_presence_settings"
+                        android:text="Status"
                         android:textColor="@color/primary"
                         android:typeface="normal"
                         android:divider="?android:dividerHorizontal"
