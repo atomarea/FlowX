@@ -111,7 +111,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -1297,20 +1296,11 @@ public class XmppConnectionService extends Service {
                 }
             }
         }
-        Collections.sort(list, new Comparator<Conversation>() {
-            @Override
-            public int compare(Conversation lhs, Conversation rhs) {
-                Message left = lhs.getLatestMessage();
-                Message right = rhs.getLatestMessage();
-                if (left.getTimeSent() > right.getTimeSent()) {
-                    return -1;
-                } else if (left.getTimeSent() < right.getTimeSent()) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            }
-        });
+        try {
+            Collections.sort(list);
+        } catch (IllegalArgumentException e) {
+            //ignore
+        }
     }
 
     public void loadMoreMessages(final Conversation conversation, final long timestamp, final OnMoreMessagesLoaded callback) {

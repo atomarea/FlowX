@@ -26,7 +26,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-public class Conversation extends AbstractEntity implements Blockable {
+public class Conversation extends AbstractEntity implements Blockable, Comparable<Conversation> {
     public static final String TABLENAME = "conversations";
 
     public static final int STATUS_AVAILABLE = 0;
@@ -342,6 +342,19 @@ public class Conversation extends AbstractEntity implements Blockable {
 
     public boolean withSelf() {
         return getContact().isSelf();
+    }
+
+    @Override
+    public int compareTo(Conversation another) {
+        final Message left = getLatestMessage();
+        final Message right = another.getLatestMessage();
+        if (left.getTimeSent() > right.getTimeSent()) {
+            return -1;
+        } else if (left.getTimeSent() < right.getTimeSent()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     public interface OnMessageFound {

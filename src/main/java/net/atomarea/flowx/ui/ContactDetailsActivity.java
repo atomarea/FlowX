@@ -392,6 +392,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
                 ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));
                 lastseen.setVisibility(View.GONE);
             } else {
+                ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText("...");
                 lastseen.setVisibility(View.GONE);
             }
         }

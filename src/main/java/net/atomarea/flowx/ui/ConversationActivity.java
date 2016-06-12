@@ -529,8 +529,10 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     } else if (state == ChatState.PAUSED) {
                         tv_subtitle.setText(getString(R.string.contact_has_stopped_typing));
                         v.setOnClickListener(this);
-                    } else
+                    } else if (conversation.getContact().getLastseen() > 0) {
                         tv_subtitle.setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
+                    } else {
+                        tv_subtitle.setText("..."); }
                 } else if (useSubjectToIdentifyConference()) {
                     tv_subtitle.setText((conversation.getParticipants() == null ? "-" : conversation.getParticipants()));
                 }
