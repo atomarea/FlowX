@@ -457,7 +457,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             if (otherDevices == null || otherDevices.isEmpty() || !Config.supportOmemo()) {
                 clearDevices.setVisible(false);
             }
-            changePresence.setVisible(manuallyChangePresence());
+            changePresence.setVisible(true);
         } else {
             showQrCode.setVisible(false);
             showBlocklist.setVisible(false);

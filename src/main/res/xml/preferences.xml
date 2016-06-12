@@ -43,7 +43,7 @@
             android:dependency="show_notification"
             android:key="led"
             android:title="@string/pref_led"
-            android:summary="@string/pref_led_summary"/>
+            android:summary="@string/pref_led_summary" />
         <RingtonePreference
             android:defaultValue="content://settings/system/notification_sound"
             android:dependency="show_notification"
@@ -78,9 +78,15 @@
 
         <CheckBoxPreference
             android:defaultValue="true"
+            android:key="manually_change_presence"
+            android:title="@string/pref_manually_change_presence"
+            android:summary="@string/pref_manually_change_presence_summary"
+            android:disableDependentsState="true" />
+        <CheckBoxPreference
+            android:defaultValue="true"
             android:key="last_activity"
             android:title="@string/pref_broadcast_last_activity"
-            android:summary="@string/pref_broadcast_last_activity_summary"/>
+            android:summary="@string/pref_broadcast_last_activity_summary" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="confirm_messages"
@@ -117,5 +123,5 @@
     </PreferenceScreen>
     <net.atomarea.flowx.ui.AboutPreference
         android:title="@string/title_activity_about"
-        android:icon="@drawable/ic_settings_help"/>
+        android:icon="@drawable/ic_settings_help" />
 </PreferenceScreen>
