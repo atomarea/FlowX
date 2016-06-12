@@ -386,7 +386,9 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
 
         if (contact.isBlocked()) {
             status.setVisibility(View.VISIBLE);
-            statusMessage.setVisibility(View.GONE);
+            ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(R.string.contact_blocked);
+            statusMessage.setVisibility(View.VISIBLE);
+            statusMessage.setText(R.string.contact_blocked);
         } else {
             if (contact.getLastseen() > 0) {
                 ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));
