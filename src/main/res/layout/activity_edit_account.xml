@@ -127,54 +127,6 @@
                                 android:visibility="gone" />
                         </LinearLayout>
                     </LinearLayout>
-                    <CheckBox
-                        android:id="@+id/account_register_new"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/register_account"
-                        android:textColor="@color/black87"
-                        android:textSize="?attr/TextSizeBody"
-                        android:visibility="gone" />
-
-                    <TextView
-                        android:id="@+id/account_confirm_password_desc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/account_settings_confirm_password"
-                        android:textColor="@color/black87"
-                        android:textSize="?attr/TextSizeBody"
-                        android:visibility="gone" />
-
-                    <com.beardedhen.androidbootstrap.BootstrapEditText
-                        android:id="@+id/account_password_confirm"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:hint="@string/confirm_password"
-                        android:inputType="textPassword"
-                        android:visibility="gone"
-                        app:bootstrapSize="md"
-                        app:roundedCorners="true"
-                        app:bootstrapBrand="info"
-                        android:textColor="@color/black87"
-                        android:textColorHint="@color/black54"
-                        android:textSize="?attr/TextSizeBody" />
-                    <com.beardedhen.androidbootstrap.BootstrapButton
-                        android:id="@+id/save_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        android:layout_marginTop="8dp"
-                        android:enabled="false"
-                        android:text="@string/save"
-                        android:textColor="@color/white"
-                        android:textColorLink="@color/white"
-                        app:bootstrapBrand="success"
-                        app:bootstrapSize="md"
-                        app:roundedCorners="true"
-                        android:textColorHint="@color/white"
-                        android:textColorHighlight="@color/white" />
                 </LinearLayout>
 
                 <EditText

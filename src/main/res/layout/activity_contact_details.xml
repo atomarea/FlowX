@@ -96,7 +96,6 @@
                         android:textSize="?attr/TextSizeBody" />
                 </LinearLayout>
 
-
                 <github.ankushsachdeva.emojicon.EmojiconTextView
                     android:id="@+id/details_account"
                     android:layout_width="wrap_content"
@@ -137,20 +136,6 @@
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/app_name" />
             </RelativeLayout>
-            <LinearLayout
-                android:id="@+id/details_contact_keys"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                android:layout_marginRight="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:background="@drawable/infocard_border"
-                android:divider="?android:dividerHorizontal"
-                android:orientation="vertical"
-                android:padding="@dimen/infocard_padding"
-                android:showDividers="middle">
-            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>

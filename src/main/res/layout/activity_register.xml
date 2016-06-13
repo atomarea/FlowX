@@ -32,15 +32,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/account_jid_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/account_settings_jabber_id"
-                        android:visibility="gone"
-                        android:layout_marginTop="@dimen/bootstrap_h1_hori_padding"
-                        android:textColor="@color/black87"
-                        android:textSize="?attr/TextSizeBody" />
+
                     <EditText
                         android:id="@+id/account_jid"
                         android:layout_width="match_parent"
@@ -49,14 +41,6 @@
                         android:hint="@string/username_hint"
                         android:textColor="@color/black87"
                         android:textColorHint="@color/black54"
-                        android:textSize="?attr/TextSizeBody" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/account_settings_password"
-                        android:visibility="gone"
-                        android:textColor="@color/black87"
                         android:textSize="?attr/TextSizeBody" />
                     <EditText
                         android:id="@+id/account_password"

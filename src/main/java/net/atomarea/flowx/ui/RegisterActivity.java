@@ -18,12 +18,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.beardedhen.androidbootstrap.BootstrapButton;
-import com.beardedhen.androidbootstrap.BootstrapEditText;
-import com.dd.processbutton.FlatButton;
 import com.dd.processbutton.iml.ActionProcessButton;
 
 import net.atomarea.flowx.Config;
@@ -33,7 +29,6 @@ import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.services.XmppConnectionService.OnAccountUpdate;
 import net.atomarea.flowx.services.XmppConnectionService.OnCaptchaRequested;
-import net.atomarea.flowx.ui.adapter.KnownHostsAdapter;
 import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
 import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.forms.Data;
@@ -49,8 +44,6 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
     private EditText mPasswordConfirm;
     private CheckBox mRegisterNew;
     private ActionProcessButton mSaveButton;
-
-    private TextView mAccountJidLabel;
     private LinearLayout mNamePort;
     private EditText mHostname;
     private EditText mPort;
@@ -60,7 +53,6 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
     private boolean mInitMode = false;
     private boolean mShowOptions = false;
     private Account mAccount;
-    private String messageFingerprint;
 
     private boolean mFetchingAvatar = false;
 
@@ -246,17 +238,6 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
         }
     };
 
-    private final OnClickListener mAvatarClickListener = new OnClickListener() {
-        @Override
-        public void onClick(final View view) {
-            if (mAccount != null) {
-                final Intent intent = new Intent(getApplicationContext(), PublishProfilePictureActivity.class);
-                intent.putExtra(EXTRA_ACCOUNT, mAccount.getJid().toBareJid().toString());
-                startActivity(intent);
-            }
-        }
-    };
-
     protected void finishInitialSetup(final Avatar avatar) {
         runOnUiThread(new Runnable() {
 
@@ -371,9 +352,7 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
         this.mAccountJid = (EditText) findViewById(R.id.account_jid);
         this.mAccountJid.addTextChangedListener(this.mTextWatcher);
         this.mAccountJid.setHint(R.string.username_hint);
-        this.mAccountJidLabel = (TextView) findViewById(R.id.account_jid_label);
         if (Config.DOMAIN_LOCK != null) {
-            this.mAccountJidLabel.setText(R.string.username);
             this.mAccountJid.setHint(R.string.username_hint);
         }
         this.mPassword = (EditText) findViewById(R.id.account_password);
@@ -425,7 +404,6 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
                 this.jidToEdit = null;
             }
             this.mInitMode = getIntent().getBooleanExtra("init", false) || this.jidToEdit == null;
-            this.messageFingerprint = getIntent().getStringExtra("fingerprint");
             if (!mInitMode) {
                 this.mRegisterNew.setVisibility(View.GONE);
                 if (getActionBar() != null) {
@@ -438,9 +416,6 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
             }
         }
         SharedPreferences preferences = getPreferences();
-        boolean useTor = Config.FORCE_ORBOT || preferences.getBoolean("use_tor", false);
-        this.mShowOptions = useTor || preferences.getBoolean("show_connection_options", false);
-        mHostname.setHint(useTor ? R.string.hostname_or_onion : R.string.hostname_example);
         this.mNamePort.setVisibility(mShowOptions ? View.VISIBLE : View.GONE);
     }
 
@@ -467,18 +442,9 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
             }
         }
         if (Config.DOMAIN_LOCK == null) {
-            final KnownHostsAdapter mKnownHostsAdapter = new KnownHostsAdapter(this,
-                    android.R.layout.simple_list_item_1,
-                    xmppConnectionService.getKnownHosts());
         }
         updateSaveButton();
         invalidateOptionsMenu();
-    }
-
-    private void changePresence() {
-        Intent intent = new Intent(this, SetPresenceActivity.class);
-        intent.putExtra(SetPresenceActivity.EXTRA_ACCOUNT, mAccount.getJid().toBareJid().toString());
-        startActivity(intent);
     }
 
     @Override
