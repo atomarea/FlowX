@@ -183,8 +183,6 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
         if (mAccount != null
                 && mAccount.getStatus() != Account.State.ONLINE
                 && mFetchingAvatar) {
-            startActivity(new Intent(getApplicationContext(),
-                    ManageAccountActivity.class));
             finish();
         } else if (mInitMode && mAccount != null && mAccount.getStatus() == Account.State.ONLINE) {
             if (!mFetchingAvatar) {

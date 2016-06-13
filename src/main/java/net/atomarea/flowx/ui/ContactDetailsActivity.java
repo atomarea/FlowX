@@ -2,11 +2,8 @@ package net.atomarea.flowx.ui;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
@@ -24,7 +21,6 @@ import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -35,23 +31,17 @@ import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.PgpEngine;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
-import net.atomarea.flowx.entities.ListItem;
 import net.atomarea.flowx.services.XmppConnectionService.OnAccountUpdate;
 import net.atomarea.flowx.services.XmppConnectionService.OnRosterUpdate;
-import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
 import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
 import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
-import net.atomarea.flowx.xmpp.pep.Avatar;
-
-import org.openintents.openpgp.util.OpenPgpUtils;
 
 import java.util.List;
 

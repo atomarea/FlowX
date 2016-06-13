@@ -59,7 +59,6 @@ import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 import net.atomarea.flowx.xmpp.jid.Jid;
-import net.java.otr4j.session.SessionStatus;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -147,13 +146,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                     //
                 }
             }
-        }
-    };
-    protected OnClickListener clickToVerify = new OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            activity.verifyOtrSessionDialog(conversation, v);
         }
     };
     private OnClickListener leaveMuc = new OnClickListener() {
@@ -372,17 +364,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 activity.xmppConnectionService.createContact(contact);
                 activity.switchToContactDetails(contact);
             }
-        }
-    };
-    private OnClickListener mAnswerSmpClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Intent intent = new Intent(activity, VerifyOTRActivity.class);
-            intent.setAction(VerifyOTRActivity.ACTION_VERIFY_CONTACT);
-            intent.putExtra("contact", conversation.getContact().getJid().toBareJid().toString());
-            intent.putExtra(VerifyOTRActivity.EXTRA_ACCOUNT, conversation.getAccount().getJid().toBareJid().toString());
-            intent.putExtra("mode", VerifyOTRActivity.MODE_ANSWER_QUESTION);
-            startActivity(intent);
         }
     };
 
@@ -931,16 +912,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 default:
                     break;
             }
-        } else if (askForPassphraseIntent != null) {
-            showSnackbar(R.string.openpgp_messages_found, R.string.decrypt, clickToDecryptListener);
-        } else if (mode == Conversation.MODE_SINGLE
-                && conversation.smpRequested()) {
-            showSnackbar(R.string.smp_requested, R.string.verify, this.mAnswerSmpClickListener);
-        } else if (mode == Conversation.MODE_SINGLE
-                && conversation.hasValidOtrSession()
-                && (conversation.getOtrSession().getSessionStatus() == SessionStatus.ENCRYPTED)
-                && (!conversation.isOtrFingerprintVerified())) {
-            showSnackbar(R.string.unknown_otr_fingerprint, R.string.verify, clickToVerify);
         } else {
             hideSnackbar();
         }

@@ -1,27 +1,20 @@
 package net.atomarea.flowx.ui;
 
-import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,28 +22,19 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.beardedhen.androidbootstrap.BootstrapButton;
-import com.beardedhen.androidbootstrap.BootstrapEditText;
-import com.google.android.gms.common.api.Releasable;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.services.XmppConnectionService.OnAccountUpdate;
-import net.atomarea.flowx.services.XmppConnectionService.OnCaptchaRequested;
-import net.atomarea.flowx.ui.adapter.KnownHostsAdapter;
 import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
 import net.atomarea.flowx.xmpp.XmppConnection;
-import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
 
 import java.util.Set;
-
-import github.ankushsachdeva.emojicon.EmojiconTextView;
 
 public class EditAccountActivity extends XmppActivity implements OnAccountUpdate,
         OnKeyStatusUpdated, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast {
@@ -184,8 +168,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         if (mAccount != null
                 && mAccount.getStatus() != Account.State.ONLINE
                 && mFetchingAvatar) {
-            startActivity(new Intent(getApplicationContext(),
-                    ManageAccountActivity.class));
             finish();
         } else if (mInitMode && mAccount != null && mAccount.getStatus() == Account.State.ONLINE) {
             if (!mFetchingAvatar) {

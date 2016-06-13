@@ -13,7 +13,6 @@ import android.widget.TextView;
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.ui.ManageAccountActivity;
 import net.atomarea.flowx.ui.XmppActivity;
 import net.atomarea.flowx.ui.widget.Switch;
 
@@ -70,9 +69,6 @@ public class AccountAdapter extends ArrayAdapter<Account> {
         tglAccountState.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b == isDisabled && activity instanceof ManageAccountActivity) {
-                    ((ManageAccountActivity) activity).onClickTglAccountState(account, b);
-                }
             }
         });
 
