@@ -168,6 +168,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     private AtomicBoolean mRedirected = new AtomicBoolean(false);
     private Pair<Integer, Intent> mPostponedActivityResult;
     private int lastAbState = -1;
+    long FirstStartTime = 0;
 
     @SuppressLint("NewApi")
     private static List<Uri> extractUriFromIntent(final Intent intent) {
@@ -399,30 +400,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 public void onPanelSlide(View v, float f) { // unnötig...
                 }
             });
-        }
-        if (Build.VERSION.SDK_INT >= 23) {
-            int hasMicPerm = checkSelfPermission(Manifest.permission.RECORD_AUDIO);
-            if (hasMicPerm != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 1337);
-            }
-        }
-        if (Build.VERSION.SDK_INT >= 23) {
-            int hasCamPerm = checkSelfPermission(Manifest.permission.CAMERA);
-            if (hasCamPerm != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.CAMERA}, 1338);
-            }
-        }
-        if (Build.VERSION.SDK_INT >= 23) {
-            int hasALocPerm = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
-            if (hasALocPerm != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1339);
-            }
-        }
-        if (Build.VERSION.SDK_INT >= 23) {
-            int hasALoc2Perm = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
-            if (hasALoc2Perm != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1340);
-            }
         }
     }
 
@@ -1166,17 +1143,51 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         this.xmppConnectionService.getNotificationService().setIsInForeground(true);
         updateConversationList();
 
+        Bundle extras = getIntent().getExtras();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (extras != null) {
+                FirstStartTime = extras.getLong("FirstStart");
+                Log.d(Config.LOGTAG, "Get first start time from StartUI: " + FirstStartTime);
+            }
+        } else {
+            FirstStartTime = System.currentTimeMillis();
+            Log.d(Config.LOGTAG, "Device is running Android < SDK 23, no restart required: " + FirstStartTime);
+        }
+
         if (mPendingConferenceInvite != null) {
             mPendingConferenceInvite.execute(this);
-            mToast = Toast.makeText(this, R.string.creating_conference, Toast.LENGTH_LONG);
+            mToast = Toast.makeText(this, R.string.creating_conference,Toast.LENGTH_LONG);
             mToast.show();
             mPendingConferenceInvite = null;
         }
 
+        if (FirstStartTime == 0) {
+            Log.d(Config.LOGTAG, "First start time: " + FirstStartTime + ", restarting App");
+            //write first start timestamp to file
+            String PREFS_NAME = "FirstStart";
+            FirstStartTime = System.currentTimeMillis();
+            SharedPreferences FirstStart = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = FirstStart.edit();
+            editor.putLong("FirstStart", FirstStartTime);
+            editor.commit();
+            // restart
+            Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            System.exit(0);
+        }
+
         if (xmppConnectionService.getAccounts().size() == 0) {
             if (mRedirected.compareAndSet(false, true)) {
-                if (Config.X509_VERIFICATION)
+                if (Config.X509_VERIFICATION) {
                     startActivity(new Intent(this, WelcomeActivity.class));
+                } else if (Config.MAGIC_CREATE_DOMAIN != null) {
+                    Log.d(Config.LOGTAG, "First start time: " + FirstStartTime);
+                    startActivity(new Intent(this, WelcomeActivity.class));
+                } else {
+                    startActivity(new Intent(this, EditAccountActivity.class));
+                }
                 finish();
             }
         } else if (conversationList.size() <= 0) {

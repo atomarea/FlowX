@@ -1,8 +1,10 @@
 package net.atomarea.flowx.ui;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -10,31 +12,26 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-
 import java.util.List;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-/**
- * Created by Christian on 10.06.2016.
- */
 public class startUI extends AppCompatActivity
         implements EasyPermissions.PermissionCallbacks {
 
     private static final int NeededPermissions = 1000;
 
     String[] perms = {Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_CONTACTS,
             Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.CAMERA,
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +42,22 @@ public class startUI extends AppCompatActivity
 
     @AfterPermissionGranted(NeededPermissions)
     private void requestNeededPermissions() {
+        String PREFS_NAME = "FirstStart";
+        SharedPreferences FirstStart = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        long FirstStartTime = FirstStart.getLong("FirstStart", 0);
         if (EasyPermissions.hasPermissions(this, perms)) {
             // Already have permission, start ConversationsActivity
-            startActivity(new Intent(this, ConversationActivity.class));
+            Log.d(Config.LOGTAG, "All permissions granted, starting "+getString(R.string.app_name) + "(" +FirstStartTime + ")");
+            Intent intent = new Intent (this, ConversationActivity.class);
+            intent.putExtra("FirstStart", FirstStartTime);
+            startActivity(intent);
             finish();
         } else {
+            // set first start to 0 if there are permissions to request
+            Log.d(Config.LOGTAG, "Requesting required permissions");
+            SharedPreferences.Editor editor = FirstStart.edit();
+            editor.putLong("FirstStart", 0);
+            editor.commit();
             // Do not have permissions, request them now
             EasyPermissions.requestPermissions(this, getString(R.string.request_permissions_message),
                     NeededPermissions, perms);
@@ -91,16 +99,6 @@ public class startUI extends AppCompatActivity
                 })
                 .create();
         dialog.show();
-    }
-
-    private void restart() {
-        //restart app
-        Log.d(Config.LOGTAG, "Restarting " + getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName()));
-        Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        System.exit(0);
     }
 
     @Override
