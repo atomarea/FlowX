@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import net.atomarea.flowx.Config;
+import net.atomarea.flowx.crypto.PgpDecryptionService;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
@@ -202,7 +203,13 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             final int size = messages.size();
             final int maxsize = Config.PAGE_SIZE * Config.MAX_NUM_PAGES;
             if (size > maxsize) {
-                this.messages.subList(0, size - maxsize).clear();
+                List<Message> discards = this.messages.subList(0, size - maxsize);
+                final PgpDecryptionService pgpDecryptionService = account.getPgpDecryptionService();
+                if (pgpDecryptionService != null) {
+                    pgpDecryptionService.discard(discards);
+                }
+                discards.clear();
+                untieMessages();
             }
         }
     }
@@ -394,7 +401,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     public List<Message> markRead() {
         final List<Message> unread = new ArrayList<>();
         synchronized (this.messages) {
-            for (Message message : this.messages) {
+            for(Message message : this.messages) {
                 if (!message.isRead()) {
                     message.markRead();
                     unread.add(message);
@@ -771,7 +778,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     public boolean hasDuplicateMessage(Message message) {
         synchronized (this.messages) {
             for (int i = this.messages.size() - 1; i >= 0; --i) {
-                if (this.messages.get(i).equals(message)) {
+                if (this.messages.get(i).similar(message)) {
                     return true;
                 }
             }
@@ -937,7 +944,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         synchronized (this.messages) {
             this.messages.addAll(index, messages);
         }
-        account.getPgpDecryptionService().addAll(messages);
+        account.getPgpDecryptionService().decrypt(messages);
     }
 
     public void sort() {
@@ -957,6 +964,12 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             for (Message message : this.messages) {
                 message.untie();
             }
+        }
+    }
+
+    private void untieMessages() {
+        for(Message message : this.messages) {
+            message.untie();
         }
     }
 

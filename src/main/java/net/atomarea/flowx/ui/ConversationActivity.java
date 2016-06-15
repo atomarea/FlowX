@@ -168,7 +168,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     private AtomicBoolean mRedirected = new AtomicBoolean(false);
     private Pair<Integer, Intent> mPostponedActivityResult;
     private int lastAbState = -1;
-    long FirstStartTime = 0;
+    long FirstStartTime = -1;
 
     @SuppressLint("NewApi")
     private static List<Uri> extractUriFromIntent(final Intent intent) {
@@ -440,6 +440,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             return;
         }
     }
+
     @Override
     public void switchToConversation(Conversation conversation) {
         setSelectedConversation(conversation);
@@ -510,7 +511,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     } else if (showLastSeen && conversation.getContact().getLastseen() > 0) {
                         tv_subtitle.setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
                     } else {
-                        tv_subtitle.setText("..."); }
+                        tv_subtitle.setText("...");
+                    }
                 } else if (useSubjectToIdentifyConference()) {
                     tv_subtitle.setText((conversation.getParticipants() == null ? "-" : conversation.getParticipants()));
                 }
@@ -1156,7 +1158,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
         if (mPendingConferenceInvite != null) {
             mPendingConferenceInvite.execute(this);
-            mToast = Toast.makeText(this, R.string.creating_conference,Toast.LENGTH_LONG);
+            mToast = Toast.makeText(this, R.string.creating_conference, Toast.LENGTH_LONG);
             mToast.show();
             mPendingConferenceInvite = null;
         }
@@ -1423,6 +1425,9 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             @Override
             public void success(Message message) {
                 xmppConnectionService.sendMessage(message);
+                if (mConversationFragment != null) {
+                    mConversationFragment.messageSent();
+                }
             }
 
             @Override

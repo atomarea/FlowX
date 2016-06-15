@@ -6,6 +6,7 @@ import android.os.SystemClock;
 import android.util.Pair;
 
 import net.atomarea.flowx.crypto.PgpDecryptionService;
+
 import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.crypto.OtrCryptoException;
 
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.OtrService;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
@@ -81,6 +81,14 @@ public class Account extends AbstractEntity {
 
 	public Contact getSelfContact() {
 		return getRoster().getContact(jid);
+	}
+
+	public boolean hasPendingPgpIntent(Conversation conversation) {
+		return pgpDecryptionService != null && pgpDecryptionService.hasPendingIntent(conversation);
+	}
+
+	public boolean isPgpDecryptionServiceConnected() {
+		return pgpDecryptionService != null && pgpDecryptionService.isConnected();
 	}
 
 	public enum State {
@@ -398,10 +406,10 @@ public class Account extends AbstractEntity {
 	public void initAccountServices(final XmppConnectionService context) {
 		this.mOtrService = new OtrService(context, this);
 		this.axolotlService = new AxolotlService(this, context);
+		this.pgpDecryptionService = new PgpDecryptionService(context);
 		if (xmppConnection != null) {
 			xmppConnection.addOnAdvancedStreamFeaturesAvailableListener(axolotlService);
 		}
-		this.pgpDecryptionService = new PgpDecryptionService(context);
 	}
 
 	public OtrService getOtrService() {
@@ -409,7 +417,7 @@ public class Account extends AbstractEntity {
 	}
 
 	public PgpDecryptionService getPgpDecryptionService() {
-		return pgpDecryptionService;
+		return this.pgpDecryptionService;
 	}
 
 	public XmppConnection getXmppConnection() {

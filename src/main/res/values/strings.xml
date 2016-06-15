@@ -676,4 +676,5 @@
 	<string name="request_permissions_message_again">You have denied some or all permissions needed for FlowX. Would you like to jump to the settings and allow these permissions? If you denie any of these permissions, the app will close itself.</string>
 	<string name="pref_broadcast_last_activity">Last activity</string>
 	<string name="pref_broadcast_last_activity_summary">Let all your contacts know when you use FlowX</string>
+	<string name="download_failed_could_not_write_file">Download failed: Could not write file</string>
 </resources>

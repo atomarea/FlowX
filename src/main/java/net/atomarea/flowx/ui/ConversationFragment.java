@@ -131,23 +131,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         }
     };
     private ConversationActivity activity;
-    protected OnClickListener clickToDecryptListener = new OnClickListener() {
 
-        @Override
-        public void onClick(View v) {
-            if (activity.hasPgp() && askForPassphraseIntent != null) {
-                try {
-                    getActivity().startIntentSenderForResult(
-                            askForPassphraseIntent,
-                            ConversationActivity.REQUEST_DECRYPT_PGP, null, 0,
-                            0, 0);
-                    askForPassphraseIntent = null;
-                } catch (SendIntentException e) {
-                    //
-                }
-            }
-        }
-    };
     private OnClickListener leaveMuc = new OnClickListener() {
 
         @Override
@@ -280,6 +264,32 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         return -1;
     }
 
+    protected OnClickListener clickToDecryptListener = new OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            PendingIntent pendingIntent = conversation.getAccount().getPgpDecryptionService().getPendingIntent();
+            if (pendingIntent != null) {
+                try {
+                    activity.startIntentSenderForResult(pendingIntent.getIntentSender(),
+                            ConversationActivity.REQUEST_DECRYPT_PGP,
+                            null,
+                            0,
+                            0,
+                            0);
+                } catch (SendIntentException e) {
+                    conversation.getAccount().getPgpDecryptionService().continueDecryption(true);
+                }
+            }
+            updateSnackBar(conversation);
+        }
+    };
+    protected OnClickListener clickToVerify = new OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+        }
+    };
     private OnEditorActionListener mEditorActionListener = new OnEditorActionListener() {
 
         @Override
@@ -772,7 +782,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         message.setEncryption(Message.ENCRYPTION_PGP);
         activity.updateConversationList();
         updateMessages();
-        conversation.getAccount().getPgpDecryptionService().add(message);
+        conversation.getAccount().getPgpDecryptionService().decrypt(message, false);
     }
 
     protected void privateMessageWith(final Jid counterpart) {
@@ -936,7 +946,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                         }
                     }
                 }
-                decryptNext();
                 updateStatusMessages();
                 this.messageListAdapter.notifyDataSetChanged();
                 updateChatMsgHint();
@@ -948,49 +957,8 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         }
     }
 
-    private void decryptNext() {
-        Message next = this.mEncryptedMessages.peek();
-        PgpEngine engine = activity.xmppConnectionService.getPgpEngine();
 
-        if (next != null && engine != null && !mDecryptJobRunning) {
-            mDecryptJobRunning = true;
-            engine.decrypt(next, new UiCallback<Message>() {
-
-                @Override
-                public void userInputRequried(PendingIntent pi, Message message) {
-                    mDecryptJobRunning = false;
-                    askForPassphraseIntent = pi.getIntentSender();
-                    updateSnackBar(conversation);
-                }
-
-                @Override
-                public void success(Message message) {
-                    mDecryptJobRunning = false;
-                    try {
-                        mEncryptedMessages.remove();
-                    } catch (final NoSuchElementException ignored) {
-
-                    }
-                    askForPassphraseIntent = null;
-                    activity.xmppConnectionService.updateMessage(message);
-                }
-
-                @Override
-                public void error(int error, Message message) {
-                    message.setEncryption(Message.ENCRYPTION_DECRYPTION_FAILED);
-                    mDecryptJobRunning = false;
-                    try {
-                        mEncryptedMessages.remove();
-                    } catch (final NoSuchElementException ignored) {
-
-                    }
-                    activity.refreshUi();
-                }
-            });
-        }
-    }
-
-    private void messageSent() {
+    protected void messageSent() {
         mEditMessage.setText("");
         updateChatMsgHint();
         new Handler().post(new Runnable() {
@@ -1237,7 +1205,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
 
                                 @Override
                                 public void success(Contact contact) {
-                                    messageSent();
                                     activity.encryptTextMessage(message);
                                 }
 
@@ -1275,7 +1242,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                         warning.show();
                     }
                     activity.encryptTextMessage(message);
-                    messageSent();
                 } else {
                     showNoPGPKeyDialog(true,
                             new DialogInterface.OnClickListener() {

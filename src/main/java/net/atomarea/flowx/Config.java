@@ -59,6 +59,7 @@ public final class Config {
     public static final String UPDATE_URL = "http://files.flowx.im/update/";
     public static final boolean DISABLE_HTTP_UPLOAD = false;
     public static final boolean EXTENDED_SM_LOGGING = false; // log stanza counts
+    public static final boolean PARSE_REAL_JID_FROM_MUC_MAM = false; //dangerous if
     public static final int AVATAR_SIZE = 1920;
     public static final Bitmap.CompressFormat AVATAR_FORMAT = Bitmap.CompressFormat.JPEG;
 

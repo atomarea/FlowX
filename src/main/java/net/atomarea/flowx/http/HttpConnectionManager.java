@@ -1,10 +1,6 @@
 package net.atomarea.flowx.http;
 
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.services.AbstractConnectionManager;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.CryptoHelper;
-import net.atomarea.flowx.utils.SSLSocketHelper;
+import android.os.Build;
 
 import org.apache.http.conn.ssl.StrictHostnameVerifier;
 
@@ -22,6 +18,12 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
+
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.services.AbstractConnectionManager;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.CryptoHelper;
+import net.atomarea.flowx.utils.SSLSocketHelper;
 
 public class HttpConnectionManager extends AbstractConnectionManager {
 

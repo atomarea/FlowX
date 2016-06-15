@@ -3,6 +3,10 @@ package net.atomarea.flowx.entities;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
 import net.atomarea.flowx.utils.GeoHelper;
@@ -10,9 +14,6 @@ import net.atomarea.flowx.utils.MimeUtils;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class Message extends AbstractEntity {
 
@@ -376,7 +377,7 @@ public class Message extends AbstractEntity {
 		this.transferable = transferable;
 	}
 
-	public boolean equals(Message message) {
+	public boolean similar(Message message) {
 		if (this.serverMsgId != null && message.getServerMsgId() != null) {
 			return this.serverMsgId.equals(message.getServerMsgId());
 		} else if (this.body == null || this.counterpart == null) {

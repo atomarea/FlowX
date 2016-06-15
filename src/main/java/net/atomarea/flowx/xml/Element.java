@@ -2,14 +2,14 @@ package net.atomarea.flowx.xml;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.utils.XmlHelper;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
-
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
 
 public class Element {
 	private final String name;

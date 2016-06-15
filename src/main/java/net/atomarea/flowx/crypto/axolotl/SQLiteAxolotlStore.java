@@ -3,10 +3,6 @@ package net.atomarea.flowx.crypto.axolotl;
 import android.util.Log;
 import android.util.LruCache;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.services.XmppConnectionService;
-
 import org.whispersystems.libaxolotl.AxolotlAddress;
 import org.whispersystems.libaxolotl.IdentityKey;
 import org.whispersystems.libaxolotl.IdentityKeyPair;
@@ -22,6 +18,10 @@ import org.whispersystems.libaxolotl.util.KeyHelper;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Set;
+
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.services.XmppConnectionService;
 
 public class SQLiteAxolotlStore implements AxolotlStore {
 

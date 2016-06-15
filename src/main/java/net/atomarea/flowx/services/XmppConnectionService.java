@@ -33,6 +33,7 @@ import android.util.Pair;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
+import net.atomarea.flowx.crypto.PgpDecryptionService;
 import net.atomarea.flowx.crypto.PgpEngine;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlMessage;
@@ -378,6 +379,15 @@ public class XmppConnectionService extends Service {
             return null;
         }
 
+    }
+    public OpenPgpApi getOpenPgpApi() {
+        if (!Config.supportOpenPgp()) {
+            return null;
+        } else if (pgpServiceConnection != null && pgpServiceConnection.isBound()) {
+            return new OpenPgpApi(this, pgpServiceConnection.getService());
+        } else {
+            return null;
+        }
     }
 
     public FileBackend getFileBackend() {
@@ -751,8 +761,9 @@ public class XmppConnectionService extends Service {
                 @Override
                 public void onBound(IOpenPgpService2 service) {
                     for (Account account : accounts) {
-                        if (account.getPgpDecryptionService() != null) {
-                            account.getPgpDecryptionService().onOpenPgpServiceBound();
+                        final PgpDecryptionService pgp = account.getPgpDecryptionService();
+                        if(pgp != null) {
+                            pgp.continueDecryption(true);
                         }
                     }
                 }
@@ -1338,6 +1349,17 @@ public class XmppConnectionService extends Service {
 
     public List<Account> getAccounts() {
         return this.accounts;
+    }
+
+    public List<Conversation> findAllConferencesWith(Contact contact) {
+        ArrayList<Conversation> results = new ArrayList<>();
+        for(Conversation conversation : conversations) {
+            if (conversation.getMode() == Conversation.MODE_MULTI
+                    && conversation.getMucOptions().isContactInRoom(contact)) {
+                results.add(conversation);
+            }
+        }
+        return results;
     }
 
     public Conversation find(final Iterable<Conversation> haystack, final Contact contact) {

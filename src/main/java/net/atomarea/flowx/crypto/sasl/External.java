@@ -1,11 +1,10 @@
 package net.atomarea.flowx.crypto.sasl;
 
 import android.util.Base64;
+import java.security.SecureRandom;
 
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.xml.TagWriter;
-
-import java.security.SecureRandom;
 
 public class External extends SaslMechanism {
 

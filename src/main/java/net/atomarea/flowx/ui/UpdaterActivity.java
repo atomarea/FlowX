@@ -307,17 +307,6 @@ public class UpdaterActivity extends Activity {
                                             }
                                         }
                                     })
-                                    .setNeutralButton(R.string.changelog, new DialogInterface.OnClickListener() {
-                                        //open link to changelog
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            Uri uri = Uri.parse("https://github.com/atomarea/FlowX/blob/Main/CHANGELOG.md"); // missing 'http://' will cause crashed
-                                            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            startActivity(intent);
-                                            //restart updater to show dialog again after coming back after opening changelog
-                                            recreate();
-                                        }
-                                    })
                                     .setNegativeButton(R.string.remind_later, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
                                             // User cancelled the dialog

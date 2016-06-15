@@ -49,6 +49,7 @@
         <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
         <activity
             android:name=".ui.startUI"
+            android:configChanges="orientation|screenSize"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:label="@string/app_name"
             android:launchMode="singleTask"

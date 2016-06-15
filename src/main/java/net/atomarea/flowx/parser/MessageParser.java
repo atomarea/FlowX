@@ -7,7 +7,6 @@ import android.util.Pair;
 import net.java.otr4j.session.Session;
 import net.java.otr4j.session.SessionStatus;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +31,6 @@ import net.atomarea.flowx.http.HttpConnectionManager;
 import net.atomarea.flowx.services.MessageArchiveService;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.utils.CryptoHelper;
-import net.atomarea.flowx.utils.Xmlns;
 import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.OnMessagePacketReceived;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
@@ -344,6 +342,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 		final Jid to = packet.getTo();
 		final Jid from = packet.getFrom();
 		final String remoteMsgId = packet.getId();
+		boolean notify = false;
 
 		if (from == null) {
 			Log.d(Config.LOGTAG,"no from in: "+packet.toString());
@@ -434,7 +433,21 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 			message.setOob(isOob);
 			message.markable = packet.hasChild("markable", "urn:xmpp:chat-markers:0");
 			if (conversationMultiMode) {
-				Jid trueCounterpart = conversation.getMucOptions().getTrueCounterpart(counterpart);
+				final Element item = mucUserElement == null ? null : mucUserElement.findChild("item");
+				Jid trueCounterpart;
+				if (Config.PARSE_REAL_JID_FROM_MUC_MAM && query != null && item != null) {
+					trueCounterpart = item.getAttributeAsJid("jid");
+					if (trueCounterpart != null) {
+						if (trueCounterpart.toBareJid().equals(account.getJid().toBareJid())) {
+							status = isTypeGroupChat ? Message.STATUS_SEND_RECEIVED : Message.STATUS_SEND;
+						} else {
+							status = Message.STATUS_RECEIVED;
+						}
+						message.setStatus(status);
+					}
+				} else {
+					trueCounterpart = conversation.getMucOptions().getTrueCounterpart(counterpart);
+				}
 				message.setTrueCounterpart(trueCounterpart);
 				if (!isTypeGroupChat) {
 					message.setType(Message.TYPE_PRIVATE);
@@ -470,7 +483,8 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 							sendMessageReceipts(account, packet);
 						}
 						if (replacedMessage.getEncryption() == Message.ENCRYPTION_PGP) {
-							conversation.getAccount().getPgpDecryptionService().add(replacedMessage);
+							conversation.getAccount().getPgpDecryptionService().discard(replacedMessage);
+							conversation.getAccount().getPgpDecryptionService().decrypt(replacedMessage, false);
 						}
 						return;
 					} else {
@@ -493,10 +507,6 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				conversation.add(message);
 			}
 
-			if (message.getEncryption() == Message.ENCRYPTION_PGP) {
-				conversation.getAccount().getPgpDecryptionService().add(message);
-			}
-
 			if (query == null || query.getWith() == null) { //either no mam or catchup
 				if (status == Message.STATUS_SEND || status == Message.STATUS_SEND_RECEIVED) {
 					mXmppConnectionService.markRead(conversation);
@@ -505,7 +515,12 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 					}
 				} else {
 					message.markUnread();
+					notify = true;
 				}
+			}
+
+			if (message.getEncryption() == Message.ENCRYPTION_PGP) {
+				notify = conversation.getAccount().getPgpDecryptionService().decrypt(message, notify);
 			}
 
 			if (query == null) {
@@ -529,7 +544,7 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 			final HttpConnectionManager manager = this.mXmppConnectionService.getHttpConnectionManager();
 			if (message.trusted() && message.treatAsDownloadable() != Message.Decision.NEVER && manager.getAutoAcceptFileSize() > 0) {
 				manager.createNewDownloadConnection(message);
-			} else if (!message.isRead()) {
+			} else if (notify) {
 				if (query == null) {
 					mXmppConnectionService.getNotificationService().push(message);
 				} else if (query.getWith() == null) { // mam catchup

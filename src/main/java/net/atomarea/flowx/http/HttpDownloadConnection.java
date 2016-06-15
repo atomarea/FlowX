@@ -3,17 +3,6 @@ package net.atomarea.flowx.http;
 import android.os.PowerManager;
 import android.util.Log;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.entities.DownloadableFile;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.entities.Transferable;
-import net.atomarea.flowx.entities.TransferablePlaceholder;
-import net.atomarea.flowx.persistance.FileBackend;
-import net.atomarea.flowx.services.AbstractConnectionManager;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.CryptoHelper;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +14,17 @@ import java.util.concurrent.CancellationException;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
+
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.entities.DownloadableFile;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.entities.Transferable;
+import net.atomarea.flowx.entities.TransferablePlaceholder;
+import net.atomarea.flowx.persistance.FileBackend;
+import net.atomarea.flowx.services.AbstractConnectionManager;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.CryptoHelper;
 
 public class HttpDownloadConnection implements Transferable {
 
@@ -126,11 +126,12 @@ public class HttpDownloadConnection implements Transferable {
 		mXmppConnectionService.getFileBackend().updateMediaScanner(file);
 		message.setTransferable(null);
 		mHttpConnectionManager.finishConnection(this);
+		boolean notify = acceptedAutomatically && !message.isRead();
 		if (message.getEncryption() == Message.ENCRYPTION_PGP) {
-			message.getConversation().getAccount().getPgpDecryptionService().add(message);
+			notify = message.getConversation().getAccount().getPgpDecryptionService().decrypt(message, notify);
 		}
 		mXmppConnectionService.updateConversationUi();
-		if (acceptedAutomatically) {
+		if (notify) {
 			mXmppConnectionService.getNotificationService().push(message);
 		}
 	}
@@ -140,12 +141,18 @@ public class HttpDownloadConnection implements Transferable {
 		mXmppConnectionService.updateConversationUi();
 	}
 
+	private class WriteException extends IOException {
+
+	}
+
 	private void showToastForException(Exception e) {
 		e.printStackTrace();
 		if (e instanceof java.net.UnknownHostException) {
 			mXmppConnectionService.showErrorToastInUi(R.string.download_failed_server_not_found);
 		} else if (e instanceof java.net.ConnectException) {
 			mXmppConnectionService.showErrorToastInUi(R.string.download_failed_could_not_connect);
+		} else if (e instanceof WriteException) {
+			mXmppConnectionService.showErrorToastInUi(R.string.download_failed_could_not_write_file);
 		} else if (!(e instanceof  CancellationException)) {
 			mXmppConnectionService.showErrorToastInUi(R.string.download_failed_file_not_found);
 		}
@@ -284,26 +291,28 @@ public class HttpDownloadConnection implements Transferable {
 					file.createNewFile();
 					os = AbstractConnectionManager.createOutputStream(file, true);
 				}
-				int count = -1;
+				int count;
 				byte[] buffer = new byte[1024];
 				while ((count = is.read(buffer)) != -1) {
 					transmitted += count;
-					os.write(buffer, 0, count);
+					try {
+						os.write(buffer, 0, count);
+					} catch (IOException e) {
+						throw new WriteException();
+					}
 					updateProgress((int) ((((double) transmitted) / expected) * 100));
 					if (canceled) {
 						throw new CancellationException();
 					}
 				}
+				try {
+					os.flush();
+				} catch (IOException e) {
+					throw new WriteException();
+				}
 			} catch (CancellationException | IOException e) {
 				throw e;
 			} finally {
-				if (os != null) {
-					try {
-						os.flush();
-					} catch (final IOException ignored) {
-
-					}
-				}
 				FileBackend.close(os);
 				FileBackend.close(is);
 				wakeLock.release();

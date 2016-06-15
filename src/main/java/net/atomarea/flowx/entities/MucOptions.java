@@ -2,17 +2,18 @@ package net.atomarea.flowx.entities;
 
 import android.annotation.SuppressLint;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.forms.Field;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @SuppressLint("DefaultLocale")
 public class MucOptions {
@@ -295,16 +296,22 @@ public class MucOptions {
 
 		@Override
 		public int compareTo(User another) {
-			Contact ourContact = getContact();
-			Contact anotherContact = another.getContact();
-			if (ourContact != null && anotherContact != null) {
-				return ourContact.compareTo(anotherContact);
-			} else if (ourContact == null && anotherContact != null) {
-				return getName().compareToIgnoreCase(anotherContact.getDisplayName());
-			} else if (ourContact != null) {
-				return ourContact.getDisplayName().compareToIgnoreCase(another.getName());
+			if (another.getAffiliation().outranks(getAffiliation())) {
+				return 1;
+			} else if (getAffiliation().outranks(another.getAffiliation())) {
+				return -1;
 			} else {
-				return getName().compareToIgnoreCase(another.getName());
+				Contact ourContact = getContact();
+				Contact anotherContact = another.getContact();
+				if (ourContact != null && anotherContact != null) {
+					return ourContact.compareTo(anotherContact);
+				} else if (ourContact == null && anotherContact != null) {
+					return getName().compareToIgnoreCase(anotherContact.getDisplayName());
+				} else if (ourContact != null) {
+					return ourContact.getDisplayName().compareToIgnoreCase(another.getName());
+				} else {
+					return getName().compareToIgnoreCase(another.getName());
+				}
 			}
 		}
 
@@ -442,7 +449,7 @@ public class MucOptions {
 		return null;
 	}
 
-	public User findUserByRealJid(Jid jid) {
+	private User findUserByRealJid(Jid jid) {
 		if (jid == null) {
 			return null;
 		}
@@ -454,6 +461,10 @@ public class MucOptions {
 			}
 		}
 		return null;
+	}
+
+	public boolean isContactInRoom(Contact contact) {
+		return findUserByRealJid(contact.getJid().toBareJid()) != null;
 	}
 
 	public boolean isUserInRoom(Jid jid) {
@@ -503,8 +514,8 @@ public class MucOptions {
 	public String getProposedNick() {
 		if (conversation.getBookmark() != null
 				&& conversation.getBookmark().getNick() != null
-				&& !conversation.getBookmark().getNick().isEmpty()) {
-			return conversation.getBookmark().getNick();
+				&& !conversation.getBookmark().getNick().trim().isEmpty()) {
+			return conversation.getBookmark().getNick().trim();
 		} else if (!conversation.getJid().isBareJid()) {
 			return conversation.getJid().getResourcepart();
 		} else {

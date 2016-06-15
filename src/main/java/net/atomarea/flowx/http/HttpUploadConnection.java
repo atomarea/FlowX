@@ -5,6 +5,16 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.util.Pair;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.DownloadableFile;
@@ -20,16 +30,6 @@ import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.OnIqPacketReceived;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class HttpUploadConnection implements Transferable {
 
@@ -110,6 +110,7 @@ public class HttpUploadConnection implements Transferable {
 		try {
 			pair = AbstractConnectionManager.createInputStream(file, true);
 		} catch (FileNotFoundException e) {
+			Log.d(Config.LOGTAG,account.getJid().toBareJid()+": could not find file to upload - "+e.getMessage());
 			fail();
 			return;
 		}
@@ -129,15 +130,14 @@ public class HttpUploadConnection implements Transferable {
 							if (!canceled) {
 								new Thread(new FileUploader()).start();
 							}
+							return;
 						} catch (MalformedURLException e) {
-							fail();
+							//fall through
 						}
-					} else {
-						fail();
 					}
-				} else {
-					fail();
 				}
+				Log.d(Config.LOGTAG,account.getJid().toString()+": invalid response to slot request "+packet);
+				fail();
 			}
 		});
 		message.setTransferable(this);
@@ -203,6 +203,7 @@ public class HttpUploadConnection implements Transferable {
 
 							@Override
 							public void error(int errorCode, Message object) {
+								Log.d(Config.LOGTAG,"pgp encryption failed");
 								fail();
 							}
 
@@ -215,6 +216,7 @@ public class HttpUploadConnection implements Transferable {
 						mXmppConnectionService.resendMessage(message, delayed);
 					}
 				} else {
+					Log.d(Config.LOGTAG,"http upload failed because response code was "+code);
 					fail();
 				}
 			} catch (IOException e) {

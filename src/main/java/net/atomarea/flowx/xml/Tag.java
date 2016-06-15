@@ -1,11 +1,11 @@
 package net.atomarea.flowx.xml;
 
-import net.atomarea.flowx.utils.XmlHelper;
-
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import net.atomarea.flowx.utils.XmlHelper;
 
 public class Tag {
 	public static final int NO = -1;

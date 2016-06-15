@@ -2,10 +2,10 @@ package net.atomarea.flowx.crypto.sasl;
 
 import android.util.Base64;
 
+import java.nio.charset.Charset;
+
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.xml.TagWriter;
-
-import java.nio.charset.Charset;
 
 public class Plain extends SaslMechanism {
 	public Plain(final TagWriter tagWriter, final Account account) {
