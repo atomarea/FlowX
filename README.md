@@ -19,6 +19,7 @@ We startet to changed a lot of UI Stuff and setup some useful features like inte
 ## Features
 
 * End-to-end encryption with [OMEMO]
+* Emoji Support (Button)
 * Status Messages in contact details
 * Share/send your location,Audio Messages, Files, Images and so on.
 * Indication when your contact has read your message
@@ -64,7 +65,6 @@ run your own XMPP server for you and your friends. These XEP's are:
 
 * [Dominic Schubert](https://github.com/DoM1niC)
 * [Tom Janke](https://github.com/Tom7353)
-* [kriztan](https://github.com/kriztan)
 * [Christian Schneppe](https://github.com/kriztan)
 * [Dominik Wagner](https://github.com/sar3th)
 * [Daniel Gultsch](https://github.com/inputmice)
