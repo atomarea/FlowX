@@ -91,7 +91,7 @@ public class EnterJidDialog {
 				}
 				final Jid contactJid;
 				try {
-					contactJid = Jid.fromString(jid.getText().toString().concat("@flowx.im"));
+					contactJid = Jid.fromString(jid.getText().toString().concat(Config.JID_LOCK));
 				} catch (final InvalidJidException e) {
 					jid.setError(context.getString(R.string.invalid_jid));
 					return;

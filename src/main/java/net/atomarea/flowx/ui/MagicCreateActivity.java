@@ -55,7 +55,7 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher {
 				} else {
 					mUsername.setError(null);
 					try {
-						Jid jid = Jid.fromParts(username.toLowerCase(), Config.MAGIC_CREATE_DOMAIN, null);
+						Jid jid = Jid.fromParts(username.toLowerCase(), Config.DOMAIN_LOCK, null);
 						Account account = xmppConnectionService.findAccountByJid(jid);
 						if (account == null) {
 							account = new Account(jid, createPassword());
@@ -103,7 +103,7 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher {
 		if (s.toString().trim().length() > 0) {
 			try {
 				mFullJidDisplay.setVisibility(View.VISIBLE);
-				Jid jid = Jid.fromParts(s.toString().toLowerCase(), Config.MAGIC_CREATE_DOMAIN, null);
+				Jid jid = Jid.fromParts(s.toString().toLowerCase(), Config.DOMAIN_LOCK, null);
 				mFullJidDisplay.setText(getString(R.string.your_full_jid_will_be, jid.toString()));
 			} catch (InvalidJidException e) {
 				mFullJidDisplay.setVisibility(View.INVISIBLE);

@@ -490,7 +490,7 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 						}
 						final Jid conferenceJid;
 						try {
-							conferenceJid = Jid.fromString(jid.getText().toString().concat("@conference.flowx.im"));
+							conferenceJid = Jid.fromString(jid.getText().toString().concat(Config.MUC_LOCK));
 						} catch (final InvalidJidException e) {
 							jid.setError(getString(R.string.invalid_jid));
 							return;

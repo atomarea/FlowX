@@ -409,7 +409,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         } else {
             mStatusMessage.setText(mAccount.getPresenceStatusMessage());
         }
-        if ((Config.MAGIC_CREATE_DOMAIN == null && this.xmppConnectionService.getAccounts().size() == 0)
+        if ((Config.DOMAIN_LOCK == null && this.xmppConnectionService.getAccounts().size() == 0)
                 || (this.mAccount != null && this.mAccount == xmppConnectionService.getPendingAccount())) {
             if (getActionBar() != null) {
                 getActionBar().setDisplayHomeAsUpEnabled(false);

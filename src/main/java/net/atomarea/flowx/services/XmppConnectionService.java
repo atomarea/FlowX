@@ -3038,8 +3038,8 @@ public class XmppConnectionService extends Service {
         if (Config.DOMAIN_LOCK != null && !hosts.contains(Config.DOMAIN_LOCK)) {
             hosts.add(Config.DOMAIN_LOCK);
         }
-        if (Config.MAGIC_CREATE_DOMAIN != null && !hosts.contains(Config.MAGIC_CREATE_DOMAIN)) {
-            hosts.add(Config.MAGIC_CREATE_DOMAIN);
+        if (Config.DOMAIN_LOCK != null && !hosts.contains(Config.DOMAIN_LOCK)) {
+            hosts.add(Config.DOMAIN_LOCK);
         }
         return hosts;
     }

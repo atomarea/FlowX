@@ -1184,7 +1184,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             if (mRedirected.compareAndSet(false, true)) {
                 if (Config.X509_VERIFICATION) {
                     startActivity(new Intent(this, WelcomeActivity.class));
-                } else if (Config.MAGIC_CREATE_DOMAIN != null) {
+                } else if (Config.DOMAIN_LOCK != null) {
                     Log.d(Config.LOGTAG, "First start time: " + FirstStartTime);
                     startActivity(new Intent(this, WelcomeActivity.class));
                 } else {

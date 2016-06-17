@@ -431,7 +431,7 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
                 }
                 updateAccountInformation(true);
             }
-        } else if ((Config.MAGIC_CREATE_DOMAIN == null && this.xmppConnectionService.getAccounts().size() == 0)
+        } else if ((Config.DOMAIN_LOCK == null && this.xmppConnectionService.getAccounts().size() == 0)
                 || (this.mAccount != null && this.mAccount == xmppConnectionService.getPendingAccount())) {
             if (getActionBar() != null) {
                 getActionBar().setDisplayHomeAsUpEnabled(false);
