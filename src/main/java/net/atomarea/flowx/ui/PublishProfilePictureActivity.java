@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +33,7 @@ public class PublishProfilePictureActivity extends XmppActivity {
 
 	private static final int REQUEST_CHOOSE_FILE_AND_CROP = 0xac23;
 	private static final int REQUEST_CHOOSE_FILE = 0xac24;
+	private static Toolbar mToolbar;
 	private ImageView avatar;
 	private TextView accountTextView;
 	private TextView hintOrWarning;
@@ -98,6 +100,12 @@ public class PublishProfilePictureActivity extends XmppActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_publish_profile_picture);
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setHomeButtonEnabled(true);
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		}
 		this.avatar = (ImageView) findViewById(R.id.account_image);
 		this.cancelButton = (Button) findViewById(R.id.cancel_button);
 		this.publishButton = (Button) findViewById(R.id.publish_button);

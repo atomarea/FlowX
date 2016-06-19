@@ -37,6 +37,7 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -89,7 +90,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-public abstract class XmppActivity extends FragmentActivity {
+public abstract class XmppActivity extends AppCompatActivity {
 
     public static final String EXTRA_ACCOUNT = "account";
     protected static final int REQUEST_ANNOUNCE_PGP = 0x0101;

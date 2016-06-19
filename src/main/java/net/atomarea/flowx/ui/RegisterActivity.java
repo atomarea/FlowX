@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.security.KeyChainAliasCallback;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -45,6 +46,7 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
     private CheckBox mRegisterNew;
     private ActionProcessButton mSaveButton;
     private LinearLayout mNamePort;
+    private static Toolbar mToolbar;
     private EditText mHostname;
     private EditText mPort;
     private AlertDialog mCaptchaDialog = null;
@@ -347,6 +349,8 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         this.mAccountJid = (EditText) findViewById(R.id.account_jid);
         this.mAccountJid.addTextChangedListener(this.mTextWatcher);
         this.mAccountJid.setHint(R.string.username_hint);

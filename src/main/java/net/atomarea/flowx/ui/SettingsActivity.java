@@ -12,6 +12,7 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
 import net.atomarea.flowx.Config;
@@ -30,15 +31,19 @@ public class SettingsActivity extends XmppActivity implements
 
 	public static final int REQUEST_WRITE_LOGS = 0xbf8701;
 	private SettingsFragment mSettingsFragment;
+	private static Toolbar mToolbar;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.pref_with_actionbar);
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
 		FragmentManager fm = getFragmentManager();
-		mSettingsFragment = (SettingsFragment) fm.findFragmentById(android.R.id.content);
+		mSettingsFragment = (SettingsFragment) fm.findFragmentById(R.id.fragment_container);
 		if (mSettingsFragment == null || !mSettingsFragment.getClass().equals(SettingsFragment.class)) {
 			mSettingsFragment = new SettingsFragment();
-			fm.beginTransaction().replace(android.R.id.content, mSettingsFragment).commit();
+			fm.beginTransaction().replace(R.id.fragment_container, mSettingsFragment).commit();
 		}
 	}
 

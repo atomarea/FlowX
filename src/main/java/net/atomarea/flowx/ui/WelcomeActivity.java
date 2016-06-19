@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -26,16 +28,20 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 
-public class WelcomeActivity extends Activity {
+public class WelcomeActivity extends AppCompatActivity {
 
 	private static final int REQUEST_READ_EXTERNAL_STORAGE = 0XD737;
 	boolean dbExist = false;
 	boolean backup_existing = false;
+	private static Toolbar mToolbar;
+
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.welcome);
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
 
 		//check if there is a backed up database --
 		if (hasStoragePermission(REQUEST_READ_EXTERNAL_STORAGE)) {

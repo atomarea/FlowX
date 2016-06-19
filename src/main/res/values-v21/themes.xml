@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="ConversationsTheme" parent="@android:style/Theme.Material.Light.DarkActionBar">
-        <item name="android:colorPrimary">@color/primary</item>
-        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+    <style name="ConversationsTheme" parent="Theme.Design.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:actionMenuTextColor">@color/white</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/primary_dark</item>
+
+        <item name="android:popupTheme">@style/Theme.AppCompat.Light</item>
         <item name="android:navigationBarColor">@color/primary</item>
-        <item name="android:colorAccent">@color/accent</item>
 
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:actionModeBackground">@color/accent</item>
@@ -46,5 +51,16 @@
         <item name="TextSizeBody">14sp</item>
         <item name="TextSizeHeadline">20sp</item>
     </style>
-
+    <style name="ConversationsActionBarWidget" parent="Theme.AppCompat.Light">
+        <item name="android:popupMenuStyle">@android:style/Widget.Holo.Light.PopupMenu</item>
+        <item name="colorControlNormal">@color/bootstrap_gray_light</item>
+        <item name="colorControlHighlight">@color/primary</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorAccent">@color/primary_dark</item>
+        <item name="android:textColorSecondary">@color/white</item>
+        <item name="actionMenuTextColor">@color/white</item>
+        <item name="color">@android:color/white</item>
+        <item name="contentInsetStart">0dp</item>
+        <item name="contentInsetEnd">0dp</item>
+    </style>
 </resources>

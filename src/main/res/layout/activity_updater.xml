@@ -3,10 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="net.atomarea.flowx.ui.UpdaterActivity">
+    <include layout="@layout/default_toolbar" />
 
     <TextView android:id="@+id/updater" android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" android:layout_marginTop="6dp"
+        android:layout_alignParentTop="false" android:layout_marginTop="20dp"
         android:text="Current" android:textAppearance="?android:attr/textAppearanceMedium"
         android:textStyle="normal"
         android:layout_marginLeft="4dp"

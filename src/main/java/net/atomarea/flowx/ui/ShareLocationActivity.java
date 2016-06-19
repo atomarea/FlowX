@@ -9,6 +9,8 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -32,7 +34,7 @@ import net.atomarea.flowx.R;
 import java.util.List;
 import java.util.Locale;
 
-public class ShareLocationActivity extends Activity implements OnMapReadyCallback,
+public class ShareLocationActivity extends AppCompatActivity implements OnMapReadyCallback,
 		GoogleApiClient.ConnectionCallbacks,
 		GoogleApiClient.OnConnectionFailedListener,
 		LocationListener{
@@ -45,11 +47,15 @@ public class ShareLocationActivity extends Activity implements OnMapReadyCallbac
 	private Button mShareButton;
 	private RelativeLayout mSnackbar;
     private RelativeLayout mLocationInfo;
+	private static Toolbar mToolbar;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.share_locaction_activity);
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
 		MapFragment fragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
 		fragment.getMapAsync(this);
 		mGoogleApiClient = new GoogleApiClient.Builder(this)

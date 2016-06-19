@@ -33,8 +33,10 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SlidingPaneLayout.PanelSlideListener;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
@@ -157,6 +159,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     private View mContentView;
 
     private List<Conversation> conversationList = new ArrayList<>();
+    private static Toolbar mToolbar;
     private Conversation swipedConversation = null;
     private Conversation mSelectedConversation = null;
     private EnhancedListView listView;
@@ -268,19 +271,19 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         setContentView(R.layout.fragment_conversations_overview);
-
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         this.mConversationFragment = new ConversationFragment();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.selected_conversation, this.mConversationFragment, "conversation");
         transaction.commit();
-
         listView = (EnhancedListView) findViewById(R.id.list);
         this.listAdapter = new ConversationAdapter(this, conversationList);
         listView.setAdapter(this.listAdapter);
 
-        if (getActionBar() != null) {
-            getActionBar().setDisplayHomeAsUpEnabled(false);
-            getActionBar().setHomeButtonEnabled(false);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setHomeButtonEnabled(false);
         }
 
         listView.setOnItemClickListener(new OnItemClickListener() {
@@ -458,7 +461,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
     private void updateActionBarTitle(boolean titleShouldBeName) {
-        final ActionBar ab = getActionBar();
+        final android.support.v7.app.ActionBar ab = getSupportActionBar();
         final Conversation conversation = getSelectedConversation();
 
         if (ab == null) return;
@@ -906,7 +909,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             lst.get(5).setResource(R.drawable.ic_send_location_offline);
         }
         MenuParams mp = new MenuParams();
-        if (getActionBar() != null) mp.setActionBarSize(getActionBar().getHeight());
+        if (getSupportActionBar() != null) mp.setActionBarSize(getSupportActionBar().getHeight());
         mp.setMenuObjects(lst);
         mp.setClosableOutside(true);
         ContextMenuDialogFragment cmdf = ContextMenuDialogFragment.newInstance(mp);

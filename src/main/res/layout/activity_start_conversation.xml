@@ -1,8 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/start_conversation_view_pager"
-    android:layout_width="match_parent"
+<LinearLayout
     android:layout_height="match_parent"
-    android:background="@color/grey50" >
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-</android.support.v4.view.ViewPager>
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:elevation="6dp">
+        <include layout="@layout/default_toolbar" />
+
+        <android.support.design.widget.TabLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            app:tabTextColor="@color/white70"
+            app:tabSelectedTextColor="@color/white"
+            android:background="@color/primary"
+            android:id="@+id/tabs"/>
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/start_conversation_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/grey50" >
+
+    </android.support.v4.view.ViewPager>
+</LinearLayout>

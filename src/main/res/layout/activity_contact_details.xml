@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:emojicon="http://schemas.android.com/tools"
-    android:id="@+id/scrollview_contact_detail"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@id/toolbar"
     android:background="@color/grey200">
 
+
+    <com.manuelpeinado.fadingactionbar.view.ObservableScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollview_contact_detail"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/toolbar">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+        <ImageView
+            android:id="@+id/avater"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:layout_gravity="center" />
 
         <LinearLayout
             android:id="@+id/details_main_layout"
@@ -34,18 +47,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
-
-
-                    <github.ankushsachdeva.emojicon.EmojiconTextView
-                        android:id="@+id/details_contactjid"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/account_settings_example_jabber_id"
-                        android:textColor="@color/black87"
-                        android:textSize="?attr/TextSizeHeadline"
-                        android:visibility="gone"
-                        android:textStyle="bold"
-                        emojicon:emojiconSize="28sp" />
 
                     <com.beardedhen.androidbootstrap.BootstrapButton
                         android:id="@+id/add_contact_button"
@@ -140,4 +141,6 @@
 
     </LinearLayout>
 
-</ScrollView>
+</com.manuelpeinado.fadingactionbar.view.ObservableScrollView>
+    <include layout="@layout/default_toolbar" />
+</FrameLayout>

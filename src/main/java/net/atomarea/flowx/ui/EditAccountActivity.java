@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -48,6 +49,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     private LinearLayout mNamePort;
     private EditText mHostname;
     private EditText mPort;
+    private static Toolbar mToolbar;
 
     private Jid jidToEdit;
     private boolean mInitMode = false;
@@ -306,6 +308,8 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_account);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         this.mAccountJid = (EditText) findViewById(R.id.account_jid);
         this.mAccountJid.addTextChangedListener(this.mTextWatcher);
         this.mAccountJidLabel = (TextView) findViewById(R.id.account_jid_label);
@@ -375,13 +379,15 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             }
             this.mInitMode = getIntent().getBooleanExtra("init", false) || this.jidToEdit == null;
             if (!mInitMode) {
-                if (getActionBar() != null) {
-                    getActionBar().setTitle(getString(R.string.account_details));
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().setTitle(getString(R.string.account_details));
+                        getSupportActionBar().setHomeButtonEnabled(true);
+                        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 }
             } else {
                 this.mAvatar.setVisibility(View.GONE);
-                if (getActionBar() != null) {
-                    getActionBar().setTitle(R.string.action_add_account);
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().setTitle(R.string.action_add_account);
                 }
             }
         }
@@ -411,10 +417,10 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
         }
         if ((Config.DOMAIN_LOCK == null && this.xmppConnectionService.getAccounts().size() == 0)
                 || (this.mAccount != null && this.mAccount == xmppConnectionService.getPendingAccount())) {
-            if (getActionBar() != null) {
-                getActionBar().setDisplayHomeAsUpEnabled(false);
-                getActionBar().setDisplayShowHomeEnabled(false);
-                getActionBar().setHomeButtonEnabled(false);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                getSupportActionBar().setDisplayShowHomeEnabled(false);
+                getSupportActionBar().setHomeButtonEnabled(false);
             }
         }
         if (Config.DOMAIN_LOCK == null) {

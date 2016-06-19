@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:addStatesFromChildren="true"
-    android:focusable="true"
-    android:gravity="center"
-    android:paddingLeft="5dp"
-    android:paddingRight="5dp" >
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
 
     <EditText
         android:id="@+id/search_field"
@@ -16,6 +13,7 @@
         android:inputType="textEmailAddress|textNoSuggestions"
         android:textColor="@color/white"
         android:textColorHint="@color/white70"
-        android:hint="@string/search_for_contacts_or_groups"/>
+        android:hint="@string/search_for_contacts_or_groups"
+        android:imeOptions="actionSearch" />
 
-</RelativeLayout>
+</LinearLayout>

@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -24,17 +26,19 @@ import net.atomarea.flowx.R;
 import java.util.List;
 import java.util.Locale;
 
-public class ShowLocationActivity extends Activity implements OnMapReadyCallback {
+public class ShowLocationActivity extends AppCompatActivity implements OnMapReadyCallback {
 
 	private GoogleMap mGoogleMap;
 	private LatLng mLocation;
 	private String mLocationName;
+	private static Toolbar mToolbar;
 
-    class InfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
+	class InfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
         private final View InfoWindow;
 
-        InfoWindowAdapter() {
+
+		InfoWindowAdapter() {
             InfoWindow = getLayoutInflater().inflate(R.layout.show_location_infowindow, null);
         }
 
@@ -59,12 +63,13 @@ public class ShowLocationActivity extends Activity implements OnMapReadyCallback
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		ActionBar actionBar = getActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 
 		setContentView(R.layout.show_locaction_activity);
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
 		MapFragment fragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
 		fragment.getMapAsync(this);
 	}

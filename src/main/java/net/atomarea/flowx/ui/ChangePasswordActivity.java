@@ -2,6 +2,7 @@ package net.atomarea.flowx.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,7 +14,7 @@ import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.services.XmppConnectionService;
 
 public class ChangePasswordActivity extends XmppActivity implements XmppConnectionService.OnAccountPasswordChanged {
-
+	private static Toolbar mToolbar;
 	private Button mChangePasswordButton;
 	private View.OnClickListener mOnChangePasswordButtonClicked = new View.OnClickListener() {
 		@Override
@@ -65,6 +66,12 @@ public class ChangePasswordActivity extends XmppActivity implements XmppConnecti
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_change_password);
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setHomeButtonEnabled(true);
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		}
 		Button mCancelButton = (Button) findViewById(R.id.left_button);
 		mCancelButton.setOnClickListener(new View.OnClickListener() {
 			@Override

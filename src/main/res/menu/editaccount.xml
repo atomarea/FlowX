@@ -1,55 +1,56 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_show_qr_code"
         android:title="@string/show_qr_code"
         android:visible="false"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_change_presence"
-        android:showAsAction="always"
-        android:title="@string/change_presence"
+        app:showAsAction="always"
+        app:title="@string/change_presence"
         android:icon="@drawable/ic_announcement_white_24dp"/>
     <item
         android:id="@+id/action_change_presence2"
-        android:showAsAction="withText"
+        app:showAsAction="never"
         android:title="@string/change_presence"
         android:icon="@drawable/ic_announcement_white_24dp"/>
     <item
         android:id="@+id/action_PublishProfilePictureActivity"
         android:title="@string/mgmt_account_publish_avatar"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_show_block_list"
         android:title="@string/show_block_list"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_renew_certificate"
         android:title="@string/action_renew_certificate"
         android:visible="false"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_change_password_on_server"
         android:icon="?attr/icon_edit"
         android:title="@string/change_password"
-        android:showAsAction="always" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/action_clear_devices"
         android:title="@string/clear_other_devices"
         android:visible="false"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/resetkeys"
         android:title="@string/regenerate_omemo_key"
-        android:icon="?attr/icon_not_secure"
-        android:showAsAction="always" />
+        android:icon="?attr/icon_secure"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_restart"
         android:title="@string/restart"
         android:visible="false"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
@@ -58,5 +59,5 @@
     <item
         android:id="@+id/action_check_updates"
         android:title="@string/action_check_update"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 </menu>

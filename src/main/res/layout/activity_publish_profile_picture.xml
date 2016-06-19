@@ -4,19 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey200" >
-
+    <include layout="@layout/default_toolbar" />
     <LinearLayout
         android:id="@+id/account_image_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentTop="false"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="8dp"
-        android:layout_marginTop="24dp">
+        android:layout_below="@id/toolbar">
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/account_image"
             android:layout_width="wrap_content"
+            android:layout_marginTop="70dp"
             android:layout_height="wrap_content"
             app:riv_corner_radius="300dp" />
     </LinearLayout>

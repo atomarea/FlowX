@@ -2,6 +2,7 @@ package net.atomarea.flowx.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -29,7 +30,7 @@ import java.util.Set;
 
 public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdated {
 	private List<Jid> contactJids;
-
+	private static Toolbar mToolbar;
 	private Account mAccount;
 	private Conversation mConversation;
 	private TextView keyErrorMessage;
@@ -72,6 +73,8 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_trust_keys);
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
 		this.contactJids = new ArrayList<>();
 		for(String jid : getIntent().getStringArrayExtra("contacts")) {
 			try {
@@ -93,9 +96,9 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 		mSaveButton.setOnClickListener(mSaveButtonListener);
 
 
-		if (getActionBar() != null) {
-			getActionBar().setHomeButtonEnabled(true);
-			getActionBar().setDisplayHomeAsUpEnabled(true);
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setHomeButtonEnabled(true);
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 	}
 

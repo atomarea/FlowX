@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -67,6 +68,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
     private TableLayout mConferenceInfoTable;
     private TextView mConferenceInfoMam;
     private TextView mNotifyStatusText;
+    private static Toolbar mToolbar;
     private ImageButton mChangeConferenceSettingsButton;
     private ImageButton mNotifyStatusButton;
     private BootstrapButton mInviteButton;
@@ -232,6 +234,8 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_muc_details);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         mYourNick = (TextView) findViewById(R.id.muc_your_nick);
         mYourPhoto = (ImageView) findViewById(R.id.your_photo);
         mEditNickButton = (ImageButton) findViewById(R.id.edit_nick_button);
@@ -245,9 +249,9 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         mInviteButton = (BootstrapButton) findViewById(R.id.invite);
         mInviteButton.setOnClickListener(inviteListener);
         mConferenceType = (TextView) findViewById(R.id.muc_conference_type);
-        if (getActionBar() != null) {
-            getActionBar().setHomeButtonEnabled(true);
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         mEditNickButton.setOnClickListener(new OnClickListener() {
 
@@ -530,12 +534,12 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         }
         mAccountJid.setText(getString(R.string.using_account, account));
         mYourPhoto.setImageBitmap(avatarService().get(mConversation.getAccount(), getPixel(48)));
-        this.getActionBar().setDisplayShowCustomEnabled(true);
-        this.getActionBar().setDisplayShowTitleEnabled(false);
+        this.getSupportActionBar().setDisplayShowCustomEnabled(true);
+        this.getSupportActionBar().setDisplayShowTitleEnabled(false);
         LayoutInflater inflator = LayoutInflater.from(this);
         View v = inflator.inflate(R.layout.actionbar, null);
         ((EmojiconTextView) v.findViewById(R.id.title)).setText(this.mConversation.getName());
-        this.getActionBar().setCustomView(v);
+        this.getSupportActionBar().setCustomView(v);
         mFullJid.setText(mConversation.getJid().toBareJid().toString());
         mYourNick.setText(mucOptions.getActualNick());
         mRoleAffiliaton = (TextView) findViewById(R.id.muc_role);

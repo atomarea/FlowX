@@ -3,14 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:emojicon="http://schemas.android.com/apk/res-auto"
     android:id="@+id/actionbar_background"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="250dp"
+    android:layout_height="50dp"
     android:background="@android:color/transparent">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
         android:layout_centerInParent="true"
+        android:layout_alignParentTop="false"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -25,8 +26,8 @@
             app:riv_corner_radius="20dp" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
             android:orientation="vertical">
 
             <github.ankushsachdeva.emojicon.EmojiconTextView
@@ -34,6 +35,7 @@
                 android:layout_width="160dp"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:layout_marginTop="4dp"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
                 android:textColor="@color/white"
@@ -56,10 +58,10 @@
 
     <github.ankushsachdeva.emojicon.EmojiconTextView
         android:id="@+id/title2"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
         android:fontFamily="sans-serif-medium"
-        android:gravity="center"
+        android:gravity="center_vertical"
         android:textColor="@color/white"
         android:textSize="20sp"
         emojicon:emojiconSize="25sp" />

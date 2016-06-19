@@ -4,6 +4,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,6 +59,7 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 	private List<Conversation> mConversations = new ArrayList<>();
 	private Toast mToast;
 	private AtomicInteger attachmentCounter = new AtomicInteger(0);
+	private static Toolbar mToolbar;
 
 	private UiCallback<Message> attachFileCallback = new UiCallback<Message>() {
 
@@ -138,12 +140,14 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if (getActionBar() != null) {
-			getActionBar().setDisplayHomeAsUpEnabled(false);
-			getActionBar().setHomeButtonEnabled(false);
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setHomeButtonEnabled(true);
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 
 		setContentView(R.layout.share_with);
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
 		setTitle(getString(R.string.title_activity_sharewith));
 
 		mListView = (ListView) findViewById(R.id.choose_conversation_list);

@@ -18,6 +18,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -38,9 +40,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class UpdaterActivity extends Activity {
+public class UpdaterActivity extends AppCompatActivity {
 
     String appURI = "";
+    private static Toolbar mToolbar;
     private UpdateReceiver receiver = null;
     private int versionCode = 0;
     private DownloadManager downloadManager;
@@ -75,6 +78,8 @@ public class UpdaterActivity extends Activity {
 
         //set activity
         setContentView(R.layout.activity_updater);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         TextView textView = (TextView) findViewById(R.id.updater);
         textView.setText(R.string.update_info);
 

@@ -2,6 +2,8 @@ package net.atomarea.flowx.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -23,6 +25,7 @@ public abstract class AbstractSearchableListItemActivity extends XmppActivity {
     private ListView mListView;
     private final List<ListItem> listItems = new ArrayList<>();
     private ArrayAdapter<ListItem> mListItemsAdapter;
+    private static Toolbar mToolbar;
 
     private EditText mSearchEditText;
 
@@ -93,21 +96,26 @@ public abstract class AbstractSearchableListItemActivity extends XmppActivity {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_contact);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         mListView = (ListView) findViewById(R.id.choose_contact_list);
         mListView.setFastScrollEnabled(true);
         mListItemsAdapter = new ListItemAdapter(this, listItems);
         mListView.setAdapter(mListItemsAdapter);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.choose_contact, menu);
-        final MenuItem menuSearchView = menu.findItem(R.id.action_search);
-        final View mSearchView = menuSearchView.getActionView();
-        mSearchEditText = (EditText) mSearchView
-                .findViewById(R.id.search_field);
-        mSearchEditText.addTextChangedListener(mSearchTextWatcher);
-        menuSearchView.setOnActionExpandListener(mOnActionExpandListener);
+        //final MenuItem menuSearchView = menu.findItem(R.id.action_search);
+        //final View mSearchView = menuSearchView.getActionView();
+        //mSearchEditText = (EditText) menu.findItem(R.id.search_field).getActionView();
+        // mSearchEditText.addTextChangedListener(mSearchTextWatcher);
+       //menuSearchView.setOnActionExpandListener(mOnActionExpandListener);
         return true;
     }
 

@@ -1,76 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:emojicon="http://schemas.android.com/tools"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:background="@color/grey200"
-            android:id="@+id/scroll_view">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:emojicon="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey200">
 
-    <LinearLayout
+    <include layout="@layout/default_toolbar" />
+
+    <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="fill_parent"
+        android:layout_below="@id/toolbar"
+        android:background="@color/grey200"
+        android:id="@+id/scroll_view">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:background="@drawable/infocard_border"
-            android:padding="@dimen/infocard_padding"
             android:orientation="vertical">
-            <github.ankushsachdeva.emojicon.EmojiconEditText
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:hint="@string/status_message"
-                android:id="@+id/presence_status_message"
-                android:textColor="@color/black87"
-                emojicon:emojiconSize="30sp"
-                android:layout_marginBottom="8dp"
-                android:textSize="?attr/TextSizeBody"/>
-            <Spinner
-                android:layout_width="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:background="@drawable/infocard_border"
+                android:padding="@dimen/infocard_padding"
+                android:orientation="vertical">
+
+                <github.ankushsachdeva.emojicon.EmojiconEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:hint="@string/status_message"
+                    android:id="@+id/presence_status_message"
+                    android:textColor="@color/black87"
+                    emojicon:emojiconSize="30sp"
+                    android:layout_marginBottom="8dp"
+                    android:textSize="?attr/TextSizeBody" />
+
+                <Spinner
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:id="@+id/presence_show"
+                    android:layout_gravity="center_horizontal" />
+
+                <CheckBox
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/all_accounts_on_this_device"
+                    android:visibility="gone"
+                    android:id="@+id/all_accounts"
+                    android:textColor="@color/black87"
+                    android:textSize="?attr/TextSizeBody" />
+
+                <Button
+                    android:id="@+id/change_presence"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="-8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:text="@string/save"
+                    android:textColor="@color/accent" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/templates"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:id="@+id/presence_show"
-                android:layout_gravity="center_horizontal"/>
-            <CheckBox
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/all_accounts_on_this_device"
-                android:visibility="gone"
-                android:id="@+id/all_accounts"
-                android:textColor="@color/black87"
-                android:textSize="?attr/TextSizeBody"/>
-            <Button
-                android:id="@+id/change_presence"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="-8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:text="@string/save"
-                android:textColor="@color/accent"/>
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:background="@drawable/infocard_border"
+                android:padding="@dimen/infocard_padding"
+                android:orientation="vertical"
+                android:divider="?android:dividerHorizontal"
+                android:showDividers="middle"></LinearLayout>
         </LinearLayout>
-    <LinearLayout
-        android:id="@+id/templates"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:background="@drawable/infocard_border"
-        android:padding="@dimen/infocard_padding"
-        android:orientation="vertical"
-        android:divider="?android:dividerHorizontal"
-        android:showDividers="middle">
-        </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</RelativeLayout>

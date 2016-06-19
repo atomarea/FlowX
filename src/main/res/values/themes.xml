@@ -6,10 +6,18 @@
         <item name="android:windowActionBarOverlay">true</item>
     </style>
 
-    <style name="ConversationsTheme" parent="@android:style/Theme.Holo.Light.DarkActionBar">
+    <style name="ConversationsTheme" parent="Theme.Design.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="android:fitsSystemWindows">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
         <item name="android:actionBarStyle">@style/ConversationsActionBar</item>
         <item name="android:actionBarWidgetTheme">@style/ConversationsActionBarWidget</item>
         <item name="android:actionBarTabStyle">@style/ConversationsActionBarTabs</item>
+        <item name="colorControlNormal">@color/bootstrap_gray_light</item>
+        <item name="colorControlHighlight">@color/primary</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorAccent">@color/primary_dark</item>
         <item name="TextSizeInfo">12sp</item>
         <item name="TextSizeBody">14sp</item>
         <item name="TextSizeHeadline">20sp</item>
@@ -51,12 +59,20 @@
         <item name="android:icon">@android:color/transparent</item>
     </style>
 
-    <style name="ConversationsActionBarWidget" parent="android:Theme.Holo.Light">
+    <style name="ConversationsActionBarWidget" parent="Theme.AppCompat.Light">
         <item name="android:popupMenuStyle">@android:style/Widget.Holo.Light.PopupMenu</item>
-        <item name="android:dropDownListViewStyle">@android:style/Widget.Holo.Light.ListView.DropDown</item>
+        <item name="colorControlNormal">@color/bootstrap_gray_light</item>
+        <item name="colorControlHighlight">@color/primary</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorAccent">@color/primary_dark</item>
+        <item name="android:textColorSecondary">@color/white</item>
+        <item name="actionMenuTextColor">@color/white</item>
+        <item name="color">@android:color/white</item>
+        <item name="contentInsetStart">0dp</item>
+        <item name="contentInsetEnd">0dp</item>
     </style>
 
-    <style name="ConversationsActionBarTabs" parent="@android:style/Widget.Holo.ActionBar.TabView">
+    <style name="ConversationsActionBarTabs" parent="Widget.AppCompat.ActionBar.TabView">
         <item name="android:background">@drawable/actionbar_tab_indicator</item>
     </style>
     <style name="ConversationsDialog" parent="@android:style/Theme.Holo.Light.Dialog">

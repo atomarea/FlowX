@@ -5,11 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey200">
+    <include layout="@layout/default_toolbar" />
 
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true" >
+        android:layout_below="@id/toolbar"
+        android:layout_alignParentTop="false" >
 
         <LinearLayout
             android:id="@+id/account_main_layout"
@@ -23,10 +25,7 @@
                 android:layout_height="180dp"
                 android:contentDescription="@string/account_image_description"
                 app:riv_corner_radius="180dp"
-                android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:layout_alignParentStart="false"
-                android:layout_alignParentEnd="false"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp" />
             <RelativeLayout

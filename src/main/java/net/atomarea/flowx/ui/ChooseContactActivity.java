@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.v7.widget.Toolbar;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 public class ChooseContactActivity extends AbstractSearchableListItemActivity {
+	private static Toolbar mToolbar;
 	private List<String> mActivatedAccounts = new ArrayList<String>();
 	private List<String> mKnownHosts;
 
@@ -39,6 +41,8 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity {
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mToolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(mToolbar);
 		filterContacts = new HashSet<>();
 		String[] contacts = getIntent().getStringArrayExtra("filter_contacts");
 		if (contacts != null) {
@@ -140,7 +144,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity {
 		Intent intent = getIntent();
 		@StringRes
 		int res = intent != null ? intent.getIntExtra(EXTRA_TITLE_RES_ID,R.string.title_activity_choose_contact) : R.string.title_activity_choose_contact;
-		ActionBar bar = getActionBar();
+		android.support.v7.app.ActionBar bar = getSupportActionBar();
 		if (bar != null) {
 			try {
 				bar.setTitle(res);

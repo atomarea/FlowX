@@ -5,14 +5,17 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract.Contacts;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +31,9 @@ import android.widget.TextView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
+import com.manuelpeinado.fadingactionbar.view.ObservableScrollable;
+import com.manuelpeinado.fadingactionbar.view.OnScrollChangedCallback;
+import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
@@ -47,7 +53,7 @@ import java.util.List;
 
 import github.ankushsachdeva.emojicon.EmojiconTextView;
 
-public class ContactDetailsActivity extends XmppActivity implements OnAccountUpdate, OnRosterUpdate, OnUpdateBlocklist, OnKeyStatusUpdated {
+public class ContactDetailsActivity extends XmppActivity implements OnAccountUpdate, OnRosterUpdate, OnUpdateBlocklist, OnKeyStatusUpdated, OnScrollChangedCallback {
     public static final String ACTION_VIEW_CONTACT = "view_contact";
 
     private Contact contact;
@@ -99,16 +105,23 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     };
     private Jid accountJid;
     private Jid contactJid;
-    private TextView contactJidTv;
     private TextView accountJidTv;
     private TextView status;
     private CheckBox send;
     private CheckBox receive;
     private RelativeLayout statusView;
     private BootstrapButton addContactButton;
+    private ImageView mAvatar;
     private LinearLayout keys;
     private TextView statusMessage;
     private ImageView avatar;
+    private static Toolbar mToolbar;
+    private Drawable mActionBarBackgroundDrawable;
+    private View mHeader;
+    private int mLastDampedScroll;
+    private int mInitialStatusBarColor;
+    private int mFinalStatusBarColor;
+    private SystemBarTintManager mStatusBarManager;
     private boolean showLastSeen = true;
 
     private OnClickListener onBadgeClick = new OnClickListener() {
@@ -159,6 +172,21 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_contact_details);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mActionBarBackgroundDrawable = mToolbar.getBackground();
+        setSupportActionBar(mToolbar);
+        mStatusBarManager = new SystemBarTintManager(this);
+        mStatusBarManager.setStatusBarTintEnabled(true);
+        mAvatar = (ImageView) findViewById(R.id.avater);
+        mInitialStatusBarColor = Color.BLACK;
+        mFinalStatusBarColor = getResources().getColor(R.color.primary);
+        mHeader = findViewById(R.id.avater);
+        ObservableScrollable scrollView = (ObservableScrollable) findViewById(R.id.scrollview_contact_detail);
+        scrollView.setOnScrollChangedCallback(this);
+
+        onScroll(-1, 0);
+
         if (getIntent().getAction().equals(ACTION_VIEW_CONTACT)) {
             try {
                 this.accountJid = Jid.fromString(getIntent().getExtras().getString(EXTRA_ACCOUNT));
@@ -169,6 +197,18 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
             } catch (final InvalidJidException ignored) {
             }
         }
+    }
+
+    @Override
+    public void onScroll(int l, int scrollPosition) {
+        int headerHeight = mHeader.getHeight() - mToolbar.getHeight();
+        float ratio = 0;
+        if (scrollPosition > 0 && headerHeight > 0)
+            ratio = (float) Math.min(Math.max(scrollPosition, 0), headerHeight) / headerHeight;
+
+        updateActionBarTransparency(ratio);
+        updateStatusBarColor(ratio);
+        updateParallaxEffect(scrollPosition);
     }
 
     @Override
@@ -248,25 +288,9 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     }
 
     private void populateView() {
-        Point size = new Point();
-        getWindowManager().getDefaultDisplay().getSize(size);
-        BitmapDrawable bmd = new BitmapDrawable(this.getResources(), avatarService().get(contact, size.x));
-        ImageView iv = new ImageView(this);
-        iv.setImageDrawable(bmd);
-
-        FadingActionBarHelper helper = new FadingActionBarHelper()
-                .actionBarBackground(new ColorDrawable(ContextCompat.getColor(this, R.color.primary)))
-                .headerView(iv)
-                .contentLayout(R.layout.activity_contact_details);
-
-        setContentView(helper.createView(this));
-
-        helper.initActionBar(this);
-
-        contactJidTv = (TextView) findViewById(R.id.details_contactjid);
         accountJidTv = (TextView) findViewById(R.id.details_account);
         statusMessage = (TextView) findViewById(R.id.status_message);
-        avatar = (ImageView) findViewById(R.id.details_contact_photo);
+        avatar = (ImageView) findViewById(R.id.avater);
         status = (TextView) findViewById(R.id.status);
         statusView = (RelativeLayout) findViewById(R.id.statusView);
         send = (CheckBox) findViewById(R.id.details_send_presence);
@@ -278,9 +302,9 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
                 showAddToRosterDialog(contact);
             }
         });
-        if (getActionBar() != null) {
-            getActionBar().setHomeButtonEnabled(true);
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         BitmapDrawable bm = getQrCode();
@@ -289,12 +313,12 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         this.showLastSeen = preferences.getBoolean("last_activity", true);
 
-        if (getActionBar() == null) return; // lol
+        if (getSupportActionBar() == null) return; // lol
 
-        getActionBar().setCustomView(R.layout.actionbar);
-        getActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setCustomView(R.layout.actionbar);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
 
-        ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.title)).setText(contact.getDisplayName());
+        ((EmojiconTextView) getSupportActionBar().getCustomView().findViewById(R.id.title)).setText(contact.getDisplayName());
 
         invalidateOptionsMenu();
 
@@ -355,7 +379,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
                     statusView.setVisibility(View.GONE);
                     status.setVisibility(View.GONE);
                     statusMessage.setVisibility(View.GONE);
-                    ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText("...");
+                    ((EmojiconTextView) getSupportActionBar().getCustomView().findViewById(R.id.subtitle)).setText("...");
                 }
             }
             if (contact.getAccount().isOnlineAndConnected()) {
@@ -377,25 +401,19 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
 
         if (contact.isBlocked()) {
             status.setVisibility(View.VISIBLE);
-            ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(R.string.contact_blocked);
+            ((EmojiconTextView) getSupportActionBar().getCustomView().findViewById(R.id.subtitle)).setText(R.string.contact_blocked);
             statusMessage.setVisibility(View.VISIBLE);
             statusMessage.setText(R.string.contact_blocked);
             send.setVisibility(View.GONE);
             receive.setVisibility(View.GONE);
         } else {
             if (showLastSeen && contact.getLastseen() > 0) {
-                ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));
+                ((EmojiconTextView) getSupportActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), contact.isActive(), contact.getLastseen()));
             } else {
-                ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText("...");
+                ((EmojiconTextView) getSupportActionBar().getCustomView().findViewById(R.id.subtitle)).setText("...");
             }
         }
 
-        if (contact.getPresences().size() > 1) {
-            contactJidTv.setText(contact.getDisplayName() + " ("
-                    + contact.getPresences().size() + ")");
-        } else {
-            contactJidTv.setText(contact.getDisplayName().toString());
-        }
         String account;
         if (Config.DOMAIN_LOCK != null) {
             account = contact.getAccount().getJid().getLocalpart();
@@ -403,6 +421,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
             account = contact.getAccount().getJid().toBareJid().toString();
         }
         accountJidTv.setText(getString(R.string.using_account, account));
+        avatar.setImageBitmap(avatarService().get(contact, getPixel(800)));
     }
 
     @Override
@@ -421,5 +440,31 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     @Override
     public void onKeyStatusUpdated(AxolotlService.FetchStatus report) {
         refreshUi();
+    }
+
+    private void updateActionBarTransparency(float scrollRatio) {
+        int newAlpha = (int) (scrollRatio * 255);
+        mActionBarBackgroundDrawable.setAlpha(newAlpha);
+        mToolbar.setBackground(mActionBarBackgroundDrawable);
+    }
+
+    private void updateStatusBarColor(float scrollRatio) {
+        int r = interpolate(Color.red(mInitialStatusBarColor), Color.red(mFinalStatusBarColor), 1 - scrollRatio);
+        int g = interpolate(Color.green(mInitialStatusBarColor), Color.green(mFinalStatusBarColor), 1 - scrollRatio);
+        int b = interpolate(Color.blue(mInitialStatusBarColor), Color.blue(mFinalStatusBarColor), 1 - scrollRatio);
+        mStatusBarManager.setTintColor(Color.rgb(r, g, b));
+    }
+
+    private void updateParallaxEffect(int scrollPosition) {
+        float damping = 0.5f;
+        int dampedScroll = (int) (scrollPosition * damping);
+        int offset = mLastDampedScroll - dampedScroll;
+        mHeader.offsetTopAndBottom(-offset);
+
+        mLastDampedScroll = dampedScroll;
+    }
+
+    private int interpolate(int from, int to, float param) {
+        return (int) (from * param + to * (1 - param));
     }
 }

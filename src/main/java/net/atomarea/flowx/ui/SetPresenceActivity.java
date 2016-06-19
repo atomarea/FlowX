@@ -3,6 +3,7 @@ package net.atomarea.flowx.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,6 +37,7 @@ public class SetPresenceActivity extends XmppActivity implements View.OnClickLis
     protected EditText mStatusMessage;
     protected Spinner mShowSpinner;
     protected CheckBox mAllAccounts;
+    private static Toolbar mToolbar;
     protected LinearLayout mTemplatesView;
     private Pair<Integer, Intent> mPostponedActivityResult;
 
@@ -49,6 +51,13 @@ public class SetPresenceActivity extends XmppActivity implements View.OnClickLis
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_presence);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         mScrollView = (ScrollView) findViewById(R.id.scroll_view);
         mShowSpinner = (Spinner) findViewById(R.id.presence_show);
         ArrayAdapter adapter = ArrayAdapter.createFromResource(this,

@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     xmlns:custom="http://schemas.android.com/tools"
     android:background="@color/grey200">
+    <include layout="@layout/default_toolbar" />
 
     <ScrollView
         android:layout_width="fill_parent"
