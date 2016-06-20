@@ -207,7 +207,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
             ratio = (float) Math.min(Math.max(scrollPosition, 0), headerHeight) / headerHeight;
 
         updateActionBarTransparency(ratio);
-        updateStatusBarColor(ratio);
         updateParallaxEffect(scrollPosition);
     }
 
@@ -446,13 +445,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         int newAlpha = (int) (scrollRatio * 255);
         mActionBarBackgroundDrawable.setAlpha(newAlpha);
         mToolbar.setBackground(mActionBarBackgroundDrawable);
-    }
-
-    private void updateStatusBarColor(float scrollRatio) {
-        int r = interpolate(Color.red(mInitialStatusBarColor), Color.red(mFinalStatusBarColor), 1 - scrollRatio);
-        int g = interpolate(Color.green(mInitialStatusBarColor), Color.green(mFinalStatusBarColor), 1 - scrollRatio);
-        int b = interpolate(Color.blue(mInitialStatusBarColor), Color.blue(mFinalStatusBarColor), 1 - scrollRatio);
-        mStatusBarManager.setTintColor(Color.rgb(r, g, b));
     }
 
     private void updateParallaxEffect(int scrollPosition) {

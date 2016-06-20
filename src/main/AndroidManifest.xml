@@ -184,6 +184,10 @@
             android:label="@string/title_activity_conference_details"
             android:windowSoftInputMode="stateHidden" />
         <activity
+            android:name=".ui.TrustKeysActivity"
+            android:label="@string/title_activity_conference_details"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
             android:theme="@style/ConversationsTheme.ContactDetail"
             android:name=".ui.ContactDetailsActivity"
             android:label="@string/title_activity_contact_details"

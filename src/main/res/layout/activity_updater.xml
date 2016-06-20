@@ -5,10 +5,15 @@
     tools:context="net.atomarea.flowx.ui.UpdaterActivity">
     <include layout="@layout/default_toolbar" />
 
-    <TextView android:id="@+id/updater" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="false" android:layout_marginTop="20dp"
-        android:text="Current" android:textAppearance="?android:attr/textAppearanceMedium"
+    <TextView android:id="@+id/updater"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentTop="false"
+        android:layout_marginTop="70dp"
+        android:text="Current"
+        android:textColor="@color/black26"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:textStyle="normal"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp" />
