@@ -631,12 +631,15 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 		//	.findViewById(R.id.search_field);
 		//mSearchEditText.addTextChangedListener(mSearchTextWatcher);
 		//mSearchEditText.setOnEditorActionListener(mSearchDone);
-		if (getSupportActionBar().getSelectedNavigationIndex() == 0) {
-			menuCreateConference.setVisible(false);
-		} else {
-			menuCreateContact.setVisible(false);
+		if (mViewPager.getCurrentItem()==0){
+			menu.findItem(R.id.action_create_conference).setVisible(false);
+			menu.findItem(R.id.action_create_contact).setVisible(true);
+
+		} else if(mViewPager.getCurrentItem()==1){
+			menu.findItem(R.id.action_create_conference).setVisible(true);
+			menu.findItem(R.id.action_create_contact).setVisible(false);
 		}
-		if (mInitialJid != null) {
+			if (mInitialJid != null) {
 			//mMenuSearchView.expandActionView(mOptionsMenu.findItem(R.id.action_search));
 			//mSearchEditText.append(mInitialJid);
 			filter(mInitialJid);

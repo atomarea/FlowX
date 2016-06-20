@@ -12,7 +12,7 @@
         android:layout_alignParentTop="false"
         android:layout_marginTop="70dp"
         android:text="Current"
-        android:textColor="@color/black26"
+        android:textColor="@color/black87"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textStyle="normal"
         android:layout_marginLeft="4dp"
