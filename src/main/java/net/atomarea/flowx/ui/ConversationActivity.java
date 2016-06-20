@@ -2,6 +2,7 @@ package net.atomarea.flowx.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
@@ -151,6 +152,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     private boolean showLastSeen = true;
     private boolean mPanelOpen = true;
     private Uri mPendingGeoUri = null;
+    private Drawable mActionBarBackgroundDrawable;
     private boolean forbidProcessingPendings = false;
     private Message mPendingDownloadableMessage = null;
 
@@ -253,7 +255,11 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             return true;
         }
     }
-
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void updateColor() {
+        mActionBarBackgroundDrawable.setAlpha(255); // 0% of transparency
+        mToolbar.setBackground(mActionBarBackgroundDrawable);
+    }
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -273,6 +279,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         setContentView(R.layout.fragment_conversations_overview);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
+        mActionBarBackgroundDrawable = mToolbar.getBackground();
         this.mConversationFragment = new ConversationFragment();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.selected_conversation, this.mConversationFragment, "conversation");
@@ -1112,6 +1119,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     @Override
     public void onResume() {
         super.onResume();
+        updateColor();
         mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_FASTEST);
         final int theme = findTheme();
         final boolean usingEnterKey = usingEnterKey();

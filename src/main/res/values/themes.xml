@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="ConversationsTheme.ContactDetail" parent="ConversationsTheme">
-
-        <item name="android:windowActionBarOverlay">true</item>
-    </style>
-
     <style name="ConversationsTheme" parent="Theme.Design.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="android:fitsSystemWindows">true</item>

@@ -4,6 +4,7 @@
     <style name="ConversationsTheme" parent="Theme.Design.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="android:windowActionBar">false</item>
+        <item name="android:fitsSystemWindows">true</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:actionMenuTextColor">@color/white</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
