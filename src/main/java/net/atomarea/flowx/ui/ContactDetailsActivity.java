@@ -129,21 +129,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     private SystemBarTintManager mStatusBarManager;
     private boolean showLastSeen = true;
 
-    private OnClickListener onBadgeClick = new OnClickListener() {
-
-
-        @Override
-        public void onClick(View v) {
-            Dialog builder = new Dialog(ContactDetailsActivity.this);
-            LayoutInflater inflater = getLayoutInflater();
-            View a = inflater.inflate(R.layout.test, null);
-            ((ImageView) a.findViewById(R.id.details_contact_photo)).setImageBitmap(avatarService().get(contact, getPixel(400)));
-            builder.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-            builder.setContentView(a);
-            builder.show();
-        }
-    };
-
     @Override
     public void onRosterUpdate() {
         refreshUi();
@@ -183,7 +168,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         setSupportActionBar(mToolbar);
 
         mStatusBarManager = new SystemBarTintManager(this);
-        mStatusBarManager.setStatusBarTintEnabled(false);
+        mStatusBarManager.setStatusBarTintEnabled(true);
         mAvatar = (ImageView) findViewById(R.id.avater);
         mInitialStatusBarColor = Color.BLACK;
         mFinalStatusBarColor = getResources().getColor(R.color.primary);
@@ -311,6 +296,9 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         if (getSupportActionBar() != null) {
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+
         }
 
         BitmapDrawable bm = getQrCode();
