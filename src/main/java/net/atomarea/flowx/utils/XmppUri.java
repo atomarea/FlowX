@@ -2,12 +2,12 @@ package net.atomarea.flowx.utils;
 
 import android.net.Uri;
 
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
+
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class XmppUri {
 
@@ -35,7 +35,7 @@ public class XmppUri {
 		String scheme = uri.getScheme();
 		String host = uri.getHost();
 		List<String> segments = uri.getPathSegments();
-		if ("https".equalsIgnoreCase(scheme) && "flowx.im".equalsIgnoreCase(host)) {
+		if ("https".equalsIgnoreCase(scheme) && "conversations.im".equalsIgnoreCase(host)) {
 			if (segments.size() >= 2 && segments.get(1).contains("@")) {
 				// sample : https://conversations.im/i/foo@bar.com
 				try {
