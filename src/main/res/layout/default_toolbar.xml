@@ -6,5 +6,5 @@
     android:id="@+id/toolbar"
     android:background="@color/primary"
     app:elevation="6dp"
-    app:popupTheme="@style/ConversationsActionBarWidget"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark"/>
+    app:popupTheme="@style/ConversationsDialog"
+    android:theme="@style/ConversationsActionBarWidget"/>

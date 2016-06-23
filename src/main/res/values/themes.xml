@@ -45,7 +45,18 @@
         <item name="TextSizeBody">16sp</item>
         <item name="TextSizeHeadline">22sp</item>
     </style>
-
+    <style name="ConversationsDialog" parent="@android:style/Theme.Holo.Light.Dialog">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="colorControlNormal">@color/bootstrap_gray_light</item>
+        <item name="colorControlHighlight">@color/primary</item>
+        <item name="android:colorBackground">@color/white</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="TextSizeInfo">12sp</item>
+        <item name="TextSizeBody">14sp</item>
+        <item name="TextSizeHeadline">20sp</item>
+    </style>
     <style name="ConversationsActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@color/primary</item>
         <item name="android:backgroundStacked">@color/primary_dark</item>
@@ -53,10 +64,7 @@
         <item name="android:icon">@android:color/transparent</item>
     </style>
 
-    <style name="ConversationsActionBarWidget" parent="Theme.AppCompat.Light">
-        <item name="android:popupMenuStyle">@android:style/Widget.Holo.Light.PopupMenu</item>
-        <item name="colorControlNormal">@color/bootstrap_gray_light</item>
-        <item name="colorControlHighlight">@color/primary</item>
+    <style name="ConversationsActionBarWidget" parent="ThemeOverlay.AppCompat.Dark">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorAccent">@color/primary_dark</item>
         <item name="android:textColorSecondary">@color/white</item>
@@ -68,12 +76,6 @@
 
     <style name="ConversationsActionBarTabs" parent="Widget.AppCompat.ActionBar.TabView">
         <item name="android:background">@drawable/actionbar_tab_indicator</item>
-    </style>
-    <style name="ConversationsDialog" parent="@android:style/Theme.Holo.Light.Dialog">
-        <item name="android:windowNoTitle">true</item>
-        <item name="TextSizeInfo">12sp</item>
-        <item name="TextSizeBody">14sp</item>
-        <item name="TextSizeHeadline">20sp</item>
     </style>
 
 </resources>

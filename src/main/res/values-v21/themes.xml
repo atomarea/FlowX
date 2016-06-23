@@ -4,7 +4,7 @@
     <style name="ConversationsTheme" parent="Theme.Design.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="android:windowActionBar">false</item>
-        <item name="android:fitsSystemWindows">true</item>
+        <item name="android:fitsSystemWindows">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:actionMenuTextColor">@color/white</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
@@ -47,15 +47,15 @@
         <item name="android:colorPrimary">@color/primary</item>
         <item name="android:colorPrimaryDark">@color/primary_dark</item>
         <item name="android:colorAccent">@color/accent</item>
+        <item name="colorControlNormal">@color/bootstrap_gray_light</item>
+        <item name="colorControlHighlight">@color/primary</item>
+        <item name="android:colorBackground">@color/white</item>
         <item name="android:windowNoTitle">true</item>
         <item name="TextSizeInfo">12sp</item>
         <item name="TextSizeBody">14sp</item>
         <item name="TextSizeHeadline">20sp</item>
     </style>
-    <style name="ConversationsActionBarWidget" parent="Theme.AppCompat.Light">
-        <item name="android:popupMenuStyle">@android:style/Widget.Holo.Light.PopupMenu</item>
-        <item name="colorControlNormal">@color/bootstrap_gray_light</item>
-        <item name="colorControlHighlight">@color/primary</item>
+    <style name="ConversationsActionBarWidget" parent="ThemeOverlay.AppCompat.Dark">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorAccent">@color/primary_dark</item>
         <item name="android:textColorSecondary">@color/white</item>

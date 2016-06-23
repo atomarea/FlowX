@@ -1158,7 +1158,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
         Bundle extras = getIntent().getExtras();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (extras != null) {
+            if (extras != null && extras.containsKey("FirstStart")) {
                 FirstStartTime = extras.getLong("FirstStart");
                 Log.d(Config.LOGTAG, "Get first start time from StartUI: " + FirstStartTime);
             }
