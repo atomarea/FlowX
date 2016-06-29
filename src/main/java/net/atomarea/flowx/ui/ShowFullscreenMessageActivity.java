@@ -5,9 +5,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -19,17 +18,14 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.github.rtoshiro.view.video.FullscreenVideoLayout;
 
-import net.atomarea.flowx.R;
-
 import java.io.File;
 import java.io.IOException;
 
+import net.atomarea.flowx.R;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
-public class ShowFullscreenMessageActivity extends AppCompatActivity {
-    private static Toolbar mToolbar;
-
+public class ShowFullscreenMessageActivity extends Activity {
 
     PhotoView mImage;
     FullscreenVideoLayout mVideo;
@@ -41,14 +37,21 @@ public class ShowFullscreenMessageActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fullscreen_message);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
         WindowManager.LayoutParams layout = getWindow().getAttributes();
         layout.screenBrightness = 1;
         getWindow().setAttributes(layout);
-        supportRequestWindowFeature(Window.FEATURE_ACTION_BAR);
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         getWindow().addFlags(layout.FLAG_KEEP_SCREEN_ON);
+        getActionBar().hide();
+        if (Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else {
+            View decorView = getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+        }
+        setContentView(R.layout.activity_fullscreen_message);
         mImage = (PhotoView) findViewById(R.id.message_image_view);
         mVideo = (FullscreenVideoLayout) findViewById(R.id.message_video_view);
         mFullscreenbutton = (ImageView) findViewById(R.id.vcv_img_fullscreen);

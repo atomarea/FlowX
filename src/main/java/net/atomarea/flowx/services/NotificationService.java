@@ -112,8 +112,8 @@ public class NotificationService {
     public void pushFromBacklog(final Message message) {
         if (notify(message)) {
             synchronized (notifications) {
-                				pushToStack(message);
-                			}
+                pushToStack(message);
+            }
         }
     }
 
@@ -144,9 +144,12 @@ public class NotificationService {
         final boolean isScreenOn = mXmppConnectionService.isInteractive();
 
         if (this.mIsInForeground && isScreenOn && this.mOpenConversation == message.getConversation()) {
+            mXmppConnectionService.vibrate();
             return;
         }
-
+        if (this.mIsInForeground && isScreenOn) {
+            mXmppConnectionService.vibrate();
+        }
         synchronized (notifications) {
             final String conversationUuid = message.getConversationUuid();
             if (notifications.containsKey(conversationUuid)) {
@@ -206,6 +209,7 @@ public class NotificationService {
             } else {
                 mBuilder = buildMultipleConversation();
             }
+            mBuilder.setNumber(mXmppConnectionService.unreadCount());
             if (notify && !isQuietHours()) {
                 if (vibrate) {
                     final int dat = 70;
@@ -225,7 +229,7 @@ public class NotificationService {
             mBuilder.setDeleteIntent(createDeleteIntent());
             if (led) {
                 mBuilder.setLights(0x0087FF, 2000, 4000);
-        }
+            }
             final Notification notification = mBuilder.build();
             notificationManager.notify(NOTIFICATION_ID, notification);
         }
@@ -282,7 +286,7 @@ public class NotificationService {
             if ((message = getImage(messages)) != null) {
                 modifyForImage(mBuilder, message, messages, notify);
             } else if (conversation.getMode() == Conversation.MODE_MULTI) {
-                					modifyForConference(mBuilder, conversation, messages, notify);
+                modifyForConference(mBuilder, conversation, messages, notify);
             } else {
                 modifyForTextOnly(mBuilder, messages, notify);
             }
@@ -348,17 +352,17 @@ public class NotificationService {
         final NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
         style.setBigContentTitle(conversation.getName());
 
-        for(Message message : messages) {
+        for (Message message : messages) {
             if (message.hasMeCommand()) {
-                style.addLine(UIHelper.getMessagePreview(mXmppConnectionService,message).first);
+                style.addLine(UIHelper.getMessagePreview(mXmppConnectionService, message).first);
             } else {
                 style.addLine(Html.fromHtml("<b>" + UIHelper.getMessageDisplayName(message) + "</b>: " + UIHelper.getMessagePreview(mXmppConnectionService, message).first));
             }
         }
-        builder.setContentText((first.hasMeCommand() ? "" :UIHelper.getMessageDisplayName(first)+ ": ") +UIHelper.getMessagePreview(mXmppConnectionService, first).first);
+        builder.setContentText((first.hasMeCommand() ? "" : UIHelper.getMessageDisplayName(first) + ": ") + UIHelper.getMessagePreview(mXmppConnectionService, first).first);
         builder.setStyle(style);
         if (notify) {
-            builder.setTicker((last.hasMeCommand() ? "" : UIHelper.getMessageDisplayName(last) + ": ") + UIHelper.getMessagePreview(mXmppConnectionService,last).first);
+            builder.setTicker((last.hasMeCommand() ? "" : UIHelper.getMessageDisplayName(last) + ": ") + UIHelper.getMessagePreview(mXmppConnectionService, last).first);
         }
     }
 

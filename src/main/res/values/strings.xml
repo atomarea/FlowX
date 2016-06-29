@@ -678,4 +678,5 @@
 	<string name="pref_broadcast_last_activity_summary">Let all your contacts know when you use FlowX</string>
 	<string name="download_failed_could_not_write_file">Download failed: Could not write file</string>
 	<string name="unable_to_connect_to_keychain">Unable to connect to OpenKeychain</string>
+	<string name="send_image">Send image?</string>
 </resources>

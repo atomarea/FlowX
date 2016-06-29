@@ -576,4 +576,5 @@
     <string name="pref_broadcast_last_activity_summary">Zeigt deinen Kontakten, wann du zuletzt online warst.</string>
     <string name="pref_manually_change_presence">Status anzeigen</string>
     <string name="pref_manually_change_presence_summary">Status Nachricht in deinem Kontakt sichbar machen?</string>
+    <string name="send_image">Bild senden?</string>
 </resources>
