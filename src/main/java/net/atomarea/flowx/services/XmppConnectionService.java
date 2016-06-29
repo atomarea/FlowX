@@ -23,6 +23,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.security.KeyChain;
@@ -380,6 +381,7 @@ public class XmppConnectionService extends Service {
         }
 
     }
+
     public OpenPgpApi getOpenPgpApi() {
         if (!Config.supportOpenPgp()) {
             return null;
@@ -762,7 +764,7 @@ public class XmppConnectionService extends Service {
                 public void onBound(IOpenPgpService2 service) {
                     for (Account account : accounts) {
                         final PgpDecryptionService pgp = account.getPgpDecryptionService();
-                        if(pgp != null) {
+                        if (pgp != null) {
                             pgp.continueDecryption(true);
                         }
                     }
@@ -1353,7 +1355,7 @@ public class XmppConnectionService extends Service {
 
     public List<Conversation> findAllConferencesWith(Contact contact) {
         ArrayList<Conversation> results = new ArrayList<>();
-        for(Conversation conversation : conversations) {
+        for (Conversation conversation : conversations) {
             if (conversation.getMode() == Conversation.MODE_MULTI
                     && conversation.getMucOptions().isContactInRoom(contact)) {
                 results.add(conversation);
@@ -3492,5 +3494,11 @@ public class XmppConnectionService extends Service {
         public XmppConnectionService getService() {
             return XmppConnectionService.this;
         }
+    }
+
+    public void vibrate() {
+        Log.d(Config.LOGTAG, "Notification: short vibrate");
+        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        vibrator.vibrate(100);
     }
 }
