@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -17,11 +18,10 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.github.rtoshiro.view.video.FullscreenVideoLayout;
 
-import net.atomarea.flowx.R;
-
 import java.io.File;
 import java.io.IOException;
 
+import net.atomarea.flowx.R;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -43,6 +43,14 @@ public class ShowFullscreenMessageActivity extends Activity {
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         getWindow().addFlags(layout.FLAG_KEEP_SCREEN_ON);
         getActionBar().hide();
+        if (Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else {
+            View decorView = getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+        }
         setContentView(R.layout.activity_fullscreen_message);
         mImage = (PhotoView) findViewById(R.id.message_image_view);
         mVideo = (FullscreenVideoLayout) findViewById(R.id.message_video_view);
