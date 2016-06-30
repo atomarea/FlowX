@@ -33,7 +33,7 @@ public class ShowFullscreenMessageActivity extends AppCompatActivity {
 
     private static Toolbar mToolbar;
 
-    private ConversationActivity activity;
+    private ConversationActivity AppCompatActivity;
     PhotoView mImage;
     FullscreenVideoLayout mVideo;
     ImageView mFullscreenbutton;

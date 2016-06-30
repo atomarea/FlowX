@@ -6,11 +6,6 @@
     android:orientation="vertical"
     android:background="@android:color/black">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/tool_bar">
-    </include>
-
     <uk.co.senab.photoview.PhotoView
         android:id="@id/message_image_view"
         android:layout_width="match_parent"
