@@ -1346,7 +1346,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                         mPendingFileUris.addAll(uris);
                         if (xmppConnectionServiceBound) {
                             for (Iterator<Uri> i = mPendingFileUris.iterator(); i.hasNext(); i.remove()) {
-                                Toast.makeText(ConversationActivity.this, "File", Toast.LENGTH_SHORT).show();
+                                attachFileToConversation(c, i.next());
                             }
                         }
                     }
