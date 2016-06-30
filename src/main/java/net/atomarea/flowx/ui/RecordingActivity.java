@@ -15,13 +15,15 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import net.atomarea.flowx.R;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.persistance.FileBackend;
 
 public class RecordingActivity extends Activity implements View.OnClickListener {
 
@@ -60,7 +62,7 @@ public class RecordingActivity extends Activity implements View.OnClickListener 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Log.d("FlowX", "output: " + getOutputFile());
+		Log.d(Config.LOGTAG, "output: " + getOutputFile());
 		startRecording();
 	}
 
@@ -93,9 +95,9 @@ public class RecordingActivity extends Activity implements View.OnClickListener 
 			mRecorder.start();
 			mStartTime = SystemClock.elapsedRealtime();
 			mHandler.postDelayed(mTickExecutor, 100);
-			Log.d("FlowX","started recording to "+mOutputFile.getAbsolutePath());
+			Log.d(Config.LOGTAG,"started recording to "+mOutputFile.getAbsolutePath());
 		} catch (IOException e) {
-			Log.e("FlowX", "prepare() failed "+e.getMessage());
+			Log.e(Config.LOGTAG, "prepare() failed "+e.getMessage());
 		}
 	}
 
@@ -113,7 +115,7 @@ public class RecordingActivity extends Activity implements View.OnClickListener 
 	private File getOutputFile() {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
 		return new File(Environment.getExternalStorageDirectory().getAbsolutePath().toString()
-				+ "/FlowX/RECORDING_"
+				+ FileBackend.getConversationsAudioDirectory() + "/"
 				+ dateFormat.format(new Date())
 				+ ".m4a");
 	}
@@ -126,7 +128,7 @@ public class RecordingActivity extends Activity implements View.OnClickListener 
 		mTimerTextView.setText(minutes+":"+(seconds < 10 ? "0"+seconds : seconds)+"."+milliseconds);
 		if (mRecorder != null) {
 			amplitudes[i] = mRecorder.getMaxAmplitude();
-			//Log.d("FlowX","amplitude: "+(amplitudes[i] * 100 / 32767));
+			//Log.d(Config.LOGTAG,"amplitude: "+(amplitudes[i] * 100 / 32767));
 			if (i >= amplitudes.length -1) {
 				i = 0;
 			} else {
