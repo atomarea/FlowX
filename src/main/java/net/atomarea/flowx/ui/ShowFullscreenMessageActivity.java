@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -27,11 +29,13 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class ShowFullscreenMessageActivity extends Activity {
 
+    private ConversationActivity activity;
     PhotoView mImage;
     FullscreenVideoLayout mVideo;
     ImageView mFullscreenbutton;
     Uri mFileUri;
     File mFile;
+    ImageButton mFAB;
 
 
     @Override
@@ -55,6 +59,36 @@ public class ShowFullscreenMessageActivity extends Activity {
         mImage = (PhotoView) findViewById(R.id.message_image_view);
         mVideo = (FullscreenVideoLayout) findViewById(R.id.message_video_view);
         mFullscreenbutton = (ImageView) findViewById(R.id.vcv_img_fullscreen);
+
+        mFAB = (ImageButton) findViewById(R.id.imageButton);
+        mFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mVideo.reset();
+                shareWith(mFileUri);
+            }
+        });
+    }
+
+    private void shareWith(Uri mFileUri) {
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType(getMimeType(mFileUri.toString()));
+        share.putExtra(Intent.EXTRA_STREAM, Uri.parse(mFileUri.toString()));
+        startActivity(Intent.createChooser(share, getString(R.string.share_with)));
+    }
+
+    public static String getMimeType(String path) {
+        try {
+            String type = null;
+            String extension = path.substring(path.lastIndexOf(".") + 1, path.length());
+            if (extension != null) {
+                type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            }
+            return type;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -80,11 +114,6 @@ public class ShowFullscreenMessageActivity extends Activity {
                 }
             }
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     private void DisplayImage(File file) {
