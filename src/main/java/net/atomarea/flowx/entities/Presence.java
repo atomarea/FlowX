@@ -1,8 +1,8 @@
 package net.atomarea.flowx.entities;
 
-import net.atomarea.flowx.xml.Element;
-
 import java.util.Locale;
+
+import net.atomarea.flowx.xml.Element;
 
 public class Presence implements Comparable {
 

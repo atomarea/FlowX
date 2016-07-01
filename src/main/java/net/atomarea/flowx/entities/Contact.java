@@ -116,7 +116,7 @@ public class Contact implements ListItem, Blockable {
 			return this.systemName;
 		} else if (this.serverName != null) {
 			return this.serverName;
-		} else if (this.presenceName != null && trusted()) {
+		} else if (this.presenceName != null) {
 			return this.presenceName;
 		} else if (jid.hasLocalpart()) {
 			return jid.getLocalpart();
@@ -148,7 +148,7 @@ public class Contact implements ListItem, Blockable {
 		for (final String group : getGroups()) {
 			tags.add(new Tag(group, UIHelper.getColorForName(group)));
 		}
-		Presence.Status status = getMostAvailableStatus();
+		Presence.Status status = getShownStatus();
 		if (status != Presence.Status.OFFLINE) {
 			tags.add(UIHelper.getTagForStatus(context, status));
 		}
@@ -237,13 +237,8 @@ public class Contact implements ListItem, Blockable {
 		this.resetOption(Options.PENDING_SUBSCRIPTION_REQUEST);
 	}
 
-	public Presence.Status getMostAvailableStatus() {
-		Presence p = this.presences.getMostAvailablePresence();
-		if (p == null) {
-			return Presence.Status.OFFLINE;
-		}
-
-		return p.getStatus();
+	public Presence.Status getShownStatus() {
+		return this.presences.getShownStatus();
 	}
 
 	public boolean setPhotoUri(String uri) {
@@ -482,15 +477,6 @@ public class Contact implements ListItem, Blockable {
 
 	public boolean trusted() {
 		return getOption(Options.FROM) && getOption(Options.TO);
-	}
-
-	public String getShareableUri() {
-		if (getOtrFingerprints().size() >= 1) {
-			String otr = getOtrFingerprints().get(0);
-			return "xmpp:" + getJid().toBareJid().toString() + "?otr-fingerprint=" + otr;
-		} else {
-			return "xmpp:" + getJid().toBareJid().toString();
-		}
 	}
 
 	@Override
