@@ -2,6 +2,7 @@ package net.atomarea.flowx.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -25,38 +26,8 @@ public abstract class AbstractSearchableListItemActivity extends XmppActivity {
     private ListView mListView;
     private final List<ListItem> listItems = new ArrayList<>();
     private ArrayAdapter<ListItem> mListItemsAdapter;
-    private static Toolbar mToolbar;
-
     private EditText mSearchEditText;
 
-    private final MenuItem.OnActionExpandListener mOnActionExpandListener = new MenuItem.OnActionExpandListener() {
-
-        @Override
-        public boolean onMenuItemActionExpand(final MenuItem item) {
-            mSearchEditText.post(new Runnable() {
-
-                @Override
-                public void run() {
-                    mSearchEditText.requestFocus();
-                    final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.showSoftInput(mSearchEditText,
-                            InputMethodManager.SHOW_IMPLICIT);
-                }
-            });
-
-            return true;
-        }
-
-        @Override
-        public boolean onMenuItemActionCollapse(final MenuItem item) {
-            final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(),
-                    InputMethodManager.HIDE_IMPLICIT_ONLY);
-            mSearchEditText.setText("");
-            filterContacts();
-            return true;
-        }
-    };
 
     private final TextWatcher mSearchTextWatcher = new TextWatcher() {
 
@@ -96,27 +67,52 @@ public abstract class AbstractSearchableListItemActivity extends XmppActivity {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_contact);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
         mListView = (ListView) findViewById(R.id.choose_contact_list);
         mListView.setFastScrollEnabled(true);
         mListItemsAdapter = new ListItemAdapter(this, listItems);
         mListView.setAdapter(mListItemsAdapter);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setHomeButtonEnabled(true);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.choose_contact, menu);
-        //final MenuItem menuSearchView = menu.findItem(R.id.action_search);
-        //final View mSearchView = menuSearchView.getActionView();
-        //mSearchEditText = (EditText) menu.findItem(R.id.search_field).getActionView();
-        // mSearchEditText.addTextChangedListener(mSearchTextWatcher);
+        final MenuItem menuSearchView = menu.findItem(R.id.action_search);
+        final View mSearchView = menuSearchView.getActionView();
+        EditText mSearchEditText = ((EditText)mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text));
+        mSearchEditText.addTextChangedListener(mSearchTextWatcher);
        //menuSearchView.setOnActionExpandListener(mOnActionExpandListener);
+        MenuItemCompat.setOnActionExpandListener(menuSearchView,
+                new MenuItemCompat.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem menuItem) {
+                        EditText mSearchEditText = ((EditText)mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text));
+                        mSearchEditText.post(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                EditText mSearchEditText = ((EditText)mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text));
+                                mSearchEditText.requestFocus();
+                                final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.showSoftInput(mSearchEditText,
+                                        InputMethodManager.SHOW_IMPLICIT);
+                            }
+                        });
+
+                        return true;
+                    }
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem menuItem) {
+                        EditText mSearchEditText = ((EditText)mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text));
+                        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(),
+                                InputMethodManager.HIDE_IMPLICIT_ONLY);
+                        mSearchEditText.setText("");
+                        filterContacts();
+                        return true;
+                    }
+                });
         return true;
+
     }
 
     protected void filterContacts() {

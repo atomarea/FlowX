@@ -99,36 +99,10 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 	private List<String> mKnownConferenceHosts;
 	private Invite mPendingInvite = null;
 	private EditText mSearchEditText;
+
 	private AtomicBoolean mRequestedContactsPermission = new AtomicBoolean(false);
 	private final int REQUEST_SYNC_CONTACTS = 0x101;
 	private final int REQUEST_CREATE_CONFERENCE = 0x102;
-
-	private MenuItemCompat.OnActionExpandListener mOnActionExpandListener = new MenuItemCompat.OnActionExpandListener() {
-
-		@Override
-		public boolean onMenuItemActionExpand(MenuItem item) {
-			mSearchEditText.post(new Runnable() {
-
-				@Override
-				public void run() {
-					mSearchEditText.requestFocus();
-					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-					imm.showSoftInput(mSearchEditText,
-							InputMethodManager.SHOW_IMPLICIT);
-				}
-			});
-
-			return true;
-		}
-
-		@Override
-		public boolean onMenuItemActionCollapse(MenuItem item) {
-			hideKeyboard();
-			mSearchEditText.setText("");
-			filter(null);
-			return true;
-		}
-	};
 	private boolean mHideOfflineContacts = false;
 	private ActionBar.TabListener mTabListener = new ActionBar.TabListener() {
 
@@ -404,7 +378,7 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				xmppConnectionService.deleteContactOnServer(contact);
-//				filter(mSearchEditText.getText().toString());
+				//filter(mSearchEditText.getText().toString());
 			}
 		});
 		builder.create().show();
@@ -431,7 +405,6 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 			}
 		});
 		builder.create().show();
-
 	}
 
 	@SuppressLint("InflateParams")
@@ -624,13 +597,41 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 		MenuItem menuCreateConference = menu.findItem(R.id.action_create_conference);
 		MenuItem menuHideOffline = menu.findItem(R.id.action_hide_offline);
 		menuHideOffline.setChecked(this.mHideOfflineContacts);
-		//mMenuSearchView = menu.findItem(R.id.action_search);
+		final MenuItem mMenuSearchView = menu.findItem(R.id.action_search);
+		final View mSearchView = mMenuSearchView.getActionView();
+		EditText mSearchEditText = ((EditText)mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text));
 		//mMenuSearchView.setOnActionExpandListener(mOnActionExpandListener);
-		//View mSearchView = mMenuSearchView.getActionView();
-		//mSearchEditText = (EditText) mSearchView
-		//	.findViewById(R.id.search_field);
-		//mSearchEditText.addTextChangedListener(mSearchTextWatcher);
-		//mSearchEditText.setOnEditorActionListener(mSearchDone);
+		MenuItemCompat.setOnActionExpandListener(mMenuSearchView, new MenuItemCompat.OnActionExpandListener() {
+
+			@Override
+			public boolean onMenuItemActionExpand(MenuItem item) {
+				EditText mSearchEditText = ((EditText)mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text));
+				mSearchEditText.post(new Runnable() {
+
+					@Override
+					public void run() {
+						EditText mSearchEditText = ((EditText)mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text));
+						mSearchEditText.requestFocus();
+						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+						imm.showSoftInput(mSearchEditText,
+								InputMethodManager.SHOW_IMPLICIT);
+					}
+				});
+
+				return true;
+			}
+
+			@Override
+			public boolean onMenuItemActionCollapse(MenuItem item) {
+				EditText mSearchEditText = ((EditText)mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text));
+				hideKeyboard();
+				mSearchEditText.setText("");
+				filter(null);
+				return true;
+			}
+		});
+		mSearchEditText.addTextChangedListener(mSearchTextWatcher);
+		mSearchEditText.setOnEditorActionListener(mSearchDone);
 		if (mViewPager.getCurrentItem()==0){
 			menu.findItem(R.id.action_create_conference).setVisible(false);
 			menu.findItem(R.id.action_create_contact).setVisible(true);
@@ -640,8 +641,8 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 			menu.findItem(R.id.action_create_contact).setVisible(false);
 		}
 			if (mInitialJid != null) {
-			//mMenuSearchView.expandActionView(mOptionsMenu.findItem(R.id.action_search));
-			//mSearchEditText.append(mInitialJid);
+				MenuItemCompat.expandActionView(mMenuSearchView);
+			mSearchEditText.append(mInitialJid);
 			filter(mInitialJid);
 		}
 		return super.onCreateOptionsMenu(menu);
