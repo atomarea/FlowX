@@ -150,7 +150,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     @Override
     protected String getShareableUri() {
         if (contact != null) {
-            return contact.getShareableUri();
+            return "xmpp:" + contact.getJid().toBareJid().toString();
         } else {
             return "";
         }
@@ -178,6 +178,9 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
         switch (menuItem.getItemId()) {
             case android.R.id.home:
                 finish();
+                break;
+            case R.id.action_share:
+                shareUri();
                 break;
             case R.id.action_delete_contact:
                 builder.setTitle(getString(R.string.action_delete_contact))
@@ -306,7 +309,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
             send.setOnCheckedChangeListener(null);
             receive.setOnCheckedChangeListener(null);
 
-                List<String> statusMessages = contact.getPresences().getStatusMessages();
+            List<String> statusMessages = contact.getPresences().getStatusMessages();
             if (statusMessages.size() == 0) {
                 status.setVisibility(View.VISIBLE);
                 statusView.setVisibility(View.VISIBLE);
@@ -317,7 +320,7 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
                 statusView.setVisibility(View.VISIBLE);
                 status.setVisibility(View.VISIBLE);
                 int s = statusMessages.size();
-                for(int i = 0; i < s; ++i) {
+                for (int i = 0; i < s; ++i) {
                     if (s > 1) {
                         builder.append("");
                     }
