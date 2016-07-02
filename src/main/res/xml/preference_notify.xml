@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/pref_notification_settings"
+    android:icon="@drawable/ic_settings_notifications">
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="show_notification"
+        android:summary="@string/pref_notifications_summary"
+        android:title="@string/pref_notifications" />
+    <PreferenceScreen
+        android:dependency="show_notification"
+        android:summary="@string/pref_quiet_hours_summary"
+        android:title="@string/title_pref_quiet_hours">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="enable_quiet_hours"
+            android:summary="@string/pref_quiet_hours_summary"
+            android:title="@string/title_pref_enable_quiet_hours" />
+        <net.atomarea.flowx.ui.TimePreference
+            android:dependency="enable_quiet_hours"
+            android:key="quiet_hours_start"
+            android:negativeButtonText="@string/cancel"
+            android:positiveButtonText="@string/set"
+            android:title="@string/title_pref_quiet_hours_start_time" />
+        <net.atomarea.flowx.ui.TimePreference
+            android:dependency="enable_quiet_hours"
+            android:key="quiet_hours_end"
+            android:negativeButtonText="@string/cancel"
+            android:positiveButtonText="@string/set"
+            android:title="@string/title_pref_quiet_hours_end_time" />
+    </PreferenceScreen>
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:dependency="show_notification"
+        android:key="vibrate_on_notification"
+        android:summary="@string/pref_vibrate_summary"
+        android:title="@string/pref_vibrate" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:dependency="show_notification"
+        android:key="led"
+        android:title="@string/pref_led"
+        android:summary="@string/pref_led_summary" />
+    <RingtonePreference
+        android:defaultValue="content://settings/system/notification_sound"
+        android:dependency="show_notification"
+        android:key="notification_ringtone"
+        android:ringtoneType="notification"
+        android:summary="@string/pref_sound_summary"
+        android:title="@string/pref_sound" />
+</PreferenceScreen>

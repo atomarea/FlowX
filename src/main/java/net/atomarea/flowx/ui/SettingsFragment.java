@@ -1,5 +1,6 @@
 package net.atomarea.flowx.ui;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -13,53 +14,71 @@ import android.widget.LinearLayout;
 
 import net.atomarea.flowx.R;
 
-public class SettingsFragment extends PreferenceFragment {
+public class SettingsFragment extends PreferenceFragment implements Preference.OnPreferenceClickListener {
 
-	//http://stackoverflow.com/questions/16374820/action-bar-home-button-not-functional-with-nested-preferencescreen/16800527#16800527
-	private void initializeActionBar(PreferenceScreen preferenceScreen) {
-		final Dialog dialog = preferenceScreen.getDialog();
+	private Callback mCallback;
 
-		if (dialog != null) {
-			View homeBtn = dialog.findViewById(android.R.id.home);
+	private static final String KEY_1 = "NESTED_KEY1";
+	private static final String KEY_2 = "NESTED_KEY2";
+	private static final String KEY_3 = "NESTED_KEY3";
+	private static final String KEY_4 = "NESTED_KEY4";
+	private static final String KEY_5 = "NESTED_KEY5";
 
-			if (homeBtn != null) {
-				View.OnClickListener dismissDialogClickListener = new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						dialog.dismiss();
-					}
-				};
+	@Override
+	public void onAttach(Activity activity) {
 
-				ViewParent homeBtnContainer = homeBtn.getParent();
+		super.onAttach(activity);
 
-				if (homeBtnContainer instanceof FrameLayout) {
-					ViewGroup containerParent = (ViewGroup) homeBtnContainer.getParent();
-					if (containerParent instanceof LinearLayout) {
-						((LinearLayout) containerParent).setOnClickListener(dismissDialogClickListener);
-					} else {
-						((FrameLayout) homeBtnContainer).setOnClickListener(dismissDialogClickListener);
-					}
-				} else {
-					homeBtn.setOnClickListener(dismissDialogClickListener);
-				}
-			}
+		if (activity instanceof Callback) {
+			mCallback = (Callback) activity;
+		} else {
+			throw new IllegalStateException("Owner must implement Callback interface");
 		}
 	}
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		// Load the preferences from an XML resource
-		addPreferencesFromResource(R.xml.preferences);
+		addPreferencesFromResource(R.xml.pref);
+
+		// add listeners for non-default actions
+		Preference preference = findPreference(KEY_1);
+		preference.setOnPreferenceClickListener(this);
+		preference = findPreference(KEY_2);
+		preference.setOnPreferenceClickListener(this);
+		preference = findPreference(KEY_3);
+		preference.setOnPreferenceClickListener(this);
+		preference = findPreference(KEY_4);
+		preference.setOnPreferenceClickListener(this);
+		preference = findPreference(KEY_5);
+		preference.setOnPreferenceClickListener(this);
 	}
 
 	@Override
-	public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-		super.onPreferenceTreeClick(preferenceScreen, preference);
-		if (preference instanceof PreferenceScreen) {
-			initializeActionBar((PreferenceScreen) preference);
+	public boolean onPreferenceClick(Preference preference) {
+		// here you should use the same keys as you used in the xml-file
+		if (preference.getKey().equals(KEY_1)) {
+			mCallback.onNestedPreferenceSelected(NestedPreferenceFragment.NESTED_SCREEN_1_KEY);
 		}
+
+		if (preference.getKey().equals(KEY_2)) {
+			mCallback.onNestedPreferenceSelected(NestedPreferenceFragment.NESTED_SCREEN_2_KEY);
+		}
+		if (preference.getKey().equals(KEY_3)) {
+			mCallback.onNestedPreferenceSelected(NestedPreferenceFragment.NESTED_SCREEN_3_KEY);
+		}
+		if (preference.getKey().equals(KEY_4)) {
+			mCallback.onNestedPreferenceSelected(NestedPreferenceFragment.NESTED_SCREEN_4_KEY);
+		}
+		if (preference.getKey().equals(KEY_5)) {
+			mCallback.onNestedPreferenceSelected(NestedPreferenceFragment.NESTED_SCREEN_5_KEY);
+		}
+
+
 		return false;
+	}
+
+	public interface Callback {
+		public void onNestedPreferenceSelected(int key);
 	}
 }

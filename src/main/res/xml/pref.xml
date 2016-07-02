@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/pref_general" >
+
+        <Preference
+            android:key="NESTED_KEY1"
+            android:persistent="false"
+            android:title="@string/pref_notification_settings"
+            android:icon="@drawable/ic_settings_notifications"/>
+        <Preference
+            android:key="NESTED_KEY2"
+            android:persistent="false"
+            android:title="@string/pref_input_options"
+            android:icon="@drawable/ic_settings_input"/>
+        <Preference
+            android:key="NESTED_KEY3"
+            android:persistent="false"
+            android:title="@string/pref_presence_settings"
+            android:icon="@drawable/ic_settings_status"/>
+        <Preference
+            android:key="NESTED_KEY4"
+            android:persistent="false"
+            android:title="@string/pref_advanced_options"
+            android:icon="@drawable/ic_settings_advance"/>
+        <Preference
+            android:key="NESTED_KEY5"
+            android:persistent="false"
+            android:title="@string/title_activity_about"
+            android:icon="@drawable/ic_settings_help" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
+
+

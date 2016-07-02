@@ -158,7 +158,7 @@ public class ChooseContactActivity extends AbstractSearchableListItemActivity {
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		final Intent i = getIntent();
-		boolean showEnterJid = i != null && i.getBooleanExtra("show_enter_jid", false);
+		boolean showEnterJid = i != null && i.getBooleanExtra("show_enter_jid", true);
 		menu.findItem(R.id.action_create_contact).setVisible(showEnterJid);
 		return true;
 	}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:defaultValue="Mobile"
+        android:entries="@array/resources"
+        android:entryValues="@array/resources"
+        android:key="resource"
+        android:summary="@string/pref_xmpp_resource_summary"
+        android:title="@string/pref_xmpp_resource" />
+    <ListPreference
+        android:defaultValue="immer"
+        android:entries="@array/filesizes"
+        android:entryValues="@array/filesizes_values"
+        android:key="auto_accept_file_size"
+        android:summary="@string/pref_accept_files_summary"
+        android:title="@string/pref_accept_files" />
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="keep_foreground_service"
+        android:title="@string/pref_keep_foreground_service"
+        android:summary="@string/pref_keep_foreground_service_summary" />
+    <net.atomarea.flowx.ui.ExportLogsPreference
+        android:key="export_logs"
+        android:title="@string/pref_export_logs"
+        android:summary="@string/pref_export_logs_summary" />
+</PreferenceScreen>

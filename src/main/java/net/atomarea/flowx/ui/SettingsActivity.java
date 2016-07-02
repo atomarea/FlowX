@@ -27,9 +27,12 @@ import java.util.List;
 import java.util.Locale;
 
 public class SettingsActivity extends XmppActivity implements
-		OnSharedPreferenceChangeListener {
+		OnSharedPreferenceChangeListener, SettingsFragment.Callback {
+
+	//http://stackoverflow.com/questions/27862299/toolbar-is-hidden-in-nested-preferencescreen
 
 	public static final int REQUEST_WRITE_LOGS = 0xbf8701;
+	private static final String TAG_NESTED = "TAG_NESTED";
 	private SettingsFragment mSettingsFragment;
 	private static Toolbar mToolbar;
 
@@ -52,6 +55,20 @@ public class SettingsActivity extends XmppActivity implements
 
 	}
 
+	@Override
+	public void onBackPressed() {
+		// this if statement is necessary to navigate through nested and main fragments
+		if (getFragmentManager().getBackStackEntryCount() == 0) {
+			super.onBackPressed();
+		} else {
+			getFragmentManager().popBackStack();
+		}
+	}
+
+	@Override
+	public void onNestedPreferenceSelected(int key) {
+		getFragmentManager().beginTransaction().replace(R.id.fragment_container, NestedPreferenceFragment.newInstance(key), TAG_NESTED).addToBackStack(TAG_NESTED).commit();
+	}
 	@Override
 	public void onStart() {
 		super.onStart();
