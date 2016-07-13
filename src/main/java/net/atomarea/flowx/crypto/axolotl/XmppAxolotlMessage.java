@@ -3,6 +3,10 @@ package net.atomarea.flowx.crypto.axolotl;
 import android.util.Base64;
 import android.util.Log;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.xml.Element;
+import net.atomarea.flowx.xmpp.jid.Jid;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -20,10 +24,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.xml.Element;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class XmppAxolotlMessage {
 	public static final String CONTAINERTAG = "encrypted";

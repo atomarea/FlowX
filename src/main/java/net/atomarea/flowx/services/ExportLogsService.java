@@ -4,10 +4,16 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Environment;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
+
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.persistance.DatabaseBackend;
+import net.atomarea.flowx.persistance.FileBackend;
+import net.atomarea.flowx.xmpp.jid.Jid;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -21,15 +27,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.entities.Conversation;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.persistance.DatabaseBackend;
-import net.atomarea.flowx.persistance.FileBackend;
-import net.atomarea.flowx.ui.UpdaterActivity;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class ExportLogsService extends Service {
 

@@ -16,11 +16,13 @@ import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.utils.PhoneHelper;
+import net.atomarea.flowx.xmpp.jingle.stanzas.Content;
 
 public abstract class AbstractGenerator {
 	private final String[] FEATURES = {
 			"urn:xmpp:jingle:1",
-			"urn:xmpp:jingle:apps:file-transfer:3",
+			Content.Version.FT_3.getNamespace(),
+			Content.Version.FT_4.getNamespace(),
 			"urn:xmpp:jingle:transports:s5b:1",
 			"urn:xmpp:jingle:transports:ibb:1",
 			"http://jabber.org/protocol/muc",
@@ -39,6 +41,9 @@ public abstract class AbstractGenerator {
 	};
 	private final String[] MESSAGE_CORRECTION_FEATURES = {
 			"urn:xmpp:message-correct:0"
+	};
+	private final String[] PRIVACY_SENSITIVE = {
+			"urn:xmpp:time" //XEP-0202: Entity Time leaks time zone
 	};
 	private String mVersion = null;
 	protected final String IDENTITY_NAME = "FlowX";
@@ -96,6 +101,9 @@ public abstract class AbstractGenerator {
 		}
 		if (Config.supportOmemo()) {
 			features.add(AxolotlService.PEP_DEVICE_LIST_NOTIFY);
+		}
+		if (!mXmppConnectionService.useTorToConnect()) {
+			features.addAll(Arrays.asList(PRIVACY_SENSITIVE));
 		}
 		Collections.sort(features);
 		return features;

@@ -422,7 +422,7 @@ public class XmppConnectionService extends Service {
                                          final Uri uri,
                                          final UiCallback<Message> callback) {
         if (FileBackend.weOwnFile(this, uri)) {
-            Log.d(Config.LOGTAG, "trying to attach file that belonged to us");
+            Log.d(Config.LOGTAG,"trying to attach file that belonged to us");
             callback.error(R.string.security_error_invalid_file_access, null);
             return;
         }
@@ -434,24 +434,29 @@ public class XmppConnectionService extends Service {
         }
         message.setCounterpart(conversation.getNextCounterpart());
         message.setType(Message.TYPE_FILE);
-        String path = getFileBackend().getOriginalPath(uri);
-        if (path != null) {
-            message.setRelativeFilePath(path);
-            getFileBackend().updateFileParams(message);
-            if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
-                getPgpEngine().encrypt(message, callback);
-            } else {
-                callback.success(message);
-            }
-        } else {
-            mFileAddingExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
+        final String path = getFileBackend().getOriginalPath(uri);
+        mFileAddingExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (path != null) {
+                    message.setRelativeFilePath(path);
+                    getFileBackend().updateFileParams(message);
+                    if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
+                        getPgpEngine().encrypt(message, callback);
+                    } else {
+                        callback.success(message);
+                    }
+                } else {
                     try {
                         getFileBackend().copyFileToPrivateStorage(message, uri);
                         getFileBackend().updateFileParams(message);
                         if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
-                            getPgpEngine().encrypt(message, callback);
+                            final PgpEngine pgpEngine = getPgpEngine();
+                            if (pgpEngine != null) {
+                                pgpEngine.encrypt(message, callback);
+                            } else if (callback != null) {
+                                callback.error(R.string.unable_to_connect_to_keychain, null);
+                            }
                         } else {
                             callback.success(message);
                         }
@@ -459,8 +464,8 @@ public class XmppConnectionService extends Service {
                         callback.error(e.getResId(), message);
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
     public void attachImageToConversation(final Conversation conversation, final Uri uri, final UiCallback<Message> callback) {

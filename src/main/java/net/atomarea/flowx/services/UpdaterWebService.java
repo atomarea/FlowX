@@ -29,8 +29,8 @@ public class UpdaterWebService extends IntentService {
     public static final String RESPONSE_MESSAGE = "";
 
     private String URL = null;
-    public static final int REGISTRATION_TIMEOUT = 3 * 1000;
-    public static final int WAIT_TIMEOUT = 30 * 1000;
+    public static final int REGISTRATION_TIMEOUT = Config.SOCKET_TIMEOUT * 1000;
+    public static final int WAIT_TIMEOUT = Config.CONNECT_TIMEOUT * 1000;
 
     public UpdaterWebService() {
         super("UpdaterWebService");

@@ -25,6 +25,16 @@ import android.util.Log;
 import android.util.LruCache;
 import android.webkit.MimeTypeMap;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.entities.DownloadableFile;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.CryptoHelper;
+import net.atomarea.flowx.utils.ExifHelper;
+import net.atomarea.flowx.utils.FileUtils;
+import net.atomarea.flowx.xmpp.pep.Avatar;
+
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -44,16 +54,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.entities.DownloadableFile;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.CryptoHelper;
-import net.atomarea.flowx.utils.ExifHelper;
-import net.atomarea.flowx.utils.FileUtils;
-import net.atomarea.flowx.xmpp.pep.Avatar;
 
 public class FileBackend {
     private final SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);

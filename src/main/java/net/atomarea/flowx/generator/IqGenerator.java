@@ -5,6 +5,18 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 
+import org.whispersystems.libaxolotl.IdentityKey;
+import org.whispersystems.libaxolotl.ecc.ECPublicKey;
+import org.whispersystems.libaxolotl.state.PreKeyRecord;
+import org.whispersystems.libaxolotl.state.SignedPreKeyRecord;
+
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.entities.Account;
@@ -18,17 +30,6 @@ import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
-
-import org.whispersystems.libaxolotl.IdentityKey;
-import org.whispersystems.libaxolotl.ecc.ECPublicKey;
-import org.whispersystems.libaxolotl.state.PreKeyRecord;
-import org.whispersystems.libaxolotl.state.SignedPreKeyRecord;
-
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class IqGenerator extends AbstractGenerator {
 
@@ -58,6 +59,19 @@ public class IqGenerator extends AbstractGenerator {
 		Element query = packet.query("jabber:iq:version");
 		query.addChild("name").setContent(IDENTITY_NAME);
 		query.addChild("version").setContent(getIdentityVersion());
+		return packet;
+	}
+
+	public IqPacket entityTimeResponse(IqPacket request) {
+		final IqPacket packet = request.generateResponse(IqPacket.TYPE.RESULT);
+		Element time = packet.addChild("time","urn:xmpp:time");
+		final long now = System.currentTimeMillis();
+		time.addChild("utc").setContent(getTimestamp(now));
+		TimeZone ourTimezone = TimeZone.getDefault();
+		long offsetSeconds = ourTimezone.getOffset(now) / 1000;
+		long offsetMinutes = offsetSeconds % (60 * 60);
+		long offsetHours = offsetSeconds / (60 * 60);
+		time.addChild("tzo").setContent(String.format("%02d",offsetHours)+":"+String.format("%02d",offsetMinutes));
 		return packet;
 	}
 

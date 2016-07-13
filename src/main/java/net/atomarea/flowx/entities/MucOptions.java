@@ -2,18 +2,17 @@ package net.atomarea.flowx.entities;
 
 import android.annotation.SuppressLint;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.forms.Field;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @SuppressLint("DefaultLocale")
 public class MucOptions {

@@ -5,12 +5,6 @@ import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
@@ -19,6 +13,12 @@ import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Presence;
 import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class UIHelper {
 

@@ -8,10 +8,6 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Bookmark;
@@ -23,6 +19,10 @@ import net.atomarea.flowx.entities.MucOptions;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.OnAdvancedStreamFeaturesLoaded;
 import net.atomarea.flowx.xmpp.XmppConnection;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 
