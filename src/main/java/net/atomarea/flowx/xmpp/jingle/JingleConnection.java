@@ -22,6 +22,7 @@ import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.DownloadableFile;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Presence;
+import net.atomarea.flowx.entities.ServiceDiscoveryResult;
 import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.entities.TransferablePlaceholder;
 import net.atomarea.flowx.persistance.FileBackend;
@@ -297,8 +298,9 @@ public class JingleConnection implements Transferable {
 		String resource = jid != null ?jid.getResourcepart() : null;
 		if (resource != null) {
 			Presence presence = this.account.getRoster().getContact(jid).getPresences().getPresences().get(resource);
-			if (presence != null) {
-				List<String> features = presence.getServiceDiscoveryResult().getFeatures();
+			ServiceDiscoveryResult result = presence != null ? presence.getServiceDiscoveryResult() : null;
+			if (result != null) {
+				List<String> features = result.getFeatures();
 				if (features.contains(Content.Version.FT_4.getNamespace())) {
 					this.ftVersion = Content.Version.FT_4;
 				}

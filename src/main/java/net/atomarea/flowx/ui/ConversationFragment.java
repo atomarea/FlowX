@@ -37,7 +37,6 @@ import android.widget.Toast;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.PgpEngine;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
@@ -63,7 +62,6 @@ import net.atomarea.flowx.xmpp.jid.Jid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -1370,8 +1368,9 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         }
         List<String> completions = new ArrayList<>();
         for (MucOptions.User user : conversation.getMucOptions().getUsers()) {
-            if (user.getName().startsWith(incomplete)) {
-                completions.add(user.getName() + (firstWord ? ": " : " "));
+            String name = user.getName();
+            if (name != null && name.startsWith(incomplete)) {
+                completions.add(name + (firstWord ? ": " : " "));
             }
         }
         Collections.sort(completions);
