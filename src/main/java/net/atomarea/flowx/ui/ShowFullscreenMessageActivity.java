@@ -22,10 +22,11 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.github.rtoshiro.view.video.FullscreenVideoLayout;
 
+import net.atomarea.flowx.R;
+
 import java.io.File;
 import java.io.IOException;
 
-import net.atomarea.flowx.R;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 

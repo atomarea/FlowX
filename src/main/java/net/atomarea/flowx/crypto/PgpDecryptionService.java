@@ -3,6 +3,12 @@ package net.atomarea.flowx.crypto;
 import android.app.PendingIntent;
 import android.content.Intent;
 
+import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.entities.DownloadableFile;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.http.HttpConnectionManager;
+import net.atomarea.flowx.services.XmppConnectionService;
+
 import org.openintents.openpgp.util.OpenPgpApi;
 
 import java.io.ByteArrayInputStream;
@@ -16,12 +22,6 @@ import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.List;
-
-import net.atomarea.flowx.entities.Conversation;
-import net.atomarea.flowx.entities.DownloadableFile;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.http.HttpConnectionManager;
-import net.atomarea.flowx.services.XmppConnectionService;
 
 public class PgpDecryptionService {
 

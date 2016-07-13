@@ -3,6 +3,10 @@ package net.atomarea.flowx.crypto.sasl;
 import android.util.Base64;
 import android.util.LruCache;
 
+import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.utils.CryptoHelper;
+import net.atomarea.flowx.xml.TagWriter;
+
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
 import org.bouncycastle.crypto.macs.HMac;
@@ -12,10 +16,6 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.SecureRandom;
-
-import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.utils.CryptoHelper;
-import net.atomarea.flowx.xml.TagWriter;
 
 public class ScramSha1 extends SaslMechanism {
 	// TODO: When channel binding (SCRAM-SHA1-PLUS) is supported in future, generalize this to indicate support and/or usage.

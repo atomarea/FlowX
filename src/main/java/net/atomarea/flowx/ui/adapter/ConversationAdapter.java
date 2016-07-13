@@ -93,7 +93,6 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
             if (mimeType != null && message.getMimeType().startsWith("video/")) {
                 mLastMessage.setVisibility(View.GONE);
                 imagePreview.setVisibility(View.VISIBLE);
-                activity.loadVideoPreview(message, imagePreview);
             } else if (message.getFileParams().width > 0) {
                 mLastMessage.setVisibility(View.GONE);
                 imagePreview.setVisibility(View.VISIBLE);

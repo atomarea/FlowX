@@ -2,18 +2,17 @@ package net.atomarea.flowx.entities;
 
 import android.annotation.SuppressLint;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.forms.Field;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @SuppressLint("DefaultLocale")
 public class MucOptions {
@@ -301,17 +300,18 @@ public class MucOptions {
 			} else if (getAffiliation().outranks(another.getAffiliation())) {
 				return -1;
 			} else {
-				Contact ourContact = getContact();
-				Contact anotherContact = another.getContact();
-				if (ourContact != null && anotherContact != null) {
-					return ourContact.compareTo(anotherContact);
-				} else if (ourContact == null && anotherContact != null) {
-					return getName().compareToIgnoreCase(anotherContact.getDisplayName());
-				} else if (ourContact != null) {
-					return ourContact.getDisplayName().compareToIgnoreCase(another.getName());
-				} else {
-					return getName().compareToIgnoreCase(another.getName());
-				}
+				return getComparableName().compareToIgnoreCase(another.getComparableName());
+			}
+		}
+
+
+		private String getComparableName() {
+			Contact contact = getContact();
+			if (contact != null) {
+				return contact.getDisplayName();
+			} else {
+				String name = getName();
+				return name == null ? "" : name;
 			}
 		}
 

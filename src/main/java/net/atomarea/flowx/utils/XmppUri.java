@@ -2,12 +2,12 @@ package net.atomarea.flowx.utils;
 
 import android.net.Uri;
 
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
-
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class XmppUri {
 
