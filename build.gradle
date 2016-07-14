@@ -63,6 +63,7 @@ dependencies {
     compile 'com.github.dmytrodanylyk.android-process-button:library:1.0.4'
     compile 'jetty:javax.servlet:5.1.12'
 	compile('eu.livotov.labs.android:CAMView:2.0.1@aar') { transitive = true }
+    compile 'com.android.support:recyclerview-v7:23.1.0'
 	compile 'com.github.bumptech.glide:glide:3.5.2'
     compile 'pub.devrel:easypermissions:0.1.7'
     compile 'com.android.support:design:23.3.0'
@@ -82,8 +83,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 1452
-        versionName "1.81"
+        versionCode 1454
+        versionName "1.83"
         archivesBaseName += "-$versionName"
         applicationId "net.atomarea.flowx"
         multiDexEnabled true
