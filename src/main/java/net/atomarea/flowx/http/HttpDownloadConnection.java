@@ -3,17 +3,6 @@ package net.atomarea.flowx.http;
 import android.os.PowerManager;
 import android.util.Log;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.entities.DownloadableFile;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.entities.Transferable;
-import net.atomarea.flowx.entities.TransferablePlaceholder;
-import net.atomarea.flowx.persistance.FileBackend;
-import net.atomarea.flowx.services.AbstractConnectionManager;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.CryptoHelper;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +14,17 @@ import java.util.concurrent.CancellationException;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
+
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.entities.DownloadableFile;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.entities.Transferable;
+import net.atomarea.flowx.entities.TransferablePlaceholder;
+import net.atomarea.flowx.persistance.FileBackend;
+import net.atomarea.flowx.services.AbstractConnectionManager;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.CryptoHelper;
 
 public class HttpDownloadConnection implements Transferable {
 
@@ -146,7 +146,6 @@ public class HttpDownloadConnection implements Transferable {
 	}
 
 	private void showToastForException(Exception e) {
-		e.printStackTrace();
 		if (e instanceof java.net.UnknownHostException) {
 			mXmppConnectionService.showErrorToastInUi(R.string.download_failed_server_not_found);
 		} else if (e instanceof java.net.ConnectException) {
@@ -171,15 +170,14 @@ public class HttpDownloadConnection implements Transferable {
 			long size;
 			try {
 				size = retrieveFileSize();
-			} catch (SSLHandshakeException e) {
+			} catch (Exception e) {
 				changeStatus(STATUS_OFFER_CHECK_FILESIZE);
-				HttpDownloadConnection.this.acceptedAutomatically = false;
-				HttpDownloadConnection.this.mXmppConnectionService.getNotificationService().push(message);
-				return;
-			} catch (IOException e) {
 				Log.d(Config.LOGTAG, "io exception in http file size checker: " + e.getMessage());
 				if (interactive) {
 					showToastForException(e);
+				} else {
+					HttpDownloadConnection.this.acceptedAutomatically = false;
+					HttpDownloadConnection.this.mXmppConnectionService.getNotificationService().push(message);
 				}
 				cancel();
 				return;
@@ -216,7 +214,7 @@ public class HttpDownloadConnection implements Transferable {
 				String contentLength = connection.getHeaderField("Content-Length");
 				connection.disconnect();
 				if (contentLength == null) {
-					throw new IOException();
+					throw new IOException("no content-length found in HEAD response");
 				}
 				return Long.parseLong(contentLength, 10);
 			} catch (IOException e) {
@@ -250,6 +248,9 @@ public class HttpDownloadConnection implements Transferable {
 			} catch (Exception e) {
 				if (interactive) {
 					showToastForException(e);
+				} else {
+					HttpDownloadConnection.this.acceptedAutomatically = false;
+					HttpDownloadConnection.this.mXmppConnectionService.getNotificationService().push(message);
 				}
 				cancel();
 			}

@@ -18,6 +18,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.FileObserver;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -43,6 +44,7 @@ import net.atomarea.flowx.entities.Blockable;
 import net.atomarea.flowx.entities.Bookmark;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.entities.DownloadableFile;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.MucOptions;
 import net.atomarea.flowx.entities.MucOptions.OnRenameListener;
@@ -64,6 +66,7 @@ import net.atomarea.flowx.parser.PresenceParser;
 import net.atomarea.flowx.persistance.DatabaseBackend;
 import net.atomarea.flowx.persistance.FileBackend;
 import net.atomarea.flowx.ui.UiCallback;
+import net.atomarea.flowx.utils.ConversationsFileObserver;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.ExceptionHelper;
 import net.atomarea.flowx.utils.OnPhoneContactsLoadedListener;
@@ -210,14 +213,14 @@ public class XmppConnectionService extends Service {
     private MessageArchiveService mMessageArchiveService = new MessageArchiveService(this);
     private PushManagementService mPushManagementService = new PushManagementService(this);
     private OnConversationUpdate mOnConversationUpdate = null;
-    private final FileObserver fileObserver = new FileObserver(
-            FileBackend.getConversationsImageDirectory()) {
 
+
+    private final ConversationsFileObserver fileObserver = new ConversationsFileObserver(
+            Environment.getExternalStorageDirectory().getAbsolutePath()
+    ) {
         @Override
         public void onEvent(int event, String path) {
-            if (event == FileObserver.DELETE) {
-                markFileDeleted(path.split("\\.")[0]);
-            }
+            markFileDeleted(path);
         }
     };
     private final OnJinglePacketReceived jingleListener = new OnJinglePacketReceived() {
@@ -808,6 +811,7 @@ public class XmppConnectionService extends Service {
         } catch (IllegalArgumentException e) {
             //ignored
         }
+        fileObserver.stopWatching();
         super.onDestroy();
     }
 
@@ -1280,21 +1284,23 @@ public class XmppConnectionService extends Service {
         });
     }
 
-    private void markFileDeleted(String uuid) {
+    private void markFileDeleted(final String path) {
         for (Conversation conversation : getConversations()) {
-            Message message = conversation.findMessageWithFileAndUuid(uuid);
-            if (message != null) {
-                if (!getFileBackend().isFileAvailable(message)) {
-                    message.setTransferable(new TransferablePlaceholder(Transferable.STATUS_DELETED));
-                    final int s = message.getStatus();
-                    if (s == Message.STATUS_WAITING || s == Message.STATUS_OFFERED || s == Message.STATUS_UNSEND) {
-                        markMessage(message, Message.STATUS_SEND_FAILED);
-                    } else {
-                        updateConversationUi();
+            conversation.findMessagesWithFiles(new Conversation.OnMessageFound() {
+                @Override
+                public void onMessageFound(Message message) {
+                    DownloadableFile file = fileBackend.getFile(message);
+                    if (file.getAbsolutePath().equals(path) && !file.exists()) {
+                        message.setTransferable(new TransferablePlaceholder(Transferable.STATUS_DELETED));
+                        final int s = message.getStatus();
+                        if (s == Message.STATUS_WAITING || s == Message.STATUS_OFFERED || s == Message.STATUS_UNSEND) {
+                            markMessage(message, Message.STATUS_SEND_FAILED);
+                        } else {
+                            updateConversationUi();
+                        }
                     }
                 }
-                return;
-            }
+            });
         }
     }
 

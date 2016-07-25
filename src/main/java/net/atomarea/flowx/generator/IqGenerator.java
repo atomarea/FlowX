@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Conversation;
@@ -57,7 +58,7 @@ public class IqGenerator extends AbstractGenerator {
 	public IqPacket versionResponse(final IqPacket request) {
 		final IqPacket packet = request.generateResponse(IqPacket.TYPE.RESULT);
 		Element query = packet.query("jabber:iq:version");
-		query.addChild("name").setContent(IDENTITY_NAME);
+		query.addChild("name").setContent(mXmppConnectionService.getString(R.string.app_name));
 		query.addChild("version").setContent(getIdentityVersion());
 		return packet;
 	}
