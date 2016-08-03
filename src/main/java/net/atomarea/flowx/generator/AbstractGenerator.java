@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.utils.PhoneHelper;
@@ -45,9 +46,10 @@ public abstract class AbstractGenerator {
 	private final String[] PRIVACY_SENSITIVE = {
 			"urn:xmpp:time" //XEP-0202: Entity Time leaks time zone
 	};
+	private final String[] OTR = {
+			"urn:xmpp:otr:0"
+	};
 	private String mVersion = null;
-	protected final String IDENTITY_NAME = "FlowX";
-	protected final String IDENTITY_TYPE = "phone";
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
 
@@ -65,12 +67,20 @@ public abstract class AbstractGenerator {
 	}
 
 	public String getIdentityName() {
-		return IDENTITY_NAME + " " + getIdentityVersion();
+		return mXmppConnectionService.getString(R.string.app_name) + " " + getIdentityVersion();
+	}
+
+	public String getIdentityType() {
+		if ("chromium".equals(android.os.Build.BRAND)) {
+			return "pc";
+		} else {
+			return mXmppConnectionService.getString(R.string.type_phone).toLowerCase();
+		}
 	}
 
 	public String getCapHash() {
 		StringBuilder s = new StringBuilder();
-		s.append("client/" + IDENTITY_TYPE + "//" + getIdentityName() + "<");
+		s.append("client/" + getIdentityType() + "//" + getIdentityName() + "<");
 		MessageDigest md;
 		try {
 			md = MessageDigest.getInstance("SHA-1");
@@ -104,6 +114,9 @@ public abstract class AbstractGenerator {
 		}
 		if (!mXmppConnectionService.useTorToConnect()) {
 			features.addAll(Arrays.asList(PRIVACY_SENSITIVE));
+		}
+		if (Config.supportOtr()) {
+			features.addAll(Arrays.asList(OTR));
 		}
 		Collections.sort(features);
 		return features;

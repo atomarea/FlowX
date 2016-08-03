@@ -1080,7 +1080,7 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 		}
 
 		boolean invite() {
-			if (jid != null) {
+			if (getJid() != null) {
 				return handleJid(this);
 			}
 			return false;

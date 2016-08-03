@@ -3,16 +3,17 @@ package net.atomarea.flowx.entities;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
+import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.GeoHelper;
 import net.atomarea.flowx.utils.MimeUtils;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class Message extends AbstractEntity {
 
@@ -377,7 +378,7 @@ public class Message extends AbstractEntity {
 	}
 
 	public boolean similar(Message message) {
-		if (this.serverMsgId != null && message.getServerMsgId() != null) {
+		if (type != TYPE_PRIVATE && this.serverMsgId != null && message.getServerMsgId() != null) {
 			return this.serverMsgId.equals(message.getServerMsgId());
 		} else if (this.body == null || this.counterpart == null) {
 			return false;
@@ -395,7 +396,7 @@ public class Message extends AbstractEntity {
 						&& this.counterpart.equals(message.getCounterpart())
 						&& (body.equals(otherBody)
 						||(message.getEncryption() == Message.ENCRYPTION_PGP
-						&&  message.getRemoteMsgId().matches("[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"))) ;
+						&& CryptoHelper.UUID_PATTERN.matcher(message.getRemoteMsgId()).matches()));
 			} else {
 				return this.remoteMsgId == null
 						&& this.counterpart.equals(message.getCounterpart())
@@ -549,7 +550,7 @@ public class Message extends AbstractEntity {
 			try {
 				counterpart = Jid.fromParts(conversation.getJid().getLocalpart(),
 						conversation.getJid().getDomainpart(),
-						presences.asStringArray()[0]);
+						presences.toResourceArray()[0]);
 				return true;
 			} catch (InvalidJidException e) {
 				counterpart = null;
