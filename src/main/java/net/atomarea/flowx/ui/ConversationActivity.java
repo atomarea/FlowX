@@ -97,42 +97,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import de.timroes.android.listview.EnhancedListView;
 import github.ankushsachdeva.emojicon.EmojiconTextView;
 
-public class ConversationActivity extends XmppActivity implements OnAccountUpdate, OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, View.OnClickListener, SensorEventListener {
-
-    public static final String ACTION_DOWNLOAD = "net.atomarea.flowx.action.DOWNLOAD";
-
-    public static final String VIEW_CONVERSATION = "viewConversation";
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        Log.e("AS distance", String.valueOf(event.values[0]));
-        Log.e("AS maxRange", String.valueOf(mSensor.getMaximumRange()));
-
-        if (event.values[0] < mSensor.getMaximumRange()) {
-            mAudioManager.setMode(AudioManager.MODE_IN_CALL);
-            mAudioManager.setSpeakerphoneOn(false);
-            Log.e("AS", "Mode:Call:SKPfalse");
-        } else {
-            mAudioManager.setSpeakerphoneOn(true);
-            mAudioManager.setMode(AudioManager.MODE_NORMAL);
-            Log.e("AS", "Mode:Normal:SKPtrue");
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // ignored, f*cking interfaces... hate them
-    }
+public class ConversationActivity extends XmppActivity implements OnAccountUpdate, OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, View.OnClickListener {
 
     public static final String CONVERSATION = "conversationUuid";
-    public static final String MESSAGE = "messageUuid";
+    public static final String ACTION_VIEW_CONVERSATION = "net.atomarea.flowx.action.VIEW";
+    public static final String EXTRA_DOWNLOAD_UUID = "net.atomarea.flowx.download_uuid";
     public static final String TEXT = "text";
     public static final String NICK = "nick";
     public static final String PRIVATE_MESSAGE = "pm";
-
-    private SensorManager mSensorManager;
-    private AudioManager mAudioManager;
-    private Sensor mSensor;
 
     public static final int REQUEST_SEND_MESSAGE = 0x0201;
     public static final int REQUEST_DECRYPT_PGP = 0x0202;
@@ -276,9 +248,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 mPendingImageUris.add(Uri.parse(pending));
             }
         }
-
-        mSensor = (mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE)).getDefaultSensor(Sensor.TYPE_PROXIMITY);
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         setContentView(R.layout.fragment_conversations_overview);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -1094,12 +1063,15 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
     @Override
     protected void onNewIntent(final Intent intent) {
-        if (xmppConnectionServiceBound) {
-            if (intent != null && VIEW_CONVERSATION.equals(intent.getType())) {
+        if (intent != null && ACTION_VIEW_CONVERSATION.equals(intent.getAction())) {
+            mOpenConverstaion = null;
+            if (xmppConnectionServiceBound) {
                 handleViewConversationIntent(intent);
-                setIntent(new Intent());
+                intent.setAction(Intent.ACTION_MAIN);
+            } else {
+                setIntent(intent);
             }
-        } else setIntent(intent);
+        }
     }
 
     @Override
@@ -1114,8 +1086,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     public void onPause() {
         listView.discardUndo();
         super.onPause();
-        mAudioManager.setMode(AudioManager.MODE_NORMAL);
-        mSensorManager.unregisterListener(this);
         this.mActivityPaused = true;
         if (this.xmppConnectionServiceBound)
             this.xmppConnectionService.getNotificationService().setIsInForeground(false);
@@ -1125,7 +1095,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     public void onResume() {
         super.onResume();
         updateColor();
-        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_FASTEST);
         final int theme = findTheme();
         final boolean usingEnterKey = usingEnterKey();
         if (this.mTheme != theme || usingEnterKey != mUsingEnterKey) recreate();
@@ -1196,7 +1165,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             startActivity(intent);
             System.exit(0);
         }
-
+        final Intent intent = getIntent();
         if (xmppConnectionService.getAccounts().size() == 0) {
             if (mRedirected.compareAndSet(false, true)) {
                 if (Config.X509_VERIFICATION) {
@@ -1211,14 +1180,11 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             }
         } else if (conversationList.size() <= 0) {
             if (mRedirected.compareAndSet(false, true)) {
-                Intent intent = new Intent(this, StartConversationActivity.class);
+                Intent startConversationActivity = new Intent(this, StartConversationActivity.class);
                 intent.putExtra("init", true);
-                startActivity(intent);
+                startActivity(startConversationActivity);
                 finish();
             }
-        } else if (getIntent() != null && VIEW_CONVERSATION.equals(getIntent().getType())) {
-            clearPending();
-            handleViewConversationIntent(getIntent());
         } else if (selectConversationByUuid(mOpenConverstaion)) {
             if (mPanelOpen) showConversationsOverview();
             else {
@@ -1229,6 +1195,10 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             }
             this.mConversationFragment.reInit(getSelectedConversation());
             mOpenConverstaion = null;
+        } else if (intent != null && ACTION_VIEW_CONVERSATION.equals(intent.getAction())) {
+            clearPending();
+            handleViewConversationIntent(intent);
+            intent.setAction(Intent.ACTION_MAIN);
         } else if (getSelectedConversation() == null) {
             showConversationsOverview();
             clearPending();
@@ -1269,12 +1239,11 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         forbidProcessingPendings = false;
         ExceptionHelper.checkForCrash(this, this.xmppConnectionService);
         openBatteryOptimizationDialogIfNeeded();
-        setIntent(new Intent());
     }
 
     private void handleViewConversationIntent(final Intent intent) {
         final String uuid = intent.getStringExtra(CONVERSATION);
-        final String downloadUuid = intent.getStringExtra(MESSAGE);
+        final String downloadUuid = intent.getStringExtra(EXTRA_DOWNLOAD_UUID);
         final String text = intent.getStringExtra(TEXT);
         final String nick = intent.getStringExtra(NICK);
         final boolean pm = intent.getBooleanExtra(PRIVATE_MESSAGE, false);

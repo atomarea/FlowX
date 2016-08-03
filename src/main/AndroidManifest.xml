@@ -192,10 +192,6 @@
             android:label="@string/title_activity_contact_details"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".ui.TrustKeysActivity"
-            android:label="@string/trust_omemo_fingerprints"
-            android:windowSoftInputMode="stateAlwaysHidden"/>
-        <activity
             android:name=".ui.PublishProfilePictureActivity"
             android:label="@string/mgmt_account_publish_avatar"
             android:windowSoftInputMode="stateHidden" />
