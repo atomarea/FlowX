@@ -196,7 +196,7 @@ public class XmppConnectionService extends Service {
                     if (contact.getPresences().size() >= 1) {
                         if (conversation.hasValidOtrSession()) {
                             String otrResource = conversation.getOtrSession().getSessionID().getUserID();
-                            if (!(Arrays.asList(contact.getPresences().asStringArray()).contains(otrResource))) {
+                            if (!(Arrays.asList(contact.getPresences().toResourceArray()).contains(otrResource))) {
                                 conversation.endOtrIfNeeded();
                             }
                         }
@@ -425,7 +425,7 @@ public class XmppConnectionService extends Service {
                                          final Uri uri,
                                          final UiCallback<Message> callback) {
         if (FileBackend.weOwnFile(this, uri)) {
-            Log.d(Config.LOGTAG,"trying to attach file that belonged to us");
+            Log.d(Config.LOGTAG, "trying to attach file that belonged to us");
             callback.error(R.string.security_error_invalid_file_access, null);
             return;
         }
@@ -842,6 +842,8 @@ public class XmppConnectionService extends Service {
         super.onTaskRemoved(rootIntent);
         if (!getPreferences().getBoolean("keep_foreground_service", false)) {
             this.logoutAndSave(false);
+        } else {
+            Log.d(Config.LOGTAG, "ignoring onTaskRemoved because foreground service is activated");
         }
     }
 

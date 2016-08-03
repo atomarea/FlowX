@@ -41,6 +41,7 @@ import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -80,6 +81,7 @@ import net.atomarea.flowx.services.XmppConnectionService.XmppConnectionBinder;
 import net.atomarea.flowx.ui.widget.Switch;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.ExceptionHelper;
+import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
 import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
@@ -88,8 +90,11 @@ import net.java.otr4j.session.SessionID;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class XmppActivity extends FragmentActivity {
 
@@ -891,10 +896,10 @@ public abstract class XmppActivity extends FragmentActivity {
             }
             conversation.setNextCounterpart(jid);
             listener.onPresenceSelected();
-        } else if (!contact.showInRoster()) {
+        } else 	if (!contact.showInRoster()) {
             showAddToRosterDialog(conversation);
         } else {
-            Presences presences = contact.getPresences();
+            final Presences presences = contact.getPresences();
             if (presences.size() == 0) {
                 if (!contact.getOption(Contact.Options.TO)
                         && !contact.getOption(Contact.Options.ASKING)
@@ -908,57 +913,80 @@ public abstract class XmppActivity extends FragmentActivity {
                     listener.onPresenceSelected();
                 }
             } else if (presences.size() == 1) {
-                String presence = presences.asStringArray()[0];
+                String presence = presences.toResourceArray()[0];
                 try {
-                    conversation.setNextCounterpart(Jid.fromParts(contact.getJid().getLocalpart(), contact.getJid().getDomainpart(), presence));
+                    conversation.setNextCounterpart(Jid.fromParts(contact.getJid().getLocalpart(),contact.getJid().getDomainpart(),presence));
                 } catch (InvalidJidException e) {
                     conversation.setNextCounterpart(null);
                 }
                 listener.onPresenceSelected();
             } else {
-                final StringBuilder presence = new StringBuilder();
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(getString(R.string.choose_presence));
-                final String[] presencesArray = presences.asStringArray();
-                int preselectedPresence = 0;
-                for (int i = 0; i < presencesArray.length; ++i) {
-                    if (presencesArray[i].equals(contact.getLastPresence())) {
-                        preselectedPresence = i;
-                        break;
-                    }
-                }
-                presence.append(presencesArray[preselectedPresence]);
-                builder.setSingleChoiceItems(presencesArray,
-                        preselectedPresence,
-                        new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
-                                presence.delete(0, presence.length());
-                                presence.append(presencesArray[which]);
-                            }
-                        });
-                builder.setNegativeButton(R.string.cancel, null);
-                builder.setPositiveButton(R.string.ok, new OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            conversation.setNextCounterpart(Jid.fromParts(contact.getJid().getLocalpart(), contact.getJid().getDomainpart(), presence.toString()));
-                        } catch (InvalidJidException e) {
-                            conversation.setNextCounterpart(null);
-                        }
-                        listener.onPresenceSelected();
-                    }
-                });
-                builder.create().show();
+                showPresenceSelectionDialog(presences,conversation,listener);
             }
         }
     }
 
-    protected void onActivityResult(int requestCode, int resultCode,
-                                    final Intent data) {
+    private void showPresenceSelectionDialog(Presences presences, final Conversation conversation, final OnPresenceSelected listener) {
+        final Contact contact = conversation.getContact();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.choose_presence));
+        final String[] resourceArray = presences.toResourceArray();
+        Pair<Map<String, String>, Map<String, String>> typeAndName = presences.toTypeAndNameMap();
+        final Map<String,String> resourceTypeMap = typeAndName.first;
+        final Map<String,String> resourceNameMap = typeAndName.second;
+        final String[] readableIdentities = new String[resourceArray.length];
+        final AtomicInteger selectedResource = new AtomicInteger(0);
+        for (int i = 0; i < resourceArray.length; ++i) {
+            String resource = resourceArray[i];
+            if (resource.equals(contact.getLastResource())) {
+                selectedResource.set(i);
+            }
+            String type = resourceTypeMap.get(resource);
+            String name = resourceNameMap.get(resource);
+            if (type != null) {
+                if (Collections.frequency(resourceTypeMap.values(),type) == 1) {
+                    readableIdentities[i] = UIHelper.tranlasteType(this,type);
+                } else if (name != null) {
+                    if (Collections.frequency(resourceNameMap.values(), name) == 1
+                            || CryptoHelper.UUID_PATTERN.matcher(resource).matches()) {
+                        readableIdentities[i] = UIHelper.tranlasteType(this,type) + "  (" + name+")";
+                    } else {
+                        readableIdentities[i] = UIHelper.tranlasteType(this,type) + " (" + name +" / " + resource+")";
+                    }
+                } else {
+                    readableIdentities[i] = UIHelper.tranlasteType(this,type) + " (" + resource+")";
+                }
+            } else {
+                readableIdentities[i] = resource;
+            }
+        }
+        builder.setSingleChoiceItems(readableIdentities,
+                selectedResource.get(),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        selectedResource.set(which);
+                    }
+                });
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.setPositiveButton(R.string.ok, new OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    Jid next = Jid.fromParts(contact.getJid().getLocalpart(),contact.getJid().getDomainpart(),resourceArray[selectedResource.get()]);
+                    conversation.setNextCounterpart(next);
+                } catch (InvalidJidException e) {
+                    conversation.setNextCounterpart(null);
+                }
+                listener.onPresenceSelected();
+            }
+        });
+        builder.create().show();
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_INVITE_TO_CONVERSATION && resultCode == RESULT_OK) {
             mPendingConferenceInvite = ConferenceInvite.parse(data);
