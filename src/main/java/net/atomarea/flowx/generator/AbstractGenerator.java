@@ -74,7 +74,7 @@ public abstract class AbstractGenerator {
 		if ("chromium".equals(android.os.Build.BRAND)) {
 			return "pc";
 		} else {
-			return mXmppConnectionService.getString(R.string.default_resource).toLowerCase();
+			return mXmppConnectionService.getString(R.string.type_phone).toLowerCase();
 		}
 	}
 
