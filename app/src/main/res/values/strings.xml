@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">FlowX</string>
+    <string name="contact_image">Contact image</string>
+
 </resources>
