@@ -3,6 +3,50 @@
     <string name="contact_image">Contact image</string>
     <string name="contacts">Contacts</string>
     <string name="status">Status</string>
-    <string name="action_settings">Settings</string>
+    <string name="settings">Settings</string>
+
+    <string name="about">About</string>
+    <string name="picture">Picture</string>
+    <string name="image">Image</string>
+    <string name="audio">Audio</string>
+    <string name="video">Video</string>
+    <string name="file">File</string>
+    <string name="error">An error occured.</string>
+
+    <string name="notification">Notification</string>
+    <string name="notification_vibrate_title">Vibrate</string>
+    <string name="notification_vibrate_summary">Whether to vibrate or not when a new message is received.</string>
+    <string name="notification_led_title">LED</string>
+    <string name="notification_led_summary">Whether to use the led or not.</string>
+    <string name="notification_ringtone_title">Ringtone</string>
+    <string name="notification_ringtone_silent">None</string>
+
+    <string name="contact">Contact</string>
+    <string name="license">License</string>
+    <string name="flowx_messenger">FlowX Messenger</string>
+    <string name="fx_desc">FlowX Messenger. An XMPP based messenger for Android.</string>
+    <string name="fx_copyright" translatable="false">Copyright &#169; 2014-2016 FlowX Inc.</string>
+    <string name="fx_url" translatable="false">&#183; www.flowx.im</string>
+    <string name="fx_mail" translatable="false">&#183; support@flowx.im</string>
+    <string name="fx_git" translatable="false">&#183; github.com/atomarea/FlowX</string>
+    <string name="fx_dev">Developers</string>
+    <string name="fx_dev_n" translatable="false">&#183; Dominic Schubert
+        \n&#183; Tom Janke
+        \n&#183; Steven Burghardt
+        \n&#183; Daniel Gultsch
+        \n&#183; Dominik Wagner</string>
+    <string name="fx_license" translatable="false">
+        This program is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation, either version 3 of the License, or
+        (at your option) any later version.\n
+        \nThis program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.\n
+        \nYou should have received a copy of the GNU General Public License
+        along with this program. If not, see http://www.gnu.org/licenses/.</string>
+    <string name="fx_orig_code">Original XMPP client</string>
+    <string name="fx_orig_code_url" translatable="false">http://github.com/siacs/Conversations</string>
 
 </resources>

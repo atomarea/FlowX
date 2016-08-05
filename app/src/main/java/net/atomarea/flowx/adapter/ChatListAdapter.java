@@ -43,8 +43,16 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         if (chatHistory.getLatestChatMessage() != null) {
             if (chatHistory.getLatestChatMessage().getType() == ChatMessage.Type.Text)
                 holder.LastMessage.setText(Html.fromHtml(chatHistory.getLatestChatMessage().getData()));
-            else
-                holder.LastMessage.setText("TODO");
+            else {
+                if (chatHistory.getLatestChatMessage().getType() == ChatMessage.Type.Image)
+                    holder.LastMessage.setText(R.string.image);
+                else if (chatHistory.getLatestChatMessage().getType() == ChatMessage.Type.Audio)
+                    holder.LastMessage.setText(R.string.audio);
+                else if (chatHistory.getLatestChatMessage().getType() == ChatMessage.Type.Video)
+                    holder.LastMessage.setText(R.string.video);
+                else if (chatHistory.getLatestChatMessage().getType() == ChatMessage.Type.File)
+                    holder.LastMessage.setText(R.string.file);
+            }
         }
         holder.ChatRow.setOnClickListener(new View.OnClickListener() {
             @Override

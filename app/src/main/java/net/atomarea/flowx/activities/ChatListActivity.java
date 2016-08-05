@@ -7,12 +7,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.adapter.ChatListAdapter;
 import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.other.DrawableItemDecoration;
+import net.atomarea.flowx.settings.SettingsActivity;
 
 public class ChatListActivity extends AppCompatActivity {
 
@@ -35,7 +38,7 @@ public class ChatListActivity extends AppCompatActivity {
         recyclerViewChatList.setAdapter(new ChatListAdapter(this, data));
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        if (fab != null) fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent contactsActivity = new Intent(ChatListActivity.this, ContactsActivity.class);
@@ -49,5 +52,24 @@ public class ChatListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         data.clean();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            case R.id.action_about:
+                startActivity(new Intent(this, AboutActivity.class));
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -22,6 +22,7 @@ public class ChatHistoryActivity extends AppCompatActivity {
 
     private EditText editTextMessageInput;
     private RecyclerView recyclerViewChatHistory;
+    private LinearLayoutManager linearLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,13 +39,17 @@ public class ChatHistoryActivity extends AppCompatActivity {
 
         editTextMessageInput = (EditText) findViewById(R.id.edit_message);
         recyclerViewChatHistory = (RecyclerView) findViewById(R.id.chat_history);
-        recyclerViewChatHistory.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewChatHistory.setAdapter(new ChatHistoryAdapter(chatHistory));
-        recyclerViewChatHistory.scrollToPosition(chatHistory.getChatMessages().size() - 1);
+        recyclerViewChatHistory.setLayoutManager(linearLayoutManager = new LinearLayoutManager(this));
+        linearLayoutManager.setStackFromEnd(true);
+        recyclerViewChatHistory.setAdapter(new ChatHistoryAdapter(this, data, chatHistory));
 
         String LastMessage = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("lastMessage:" + chatHistory.getRemoteContact().getXmppAddress(), null);
         if (LastMessage != null) editTextMessageInput.setText(LastMessage);
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     @Override

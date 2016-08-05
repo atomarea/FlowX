@@ -2,6 +2,10 @@ package net.atomarea.flowx.data;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+
+import net.atomarea.flowx.R;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,12 +36,14 @@ public class Data implements Serializable {
         Chats.add(new ChatHistory("02", Contacts.get(2)));
         Chats.add(new ChatHistory("03", Contacts.get(3)));
 
-        for (int i = 0; i < 100; i++) {
-            Chats.get(0).getChatMessages().add(new ChatMessage("Some <b>Message</b> " + Math.random(), ChatMessage.Type.Text, true, System.currentTimeMillis()));
-            Chats.get(0).getChatMessages().add(new ChatMessage("Some <i>Message again</i> " + Math.random(), ChatMessage.Type.Text, false, System.currentTimeMillis()));
-        }
+        Chats.get(0).getChatMessages().add(new ChatMessage("Hey! Look at <b>this</b> <i>cool</i> formatting <u>Tricks</u>!", ChatMessage.Type.Text, false, System.currentTimeMillis() - 1000 * 60 * 60 * 25));
+        Chats.get(0).getChatMessages().add(new ChatMessage("Yeah! Freaking cool!", ChatMessage.Type.Text, true, System.currentTimeMillis() - 1000 * 60 * 20));
+        ChatMessage a = new ChatMessage(null, ChatMessage.Type.Image, true, System.currentTimeMillis() - 1000 * 60 * 3);
+        ChatMessage b = new ChatMessage(null, ChatMessage.Type.Image, false, System.currentTimeMillis());
+        Chats.get(0).getChatMessages().add(a);
+        Chats.get(0).getChatMessages().add(b);
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 3; i++) {
             Chats.get(1).getChatMessages().add(new ChatMessage("Some <b>Message</b> " + Math.random(), ChatMessage.Type.Text, true, System.currentTimeMillis()));
             Chats.get(1).getChatMessages().add(new ChatMessage("Some <i>Message again</i> " + Math.random(), ChatMessage.Type.Text, false, System.currentTimeMillis()));
             Chats.get(1).getChatMessages().add(new ChatMessage("Some <b>Message</b> " + Math.random(), ChatMessage.Type.Text, true, System.currentTimeMillis()));
@@ -75,11 +81,35 @@ public class Data implements Serializable {
         return Chats.size() - 1;
     }
 
-    public void loadBitmap(BitmapLoadedCallback callback) {
-
+    public void loadBitmap(Context context, BitmapLoadedCallback callback, ChatMessage message) {
+        if (!message.getType().equals(ChatMessage.Type.Image)) return;
+        new AsyncBitmapLoaderTask(context, callback).execute(message);
     }
 
     public interface BitmapLoadedCallback {
         void onBitmapLoaded(Bitmap bitmap);
     }
+
+    public class AsyncBitmapLoaderTask extends AsyncTask<ChatMessage, Void, Bitmap> {
+
+        private Context context;
+        private BitmapLoadedCallback callback;
+
+        public AsyncBitmapLoaderTask(Context context, BitmapLoadedCallback callback) {
+            this.context = context;
+            this.callback = callback;
+        }
+
+        @Override
+        protected Bitmap doInBackground(ChatMessage... params) {
+            return BitmapFactory.decodeStream(context.getResources().openRawResource(R.raw.test_image));
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+            callback.onBitmapLoaded(bitmap);
+        }
+    }
+
 }

@@ -6,6 +6,7 @@
     <dimen name="standard_big_padding">12dp</dimen>
     <dimen name="standard_padding">8dp</dimen>
     <dimen name="standard_small_padding">4dp</dimen>
+    <dimen name="standard_extra_small_padding">2dp</dimen>
     <dimen name="image_button_padding">4dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>

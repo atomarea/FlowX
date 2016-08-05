@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlowX</string>
+    <string name="about">Über</string>
+    <string name="contact">Kontakt</string>
+    <string name="contact_image">Profilbild</string>
+    <string name="contacts">Kontakte</string>
+    <string name="flowx_messenger">FlowX Messenger</string>
+    <string name="fx_desc">FlowX. Ein XMPP basierter Android Messenger.</string>
+    <string name="fx_dev">Entwickler</string>
+    <string name="fx_orig_code">Originaler XMPP Klient</string>
+    <string name="license">Lizenz</string>
+    <string name="notification">Benachrichtigung</string>
+    <string name="notification_led_summary">Soll bei Empfang einer neuen Nachricht die LED blinken?</string>
+    <string name="notification_led_title">LED</string>
+    <string name="notification_ringtone_silent">Kein Ton</string>
+    <string name="notification_ringtone_title">Benachrichtigungston</string>
+    <string name="notification_vibrate_title">Vibration</string>
+    <string name="settings">Einstellungen</string>
+    <string name="status">Status</string>
+    <string name="notification_vibrate_summary">Soll bei Empfang einer neuen Nachricht vibriert werden?</string>
+    <string name="picture">Bild</string>
+    <string name="error">Ein Fehler ist aufgetreten.</string>
+    <string name="audio">Audio</string>
+    <string name="file">Datei</string>
+    <string name="video">Video</string>
+    <string name="image">Bild</string>
+</resources>
