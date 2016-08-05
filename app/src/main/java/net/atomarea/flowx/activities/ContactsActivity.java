@@ -11,9 +11,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.adapter.ChatListAdapter;
 import net.atomarea.flowx.adapter.ContactsListAdapter;
-import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.other.DrawableItemDecoration;
 
 public class ContactsActivity extends AppCompatActivity {
 
@@ -29,10 +28,11 @@ public class ContactsActivity extends AppCompatActivity {
 
         recyclerViewContactsList = (RecyclerView) findViewById(R.id.contacts_list);
         recyclerViewContactsList.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewContactsList.addItemDecoration(new DrawableItemDecoration(this, R.drawable.divider));
         recyclerViewContactsList.setAdapter(new ContactsListAdapter(this));
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        if (fab != null) fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
