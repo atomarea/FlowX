@@ -40,7 +40,9 @@ public class Data implements Serializable {
             Chats.get(1).getChatMessages().add(new ChatMessage("Some <i>Message again</i> " + Math.random(), ChatMessage.Type.Text, false, System.currentTimeMillis()));
             Chats.get(1).getChatMessages().add(new ChatMessage("Some <b>Message</b> " + Math.random(), ChatMessage.Type.Text, true, System.currentTimeMillis()));
         }
+    }
 
+    public void clean() {
         Iterator<ChatHistory> chatHistoryIterator = Chats.iterator();
         while (chatHistoryIterator.hasNext()) {
             if (chatHistoryIterator.next().getChatMessages().size() == 0)
@@ -54,5 +56,14 @@ public class Data implements Serializable {
 
     public ArrayList<ChatHistory> getChats() {
         return Chats;
+    }
+
+    public int getChatHistoryPosition(Account contact) {
+        for (int i = 0; i < Chats.size(); i++) {
+            if (Chats.get(i).getRemoteContact().getXmppAddress().equals(contact.getXmppAddress()))
+                return i;
+        }
+        Chats.add(new ChatHistory(contact.getXmppAddress(), contact));
+        return Chats.size() - 1;
     }
 }

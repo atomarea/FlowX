@@ -36,7 +36,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         ChatHistory chatHistory = data.getChats().get(position);
         holder.ContactName.setText(chatHistory.getRemoteContact().getName());
         if (chatHistory.getLatestChatMessage() != null) {
@@ -50,7 +50,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             public void onClick(View v) {
                 Intent chatHistoryActivity = new Intent(context, ChatHistoryActivity.class);
                 chatHistoryActivity.putExtra(Data.EXTRA_TOKEN, data);
-                chatHistoryActivity.putExtra(Data.EXTRA_CHAT_HISTORY_POSITION, position);
+                chatHistoryActivity.putExtra(Data.EXTRA_CHAT_HISTORY_POSITION, holder.getAdapterPosition());
                 context.startActivity(chatHistoryActivity);
             }
         });

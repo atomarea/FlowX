@@ -32,7 +32,7 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         ChatMessage chatMessage = chatHistory.getChatMessages().get(position);
         holder.Message.setText(Html.fromHtml(chatMessage.getData()));
         holder.Info.setText(DateFormat.getDateTimeInstance().format(new Date(chatMessage.getTime())));
