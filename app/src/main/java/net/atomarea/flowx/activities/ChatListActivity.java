@@ -3,7 +3,6 @@ package net.atomarea.flowx.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +12,7 @@ import android.view.View;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.adapter.ChatListAdapter;
 import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.other.DrawableItemDecoration;
 
 public class ChatListActivity extends AppCompatActivity {
 
@@ -31,6 +31,7 @@ public class ChatListActivity extends AppCompatActivity {
 
         recyclerViewChatList = (RecyclerView) findViewById(R.id.chat_list);
         recyclerViewChatList.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewChatList.addItemDecoration(new DrawableItemDecoration(this, R.drawable.divider));
         recyclerViewChatList.setAdapter(new ChatListAdapter(this, data));
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

@@ -11,10 +11,16 @@ import java.io.Serializable;
 public class Account implements Serializable {
 
     private String Name;
+    private String Status;
     private String XmppAddress;
 
-    public Account(Context context, String XmppAddress) {
+    public Account(Context context, String XmppAddress, String Status) {
         this.XmppAddress = XmppAddress;
+        this.Status = Status;
+        Name = PreferenceManager.getDefaultSharedPreferences(context).getString("account:" + XmppAddress, XmppAddress);
+    }
+
+    public void reloadName(Context context) {
         Name = PreferenceManager.getDefaultSharedPreferences(context).getString("account:" + XmppAddress, XmppAddress);
     }
 
@@ -28,5 +34,13 @@ public class Account implements Serializable {
 
     public String getXmppAddress() {
         return XmppAddress;
+    }
+
+    public String getStatus() {
+        return Status;
+    }
+
+    public void setStatus(String status) {
+        Status = status;
     }
 }

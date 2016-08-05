@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.activities.ChatHistoryActivity;
+import net.atomarea.flowx.activities.ContactDetailActivity;
 import net.atomarea.flowx.activities.ContactsActivity;
 import net.atomarea.flowx.data.Account;
 import net.atomarea.flowx.data.Data;
@@ -50,7 +51,10 @@ public class ContactsListAdapter extends RecyclerView.Adapter<ContactsListAdapte
         holder.ContactPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent contactDetailActivity = new Intent(activity, ContactDetailActivity.class);
+                contactDetailActivity.putExtra(Data.EXTRA_TOKEN, data);
+                contactDetailActivity.putExtra(Data.EXTRA_TOKEN_ACCOUNT, data.getContacts().get(holder.getAdapterPosition()));
+                activity.startActivity(contactDetailActivity);
             }
         });
     }

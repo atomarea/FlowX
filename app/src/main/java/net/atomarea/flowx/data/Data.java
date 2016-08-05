@@ -1,6 +1,7 @@
 package net.atomarea.flowx.data;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public class Data implements Serializable {
 
     public static final String EXTRA_TOKEN = "data";
     public static final String EXTRA_CHAT_HISTORY_POSITION = "001";
+    public static final String EXTRA_TOKEN_ACCOUNT = "002";
 
     private ArrayList<Account> Contacts;
     private ArrayList<ChatHistory> Chats;
@@ -21,10 +23,10 @@ public class Data implements Serializable {
         Contacts = new ArrayList<>();
         Chats = new ArrayList<>();
 
-        Contacts.add(new Account(context, "test@flowx.im"));
-        Contacts.add(new Account(context, "lol@flowx.im"));
-        Contacts.add(new Account(context, "othertest@flowx.im"));
-        Contacts.add(new Account(context, "yoloo@flowx.im"));
+        Contacts.add(new Account(context, "test@flowx.im", "Random status"));
+        Contacts.add(new Account(context, "lol@flowx.im", "Random status4"));
+        Contacts.add(new Account(context, "othertest@flowx.im", "Random status3"));
+        Contacts.add(new Account(context, "yoloo@flowx.im", "Random status2"));
 
         Chats.add(new ChatHistory("01", Contacts.get(0)));
         Chats.add(new ChatHistory("02", Contacts.get(2)));
@@ -50,6 +52,12 @@ public class Data implements Serializable {
         }
     }
 
+    public void refresh(Context context) {
+        for (Account c : Contacts) {
+            c.reloadName(context);
+        }
+    }
+
     public ArrayList<Account> getContacts() {
         return Contacts;
     }
@@ -65,5 +73,13 @@ public class Data implements Serializable {
         }
         Chats.add(new ChatHistory(contact.getXmppAddress(), contact));
         return Chats.size() - 1;
+    }
+
+    public void loadBitmap(BitmapLoadedCallback callback) {
+
+    }
+
+    public interface BitmapLoadedCallback {
+        void onBitmapLoaded(Bitmap bitmap);
     }
 }

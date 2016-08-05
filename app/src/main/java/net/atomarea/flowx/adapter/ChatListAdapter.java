@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.activities.ChatHistoryActivity;
+import net.atomarea.flowx.activities.ContactDetailActivity;
 import net.atomarea.flowx.data.ChatHistory;
 import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
@@ -57,7 +58,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         holder.ContactPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent contactDetailActivity = new Intent(context, ContactDetailActivity.class);
+                contactDetailActivity.putExtra(Data.EXTRA_TOKEN, data);
+                contactDetailActivity.putExtra(Data.EXTRA_TOKEN_ACCOUNT, data.getChats().get(holder.getAdapterPosition()).getRemoteContact());
+                context.startActivity(contactDetailActivity);
             }
         });
         holder.QuickReplyButton.setOnClickListener(new View.OnClickListener() {

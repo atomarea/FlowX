@@ -7,17 +7,20 @@
     android:orientation="horizontal"
     android:padding="@dimen/standard_padding">
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/contact_picture"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_gravity="center_vertical"
-        android:contentDescription="@string/contact_image" />
+        android:contentDescription="@string/contact_image"
+        android:src="@drawable/contact" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
+        android:layout_marginLeft="@dimen/standard_padding"
+        android:layout_marginStart="@dimen/standard_padding"
         android:orientation="vertical">
 
         <TextView
