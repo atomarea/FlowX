@@ -1,5 +1,7 @@
 package net.atomarea.flowx.adapter;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -9,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import net.atomarea.flowx.R;
@@ -59,11 +62,20 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.
         if (chatMessage.getType().equals(ChatMessage.Type.Text))
             holder.Message.setText(Html.fromHtml(chatMessage.getData()));
         if (chatMessage.getType().equals(ChatMessage.Type.Image)) {
+            holder.Progress.setVisibility(View.VISIBLE);
             holder.MessageImage.setImageDrawable(null);
             data.loadBitmap(context, new Data.BitmapLoadedCallback() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap) {
                     holder.MessageImage.setImageDrawable(new BitmapDrawable(context.getResources(), bitmap));
+                    holder.MessageImage.setAlpha(0f);
+                    holder.MessageImage.animate().setStartDelay(400).alpha(1f).setDuration(200).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            holder.Progress.setVisibility(View.GONE);
+                        }
+                    }).start();
                 }
             }, chatMessage);
         }
@@ -98,11 +110,15 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.
         private ImageView MessageImage;
         private TextView Info;
 
+        private ProgressBar Progress;
+
         public ViewHolder(View v) {
             super(v);
             Message = (TextView) v.findViewById(R.id.message);
             MessageImage = (ImageView) v.findViewById(R.id.message_image);
             Info = (TextView) v.findViewById(R.id.info);
+
+            Progress = (ProgressBar) v.findViewById(R.id.progress);
         }
 
     }
