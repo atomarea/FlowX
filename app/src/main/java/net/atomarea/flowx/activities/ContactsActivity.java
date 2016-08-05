@@ -17,8 +17,6 @@ import net.atomarea.flowx.data.Data;
 
 public class ContactsActivity extends AppCompatActivity {
 
-    private Data data;
-
     private RecyclerView recyclerViewContactsList;
 
     @Override
@@ -29,11 +27,9 @@ public class ContactsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        data = (Data) getIntent().getSerializableExtra(Data.EXTRA_TOKEN);
-
         recyclerViewContactsList = (RecyclerView) findViewById(R.id.contacts_list);
         recyclerViewContactsList.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewContactsList.setAdapter(new ContactsListAdapter(this, data));
+        recyclerViewContactsList.setAdapter(new ContactsListAdapter(this));
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

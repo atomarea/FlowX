@@ -22,11 +22,9 @@ import net.atomarea.flowx.data.Data;
 public class ContactsListAdapter extends RecyclerView.Adapter<ContactsListAdapter.ViewHolder> {
 
     private ContactsActivity activity;
-    private Data data;
 
-    public ContactsListAdapter(ContactsActivity activity, Data data) {
+    public ContactsListAdapter(ContactsActivity activity) {
         this.activity = activity;
-        this.data = data;
     }
 
     @Override
@@ -36,14 +34,13 @@ public class ContactsListAdapter extends RecyclerView.Adapter<ContactsListAdapte
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        Account contact = data.getContacts().get(position);
+        Account contact = Data.getContacts().get(position);
         holder.ContactName.setText(contact.getName());
         holder.ContactRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent chatHistoryActivity = new Intent(activity, ChatHistoryActivity.class);
-                chatHistoryActivity.putExtra(Data.EXTRA_TOKEN, data);
-                chatHistoryActivity.putExtra(Data.EXTRA_CHAT_HISTORY_POSITION, data.getChatHistoryPosition(data.getContacts().get(holder.getAdapterPosition())));
+                chatHistoryActivity.putExtra(Data.EXTRA_CHAT_HISTORY_POSITION, Data.getChatHistoryPosition(Data.getContacts().get(holder.getAdapterPosition())));
                 activity.startActivity(chatHistoryActivity);
                 activity.finish();
             }
@@ -52,8 +49,7 @@ public class ContactsListAdapter extends RecyclerView.Adapter<ContactsListAdapte
             @Override
             public void onClick(View v) {
                 Intent contactDetailActivity = new Intent(activity, ContactDetailActivity.class);
-                contactDetailActivity.putExtra(Data.EXTRA_TOKEN, data);
-                contactDetailActivity.putExtra(Data.EXTRA_TOKEN_ACCOUNT, data.getContacts().get(holder.getAdapterPosition()));
+                contactDetailActivity.putExtra(Data.EXTRA_CONTACT_POSITION, holder.getAdapterPosition());
                 activity.startActivity(contactDetailActivity);
             }
         });
@@ -61,7 +57,7 @@ public class ContactsListAdapter extends RecyclerView.Adapter<ContactsListAdapte
 
     @Override
     public int getItemCount() {
-        return data.getContacts().size();
+        return Data.getContacts().size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

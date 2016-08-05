@@ -24,11 +24,9 @@ import net.atomarea.flowx.data.Data;
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHolder> {
 
     private Context context;
-    private Data data;
 
-    public ChatListAdapter(Context context, Data data) {
+    public ChatListAdapter(Context context) {
         this.context = context;
-        this.data = data;
     }
 
     @Override
@@ -38,7 +36,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        ChatHistory chatHistory = data.getChats().get(position);
+        ChatHistory chatHistory = Data.getChats().get(position);
         holder.ContactName.setText(chatHistory.getRemoteContact().getName());
         if (chatHistory.getLatestChatMessage() != null) {
             if (chatHistory.getLatestChatMessage().getType() == ChatMessage.Type.Text)
@@ -58,7 +56,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             @Override
             public void onClick(View v) {
                 Intent chatHistoryActivity = new Intent(context, ChatHistoryActivity.class);
-                chatHistoryActivity.putExtra(Data.EXTRA_TOKEN, data);
                 chatHistoryActivity.putExtra(Data.EXTRA_CHAT_HISTORY_POSITION, holder.getAdapterPosition());
                 context.startActivity(chatHistoryActivity);
             }
@@ -67,8 +64,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             @Override
             public void onClick(View v) {
                 Intent contactDetailActivity = new Intent(context, ContactDetailActivity.class);
-                contactDetailActivity.putExtra(Data.EXTRA_TOKEN, data);
-                contactDetailActivity.putExtra(Data.EXTRA_TOKEN_ACCOUNT, data.getChats().get(holder.getAdapterPosition()).getRemoteContact());
+                contactDetailActivity.putExtra(Data.EXTRA_CONTACT_POSITION, Data.getAccountPosition(Data.getChats().get(holder.getAdapterPosition()).getRemoteContact()));
                 context.startActivity(contactDetailActivity);
             }
         });
@@ -82,7 +78,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
     @Override
     public int getItemCount() {
-        return data.getChats().size();
+        return Data.getChats().size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

@@ -35,7 +35,12 @@
         <activity
             android:name=".settings.SettingsActivity"
             android:label="@string/settings" />
-        <activity android:name=".activities.AboutActivity"></activity>
+        <activity
+            android:name=".activities.AboutActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".activities.ImageViewerActivity"
+            android:label="@string/image_viewer" />
     </application>
 
 </manifest>

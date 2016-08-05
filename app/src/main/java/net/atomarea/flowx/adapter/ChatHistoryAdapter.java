@@ -2,9 +2,11 @@ package net.atomarea.flowx.adapter;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -15,6 +17,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import net.atomarea.flowx.R;
+import net.atomarea.flowx.activities.ChatHistoryActivity;
+import net.atomarea.flowx.activities.ImageViewerActivity;
 import net.atomarea.flowx.data.ChatHistory;
 import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
@@ -28,13 +32,11 @@ import java.util.Date;
  */
 public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.ViewHolder> {
 
-    private Context context;
-    private Data data;
+    private ChatHistoryActivity activity;
     private ChatHistory chatHistory;
 
-    public ChatHistoryAdapter(Context context, Data data, ChatHistory chatHistory) {
-        this.context = context;
-        this.data = data;
+    public ChatHistoryAdapter(ChatHistoryActivity activity, ChatHistory chatHistory) {
+        this.activity = activity;
         this.chatHistory = chatHistory;
     }
 
@@ -58,22 +60,34 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        ChatMessage chatMessage = chatHistory.getChatMessages().get(position);
+        final ChatMessage chatMessage = chatHistory.getChatMessages().get(position);
         if (chatMessage.getType().equals(ChatMessage.Type.Text))
             holder.Message.setText(Html.fromHtml(chatMessage.getData()));
         if (chatMessage.getType().equals(ChatMessage.Type.Image)) {
             holder.Progress.setVisibility(View.VISIBLE);
             holder.MessageImage.setImageDrawable(null);
-            data.loadBitmap(context, new Data.BitmapLoadedCallback() {
+            holder.MessageImage.setOnClickListener(null);
+            Data.loadBitmap(activity, new Data.BitmapLoadedCallback() {
                 @Override
-                public void onBitmapLoaded(Bitmap bitmap) {
-                    holder.MessageImage.setImageDrawable(new BitmapDrawable(context.getResources(), bitmap));
+                public void onBitmapLoaded(final Bitmap bitmap) {
+                    holder.MessageImage.setImageDrawable(new BitmapDrawable(activity.getResources(), bitmap));
                     holder.MessageImage.setAlpha(0f);
                     holder.MessageImage.animate().setStartDelay(400).alpha(1f).setDuration(200).setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             super.onAnimationEnd(animation);
                             holder.Progress.setVisibility(View.GONE);
+                            holder.MessageImage.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent imageViewer = new Intent(activity, ImageViewerActivity.class);
+                                    imageViewer.putExtra(Data.EXTRA_TOKEN_CHAT_MESSAGE, chatMessage);
+                                    if (Build.VERSION.SDK_INT >= 16)
+                                        activity.startActivity(imageViewer, ActivityOptionsCompat.makeSceneTransitionAnimation(activity, holder.MessageImage, "image").toBundle());
+                                    else
+                                        activity.startActivity(imageViewer);
+                                }
+                            });
                         }
                     }).start();
                 }

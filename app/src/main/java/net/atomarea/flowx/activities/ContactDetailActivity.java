@@ -2,7 +2,6 @@ package net.atomarea.flowx.activities;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -15,7 +14,6 @@ import net.atomarea.flowx.data.Data;
 
 public class ContactDetailActivity extends AppCompatActivity {
 
-    private Data data;
     private Account contact;
 
     @Override
@@ -26,19 +24,17 @@ public class ContactDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        data = (Data) getIntent().getSerializableExtra(Data.EXTRA_TOKEN);
-        contact = (Account) getIntent().getSerializableExtra(Data.EXTRA_TOKEN_ACCOUNT);
+        contact = Data.getContacts().get(getIntent().getIntExtra(Data.EXTRA_CONTACT_POSITION, 0));
 
         getSupportActionBar().setTitle(contact.getName());
 
         ((TextView) findViewById(R.id.status)).setText(contact.getStatus());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        if (fab != null) fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
             }
         });
     }

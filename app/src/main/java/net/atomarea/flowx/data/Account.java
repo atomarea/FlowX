@@ -17,7 +17,7 @@ public class Account implements Serializable {
     public Account(Context context, String XmppAddress, String Status) {
         this.XmppAddress = XmppAddress;
         this.Status = Status;
-        Name = PreferenceManager.getDefaultSharedPreferences(context).getString("account:" + XmppAddress, XmppAddress);
+        reloadName(context);
     }
 
     public void reloadName(Context context) {

@@ -19,8 +19,6 @@ import net.atomarea.flowx.settings.SettingsActivity;
 
 public class ChatListActivity extends AppCompatActivity {
 
-    private Data data;
-
     private RecyclerView recyclerViewChatList;
 
     @Override
@@ -30,20 +28,16 @@ public class ChatListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        data = (Data) getIntent().getSerializableExtra(Data.EXTRA_TOKEN);
-
         recyclerViewChatList = (RecyclerView) findViewById(R.id.chat_list);
         recyclerViewChatList.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewChatList.addItemDecoration(new DrawableItemDecoration(this, R.drawable.divider));
-        recyclerViewChatList.setAdapter(new ChatListAdapter(this, data));
+        recyclerViewChatList.setAdapter(new ChatListAdapter(this));
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if (fab != null) fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent contactsActivity = new Intent(ChatListActivity.this, ContactsActivity.class);
-                contactsActivity.putExtra(Data.EXTRA_TOKEN, data);
-                startActivity(contactsActivity);
+                startActivity(new Intent(ChatListActivity.this, ContactsActivity.class));
             }
         });
     }
@@ -51,7 +45,9 @@ public class ChatListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        data.clean();
+        Data.clean();
+        Data.refresh(this);
+        recyclerViewChatList.getAdapter().notifyDataSetChanged();
     }
 
     @Override

@@ -18,25 +18,22 @@ public class StarterActivity extends AppCompatActivity {
         new LoaderTask().execute();
     }
 
-    public void onLoaded(Data data) {
-        if (data != null) {
-            Intent ChatListActivity = new Intent(this, ChatListActivity.class);
-            ChatListActivity.putExtra(Data.EXTRA_TOKEN, data);
-            startActivity(ChatListActivity);
-            finish();
-        }
+    public void onLoaded() {
+        startActivity(new Intent(this, ChatListActivity.class));
+        finish();
     }
 
-    class LoaderTask extends AsyncTask<Void, Void, Data> {
+    class LoaderTask extends AsyncTask<Void, Void, Void> {
         @Override
-        protected Data doInBackground(Void... params) {
-            return new Data(getApplicationContext());
+        protected Void doInBackground(Void... params) {
+            Data.init(StarterActivity.this);
+            return null;
         }
 
         @Override
-        protected void onPostExecute(Data data) {
-            super.onPostExecute(data);
-            onLoaded(data);
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            onLoaded();
         }
     }
 }

@@ -17,7 +17,6 @@ import net.atomarea.flowx.data.Data;
 
 public class ChatHistoryActivity extends AppCompatActivity {
 
-    private Data data;
     private ChatHistory chatHistory;
 
     private EditText editTextMessageInput;
@@ -32,8 +31,7 @@ public class ChatHistoryActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        data = (Data) getIntent().getSerializableExtra(Data.EXTRA_TOKEN);
-        chatHistory = data.getChats().get(getIntent().getIntExtra(Data.EXTRA_CHAT_HISTORY_POSITION, 0));
+        chatHistory = Data.getChats().get(getIntent().getIntExtra(Data.EXTRA_CHAT_HISTORY_POSITION, 0));
 
         getSupportActionBar().setTitle(chatHistory.getRemoteContact().getName());
 
@@ -41,7 +39,7 @@ public class ChatHistoryActivity extends AppCompatActivity {
         recyclerViewChatHistory = (RecyclerView) findViewById(R.id.chat_history);
         recyclerViewChatHistory.setLayoutManager(linearLayoutManager = new LinearLayoutManager(this));
         linearLayoutManager.setStackFromEnd(true);
-        recyclerViewChatHistory.setAdapter(new ChatHistoryAdapter(this, data, chatHistory));
+        recyclerViewChatHistory.setAdapter(new ChatHistoryAdapter(this, chatHistory));
 
         String LastMessage = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("lastMessage:" + chatHistory.getRemoteContact().getXmppAddress(), null);
         if (LastMessage != null) editTextMessageInput.setText(LastMessage);

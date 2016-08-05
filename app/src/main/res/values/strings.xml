@@ -13,6 +13,8 @@
     <string name="file">File</string>
     <string name="error">An error occured.</string>
 
+    <string name="image_viewer">Image Viewer</string>
+
     <string name="notification">Notification</string>
     <string name="notification_vibrate_title">Vibrate</string>
     <string name="notification_vibrate_summary">Whether to vibrate or not when a new message is received.</string>

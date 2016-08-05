@@ -16,14 +16,14 @@ import java.util.Iterator;
  */
 public class Data implements Serializable {
 
-    public static final String EXTRA_TOKEN = "data";
     public static final String EXTRA_CHAT_HISTORY_POSITION = "001";
-    public static final String EXTRA_TOKEN_ACCOUNT = "002";
+    public static final String EXTRA_CONTACT_POSITION = "002";
+    public static final String EXTRA_TOKEN_CHAT_MESSAGE = "003";
 
-    private ArrayList<Account> Contacts;
-    private ArrayList<ChatHistory> Chats;
+    private static ArrayList<Account> Contacts;
+    private static ArrayList<ChatHistory> Chats;
 
-    public Data(Context context) {
+    public static void init(Context context) {
         Contacts = new ArrayList<>();
         Chats = new ArrayList<>();
 
@@ -36,21 +36,18 @@ public class Data implements Serializable {
         Chats.add(new ChatHistory("02", Contacts.get(2)));
         Chats.add(new ChatHistory("03", Contacts.get(3)));
 
-        Chats.get(0).getChatMessages().add(new ChatMessage("Hey! Look at <b>this</b> <i>cool</i> formatting <u>Tricks</u>!", ChatMessage.Type.Text, false, System.currentTimeMillis() - 1000 * 60 * 60 * 25));
+        Chats.get(0).getChatMessages().add(new ChatMessage("Hey! Look at <b>these</b> <i>cool</i> formatting <u>Tricks</u>!", ChatMessage.Type.Text, false, System.currentTimeMillis() - 1000 * 60 * 60 * 25));
         Chats.get(0).getChatMessages().add(new ChatMessage("Yeah! Freaking cool!", ChatMessage.Type.Text, true, System.currentTimeMillis() - 1000 * 60 * 20));
         ChatMessage a = new ChatMessage(null, ChatMessage.Type.Image, true, System.currentTimeMillis() - 1000 * 60 * 3);
         ChatMessage b = new ChatMessage(null, ChatMessage.Type.Image, false, System.currentTimeMillis());
         Chats.get(0).getChatMessages().add(a);
         Chats.get(0).getChatMessages().add(b);
 
-        for (int i = 0; i < 3; i++) {
-            Chats.get(1).getChatMessages().add(new ChatMessage("Some <b>Message</b> " + Math.random(), ChatMessage.Type.Text, true, System.currentTimeMillis()));
-            Chats.get(1).getChatMessages().add(new ChatMessage("Some <i>Message again</i> " + Math.random(), ChatMessage.Type.Text, false, System.currentTimeMillis()));
-            Chats.get(1).getChatMessages().add(new ChatMessage("Some <b>Message</b> " + Math.random(), ChatMessage.Type.Text, true, System.currentTimeMillis()));
-        }
+        Chats.get(1).getChatMessages().add(new ChatMessage(null, ChatMessage.Type.Audio, true, System.currentTimeMillis()));
+        Chats.get(1).getChatMessages().add(new ChatMessage(null, ChatMessage.Type.Audio, false, System.currentTimeMillis()));
     }
 
-    public void clean() {
+    public static void clean() {
         Iterator<ChatHistory> chatHistoryIterator = Chats.iterator();
         while (chatHistoryIterator.hasNext()) {
             if (chatHistoryIterator.next().getChatMessages().size() == 0)
@@ -58,21 +55,21 @@ public class Data implements Serializable {
         }
     }
 
-    public void refresh(Context context) {
+    public static void refresh(Context context) {
         for (Account c : Contacts) {
             c.reloadName(context);
         }
     }
 
-    public ArrayList<Account> getContacts() {
+    public static ArrayList<Account> getContacts() {
         return Contacts;
     }
 
-    public ArrayList<ChatHistory> getChats() {
+    public static ArrayList<ChatHistory> getChats() {
         return Chats;
     }
 
-    public int getChatHistoryPosition(Account contact) {
+    public static int getChatHistoryPosition(Account contact) {
         for (int i = 0; i < Chats.size(); i++) {
             if (Chats.get(i).getRemoteContact().getXmppAddress().equals(contact.getXmppAddress()))
                 return i;
@@ -81,7 +78,14 @@ public class Data implements Serializable {
         return Chats.size() - 1;
     }
 
-    public void loadBitmap(Context context, BitmapLoadedCallback callback, ChatMessage message) {
+    public static int getAccountPosition(Account remoteContact) {
+        for (int i = 0; i < Contacts.size(); i++) {
+            if (remoteContact.equals(Contacts.get(i))) return i;
+        }
+        return -1;
+    }
+
+    public static void loadBitmap(Context context, BitmapLoadedCallback callback, ChatMessage message) {
         if (!message.getType().equals(ChatMessage.Type.Image)) return;
         new AsyncBitmapLoaderTask(context, callback).execute(message);
     }
@@ -90,7 +94,7 @@ public class Data implements Serializable {
         void onBitmapLoaded(Bitmap bitmap);
     }
 
-    public class AsyncBitmapLoaderTask extends AsyncTask<ChatMessage, Void, Bitmap> {
+    public static class AsyncBitmapLoaderTask extends AsyncTask<ChatMessage, Void, Bitmap> {
 
         private Context context;
         private BitmapLoadedCallback callback;
