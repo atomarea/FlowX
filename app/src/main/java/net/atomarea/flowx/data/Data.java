@@ -36,12 +36,18 @@ public class Data implements Serializable {
         Chats.add(new ChatHistory("02", Contacts.get(2)));
         Chats.add(new ChatHistory("03", Contacts.get(3)));
 
-        Chats.get(0).getChatMessages().add(new ChatMessage("Hey! Look at <b>these</b> <i>cool</i> formatting <u>Tricks</u>!", ChatMessage.Type.Text, false, System.currentTimeMillis() - 1000 * 60 * 60 * 25));
-        Chats.get(0).getChatMessages().add(new ChatMessage("Yeah! Freaking cool!", ChatMessage.Type.Text, true, System.currentTimeMillis() - 1000 * 60 * 20));
-        ChatMessage a = new ChatMessage(null, ChatMessage.Type.Image, true, System.currentTimeMillis() - 1000 * 60 * 3);
-        ChatMessage b = new ChatMessage(null, ChatMessage.Type.Image, false, System.currentTimeMillis());
+        Chats.get(0).getChatMessages().add(new ChatMessage("Hey! <u>Look at</u> <b>these</b> <i>cool</i> formatting Tricks!", ChatMessage.Type.Text, true, System.currentTimeMillis() - 1000 * 62 * 60 * 26));
+        Chats.get(0).getChatMessages().get(0).setState(ChatMessage.State.ReadByContact);
+        Chats.get(0).getChatMessages().add(new ChatMessage("Yeah! Freaking cool!", ChatMessage.Type.Text, false, System.currentTimeMillis() - 1000 * 62 * 60 * 25));
+        ChatMessage a = new ChatMessage(null, ChatMessage.Type.Image, true, System.currentTimeMillis() - 1000 * 62 * 59 * 25);
+        a.setState(ChatMessage.State.DeliveredToContact);
         Chats.get(0).getChatMessages().add(a);
-        Chats.get(0).getChatMessages().add(b);
+        a = new ChatMessage("That was a <b>very</b> nice place!", ChatMessage.Type.Text, true, System.currentTimeMillis() - 1000 * 62 * 23 * 14);
+        a.setState(ChatMessage.State.DeliveredToServer);
+        Chats.get(0).getChatMessages().add(a);
+        a = new ChatMessage("<i>Really</i>", ChatMessage.Type.Text, true, System.currentTimeMillis() - 1000 * 43);
+        a.setState(ChatMessage.State.NotDelivered);
+        Chats.get(0).getChatMessages().add(a);
 
         Chats.get(1).getChatMessages().add(new ChatMessage(null, ChatMessage.Type.Audio, true, System.currentTimeMillis()));
         Chats.get(1).getChatMessages().add(new ChatMessage(null, ChatMessage.Type.Audio, false, System.currentTimeMillis()));

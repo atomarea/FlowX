@@ -10,6 +10,7 @@ public class ChatMessage implements Serializable {
     private String Data;
     private Object Heap;
     private Type Type;
+    private State state;
     private boolean Sent;
     private long Time;
 
@@ -18,6 +19,7 @@ public class ChatMessage implements Serializable {
         this.Type = Type;
         this.Sent = Sent;
         this.Time = Time;
+        state = State.NotDelivered;
         Heap = null;
     }
 
@@ -53,8 +55,20 @@ public class ChatMessage implements Serializable {
         return Time;
     }
 
+    public ChatMessage.State getState() {
+        return state;
+    }
+
+    public void setState(ChatMessage.State state) {
+        this.state = state;
+    }
+
     public enum Type {
         Text, Audio, Image, Video, File, Unknown
+    }
+
+    public enum State {
+        NotDelivered, DeliveredToServer, DeliveredToContact, ReadByContact
     }
 
 }

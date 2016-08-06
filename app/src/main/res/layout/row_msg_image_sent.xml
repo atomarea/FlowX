@@ -55,9 +55,19 @@
                     android:id="@+id/info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
                     android:fontFamily="sans-serif"
+                    android:maxLines="1"
                     android:textColor="@android:color/primary_text_dark"
                     android:textSize="14sp" />
+
+                <net.atomarea.flowx.view.ReadIndicatorView
+                    android:id="@+id/read_indicator"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="@dimen/standard_padding"
+                    android:layout_marginStart="@dimen/standard_padding" />
 
             </LinearLayout>
 

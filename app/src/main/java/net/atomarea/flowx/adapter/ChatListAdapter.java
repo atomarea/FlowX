@@ -17,6 +17,7 @@ import net.atomarea.flowx.activities.ContactDetailActivity;
 import net.atomarea.flowx.data.ChatHistory;
 import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.view.ReadIndicatorView;
 
 /**
  * Created by Tom on 04.08.2016.

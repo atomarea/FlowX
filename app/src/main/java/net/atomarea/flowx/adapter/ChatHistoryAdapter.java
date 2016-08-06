@@ -22,6 +22,7 @@ import net.atomarea.flowx.activities.ImageViewerActivity;
 import net.atomarea.flowx.data.ChatHistory;
 import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.view.ReadIndicatorView;
 
 import java.text.DateFormat;
 import java.util.Calendar;
@@ -61,6 +62,7 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final ChatMessage chatMessage = chatHistory.getChatMessages().get(position);
+        if (holder.ReadIndicator != null) holder.ReadIndicator.setChatMessage(chatMessage);
         if (chatMessage.getType().equals(ChatMessage.Type.Text))
             holder.Message.setText(Html.fromHtml(chatMessage.getData()));
         if (chatMessage.getType().equals(ChatMessage.Type.Image)) {
@@ -120,6 +122,7 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
+        private ReadIndicatorView ReadIndicator;
         private TextView Message;
         private ImageView MessageImage;
         private TextView Info;
@@ -128,6 +131,7 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.
 
         public ViewHolder(View v) {
             super(v);
+            ReadIndicator = (ReadIndicatorView) v.findViewById(R.id.read_indicator);
             Message = (TextView) v.findViewById(R.id.message);
             MessageImage = (ImageView) v.findViewById(R.id.message_image);
             Info = (TextView) v.findViewById(R.id.info);
