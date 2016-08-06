@@ -1,4 +1,4 @@
-package net.atomarea.flowx.adapter;
+package net.atomarea.flowx.ui.adapter;
 
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -10,11 +10,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.activities.ChatHistoryActivity;
-import net.atomarea.flowx.activities.ContactDetailActivity;
-import net.atomarea.flowx.activities.ContactsActivity;
-import net.atomarea.flowx.data.Account;
-import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
+import net.atomarea.flowx.ui.activities.ContactDetailActivity;
+import net.atomarea.flowx.ui.activities.ContactsActivity;
+import net.atomarea.flowx.ui.data.Account;
+import net.atomarea.flowx.ui.data.Data;
 
 /**
  * Created by Tom on 04.08.2016.

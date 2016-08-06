@@ -1,4 +1,4 @@
-package net.atomarea.flowx.activities;
+package net.atomarea.flowx.ui.activities;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -8,8 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.data.ChatMessage;
-import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.ui.data.ChatMessage;
+import net.atomarea.flowx.ui.data.Data;
 
 public class ImageViewerActivity extends AppCompatActivity {
 

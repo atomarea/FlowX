@@ -1,4 +1,4 @@
-package net.atomarea.flowx.activities;
+package net.atomarea.flowx.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,10 +12,10 @@ import android.view.MenuItem;
 import android.view.View;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.adapter.ChatListAdapter;
-import net.atomarea.flowx.data.Data;
-import net.atomarea.flowx.other.DrawableItemDecoration;
-import net.atomarea.flowx.settings.SettingsActivity;
+import net.atomarea.flowx.ui.adapter.ChatListAdapter;
+import net.atomarea.flowx.ui.data.Data;
+import net.atomarea.flowx.ui.other.DrawableItemDecoration;
+import net.atomarea.flowx.ui.settings.SettingsActivity;
 
 public class ChatListActivity extends AppCompatActivity {
 

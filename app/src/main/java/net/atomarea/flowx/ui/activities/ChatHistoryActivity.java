@@ -1,4 +1,4 @@
-package net.atomarea.flowx.activities;
+package net.atomarea.flowx.ui.activities;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -11,9 +11,9 @@ import android.view.View;
 import android.widget.EditText;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.adapter.ChatHistoryAdapter;
-import net.atomarea.flowx.data.ChatHistory;
-import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.ui.adapter.ChatHistoryAdapter;
+import net.atomarea.flowx.ui.data.ChatHistory;
+import net.atomarea.flowx.ui.data.Data;
 
 public class ChatHistoryActivity extends AppCompatActivity {
 

@@ -61,7 +61,7 @@
                     android:textColor="@android:color/primary_text_dark"
                     android:textSize="14sp" />
 
-                <net.atomarea.flowx.view.ReadIndicatorView
+                <net.atomarea.flowx.ui.view.ReadIndicatorView
                     android:id="@+id/read_indicator"
                     android:layout_width="16dp"
                     android:layout_height="16dp"

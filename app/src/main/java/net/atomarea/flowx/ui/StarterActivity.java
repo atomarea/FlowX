@@ -1,12 +1,13 @@
-package net.atomarea.flowx;
+package net.atomarea.flowx.ui;
 
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import net.atomarea.flowx.activities.ChatListActivity;
-import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.ui.activities.ChatListActivity;
+import net.atomarea.flowx.ui.data.Data;
 
 public class StarterActivity extends AppCompatActivity {
 

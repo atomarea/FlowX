@@ -1,4 +1,4 @@
-package net.atomarea.flowx.view;
+package net.atomarea.flowx.ui.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
-import net.atomarea.flowx.data.ChatMessage;
+import net.atomarea.flowx.ui.data.ChatMessage;
 
 /**
  * Created by Tom on 06.08.2016.

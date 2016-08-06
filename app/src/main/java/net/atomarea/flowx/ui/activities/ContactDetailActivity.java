@@ -1,42 +1,40 @@
-package net.atomarea.flowx.activities;
+package net.atomarea.flowx.ui.activities;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.adapter.ContactsListAdapter;
-import net.atomarea.flowx.other.DrawableItemDecoration;
+import net.atomarea.flowx.ui.data.Account;
+import net.atomarea.flowx.ui.data.Data;
 
-public class ContactsActivity extends AppCompatActivity {
+public class ContactDetailActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerViewContactsList;
+    private Account contact;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_contacts);
+        setContentView(R.layout.activity_contact_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        recyclerViewContactsList = (RecyclerView) findViewById(R.id.contacts_list);
-        recyclerViewContactsList.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewContactsList.addItemDecoration(new DrawableItemDecoration(this, R.drawable.divider));
-        recyclerViewContactsList.setAdapter(new ContactsListAdapter(this));
+        contact = Data.getContacts().get(getIntent().getIntExtra(Data.EXTRA_CONTACT_POSITION, 0));
+
+        getSupportActionBar().setTitle(contact.getName());
+
+        ((TextView) findViewById(R.id.status)).setText(contact.getStatus());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if (fab != null) fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
             }
         });
     }
@@ -49,5 +47,4 @@ public class ContactsActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 }

@@ -1,4 +1,4 @@
-package net.atomarea.flowx.settings;
+package net.atomarea.flowx.ui.settings;
 
 
 import android.annotation.TargetApi;

@@ -1,4 +1,4 @@
-package net.atomarea.flowx.adapter;
+package net.atomarea.flowx.ui.adapter;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -17,12 +17,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.activities.ChatHistoryActivity;
-import net.atomarea.flowx.activities.ImageViewerActivity;
-import net.atomarea.flowx.data.ChatHistory;
-import net.atomarea.flowx.data.ChatMessage;
-import net.atomarea.flowx.data.Data;
-import net.atomarea.flowx.view.ReadIndicatorView;
+import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
+import net.atomarea.flowx.ui.activities.ImageViewerActivity;
+import net.atomarea.flowx.ui.data.ChatHistory;
+import net.atomarea.flowx.ui.data.ChatMessage;
+import net.atomarea.flowx.ui.data.Data;
+import net.atomarea.flowx.ui.view.ReadIndicatorView;
 
 import java.text.DateFormat;
 import java.util.Calendar;

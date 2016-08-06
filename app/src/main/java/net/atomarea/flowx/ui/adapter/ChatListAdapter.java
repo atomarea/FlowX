@@ -1,4 +1,4 @@
-package net.atomarea.flowx.adapter;
+package net.atomarea.flowx.ui.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,12 +12,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.activities.ChatHistoryActivity;
-import net.atomarea.flowx.activities.ContactDetailActivity;
-import net.atomarea.flowx.data.ChatHistory;
-import net.atomarea.flowx.data.ChatMessage;
-import net.atomarea.flowx.data.Data;
-import net.atomarea.flowx.view.ReadIndicatorView;
+import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
+import net.atomarea.flowx.ui.activities.ContactDetailActivity;
+import net.atomarea.flowx.ui.data.ChatHistory;
+import net.atomarea.flowx.ui.data.ChatMessage;
+import net.atomarea.flowx.ui.data.Data;
 
 /**
  * Created by Tom on 04.08.2016.
