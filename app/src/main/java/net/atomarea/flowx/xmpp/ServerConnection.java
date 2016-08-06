@@ -14,6 +14,7 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
@@ -85,8 +86,23 @@ public class ServerConnection implements Serializable, StanzaListener {
                 if (contact != null) {
                     ChatHistory chatHistory = Data.getChatHistory(contact);
                     if (chatHistory != null) {
-                        ChatMessage chatMessage = new ChatMessage(message.getBody(), ChatMessage.Type.Text, false, System.currentTimeMillis());
+                        ChatMessage chatMessage = new ChatMessage(message.getStanzaId(), message.getBody(), ChatMessage.Type.Text, false, System.currentTimeMillis());
                         chatHistory.getChatMessages().add(chatMessage);
+                    }
+                }
+            } else if (message.getBody() != null) {
+                Log.i(TAG, "RECV " + message.getBody());
+            } else {
+                for (ExtensionElement ee : message.getExtensions()) {
+                    if (ee.getElementName().equals("received")) {
+                        ChatMessage chatMessage = Data.getChatMessage(message.getStanzaId());
+                        if (chatMessage != null)
+                            chatMessage.setState(ChatMessage.State.DeliveredToContact);
+                    } else if (ee.getElementName().equals("displayed")) {
+
+                        ChatMessage chatMessage = Data.getChatMessage(message.getStanzaId());
+                        if (chatMessage != null)
+                            chatMessage.setState(ChatMessage.State.ReadByContact);
                     }
                 }
             }
@@ -109,6 +125,7 @@ public class ServerConnection implements Serializable, StanzaListener {
                 message.setBody(chatMessage.getData());
                 message.setType(Message.Type.chat);
                 message.setSubject(chatMessage.getType().name());
+                message.setStanzaId(chatMessage.getID());
                 try {
                     xmppConnection.sendStanza(message);
                 } catch (SmackException.NotConnectedException e) {

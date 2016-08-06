@@ -99,7 +99,7 @@ public class Data implements Serializable {
         int pos = getChatHistoryPosition(contact);
         if (pos != -1) return Chats.get(pos);
         else {
-            
+
         }
         return null;
     }
@@ -118,9 +118,18 @@ public class Data implements Serializable {
         return null;
     }
 
+    public static ChatMessage getChatMessage(String ID) {
+        for (ChatHistory ch : Chats) {
+            for (ChatMessage cm : ch.getChatMessages()) {
+                if (cm.getID().equals(ID)) return cm;
+            }
+        }
+        return null;
+    }
+
     public static boolean sendTextMessage(ChatHistory chatHistory, String message) {
         if (getConnection() != null) {
-            ChatMessage chatMessage = new ChatMessage(message, ChatMessage.Type.Text, true, System.currentTimeMillis());
+            ChatMessage chatMessage = new ChatMessage("FX" + System.currentTimeMillis(), message, ChatMessage.Type.Text, true, System.currentTimeMillis());
             chatHistory.getChatMessages().add(chatMessage);
             getConnection().sendMessage(chatHistory.getRemoteContact(), chatMessage);
             return true;

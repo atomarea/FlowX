@@ -33,7 +33,7 @@ public class StarterActivity extends AppCompatActivity {
             Data.init(StarterActivity.this);
             ServerConnection serverConnection = new ServerConnection();
             try {
-                //serverConnection.login("replace username here", "replace password here");
+                
             } catch(Exception e) {
                 e.printStackTrace();
             }

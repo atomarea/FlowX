@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 public class ChatMessage implements Serializable {
 
+    private String ID;
     private String Data;
     private Object Heap;
     private Type Type;
@@ -14,13 +15,22 @@ public class ChatMessage implements Serializable {
     private boolean Sent;
     private long Time;
 
-    public ChatMessage(String Data, Type Type, boolean Sent, long Time) {
+    public ChatMessage(String ID, String Data, Type Type, boolean Sent, long Time) {
+        this.ID = ID;
         this.Data = Data;
         this.Type = Type;
         this.Sent = Sent;
         this.Time = Time;
         state = State.NotDelivered;
         Heap = null;
+    }
+
+    public String getID() {
+        return ID;
+    }
+
+    public void setID(String ID) {
+        this.ID = ID;
     }
 
     public String getData() {
