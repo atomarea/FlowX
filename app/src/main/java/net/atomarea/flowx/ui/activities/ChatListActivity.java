@@ -13,7 +13,7 @@ import android.view.View;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.ui.adapter.ChatListAdapter;
-import net.atomarea.flowx.ui.data.Data;
+import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.other.DrawableItemDecoration;
 import net.atomarea.flowx.ui.settings.SettingsActivity;
 
@@ -45,8 +45,6 @@ public class ChatListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Data.clean();
-        Data.refresh(this);
         recyclerViewChatList.getAdapter().notifyDataSetChanged();
     }
 

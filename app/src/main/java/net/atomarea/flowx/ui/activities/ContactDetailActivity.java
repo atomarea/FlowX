@@ -9,8 +9,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.ui.data.Account;
-import net.atomarea.flowx.ui.data.Data;
+import net.atomarea.flowx.data.Account;
+import net.atomarea.flowx.data.Data;
 
 public class ContactDetailActivity extends AppCompatActivity {
 

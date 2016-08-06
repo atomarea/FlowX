@@ -2,6 +2,7 @@ package net.atomarea.flowx.ui.activities;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,9 +12,9 @@ import android.view.View;
 import android.widget.EditText;
 
 import net.atomarea.flowx.R;
+import net.atomarea.flowx.data.ChatHistory;
+import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.adapter.ChatHistoryAdapter;
-import net.atomarea.flowx.ui.data.ChatHistory;
-import net.atomarea.flowx.ui.data.Data;
 
 public class ChatHistoryActivity extends AppCompatActivity {
 
@@ -40,6 +41,17 @@ public class ChatHistoryActivity extends AppCompatActivity {
         recyclerViewChatHistory.setLayoutManager(linearLayoutManager = new LinearLayoutManager(this));
         linearLayoutManager.setStackFromEnd(true);
         recyclerViewChatHistory.setAdapter(new ChatHistoryAdapter(this, chatHistory));
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        if (fab != null) fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Data.sendTextMessage(chatHistory, editTextMessageInput.getText().toString());
+                editTextMessageInput.setText("");
+                recyclerViewChatHistory.getAdapter().notifyDataSetChanged();
+                recyclerViewChatHistory.smoothScrollToPosition(chatHistory.getChatMessages().size() - 1);
+            }
+        });
 
         String LastMessage = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("lastMessage:" + chatHistory.getRemoteContact().getXmppAddress(), null);
         if (LastMessage != null) editTextMessageInput.setText(LastMessage);

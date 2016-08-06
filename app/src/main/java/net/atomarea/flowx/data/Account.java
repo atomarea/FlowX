@@ -1,7 +1,4 @@
-package net.atomarea.flowx.ui.data;
-
-import android.content.Context;
-import android.preference.PreferenceManager;
+package net.atomarea.flowx.data;
 
 import java.io.Serializable;
 
@@ -14,14 +11,10 @@ public class Account implements Serializable {
     private String Status;
     private String XmppAddress;
 
-    public Account(Context context, String XmppAddress, String Status) {
+    public Account(String Name, String XmppAddress, String Status) {
+        this.Name = (Name == null ? XmppAddress.split("@")[0] : Name);
         this.XmppAddress = XmppAddress;
         this.Status = Status;
-        reloadName(context);
-    }
-
-    public void reloadName(Context context) {
-        Name = PreferenceManager.getDefaultSharedPreferences(context).getString("account:" + XmppAddress, XmppAddress);
     }
 
     public void setName(String name) {

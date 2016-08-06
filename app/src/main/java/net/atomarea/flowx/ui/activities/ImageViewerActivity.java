@@ -8,8 +8,8 @@ import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.ui.data.ChatMessage;
-import net.atomarea.flowx.ui.data.Data;
+import net.atomarea.flowx.data.ChatMessage;
+import net.atomarea.flowx.data.Data;
 
 public class ImageViewerActivity extends AppCompatActivity {
 

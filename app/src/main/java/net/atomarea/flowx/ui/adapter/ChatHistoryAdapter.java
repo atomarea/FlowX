@@ -19,9 +19,9 @@ import android.widget.TextView;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
 import net.atomarea.flowx.ui.activities.ImageViewerActivity;
-import net.atomarea.flowx.ui.data.ChatHistory;
-import net.atomarea.flowx.ui.data.ChatMessage;
-import net.atomarea.flowx.ui.data.Data;
+import net.atomarea.flowx.data.ChatHistory;
+import net.atomarea.flowx.data.ChatMessage;
+import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.view.ReadIndicatorView;
 
 import java.text.DateFormat;

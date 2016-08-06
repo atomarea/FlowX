@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
-import net.atomarea.flowx.ui.data.ChatMessage;
+import net.atomarea.flowx.data.ChatMessage;
 
 /**
  * Created by Tom on 06.08.2016.

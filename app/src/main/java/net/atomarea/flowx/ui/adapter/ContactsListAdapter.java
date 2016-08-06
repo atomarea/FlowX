@@ -13,8 +13,8 @@ import net.atomarea.flowx.R;
 import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
 import net.atomarea.flowx.ui.activities.ContactDetailActivity;
 import net.atomarea.flowx.ui.activities.ContactsActivity;
-import net.atomarea.flowx.ui.data.Account;
-import net.atomarea.flowx.ui.data.Data;
+import net.atomarea.flowx.data.Account;
+import net.atomarea.flowx.data.Data;
 
 /**
  * Created by Tom on 04.08.2016.

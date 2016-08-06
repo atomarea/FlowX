@@ -6,8 +6,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import net.atomarea.flowx.R;
+import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.activities.ChatListActivity;
-import net.atomarea.flowx.ui.data.Data;
+import net.atomarea.flowx.xmpp.ServerConnection;
 
 public class StarterActivity extends AppCompatActivity {
 
@@ -15,6 +16,8 @@ public class StarterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_starter);
+
+        Data.initMain();
 
         new LoaderTask().execute();
     }
@@ -28,6 +31,12 @@ public class StarterActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             Data.init(StarterActivity.this);
+            ServerConnection serverConnection = new ServerConnection();
+            try {
+                //serverConnection.login("replace username here", "replace password here");
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
             return null;
         }
 

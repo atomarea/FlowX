@@ -1,4 +1,4 @@
-package net.atomarea.flowx.ui.data;
+package net.atomarea.flowx.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;

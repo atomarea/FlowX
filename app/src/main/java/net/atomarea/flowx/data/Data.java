@@ -1,11 +1,13 @@
-package net.atomarea.flowx.ui.data;
+package net.atomarea.flowx.data;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Handler;
 
 import net.atomarea.flowx.R;
+import net.atomarea.flowx.xmpp.ServerConnection;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,16 +25,19 @@ public class Data implements Serializable {
     private static ArrayList<Account> Contacts;
     private static ArrayList<ChatHistory> Chats;
 
+    private static ServerConnection connection;
+
+    private static Handler handler;
+
+    public static void initMain() {
+        handler = new Handler();
+    }
+
     public static void init(Context context) {
         Contacts = new ArrayList<>();
         Chats = new ArrayList<>();
 
-        Contacts.add(new Account(context, "test@flowx.im", "Random status"));
-        Contacts.add(new Account(context, "lol@flowx.im", "Random status4"));
-        Contacts.add(new Account(context, "othertest@flowx.im", "Random status3"));
-        Contacts.add(new Account(context, "yoloo@flowx.im", "Random status2"));
-
-        Chats.add(new ChatHistory("01", Contacts.get(0)));
+        /*Chats.add(new ChatHistory("01", Contacts.get(0)));
         Chats.add(new ChatHistory("02", Contacts.get(2)));
         Chats.add(new ChatHistory("03", Contacts.get(3)));
 
@@ -50,7 +55,19 @@ public class Data implements Serializable {
         Chats.get(0).getChatMessages().add(a);
 
         Chats.get(1).getChatMessages().add(new ChatMessage(null, ChatMessage.Type.Audio, true, System.currentTimeMillis()));
-        Chats.get(1).getChatMessages().add(new ChatMessage(null, ChatMessage.Type.Audio, false, System.currentTimeMillis()));
+        Chats.get(1).getChatMessages().add(new ChatMessage(null, ChatMessage.Type.Audio, false, System.currentTimeMillis()));*/
+    }
+
+    public static ServerConnection getConnection() {
+        return connection;
+    }
+
+    public static void setConnection(ServerConnection connection) {
+        Data.connection = connection;
+    }
+
+    public static Handler getHandler() {
+        return handler;
     }
 
     public static void clean() {
@@ -58,12 +75,6 @@ public class Data implements Serializable {
         while (chatHistoryIterator.hasNext()) {
             if (chatHistoryIterator.next().getChatMessages().size() == 0)
                 chatHistoryIterator.remove();
-        }
-    }
-
-    public static void refresh(Context context) {
-        for (Account c : Contacts) {
-            c.reloadName(context);
         }
     }
 
@@ -84,11 +95,37 @@ public class Data implements Serializable {
         return Chats.size() - 1;
     }
 
+    public static ChatHistory getChatHistory(Account contact) {
+        int pos = getChatHistoryPosition(contact);
+        if (pos != -1) return Chats.get(pos);
+        else {
+            
+        }
+        return null;
+    }
+
     public static int getAccountPosition(Account remoteContact) {
         for (int i = 0; i < Contacts.size(); i++) {
             if (remoteContact.equals(Contacts.get(i))) return i;
         }
         return -1;
+    }
+
+    public static Account getAccountByXmpp(String XmppAddress) {
+        for (Account c : Contacts) {
+            if (c.getXmppAddress().equals(XmppAddress)) return c;
+        }
+        return null;
+    }
+
+    public static boolean sendTextMessage(ChatHistory chatHistory, String message) {
+        if (getConnection() != null) {
+            ChatMessage chatMessage = new ChatMessage(message, ChatMessage.Type.Text, true, System.currentTimeMillis());
+            chatHistory.getChatMessages().add(chatMessage);
+            getConnection().sendMessage(chatHistory.getRemoteContact(), chatMessage);
+            return true;
+        }
+        return false;
     }
 
     public static void loadBitmap(Context context, BitmapLoadedCallback callback, ChatMessage message) {
