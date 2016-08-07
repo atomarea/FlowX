@@ -30,12 +30,9 @@
     <string name="fx_copyright" translatable="false">Copyright &#169; 2014-2016 FlowX Inc.</string>
     <string name="fx_url" translatable="false">&#183; www.flowx.im</string>
     <string name="fx_mail" translatable="false">&#183; support@flowx.im</string>
-    <string name="fx_git" translatable="false">&#183; github.com/atomarea/FlowX</string>
     <string name="fx_dev">Developers</string>
     <string name="fx_dev_n" translatable="false">&#183; Dominic Schubert
         \n&#183; Tom Janke
-        \n&#183; Steven Burghardt
-        \n&#183; Daniel Gultsch
         \n&#183; Dominik Wagner</string>
     <string name="fx_license" translatable="false">
         This program is free software: you can redistribute it and/or modify
@@ -48,7 +45,7 @@
         GNU General Public License for more details.\n
         \nYou should have received a copy of the GNU General Public License
         along with this program. If not, see http://www.gnu.org/licenses/.</string>
-    <string name="fx_orig_code">Original XMPP client</string>
-    <string name="fx_orig_code_url" translatable="false">http://github.com/siacs/Conversations</string>
+    <string name="fx_orig_code">Source Code</string>
+    <string name="fx_orig_code_url" translatable="false">http://github.com/atomarea/FlowX</string>
 
 </resources>

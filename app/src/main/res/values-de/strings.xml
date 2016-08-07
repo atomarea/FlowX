@@ -8,7 +8,6 @@
     <string name="flowx_messenger">FlowX Messenger</string>
     <string name="fx_desc">FlowX. Ein XMPP basierter Android Messenger.</string>
     <string name="fx_dev">Entwickler</string>
-    <string name="fx_orig_code">Originaler XMPP Klient</string>
     <string name="license">Lizenz</string>
     <string name="notification">Benachrichtigung</string>
     <string name="notification_led_summary">Soll bei Empfang einer neuen Nachricht die LED blinken?</string>
