@@ -160,7 +160,32 @@ public class ServerConnection implements Serializable, StanzaListener {
                 message.setType(Message.Type.chat);
                 message.setStanzaId(chatMessage.getID());
                 message.addExtension(new ReceivedReceipt(chatMessage.getID()));
+                chatMessage.setState(ChatMessage.State.DeliveredToContact);
                 send(message);
+            }
+        });
+    }
+
+    public void sendReadMarker(final ChatHistory chatHistory) {
+        postHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                for (ChatMessage chatMessage : chatHistory.getChatMessages()) {
+                    if (!chatMessage.isSent()) {
+                        if (!chatMessage.getState().equals(ChatMessage.State.ReadByContact)) {
+                            Message message = new Message();
+                            message.setFrom(LocalUser);
+                            message.setTo(chatHistory.getRemoteContact().getXmppAddress());
+                            message.setBody(null);
+                            message.setSubject(ReadReceipt.NAMESPACE);
+                            message.setType(Message.Type.chat);
+                            message.setStanzaId(chatMessage.getID());
+                            message.addExtension(new ReadReceipt(chatMessage.getID()));
+                            chatMessage.setState(ChatMessage.State.ReadByContact);
+                            send(message);
+                        }
+                    }
+                }
             }
         });
     }

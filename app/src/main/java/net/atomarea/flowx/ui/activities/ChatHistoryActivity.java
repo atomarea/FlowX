@@ -57,6 +57,8 @@ public class ChatHistoryActivity extends AppCompatActivity {
 
         instance = this;
 
+        Data.getConnection().sendReadMarker(chatHistory);
+
         String LastMessage = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("lastMessage:" + chatHistory.getRemoteContact().getXmppAddress(), null);
         if (LastMessage != null) editTextMessageInput.setText(LastMessage);
     }
@@ -82,6 +84,7 @@ public class ChatHistoryActivity extends AppCompatActivity {
     public void refresh() {
         recyclerViewChatHistory.getAdapter().notifyDataSetChanged();
         recyclerViewChatHistory.smoothScrollToPosition(chatHistory.getChatMessages().size() - 1);
+        Data.getConnection().sendReadMarker(chatHistory);
     }
 
     public static void doRefresh() {
