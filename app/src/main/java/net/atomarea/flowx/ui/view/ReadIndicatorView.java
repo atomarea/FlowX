@@ -93,9 +93,9 @@ public class ReadIndicatorView extends View {
             if (getAnimation() == null || !getAnimation().hasStarted() || getAnimation().hasEnded())
                 rotateAnimate();
         } else if (chatMessage.getState() == ChatMessage.State.DeliveredToServer) {
-            canvas.drawCircle(OffsetX + Diameter / 2, OffsetY + Diameter / 2, Diameter / 2 - WhitePaintStroke.getStrokeWidth(), WhitePaintStroke);
+            canvas.drawLine(OffsetX + Diameter / 2, OffsetY + Diameter, OffsetX + Diameter / 2, OffsetY, WhitePaintStroke);
         } else if (chatMessage.getState() == ChatMessage.State.DeliveredToContact) {
-            canvas.drawCircle(OffsetX + Diameter / 2, OffsetY + Diameter / 2, Diameter / 2, WhitePaint);
+            canvas.drawCircle(OffsetX + Diameter / 2, OffsetY + Diameter / 2, Diameter / 2 - WhitePaintStroke.getStrokeWidth(), WhitePaintStroke);
         } else if (chatMessage.getState() == ChatMessage.State.ReadByContact) {
             canvas.drawCircle(OffsetX + Diameter / 2, OffsetY + Diameter / 2, Diameter / 2, WhitePaint);
         }

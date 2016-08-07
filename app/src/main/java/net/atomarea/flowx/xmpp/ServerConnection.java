@@ -113,7 +113,11 @@ public class ServerConnection implements Serializable, StanzaListener {
                     }
                     if (ee.getNamespace().equals(ReadReceipt.NAMESPACE)) {
                         ReadReceipt rr = (ReadReceipt) ee;
-                        Log.i("TEST READ", rr.getID() + "");
+                        ChatMessage chatMessage = Data.getChatMessage(rr.getID());
+                        if (chatMessage != null) {
+                            chatMessage.setState(ChatMessage.State.ReadByContact);
+                            ChatHistoryActivity.doRefresh();
+                        }
                     }
                 }
                 //ChatListActivity.doRefresh();
