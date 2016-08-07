@@ -78,7 +78,18 @@ public class ChatHistoryActivity extends AppCompatActivity {
     }
 
     public void onFormatButtonClick(View v) {
-
+        if (v.getId() == R.id.bold_button) {
+            editTextMessageInput.getText().append("<b></b>");
+            editTextMessageInput.setSelection(editTextMessageInput.getText().length() - 4);
+        }
+        if (v.getId() == R.id.italic_button) {
+            editTextMessageInput.getText().append("<i></i>");
+            editTextMessageInput.setSelection(editTextMessageInput.getText().length() - 4);
+        }
+        if (v.getId() == R.id.underline_button) {
+            editTextMessageInput.getText().append("<u></u>");
+            editTextMessageInput.setSelection(editTextMessageInput.getText().length() - 4);
+        }
     }
 
     public void refresh() {

@@ -71,10 +71,12 @@ public class Data implements Serializable {
     }
 
     public static void clean() {
-        Iterator<ChatHistory> chatHistoryIterator = Chats.iterator();
-        while (chatHistoryIterator.hasNext()) {
-            if (chatHistoryIterator.next().getChatMessages().size() == 0)
-                chatHistoryIterator.remove();
+        if (Chats != null) {
+            Iterator<ChatHistory> chatHistoryIterator = Chats.iterator();
+            while (chatHistoryIterator.hasNext()) {
+                if (chatHistoryIterator.next().getChatMessages().size() == 0)
+                    chatHistoryIterator.remove();
+            }
         }
     }
 
