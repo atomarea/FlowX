@@ -51,7 +51,8 @@ public class ServerConnection implements Serializable, StanzaListener {
 
         LocalUser = username + "@flowx.im/FlowX-App";
 
-        ProviderManager.getExtensionProviders().add(new ReadReceipt.Provider());
+        ProviderManager.addExtensionProvider(ReceivedReceipt.ELEMENT, ReceivedReceipt.NAMESPACE, new ReceivedReceipt.Provider());
+        ProviderManager.addExtensionProvider(ReadReceipt.ELEMENT, ReadReceipt.NAMESPACE, new ReadReceipt.Provider());
 
         xmppConnection = new XMPPTCPConnection(config.build());
         xmppConnection.addAsyncStanzaListener(this, null);
@@ -104,7 +105,11 @@ public class ServerConnection implements Serializable, StanzaListener {
                 for (ExtensionElement ee : message.getExtensions()) {
                     if (ee.getNamespace().equals(ReceivedReceipt.NAMESPACE)) {
                         ReceivedReceipt rr = (ReceivedReceipt) ee;
-                        Log.i("TEST RECV", rr.getID() + "");
+                        ChatMessage chatMessage = Data.getChatMessage(rr.getID());
+                        if (chatMessage != null) {
+                            chatMessage.setState(ChatMessage.State.DeliveredToContact);
+                            ChatHistoryActivity.doRefresh();
+                        }
                     }
                     if (ee.getNamespace().equals(ReadReceipt.NAMESPACE)) {
                         ReadReceipt rr = (ReadReceipt) ee;
