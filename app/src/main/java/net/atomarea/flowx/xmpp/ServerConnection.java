@@ -129,7 +129,7 @@ public class ServerConnection implements Serializable, StanzaListener {
             Presence presence = (Presence) packet;
             Log.d(TAG, "Presence: " + presence.getFrom() + " " + presence.getStatus());
             Account contact = Data.getAccountByXmpp(from);
-            if (contact != null)
+            if (contact != null && presence.getStatus() != null)
                 contact.setStatus(presence.getStatus());
         } else Log.d(TAG, "Packet: " + packet.getClass().getSimpleName());
     }
@@ -192,6 +192,24 @@ public class ServerConnection implements Serializable, StanzaListener {
         });
     }
 
+    public void sendContactsUpdate() {
+        postHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                RosterPacket rp = new RosterPacket();
+                rp.setFrom(LocalUser);
+                for (Account contact : Data.getContacts()) {
+                    rp.getRosterItems().add(new RosterPacket.Item(contact.getXmppAddress(), contact.getName()));
+                }
+                try {
+                    xmppConnection.sendStanza(rp);
+                } catch (SmackException.NotConnectedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
     public void send(Message message) {
         try {
             xmppConnection.sendStanza(message);
@@ -209,4 +227,7 @@ public class ServerConnection implements Serializable, StanzaListener {
         });
     }
 
+    public String getLocalUser() {
+        return LocalUser;
+    }
 }

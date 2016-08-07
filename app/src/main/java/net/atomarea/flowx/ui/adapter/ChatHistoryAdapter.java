@@ -17,11 +17,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
-import net.atomarea.flowx.ui.activities.ImageViewerActivity;
 import net.atomarea.flowx.data.ChatHistory;
 import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
+import net.atomarea.flowx.ui.activities.ImageViewerActivity;
 import net.atomarea.flowx.ui.view.ReadIndicatorView;
 
 import java.text.DateFormat;
@@ -64,7 +64,7 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.
         final ChatMessage chatMessage = chatHistory.getChatMessages().get(position);
         if (holder.ReadIndicator != null) holder.ReadIndicator.setChatMessage(chatMessage);
         if (chatMessage.getType().equals(ChatMessage.Type.Text))
-            holder.Message.setText(Html.fromHtml(chatMessage.getData()));
+            holder.Message.setText(Html.fromHtml(chatMessage.getData().replaceAll("\n", "<br />")));
         if (chatMessage.getType().equals(ChatMessage.Type.Image)) {
             holder.Progress.setVisibility(View.VISIBLE);
             holder.MessageImage.setImageDrawable(null);

@@ -48,7 +48,8 @@ public class ChatHistoryActivity extends AppCompatActivity {
         if (fab != null) fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Data.sendTextMessage(chatHistory, editTextMessageInput.getText().toString());
+                String message = editTextMessageInput.getText().toString();
+                Data.sendTextMessage(chatHistory, message);
                 editTextMessageInput.setText("");
                 recyclerViewChatHistory.getAdapter().notifyDataSetChanged();
                 recyclerViewChatHistory.smoothScrollToPosition(chatHistory.getChatMessages().size() - 1);

@@ -23,6 +23,8 @@
     <string name="notification_ringtone_title">Ringtone</string>
     <string name="notification_ringtone_silent">None</string>
 
+    <string name="logged_in_as">Logged in as %1$s</string>
+
     <string name="contact">Contact</string>
     <string name="license">License</string>
     <string name="flowx_messenger">FlowX Messenger</string>

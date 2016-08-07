@@ -2,7 +2,9 @@ package net.atomarea.flowx.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -44,6 +46,13 @@ public class ChatListActivity extends AppCompatActivity {
         });
 
         instance = this;
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Snackbar.make(findViewById(R.id.toolbar), getResources().getString(R.string.logged_in_as, Data.getConnection().getLocalUser()), Snackbar.LENGTH_LONG).show();
+            }
+        }, 1000);
     }
 
     @Override

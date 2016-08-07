@@ -26,4 +26,5 @@
     <string name="video">Video</string>
     <string name="image">Bild</string>
     <string name="image_viewer">Bildbetrachter</string>
+    <string name="logged_in_as">Eingeloggt als: %1$s</string>
 </resources>
