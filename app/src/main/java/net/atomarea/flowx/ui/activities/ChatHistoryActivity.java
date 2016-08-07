@@ -18,6 +18,8 @@ import net.atomarea.flowx.ui.adapter.ChatHistoryAdapter;
 
 public class ChatHistoryActivity extends AppCompatActivity {
 
+    private static ChatHistoryActivity instance;
+
     private ChatHistory chatHistory;
 
     private EditText editTextMessageInput;
@@ -53,6 +55,8 @@ public class ChatHistoryActivity extends AppCompatActivity {
             }
         });
 
+        instance = this;
+
         String LastMessage = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("lastMessage:" + chatHistory.getRemoteContact().getXmppAddress(), null);
         if (LastMessage != null) editTextMessageInput.setText(LastMessage);
     }
@@ -73,6 +77,21 @@ public class ChatHistoryActivity extends AppCompatActivity {
 
     public void onFormatButtonClick(View v) {
 
+    }
+
+    public void refresh() {
+        recyclerViewChatHistory.getAdapter().notifyDataSetChanged();
+        recyclerViewChatHistory.smoothScrollToPosition(chatHistory.getChatMessages().size() - 1);
+    }
+
+    public static void doRefresh() {
+        if (instance != null) instance.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (instance != null && !instance.isFinishing())
+                    instance.refresh();
+            }
+        });
     }
 
     @Override

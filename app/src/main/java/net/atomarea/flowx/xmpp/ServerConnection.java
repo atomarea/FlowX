@@ -9,6 +9,8 @@ import net.atomarea.flowx.data.Account;
 import net.atomarea.flowx.data.ChatHistory;
 import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
+import net.atomarea.flowx.ui.activities.ChatListActivity;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackException;
@@ -18,6 +20,7 @@ import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.roster.packet.RosterPacket;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
@@ -47,6 +50,8 @@ public class ServerConnection implements Serializable, StanzaListener {
         config.setResource("FlowX-App");
 
         LocalUser = username + "@flowx.im/FlowX-App";
+
+        ProviderManager.getExtensionProviders().add(new ReadReceipt.Provider());
 
         xmppConnection = new XMPPTCPConnection(config.build());
         xmppConnection.addAsyncStanzaListener(this, null);
@@ -88,23 +93,26 @@ public class ServerConnection implements Serializable, StanzaListener {
                     if (chatHistory != null) {
                         ChatMessage chatMessage = new ChatMessage(message.getStanzaId(), message.getBody(), ChatMessage.Type.Text, false, System.currentTimeMillis());
                         chatHistory.getChatMessages().add(chatMessage);
+                        ChatListActivity.doRefresh();
+                        ChatHistoryActivity.doRefresh();
+                        sendReceivedMarker(contact, chatMessage);
                     }
                 }
             } else if (message.getBody() != null) {
                 Log.i(TAG, "RECV " + message.getBody());
             } else {
                 for (ExtensionElement ee : message.getExtensions()) {
-                    if (ee.getElementName().equals("received")) {
-                        ChatMessage chatMessage = Data.getChatMessage(message.getStanzaId());
-                        if (chatMessage != null)
-                            chatMessage.setState(ChatMessage.State.DeliveredToContact);
-                    } else if (ee.getElementName().equals("displayed")) {
-
-                        ChatMessage chatMessage = Data.getChatMessage(message.getStanzaId());
-                        if (chatMessage != null)
-                            chatMessage.setState(ChatMessage.State.ReadByContact);
+                    if (ee.getNamespace().equals(ReceivedReceipt.NAMESPACE)) {
+                        ReceivedReceipt rr = (ReceivedReceipt) ee;
+                        Log.i("TEST RECV", rr.getID() + "");
+                    }
+                    if (ee.getNamespace().equals(ReadReceipt.NAMESPACE)) {
+                        ReadReceipt rr = (ReadReceipt) ee;
+                        Log.i("TEST READ", rr.getID() + "");
                     }
                 }
+                //ChatListActivity.doRefresh();
+                ChatHistoryActivity.doRefresh();
             }
         } else if (packet instanceof Presence) {
             Presence presence = (Presence) packet;
@@ -126,13 +134,34 @@ public class ServerConnection implements Serializable, StanzaListener {
                 message.setType(Message.Type.chat);
                 message.setSubject(chatMessage.getType().name());
                 message.setStanzaId(chatMessage.getID());
-                try {
-                    xmppConnection.sendStanza(message);
-                } catch (SmackException.NotConnectedException e) {
-                    e.printStackTrace();
-                }
+                send(message);
             }
         });
+    }
+
+    public void sendReceivedMarker(final Account contact, final ChatMessage chatMessage) {
+        postHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Message message = new Message();
+                message.setFrom(LocalUser);
+                message.setTo(contact.getXmppAddress());
+                message.setBody(null);
+                message.setSubject(ReceivedReceipt.NAMESPACE);
+                message.setType(Message.Type.chat);
+                message.setStanzaId(chatMessage.getID());
+                message.addExtension(new ReceivedReceipt(chatMessage.getID()));
+                send(message);
+            }
+        });
+    }
+
+    public void send(Message message) {
+        try {
+            xmppConnection.sendStanza(message);
+        } catch (SmackException.NotConnectedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void disconnect() {

@@ -2,13 +2,17 @@ package net.atomarea.flowx.ui;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.activities.ChatListActivity;
 import net.atomarea.flowx.xmpp.ServerConnection;
+
+import java.util.Calendar;
 
 public class StarterActivity extends AppCompatActivity {
 
@@ -33,8 +37,8 @@ public class StarterActivity extends AppCompatActivity {
             Data.init(StarterActivity.this);
             ServerConnection serverConnection = new ServerConnection();
             try {
-                
-            } catch(Exception e) {
+                //do login
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;

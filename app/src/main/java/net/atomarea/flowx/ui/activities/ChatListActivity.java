@@ -12,12 +12,14 @@ import android.view.MenuItem;
 import android.view.View;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.ui.adapter.ChatListAdapter;
 import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.ui.adapter.ChatListAdapter;
 import net.atomarea.flowx.ui.other.DrawableItemDecoration;
 import net.atomarea.flowx.ui.settings.SettingsActivity;
 
 public class ChatListActivity extends AppCompatActivity {
+
+    private static ChatListActivity instance;
 
     private RecyclerView recyclerViewChatList;
 
@@ -40,12 +42,29 @@ public class ChatListActivity extends AppCompatActivity {
                 startActivity(new Intent(ChatListActivity.this, ContactsActivity.class));
             }
         });
+
+        instance = this;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Data.clean();
         recyclerViewChatList.getAdapter().notifyDataSetChanged();
+    }
+
+    public void refresh() {
+        recyclerViewChatList.getAdapter().notifyDataSetChanged();
+    }
+
+    public static void doRefresh() {
+        if (instance != null) instance.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (instance != null && !instance.isFinishing())
+                    instance.refresh();
+            }
+        });
     }
 
     @Override
