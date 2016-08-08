@@ -79,23 +79,26 @@ public class Data implements Serializable {
                     MessageContract.MessageEntry.COLUMN_NAME_TIME
             }, MessageContract.MessageEntry.COLUMN_NAME_REMOTE_XMPP_ADDRESS + " LIKE ?", new String[]{chatContact.getXmppAddress()}, null, null, MessageContract.MessageEntry.COLUMN_NAME_TIME + " ASC");
             boolean messagesState = messagesCursor.moveToFirst();
-            ChatHistory chatHistory = getChatHistory(chatContact);
-            while (messagesState) {
-                String messageId = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_ID));
-                if (!containsChatHistoryMessageId(chatHistory, messageId)) {
-                    ChatMessage.Type messageType = ChatMessage.Type.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE)));
-                    String messageBody = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY));
-                    boolean isSent = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_SENT)).equals("1");
-                    long time = Long.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_TIME)));
-                    ChatMessage.State state = ChatMessage.State.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_STATE)));
-                    ChatMessage chatMessage = new ChatMessage(messageId, messageBody, messageType, isSent, time);
-                    chatMessage.setState(state);
-                    chatHistory.getChatMessages().add(chatMessage);
+            if (messagesState) {
+                ChatHistory chatHistory = getChatHistory(chatContact);
+                while (messagesState) {
+                    String messageId = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_ID));
+                    if (!containsChatHistoryMessageId(chatHistory, messageId)) {
+                        ChatMessage.Type messageType = ChatMessage.Type.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE)));
+                        String messageBody = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY));
+                        boolean isSent = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_SENT)).equals("1");
+                        long time = Long.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_TIME)));
+                        ChatMessage.State state = ChatMessage.State.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_STATE)));
+                        ChatMessage chatMessage = new ChatMessage(messageId, messageBody, messageType, isSent, time);
+                        chatMessage.setState(state);
+                        chatHistory.getChatMessages().add(chatMessage);
+                    }
+                    messagesState = messagesCursor.moveToNext();
                 }
-                messagesState = messagesCursor.moveToNext();
             }
             messagesCursor.close();
         }
+        clean();
     }
 
     public static boolean containsChatHistoryMessageId(ChatHistory chatHistory, String messageId) {
