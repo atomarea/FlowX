@@ -55,6 +55,7 @@ public class ServerConnection implements Serializable, StanzaListener {
         config.setPort(ServerConfig.ServerPort);
         config.setDebuggerEnabled(false);
         config.setResource("FlowX-App");
+        config.setConnectTimeout(10000);
 
         LocalUser = username + "@flowx.im/FlowX-App";
 

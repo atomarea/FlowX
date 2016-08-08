@@ -8,16 +8,13 @@ PR that file to request changes or suggest ideas. Don't PR that file if you refe
 - Implement custom contact names (Roster)
 - Implement Emoji Button
 - Implement HTTP Upload Feature
-- Implement Avatar Images (VCard)
 - improve Contactdetails
 - Register Wizard for new users.
 - Transform HTTP Links to Mimetype like Images/Audios/Videos
 - Chate State's (Write,Record,Take Picture and so on Status)
 - Groupchats (MUC)
 - Preferences like Notifications, Input Settings e.g. Enter Button to send.
-
-- Con
-  - with popup feature
+- Notification with popup feature
 - Unimplement static data, implement sqlite db
 
 ### Done

@@ -1,15 +1,12 @@
 package net.atomarea.flowx.async;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
+import net.atomarea.flowx.Memory;
 import net.atomarea.flowx.data.Data;
 
 import java.io.File;
@@ -19,22 +16,31 @@ import java.io.File;
  */
 public class ImageViewUpdater extends AsyncTask<File, Void, Bitmap> {
 
+    private String xmppAddress;
     private ImageView imageView;
+    private boolean fullSource;
 
-    public ImageViewUpdater(ImageView imageView) {
+    public ImageViewUpdater(String xmppAddress, ImageView imageView, boolean fullSource) {
+        this.xmppAddress = xmppAddress;
         this.imageView = imageView;
+        this.fullSource = fullSource;
     }
 
     @Override
     protected Bitmap doInBackground(File... params) {
         if (params.length == 0) return null;
-        return BitmapFactory.decodeFile(params[0].getPath());
+        if (fullSource) return BitmapFactory.decodeFile(params[0].getPath());
+        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(params[0].getPath()), 120, 120, false);
     }
 
     @Override
     protected void onPostExecute(final Bitmap bitmap) {
         super.onPostExecute(bitmap);
-        imageView.setImageDrawable(new BitmapDrawable(Data.getApplicationContext().getResources(), bitmap));
+        if (bitmap != null) {
+            BitmapDrawable bd = new BitmapDrawable(Data.getApplicationContext().getResources(), bitmap);
+            if (!fullSource) Memory.getAvatarDrawable().put(xmppAddress, bd);
+            imageView.setImageDrawable(bd);
+        }
         /*imageView.animate().scaleX(0).scaleY(0).setDuration(200).setInterpolator(new AccelerateInterpolator()).setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {

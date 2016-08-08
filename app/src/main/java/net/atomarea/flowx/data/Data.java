@@ -172,7 +172,7 @@ public class Data implements Serializable {
 
     public static int getAccountPosition(Account remoteContact) {
         for (int i = 0; i < Contacts.size(); i++) {
-            if (remoteContact.equals(Contacts.get(i))) return i;
+            if (remoteContact.getXmppAddress().equals(Contacts.get(i).getXmppAddress())) return i;
         }
         return -1;
     }

@@ -6,9 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.atomarea.flowx.R;
+import net.atomarea.flowx.async.AvatarImageUpdater;
 import net.atomarea.flowx.data.Account;
 import net.atomarea.flowx.data.Data;
 
@@ -29,6 +31,8 @@ public class ContactDetailActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(contact.getName());
 
         ((TextView) findViewById(R.id.status)).setText(contact.getStatus());
+
+        new AvatarImageUpdater(contact.getXmppAddress(), ((ImageView) findViewById(R.id.contact_picture))).execute(true);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if (fab != null) fab.setOnClickListener(new View.OnClickListener() {
