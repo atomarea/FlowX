@@ -45,6 +45,16 @@ public class XmppService extends Service {
         return PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("fxUsername", null) != null;
     }
 
+    public boolean isLoggedIn() {
+        if (xmppServiceThread != null) return xmppServiceThread.isLoggedIn();
+        return false;
+    }
+
+    public boolean isLoginFailed() {
+        if (xmppServiceThread != null) return xmppServiceThread.isLoginFailed();
+        return true;
+    }
+
     public void reset() {
         serviceHandler.post(new Runnable() {
             @Override

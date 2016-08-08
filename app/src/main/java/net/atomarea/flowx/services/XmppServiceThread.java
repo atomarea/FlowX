@@ -23,6 +23,9 @@ public class XmppServiceThread extends Thread {
     private String Username;
     private String Password;
 
+    private boolean loginProcessed = false;
+    private boolean loginFailed = false;
+
     public XmppServiceThread(XmppService xmppService) {
         this.xmppService = xmppService;
         threadRunning = true;
@@ -51,14 +54,26 @@ public class XmppServiceThread extends Thread {
             Log.i("FX", "Attempting login as " + Username);
             xmppConnection.login(Username, Password);
         } catch (SmackException | IOException | XMPPException e) {
-
+            Log.e("FX", e.getMessage());
+            loginFailed = true;
         }
+        loginProcessed = true;
+
+        if (loginFailed) return;
 
         while (threadRunning) {
             Looper.loop();
         }
 
         Log.i("FX", "XmppServiceThread terminating.");
+    }
+
+    public boolean isLoggedIn() {
+        return loginProcessed;
+    }
+
+    public boolean isLoginFailed() {
+        return loginFailed;
     }
 
     public void disconnectAndStop() {

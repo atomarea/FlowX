@@ -115,8 +115,6 @@ public class ServerConnection implements Serializable, StanzaListener {
                         }
                     }
                 }
-                //ChatListActivity.doRefresh();
-                ChatHistoryActivity.doRefresh();
             }
         } else if (packet instanceof Presence) {
             Presence presence = (Presence) packet;

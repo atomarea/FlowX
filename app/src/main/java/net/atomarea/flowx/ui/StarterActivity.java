@@ -13,6 +13,7 @@ import net.atomarea.flowx.R;
 import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.services.XmppService;
 import net.atomarea.flowx.ui.activities.ChatListActivity;
+import net.atomarea.flowx.ui.activities.LoginActivity;
 
 public class StarterActivity extends AppCompatActivity {
 
@@ -31,7 +32,8 @@ public class StarterActivity extends AppCompatActivity {
             public void onServiceConnected(ComponentName name, IBinder service) {
                 xmppServiceBinder = (XmppService.ServiceBinder) service;
                 if (!xmppServiceBinder.getService().isLoginDataSet()) {
-
+                    startActivity(new Intent(StarterActivity.this, LoginActivity.class));
+                    finish();
                 } else new LoaderTask().execute();
             }
 
@@ -52,8 +54,12 @@ public class StarterActivity extends AppCompatActivity {
         }
     }
 
-    public void onLoaded() {
-        startActivity(new Intent(this, ChatListActivity.class));
+    public void onLoaded(boolean loggedIn) {
+        if (loggedIn) startActivity(new Intent(this, ChatListActivity.class));
+        else {
+            startActivity(new Intent(StarterActivity.this, LoginActivity.class));
+            if (xmppServiceBinder != null) xmppServiceBinder.getService().reset();
+        }
         finish();
     }
 
@@ -63,17 +69,25 @@ public class StarterActivity extends AppCompatActivity {
         unbindService(xmppServiceConnection);
     }
 
-    class LoaderTask extends AsyncTask<Void, Void, Void> {
+    class LoaderTask extends AsyncTask<Void, Void, Boolean> {
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Boolean doInBackground(Void... params) {
             Data.init(StarterActivity.this);
-            return null;
+            while (xmppServiceBinder == null || !xmppServiceBinder.getService().isLoggedIn()) {
+                try {
+                    Thread.sleep(1000); // wait for login
+                } catch (Exception e) {
+                }
+            }
+            if (xmppServiceBinder == null || xmppServiceBinder.getService().isLoginFailed())
+                return false;
+            return true;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            onLoaded();
+        protected void onPostExecute(Boolean loggedIn) {
+            super.onPostExecute(loggedIn);
+            onLoaded(loggedIn);
         }
     }
 }

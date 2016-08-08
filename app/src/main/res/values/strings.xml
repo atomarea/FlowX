@@ -24,6 +24,8 @@
     <string name="notification_ringtone_silent">None</string>
 
     <string name="logged_in_as">Logged in as %1$s</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
 
     <string name="contact">Contact</string>
     <string name="license">License</string>
@@ -49,6 +51,7 @@
         along with this program. If not, see http://www.gnu.org/licenses/.</string>
     <string name="fx_orig_code">Source Code</string>
     <string name="fx_orig_code_url" translatable="false">&#183; http://github.com/atomarea/FlowX</string>
-    <string name="title_activity_login">LoginActivity</string>
+
+    <string name="activity_login">FlowX Login</string>
 
 </resources>

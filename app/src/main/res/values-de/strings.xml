@@ -27,4 +27,7 @@
     <string name="image_viewer">Bildbetrachter</string>
     <string name="logged_in_as">Eingeloggt als: %1$s</string>
     <string name="fx_orig_code">Quellcode</string>
+    <string name="password">Passwort</string>
+    <string name="username">Nutzername</string>
+    <string name="activity_login">FlowX Anmeldung</string>
 </resources>

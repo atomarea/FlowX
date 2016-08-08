@@ -8,3 +8,8 @@ PR that file to request changes or suggest ideas. Don't PR that file if you refe
 - Add more settings
 - Implement notifications
   - with popup feature
+- Unimplement static data, implement sqlite db
+
+### Done
+- Login
+- Network to Servive
