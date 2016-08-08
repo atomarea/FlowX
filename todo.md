@@ -2,22 +2,28 @@
 PR that file to request changes or suggest ideas. Don't PR that file if you referring to the FlowX main branche! This is ONLY for the FlowX-UI branche!
 
 ### To-Do List
-- Improve read indicator (fixes)
-- improve notifications
+#### Internal
 - Implement roster subscription / add contact / custom name
 - Implement Emoji Button
 - Implement HTTP Upload Feature (send files)
+- Implement HTTP URL's transformations (image/audio/video/location)
 - Implement group chats (MUC)
 - Implement sharing feature (images/audio/video/location/chats)
 - Implement media handling (gallery,video compress)
-- improve contact details
-- improve XMPP connection (message pending, reconnections)
-- Create register-wizard for new users.
-- Implement HTTP URL's transformations (image/audio/video/location)
-- Chate state (write,record,take picture/video)
-- More preferences like notifications, input settings e.g. enter button to send.
-- Notification with popup feature
+- Implement single notifications settings in contacts (LED/sound)
+- Implement notification with popup feature
+- Improve XMPP connection (message pending, reconnections)
+- Improve read indicator (fixes)
+- Improve chate state (write,record,take picture/video)
+- Improve notifications service
 - Unimplement static data, implement sqlite db
+
+#### Layout / UI
+- Improve contact details
+- Register wizard for new users.
+- More preferences like notifications, input settings e.g. enter button to send.
+- account activity
+- Change status activity
 
 ### Done
 - Login
