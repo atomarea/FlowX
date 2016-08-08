@@ -13,6 +13,8 @@ import net.atomarea.flowx.database.ContactContract;
 import net.atomarea.flowx.database.DatabaseHelper;
 import net.atomarea.flowx.database.DbHelper;
 import net.atomarea.flowx.database.MessageContract;
+import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
+import net.atomarea.flowx.ui.activities.ChatListActivity;
 import net.atomarea.flowx.xmpp.ServerConnection;
 
 import java.io.Serializable;
@@ -76,21 +78,30 @@ public class Data implements Serializable {
                     MessageContract.MessageEntry.COLUMN_NAME_TIME
             }, MessageContract.MessageEntry.COLUMN_NAME_REMOTE_XMPP_ADDRESS + " LIKE ?", new String[]{chatContact.getXmppAddress()}, null, null, MessageContract.MessageEntry.COLUMN_NAME_TIME + " ASC");
             boolean messagesState = messagesCursor.moveToFirst();
+            ChatHistory chatHistory = getChatHistory(chatContact);
             while (messagesState) {
                 String messageId = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_ID));
-                ChatMessage.Type messageType = ChatMessage.Type.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE)));
-                String messageBody = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY));
-                boolean isSent = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_SENT)).equals("1");
-                long time = Long.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_TIME)));
-                ChatMessage.State state = ChatMessage.State.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_STATE)));
-                ChatHistory chatHistory = getChatHistory(chatContact);
-                ChatMessage chatMessage = new ChatMessage(messageId, messageBody, messageType, isSent, time);
-                chatMessage.setState(state);
-                chatHistory.getChatMessages().add(chatMessage);
+                if (!containsChatHistoryMessageId(chatHistory, messageId)) {
+                    ChatMessage.Type messageType = ChatMessage.Type.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE)));
+                    String messageBody = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY));
+                    boolean isSent = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_SENT)).equals("1");
+                    long time = Long.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_TIME)));
+                    ChatMessage.State state = ChatMessage.State.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_STATE)));
+                    ChatMessage chatMessage = new ChatMessage(messageId, messageBody, messageType, isSent, time);
+                    chatMessage.setState(state);
+                    chatHistory.getChatMessages().add(chatMessage);
+                }
                 messagesState = messagesCursor.moveToNext();
             }
             messagesCursor.close();
         }
+    }
+
+    public static boolean containsChatHistoryMessageId(ChatHistory chatHistory, String messageId) {
+        for (ChatMessage chatMessage : chatHistory.getChatMessages()) {
+            if (chatMessage.getID().equals(messageId)) return true;
+        }
+        return false;
     }
 
     public static ServerConnection getConnection() {
@@ -224,6 +235,10 @@ public class Data implements Serializable {
 
     }
 
+    public static void doRefresh() {
+        new AsyncDbRecache().execute();
+    }
+
     public static class AsyncDbRecache extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -231,6 +246,14 @@ public class Data implements Serializable {
             recacheFromDb();
             return null;
         }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            ChatListActivity.doRefresh();
+            ChatHistoryActivity.doRefresh();
+        }
+
     }
 
 }

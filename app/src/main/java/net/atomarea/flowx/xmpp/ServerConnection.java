@@ -84,6 +84,7 @@ public class ServerConnection implements Serializable, StanzaListener {
                 SQLiteDatabase db = DatabaseHelper.get().getWritableDatabase();
                 DbHelper.checkContact(db, from, null);
                 DbHelper.insertMessage(db, from, message.getStanzaId(), message.getBody(), ChatMessage.Type.Text, false, System.currentTimeMillis(), ChatMessage.State.DeliveredToContact);
+                Data.doRefresh();
             } else if (message.getBody() != null) {
                 Log.i(TAG, "RECV " + message.getBody());
             } else {
