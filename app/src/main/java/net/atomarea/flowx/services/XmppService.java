@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.database.DatabaseHelper;
 
 public class XmppService extends Service {
@@ -22,6 +23,7 @@ public class XmppService extends Service {
     public void onCreate() {
         super.onCreate();
         DatabaseHelper.setApplicationContext(getApplicationContext());
+        Data.setContext(this);
         Log.i("FX", "Backend starting");
         serviceHandler = new Handler();
         xmppServiceThread = new XmppServiceThread(this);

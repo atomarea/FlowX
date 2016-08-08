@@ -11,6 +11,7 @@ import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.database.DatabaseHelper;
 import net.atomarea.flowx.database.DbHelper;
+import net.atomarea.flowx.notification.NotificationHandler;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackException;
@@ -87,6 +88,7 @@ public class ServerConnection implements Serializable, StanzaListener {
                 DbHelper.insertMessage(db, from, message.getStanzaId(), message.getBody(), ChatMessage.Type.Text, false, System.currentTimeMillis(), ChatMessage.State.DeliveredToContact);
                 sendReceivedMarker(from, message.getStanzaId());
                 Data.doRefresh();
+                NotificationHandler.create(Data.getApplicationContext());
             } else if (message.getBody() != null) {
                 Log.i(TAG, "RECV " + message.getBody());
             } else {
@@ -182,8 +184,7 @@ public class ServerConnection implements Serializable, StanzaListener {
                 try {
                     xmppConnection.sendStanza(rp);
                 } catch (SmackException.NotConnectedException e) {
-                    if (first) e.printStackTrace();
-                    first = false;
+                    e.printStackTrace();
                 }
             }
         });
@@ -195,8 +196,7 @@ public class ServerConnection implements Serializable, StanzaListener {
         try {
             xmppConnection.sendStanza(message);
         } catch (SmackException.NotConnectedException e) {
-            if (first) e.printStackTrace();
-            first = false;
+            e.printStackTrace();
         }
     }
 

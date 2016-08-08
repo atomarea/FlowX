@@ -32,6 +32,8 @@ public class ChatListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Data.setContext(this);
+
         recyclerViewChatList = (RecyclerView) findViewById(R.id.chat_list);
         recyclerViewChatList.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewChatList.addItemDecoration(new DrawableItemDecoration(this, R.drawable.divider));

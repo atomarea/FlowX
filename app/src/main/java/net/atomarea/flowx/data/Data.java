@@ -41,10 +41,10 @@ public class Data implements Serializable {
         handler = new Handler();
     }
 
-    public static void init(Context context) {
-        Contacts = new ArrayList<>();
-        Chats = new ArrayList<>();
+    private static Context context;
 
+    public static void init(Context c) {
+        context = c.getApplicationContext();
         recacheFromDb();
     }
 
@@ -54,6 +54,8 @@ public class Data implements Serializable {
 
     public static void recacheFromDb(boolean contacts, boolean messages) {
         SQLiteDatabase db = DatabaseHelper.get().getReadableDatabase();
+        if (Contacts == null) Contacts = new ArrayList<>();
+        if (Chats == null) Chats = new ArrayList<>();
         // *** CONTACTS QUERY ***
         if (contacts) {
             //Log.i("FX DATA", "Refreshing contacts");
@@ -192,6 +194,7 @@ public class Data implements Serializable {
     }
 
     public static boolean sendTextMessage(ChatHistory chatHistory, String message) {
+        if (message.trim().equals("")) return false;
         if (getConnection() != null) {
             ChatMessage chatMessage = new ChatMessage("FX" + System.currentTimeMillis(), message.trim(), ChatMessage.Type.Text, true, System.currentTimeMillis());
             chatHistory.getChatMessages().add(chatMessage);
@@ -272,6 +275,14 @@ public class Data implements Serializable {
             ChatHistoryActivity.doRefresh();
         }
 
+    }
+
+    public static Context getApplicationContext() {
+        return context;
+    }
+
+    public static void setContext(Context c) {
+        context = c.getApplicationContext();
     }
 
 }
