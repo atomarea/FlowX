@@ -35,7 +35,6 @@ public class XmppServiceThread extends Thread {
 
     @Override
     public void run() {
-
         if (Username == null || Password == null) {
             Log.i("FX", "Could not login due to no username and / or password given. Waiting 10 seconds!");
             try {
@@ -63,6 +62,10 @@ public class XmppServiceThread extends Thread {
 
         while (threadRunning) {
             Looper.loop();
+            if (xmppConnection.hasDropped()) {
+                Log.i("FX", "Connection has dropped");
+                break;
+            }
         }
 
         Log.i("FX", "XmppServiceThread terminating.");

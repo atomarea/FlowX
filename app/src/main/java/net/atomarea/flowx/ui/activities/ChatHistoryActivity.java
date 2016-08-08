@@ -73,10 +73,9 @@ public class ChatHistoryActivity extends AppCompatActivity {
 
         Data.getConnection().sendReadMarker(chatHistory);
 
-        for (ChatMessage chatMessage : chatHistory.getChatMessages()) {
+        for (ChatMessage chatMessage : chatHistory.getChatMessages())
             if (chatMessage.getState().equals(ChatMessage.State.NotDelivered))
                 Data.getConnection().sendMessage(chatHistory.getRemoteContact(), chatMessage);
-        }
 
         String LastMessage = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("lastMessage:" + chatHistory.getRemoteContact().getXmppAddress(), null);
         if (LastMessage != null) editTextMessageInput.setText(LastMessage);

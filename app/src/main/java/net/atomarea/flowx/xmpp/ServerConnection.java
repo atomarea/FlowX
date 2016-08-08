@@ -40,6 +40,7 @@ public class ServerConnection implements Serializable, StanzaListener {
 
     private XMPPTCPConnection xmppConnection;
     private String LocalUser, LocalUserWoRes;
+    private boolean connectionDropped = false;
 
     // TODO <message id='185339fa-962f-418f-aa3b-6a763eea1f37' type='chat' to='tom@flowx.im' from='dom1nic@flowx.im/mobile'><body>https://flowx.im:5281/upload/35d21ccf-f9c0-4e79-966c-742279821c45/20160807_132659588_1853.jpg</body><markable xmlns='urn:xmpp:chat-markers:0'/><request xmlns='urn:xmpp:receipts'/><x xmlns='jabber:x:oob'><url>https://flowx.im:5281/upload/35d21ccf-f9c0-4e79-966c-742279821c45/20160807_132659588_1853.jpg</url></x></message>
 
@@ -86,22 +87,24 @@ public class ServerConnection implements Serializable, StanzaListener {
 
             @Override
             public void connectionClosed() {
-                try {
-                    login(username, password);
-                } catch (Exception e) {
-                    xmppConnection.instantShutdown();
-                }
+                connectionDropped = true;
+                postHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.e(TAG, "Connection was closed");
+                    }
+                });
             }
 
             @Override
             public void connectionClosedOnError(Exception e) {
-                Log.e(TAG, "Connection was terminated");
-                try {
-                    login(username, password);
-                } catch (Exception e1) {
-                    xmppConnection.instantShutdown();
-                    e1.printStackTrace();
-                }
+                connectionDropped = true;
+                postHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.e(TAG, "Connection was terminated");
+                    }
+                });
             }
 
             @Override
@@ -277,8 +280,6 @@ public class ServerConnection implements Serializable, StanzaListener {
         });
     }
 
-    boolean first = true;
-
     public void send(Message message) {
         try {
             xmppConnection.sendStanza(message);
@@ -294,6 +295,10 @@ public class ServerConnection implements Serializable, StanzaListener {
                 xmppConnection.disconnect();
             }
         });
+    }
+
+    public boolean hasDropped() {
+        return connectionDropped;
     }
 
     public String getLocalUser() {
