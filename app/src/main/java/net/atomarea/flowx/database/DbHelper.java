@@ -42,4 +42,18 @@ public class DbHelper {
         db.insert(MessageContract.MessageEntry.TABLE_NAME, null, messageDetails);
     }
 
+    public static void updateMessage(SQLiteDatabase db, String remoteXmppAddress, String messageId, ChatMessage.State state) {
+        ContentValues messageDetails = new ContentValues();
+        messageDetails.put(MessageContract.MessageEntry.COLUMN_NAME_STATE, state.name());
+        db.update(MessageContract.MessageEntry.TABLE_NAME, messageDetails, MessageContract.MessageEntry.COLUMN_NAME_REMOTE_XMPP_ADDRESS + " LIKE ? AND " + MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_ID + " LIKE ?", new String[]{remoteXmppAddress, messageId});
+    }
+
+    public static void updateContact(SQLiteDatabase db, String remoteXmppAddress, String status, long time) {
+        ContentValues contactDetails = new ContentValues();
+        if (status != null)
+            contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_STATUS, status);
+        contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE, String.valueOf(time));
+        db.update(ContactContract.ContactEntry.TABLE_NAME, contactDetails, ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS + " LIKE ?", new String[]{remoteXmppAddress});
+    }
+
 }

@@ -7,14 +7,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.data.ChatHistory;
+import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.adapter.ChatHistoryAdapter;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 public class ChatHistoryActivity extends AppCompatActivity {
 
@@ -37,6 +42,7 @@ public class ChatHistoryActivity extends AppCompatActivity {
         chatHistory = Data.getChats().get(getIntent().getIntExtra(Data.EXTRA_CHAT_HISTORY_POSITION, 0));
 
         getSupportActionBar().setTitle(chatHistory.getRemoteContact().getName());
+        getSupportActionBar().setSubtitle(DateFormat.getDateTimeInstance().format(new Date(chatHistory.getRemoteContact().getLastOnline())));
 
         editTextMessageInput = (EditText) findViewById(R.id.edit_message);
         recyclerViewChatHistory = (RecyclerView) findViewById(R.id.chat_history);

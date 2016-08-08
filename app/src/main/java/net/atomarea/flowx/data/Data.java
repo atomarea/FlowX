@@ -49,63 +49,76 @@ public class Data implements Serializable {
     }
 
     public static void recacheFromDb() {
+        recacheFromDb(true, true);
+    }
+
+    public static void recacheFromDb(boolean contacts, boolean messages) {
         SQLiteDatabase db = DatabaseHelper.get().getReadableDatabase();
         // *** CONTACTS QUERY ***
-        Cursor contactsCursor = db.query(ContactContract.ContactEntry.TABLE_NAME, new String[]{
-                ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME,
-                ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS,
-                ContactContract.ContactEntry.COLUMN_NAME_STATUS,
-                ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE
-        }, ContactContract.ContactEntry._ID + " LIKE ?", new String[]{"%"}, null, null, ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME + " ASC");
-        boolean contactsState = contactsCursor.moveToFirst();
-        Contacts.clear();
-        while (contactsState) {
-            String custom_name = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME));
-            String xmpp_address = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS));
-            String status = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_STATUS));
-            String last_online = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE));
-            Contacts.add(new Account(custom_name, xmpp_address, status, last_online));
-            contactsState = contactsCursor.moveToNext();
-        }
-        contactsCursor.close();
-        // *** MESSAGES QUERY ***
-        for (Account chatContact : Contacts) {
-            Cursor messagesCursor = db.query(MessageContract.MessageEntry.TABLE_NAME, new String[]{
-                    MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_ID,
-                    MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE,
-                    MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY,
-                    MessageContract.MessageEntry.COLUMN_NAME_SENT,
-                    MessageContract.MessageEntry.COLUMN_NAME_STATE,
-                    MessageContract.MessageEntry.COLUMN_NAME_TIME
-            }, MessageContract.MessageEntry.COLUMN_NAME_REMOTE_XMPP_ADDRESS + " LIKE ?", new String[]{chatContact.getXmppAddress()}, null, null, MessageContract.MessageEntry.COLUMN_NAME_TIME + " ASC");
-            boolean messagesState = messagesCursor.moveToFirst();
-            if (messagesState) {
-                ChatHistory chatHistory = getChatHistory(chatContact);
-                while (messagesState) {
-                    String messageId = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_ID));
-                    if (!containsChatHistoryMessageId(chatHistory, messageId)) {
-                        ChatMessage.Type messageType = ChatMessage.Type.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE)));
-                        String messageBody = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY));
-                        boolean isSent = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_SENT)).equals("1");
-                        long time = Long.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_TIME)));
-                        ChatMessage.State state = ChatMessage.State.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_STATE)));
-                        ChatMessage chatMessage = new ChatMessage(messageId, messageBody, messageType, isSent, time);
-                        chatMessage.setState(state);
-                        chatHistory.getChatMessages().add(chatMessage);
-                    }
-                    messagesState = messagesCursor.moveToNext();
-                }
+        if (contacts) {
+            //Log.i("FX DATA", "Refreshing contacts");
+            Cursor contactsCursor = db.query(ContactContract.ContactEntry.TABLE_NAME, new String[]{
+                    ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME,
+                    ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS,
+                    ContactContract.ContactEntry.COLUMN_NAME_STATUS,
+                    ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE
+            }, ContactContract.ContactEntry._ID + " LIKE ?", new String[]{"%"}, null, null, ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME + " ASC");
+            boolean contactsState = contactsCursor.moveToFirst();
+            Contacts.clear();
+            while (contactsState) {
+                String custom_name = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME));
+                String xmpp_address = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS));
+                String status = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_STATUS));
+                String last_online = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE));
+                Contacts.add(new Account(custom_name, xmpp_address, status, last_online));
+                contactsState = contactsCursor.moveToNext();
             }
-            messagesCursor.close();
+            contactsCursor.close();
         }
+        // *** MESSAGES QUERY ***
+        if (messages) {
+            //Log.i("FX DATA", "Refreshing messages");
+            for (Account chatContact : Contacts) {
+                Cursor messagesCursor = db.query(MessageContract.MessageEntry.TABLE_NAME, new String[]{
+                        MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_ID,
+                        MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE,
+                        MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY,
+                        MessageContract.MessageEntry.COLUMN_NAME_SENT,
+                        MessageContract.MessageEntry.COLUMN_NAME_STATE,
+                        MessageContract.MessageEntry.COLUMN_NAME_TIME
+                }, MessageContract.MessageEntry.COLUMN_NAME_REMOTE_XMPP_ADDRESS + " LIKE ?", new String[]{chatContact.getXmppAddress()}, null, null, MessageContract.MessageEntry.COLUMN_NAME_TIME + " ASC");
+                boolean messagesState = messagesCursor.moveToFirst();
+                if (messagesState) {
+                    ChatHistory chatHistory = getChatHistory(chatContact);
+                    while (messagesState) {
+                        String messageId = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_ID));
+                        ChatMessage.State state = ChatMessage.State.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_STATE)));
+                        ChatMessage chatMessage = getChatHistoryMessageId(chatHistory, messageId);
+                        if (chatMessage == null) {
+                            ChatMessage.Type messageType = ChatMessage.Type.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE)));
+                            String messageBody = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY));
+                            boolean isSent = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_SENT)).equals("1");
+                            long time = Long.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_TIME)));
+                            chatMessage = new ChatMessage(messageId, messageBody, messageType, isSent, time);
+                            chatMessage.setState(state);
+                            chatHistory.getChatMessages().add(chatMessage);
+                        } else if (!chatMessage.getState().equals(state))
+                            chatMessage.setState(state);
+                        messagesState = messagesCursor.moveToNext();
+                    }
+                }
+                messagesCursor.close();
+            }
+        }
+        // *** CLEANUP ***
         clean();
     }
 
-    public static boolean containsChatHistoryMessageId(ChatHistory chatHistory, String messageId) {
+    public static ChatMessage getChatHistoryMessageId(ChatHistory chatHistory, String messageId) {
         for (ChatMessage chatMessage : chatHistory.getChatMessages()) {
-            if (chatMessage.getID().equals(messageId)) return true;
+            if (chatMessage.getID().equals(messageId)) return chatMessage;
         }
-        return false;
+        return null;
     }
 
     public static ServerConnection getConnection() {
@@ -239,15 +252,16 @@ public class Data implements Serializable {
 
     }
 
-    public static void doRefresh() {
-        new AsyncDbRecache().execute();
+    public static void doRefresh(Boolean... params) {
+        new AsyncDbRecache().execute(params);
     }
 
-    public static class AsyncDbRecache extends AsyncTask<Void, Void, Void> {
+    public static class AsyncDbRecache extends AsyncTask<Boolean, Void, Void> {
 
         @Override
-        protected Void doInBackground(Void... params) {
-            recacheFromDb();
+        protected Void doInBackground(Boolean... params) {
+            if (params.length < 2) recacheFromDb();
+            else recacheFromDb(params[0], params[1]);
             return null;
         }
 
