@@ -25,6 +25,8 @@ import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.roster.packet.RosterPacket;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.vcardtemp.VCardManager;
+import org.jivesoftware.smackx.vcardtemp.packet.VCard;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -60,6 +62,8 @@ public class ServerConnection implements Serializable, StanzaListener {
 
         ProviderManager.addExtensionProvider(ReceivedReceipt.ELEMENT, ReceivedReceipt.NAMESPACE, new ReceivedReceipt.Provider());
         ProviderManager.addExtensionProvider(ReadReceipt.ELEMENT, ReadReceipt.NAMESPACE, new ReadReceipt.Provider());
+        ProviderManager.removeIQProvider("vCard", "vcard-temp");
+        ProviderManager.addIQProvider("vCard", "vcard-temp", new VCardProvider());
 
         xmppConnection = new XMPPTCPConnection(config.build());
         xmppConnection.addAsyncStanzaListener(this, null);
@@ -67,6 +71,9 @@ public class ServerConnection implements Serializable, StanzaListener {
         xmppConnection.login(username, password);
 
         Data.setConnection(this);
+
+        VCardManager vCardManager = VCardManager.getInstanceFor(xmppConnection);
+        vCardManager.loadVCard("tom@flowx.im");
     }
 
     @Override
@@ -111,6 +118,9 @@ public class ServerConnection implements Serializable, StanzaListener {
             Log.d(TAG, "Presence: " + presence.getFrom() + " " + presence.getStatus());
             DbHelper.updateContact(db, from, presence.getStatus(), System.currentTimeMillis());
             Data.doRefresh(true, false);
+        } else if (packet instanceof VCard) {
+            VCard vCard = (VCard) packet;
+            
         } else Log.d(TAG, "Packet: " + packet.getClass().getSimpleName());
     }
 
