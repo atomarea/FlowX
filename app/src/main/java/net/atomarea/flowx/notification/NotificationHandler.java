@@ -5,8 +5,11 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.data.Account;
@@ -68,6 +71,15 @@ public class NotificationHandler {
             }
             style.setSummaryText(context.getResources().getString(R.string.unread_messages, unreadMessages.size()));
             builder.setContentText(context.getResources().getString(R.string.unread_messages, unreadMessages.size()));
+
+            String ringtone = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).getString("notification_ringtone", "content://settings/system/notification_sound");
+            builder.setSound(Uri.parse(ringtone));
+
+            if (PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).getBoolean("led", true))
+                builder.setLights(ContextCompat.getColor(context, R.color.colorPrimary), 1000, 1000);
+
+            if (PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).getBoolean("vibrate_on_notification", true))
+                builder.setVibrate(new long[]{200, 100, 200, 900});
 
             return builder.build();
         }
