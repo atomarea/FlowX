@@ -10,11 +10,17 @@ public class Account implements Serializable {
     private String Name;
     private String Status;
     private String XmppAddress;
+    private long LastOnline;
 
-    public Account(String Name, String XmppAddress, String Status) {
+    public Account(String Name, String XmppAddress, String Status, String LastOnline) {
         this.Name = (Name == null ? XmppAddress.split("@")[0] : Name);
         this.XmppAddress = XmppAddress;
         this.Status = Status;
+        try {
+            this.LastOnline = Long.valueOf(LastOnline);
+        } catch (Exception e) {
+            this.LastOnline = 0;
+        }
     }
 
     public void setName(String name) {
@@ -35,5 +41,13 @@ public class Account implements Serializable {
 
     public void setStatus(String status) {
         Status = status;
+    }
+
+    public long getLastOnline() {
+        return LastOnline;
+    }
+
+    public void setLastOnline(long lastOnline) {
+        LastOnline = lastOnline;
     }
 }

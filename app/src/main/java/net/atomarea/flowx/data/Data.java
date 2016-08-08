@@ -1,12 +1,16 @@
 package net.atomarea.flowx.data;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Handler;
 
 import net.atomarea.flowx.R;
+import net.atomarea.flowx.database.ContactContract;
+import net.atomarea.flowx.database.DatabaseHelper;
 import net.atomarea.flowx.xmpp.ServerConnection;
 
 import java.io.Serializable;
@@ -37,25 +41,27 @@ public class Data implements Serializable {
         Contacts = new ArrayList<>();
         Chats = new ArrayList<>();
 
-        /*Chats.add(new ChatHistory("01", Contacts.get(0)));
-        Chats.add(new ChatHistory("02", Contacts.get(2)));
-        Chats.add(new ChatHistory("03", Contacts.get(3)));
+        recacheFromDb();
+    }
 
-        Chats.get(0).getChatMessages().add(new ChatMessage("Hey! <u>Look at</u> <b>these</b> <i>cool</i> formatting Tricks!", ChatMessage.Type.Text, true, System.currentTimeMillis() - 1000 * 62 * 60 * 26));
-        Chats.get(0).getChatMessages().get(0).setState(ChatMessage.State.ReadByContact);
-        Chats.get(0).getChatMessages().add(new ChatMessage("Yeah! Freaking cool!", ChatMessage.Type.Text, false, System.currentTimeMillis() - 1000 * 62 * 60 * 25));
-        ChatMessage a = new ChatMessage(null, ChatMessage.Type.Image, true, System.currentTimeMillis() - 1000 * 62 * 59 * 25);
-        a.setState(ChatMessage.State.DeliveredToContact);
-        Chats.get(0).getChatMessages().add(a);
-        a = new ChatMessage("That was a <b>very</b> nice place!", ChatMessage.Type.Text, true, System.currentTimeMillis() - 1000 * 62 * 23 * 14);
-        a.setState(ChatMessage.State.DeliveredToServer);
-        Chats.get(0).getChatMessages().add(a);
-        a = new ChatMessage("<i>Really</i>", ChatMessage.Type.Text, true, System.currentTimeMillis() - 1000 * 43);
-        a.setState(ChatMessage.State.NotDelivered);
-        Chats.get(0).getChatMessages().add(a);
-
-        Chats.get(1).getChatMessages().add(new ChatMessage(null, ChatMessage.Type.Audio, true, System.currentTimeMillis()));
-        Chats.get(1).getChatMessages().add(new ChatMessage(null, ChatMessage.Type.Audio, false, System.currentTimeMillis()));*/
+    public static void recacheFromDb() {
+        SQLiteDatabase db = DatabaseHelper.get().getReadableDatabase();
+        // *** CONTACTS QUERY ***
+        Cursor contactsCursor = db.query(ContactContract.ContactEntry.TABLE_NAME, new String[]{
+                ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME,
+                ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS,
+                ContactContract.ContactEntry.COLUMN_NAME_STATUS,
+                ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE
+        }, ContactContract.ContactEntry._ID + " LIKE ?", new String[]{"%"}, null, null, ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME + " ASC");
+        boolean contactsState = contactsCursor.moveToFirst();
+        while (contactsState) {
+            String custom_name = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME));
+            String xmpp_address = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS));
+            String status = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_STATUS));
+            String last_online = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE));
+            Contacts.add(new Account(custom_name, xmpp_address, status, last_online));
+            contactsState = contactsCursor.moveToNext();
+        }
     }
 
     public static ServerConnection getConnection() {

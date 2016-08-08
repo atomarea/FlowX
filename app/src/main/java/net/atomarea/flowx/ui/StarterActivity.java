@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.database.DatabaseHelper;
 import net.atomarea.flowx.services.XmppService;
 import net.atomarea.flowx.ui.activities.ChatListActivity;
 import net.atomarea.flowx.ui.activities.LoginActivity;
@@ -24,6 +25,8 @@ public class StarterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_starter);
+
+        DatabaseHelper.setApplicationContext(getApplicationContext());
 
         Data.initMain();
 

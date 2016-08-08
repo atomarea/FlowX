@@ -1,7 +1,9 @@
 package net.atomarea.flowx.xmpp;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import net.atomarea.flowx.ServerConfig;
@@ -9,6 +11,8 @@ import net.atomarea.flowx.data.Account;
 import net.atomarea.flowx.data.ChatHistory;
 import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.database.ContactContract;
+import net.atomarea.flowx.database.DatabaseHelper;
 import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
 import net.atomarea.flowx.ui.activities.ChatListActivity;
 
@@ -75,9 +79,24 @@ public class ServerConnection implements Serializable, StanzaListener {
             from = packet.getFrom().split("/")[0];
         if (packet instanceof RosterPacket) {
             RosterPacket rosterPacket = (RosterPacket) packet;
+            SQLiteDatabase db = DatabaseHelper.get().getWritableDatabase();
             for (RosterPacket.Item i : rosterPacket.getRosterItems()) {
                 Log.i(TAG, i.getName() + " " + i.getUser());
-                Data.getContacts().add(new Account(i.getName(), i.getUser(), null));
+                Cursor contactCursor = db.query(ContactContract.ContactEntry.TABLE_NAME, new String[]{ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS}, ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS + " LIKE ?", new String[]{i.getUser()}, null, null, ContactContract.ContactEntry._ID + " ASC");
+                if (contactCursor.getCount() != 1) {
+                    if (contactCursor.getCount() != 0)
+                        db.delete(ContactContract.ContactEntry.TABLE_NAME, ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS + " LIKE ?", new String[]{i.getUser()});
+                    ContentValues contactDetails = new ContentValues();
+                    contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS, i.getUser());
+                    contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME, (i.getName() == null ? i.getUser().split("@")[0] : i.getName()));
+                    contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_STATUS, "");
+                    contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE, "0");
+                    db.insert(ContactContract.ContactEntry.TABLE_NAME, null, contactDetails);
+                } else {
+                    ContentValues contactDetails = new ContentValues();
+                    contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME, (i.getName() == null ? i.getUser().split("@")[0] : i.getName()));
+                    db.update(ContactContract.ContactEntry.TABLE_NAME, contactDetails, ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS + " LIKE ?", new String[]{i.getUser()});
+                }
             }
         } else if (packet instanceof Message) {
             Message message = (Message) packet;
