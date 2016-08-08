@@ -11,6 +11,8 @@ import android.os.Handler;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.database.ContactContract;
 import net.atomarea.flowx.database.DatabaseHelper;
+import net.atomarea.flowx.database.DbHelper;
+import net.atomarea.flowx.database.MessageContract;
 import net.atomarea.flowx.xmpp.ServerConnection;
 
 import java.io.Serializable;
@@ -62,6 +64,33 @@ public class Data implements Serializable {
             Contacts.add(new Account(custom_name, xmpp_address, status, last_online));
             contactsState = contactsCursor.moveToNext();
         }
+        contactsCursor.close();
+        // *** MESSAGES QUERY ***
+        for (Account chatContact : Contacts) {
+            Cursor messagesCursor = db.query(MessageContract.MessageEntry.TABLE_NAME, new String[]{
+                    MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_ID,
+                    MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE,
+                    MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY,
+                    MessageContract.MessageEntry.COLUMN_NAME_SENT,
+                    MessageContract.MessageEntry.COLUMN_NAME_STATE,
+                    MessageContract.MessageEntry.COLUMN_NAME_TIME
+            }, MessageContract.MessageEntry.COLUMN_NAME_REMOTE_XMPP_ADDRESS + " LIKE ?", new String[]{chatContact.getXmppAddress()}, null, null, MessageContract.MessageEntry.COLUMN_NAME_TIME + " ASC");
+            boolean messagesState = messagesCursor.moveToFirst();
+            while (messagesState) {
+                String messageId = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_ID));
+                ChatMessage.Type messageType = ChatMessage.Type.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE)));
+                String messageBody = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY));
+                boolean isSent = messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_SENT)).equals("1");
+                long time = Long.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_TIME)));
+                ChatMessage.State state = ChatMessage.State.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_STATE)));
+                ChatHistory chatHistory = getChatHistory(chatContact);
+                ChatMessage chatMessage = new ChatMessage(messageId, messageBody, messageType, isSent, time);
+                chatMessage.setState(state);
+                chatHistory.getChatMessages().add(chatMessage);
+                messagesState = messagesCursor.moveToNext();
+            }
+            messagesCursor.close();
+        }
     }
 
     public static ServerConnection getConnection() {
@@ -106,10 +135,9 @@ public class Data implements Serializable {
     public static ChatHistory getChatHistory(Account contact) {
         int pos = getChatHistoryPosition(contact);
         if (pos != -1) return Chats.get(pos);
-        else {
-
-        }
-        return null;
+        ChatHistory chatHistory = new ChatHistory(contact.getXmppAddress(), contact);
+        Chats.add(chatHistory);
+        return chatHistory;
     }
 
     public static int getAccountPosition(Account remoteContact) {
@@ -137,8 +165,9 @@ public class Data implements Serializable {
 
     public static boolean sendTextMessage(ChatHistory chatHistory, String message) {
         if (getConnection() != null) {
-            ChatMessage chatMessage = new ChatMessage("FX" + System.currentTimeMillis(), message, ChatMessage.Type.Text, true, System.currentTimeMillis());
+            ChatMessage chatMessage = new ChatMessage("FX" + System.currentTimeMillis(), message.trim(), ChatMessage.Type.Text, true, System.currentTimeMillis());
             chatHistory.getChatMessages().add(chatMessage);
+            new AsyncDbInsertMessage(chatHistory.getRemoteContact().getXmppAddress()).execute(chatMessage);
             getConnection().sendMessage(chatHistory.getRemoteContact(), chatMessage);
             return true;
         }
@@ -173,6 +202,34 @@ public class Data implements Serializable {
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
             callback.onBitmapLoaded(bitmap);
+        }
+    }
+
+    public static class AsyncDbInsertMessage extends AsyncTask<ChatMessage, Void, Void> {
+
+        private String remoteXmppAddress;
+
+        public AsyncDbInsertMessage(String remoteXmppAddress) {
+            this.remoteXmppAddress = remoteXmppAddress;
+        }
+
+        @Override
+        protected Void doInBackground(ChatMessage... params) {
+            if (params.length == 0) return null;
+            SQLiteDatabase db = DatabaseHelper.get().getWritableDatabase();
+            for (ChatMessage chatMessage : params)
+                DbHelper.insertMessage(db, remoteXmppAddress, chatMessage.getID(), chatMessage.getData(), chatMessage.getType(), chatMessage.isSent(), chatMessage.getTime(), chatMessage.getState());
+            return null;
+        }
+
+    }
+
+    public static class AsyncDbRecache extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            recacheFromDb();
+            return null;
         }
     }
 

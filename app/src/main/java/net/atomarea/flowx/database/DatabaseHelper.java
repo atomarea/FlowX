@@ -27,12 +27,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ContactContract.ContactEntry.COLUMN_NAME_STATUS + " TEXT," +
                 ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE + " TEXT" +
                 ")");
+        db.execSQL("CREATE TABLE " + MessageContract.MessageEntry.TABLE_NAME + " (" +
+                MessageContract.MessageEntry._ID + " INTEGER PRIMARY KEY," +
+                MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_ID + " TEXT," +
+                MessageContract.MessageEntry.COLUMN_NAME_REMOTE_XMPP_ADDRESS + " TEXT," +
+                MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE + " TEXT," +
+                MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY + " TEXT," +
+                MessageContract.MessageEntry.COLUMN_NAME_SENT + " TEXT," +
+                MessageContract.MessageEntry.COLUMN_NAME_STATE + " TEXT," +
+                MessageContract.MessageEntry.COLUMN_NAME_TIME + " TEXT"
+                + ")");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // simply delete on upgrade of db...
         db.execSQL("DROP TABLE IF EXISTS " + ContactContract.ContactEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + MessageContract.MessageEntry.TABLE_NAME);
         onCreate(db);
     }
 

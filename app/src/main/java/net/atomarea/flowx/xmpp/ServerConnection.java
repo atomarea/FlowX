@@ -1,7 +1,5 @@
 package net.atomarea.flowx.xmpp;
 
-import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.util.Log;
@@ -11,16 +9,13 @@ import net.atomarea.flowx.data.Account;
 import net.atomarea.flowx.data.ChatHistory;
 import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
-import net.atomarea.flowx.database.ContactContract;
 import net.atomarea.flowx.database.DatabaseHelper;
-import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
-import net.atomarea.flowx.ui.activities.ChatListActivity;
+import net.atomarea.flowx.database.DbHelper;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
@@ -56,7 +51,7 @@ public class ServerConnection implements Serializable, StanzaListener {
         config.setServiceName(ServerConfig.ServerIP);
         config.setHost(ServerConfig.ServerIP);
         config.setPort(ServerConfig.ServerPort);
-        config.setDebuggerEnabled(true);
+        config.setDebuggerEnabled(false);
         config.setResource("FlowX-App");
 
         LocalUser = username + "@flowx.im/FlowX-App";
@@ -80,43 +75,19 @@ public class ServerConnection implements Serializable, StanzaListener {
         if (packet instanceof RosterPacket) {
             RosterPacket rosterPacket = (RosterPacket) packet;
             SQLiteDatabase db = DatabaseHelper.get().getWritableDatabase();
-            for (RosterPacket.Item i : rosterPacket.getRosterItems()) {
-                Log.i(TAG, i.getName() + " " + i.getUser());
-                Cursor contactCursor = db.query(ContactContract.ContactEntry.TABLE_NAME, new String[]{ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS}, ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS + " LIKE ?", new String[]{i.getUser()}, null, null, ContactContract.ContactEntry._ID + " ASC");
-                if (contactCursor.getCount() != 1) {
-                    if (contactCursor.getCount() != 0)
-                        db.delete(ContactContract.ContactEntry.TABLE_NAME, ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS + " LIKE ?", new String[]{i.getUser()});
-                    ContentValues contactDetails = new ContentValues();
-                    contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS, i.getUser());
-                    contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME, (i.getName() == null ? i.getUser().split("@")[0] : i.getName()));
-                    contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_STATUS, "");
-                    contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE, "0");
-                    db.insert(ContactContract.ContactEntry.TABLE_NAME, null, contactDetails);
-                } else {
-                    ContentValues contactDetails = new ContentValues();
-                    contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME, (i.getName() == null ? i.getUser().split("@")[0] : i.getName()));
-                    db.update(ContactContract.ContactEntry.TABLE_NAME, contactDetails, ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS + " LIKE ?", new String[]{i.getUser()});
-                }
-            }
+            for (RosterPacket.Item i : rosterPacket.getRosterItems())
+                DbHelper.checkContact(db, i.getUser(), i.getName());
         } else if (packet instanceof Message) {
             Message message = (Message) packet;
             Log.i(TAG, "Message: " + message.getFrom() + " : " + message.getBody());
             if (message.getType().equals(Message.Type.chat) && message.getBody() != null) {
-                Account contact = Data.getAccountByXmpp(from);
-                if (contact != null) {
-                    ChatHistory chatHistory = Data.getChatHistory(contact);
-                    if (chatHistory != null) {
-                        ChatMessage chatMessage = new ChatMessage(message.getStanzaId(), message.getBody(), ChatMessage.Type.Text, false, System.currentTimeMillis());
-                        chatHistory.getChatMessages().add(chatMessage);
-                        ChatListActivity.doRefresh();
-                        ChatHistoryActivity.doRefresh();
-                        sendReceivedMarker(contact, chatMessage);
-                    }
-                }
+                SQLiteDatabase db = DatabaseHelper.get().getWritableDatabase();
+                DbHelper.checkContact(db, from, null);
+                DbHelper.insertMessage(db, from, message.getStanzaId(), message.getBody(), ChatMessage.Type.Text, false, System.currentTimeMillis(), ChatMessage.State.DeliveredToContact);
             } else if (message.getBody() != null) {
                 Log.i(TAG, "RECV " + message.getBody());
             } else {
-                for (ExtensionElement ee : message.getExtensions()) {
+                /*for (ExtensionElement ee : message.getExtensions()) {
                     if (ee.getNamespace().equals(ReceivedReceipt.NAMESPACE)) {
                         ReceivedReceipt rr = (ReceivedReceipt) ee;
                         ChatMessage chatMessage = Data.getChatMessage(rr.getID());
@@ -133,14 +104,14 @@ public class ServerConnection implements Serializable, StanzaListener {
                             ChatHistoryActivity.doRefresh();
                         }
                     }
-                }
+                }*/
             }
         } else if (packet instanceof Presence) {
             Presence presence = (Presence) packet;
             Log.d(TAG, "Presence: " + presence.getFrom() + " " + presence.getStatus());
-            Account contact = Data.getAccountByXmpp(from);
+            /*Account contact = Data.getAccountByXmpp(from);
             if (contact != null && presence.getStatus() != null)
-                contact.setStatus(presence.getStatus());
+                contact.setStatus(presence.getStatus());*/
         } else Log.d(TAG, "Packet: " + packet.getClass().getSimpleName());
     }
 
