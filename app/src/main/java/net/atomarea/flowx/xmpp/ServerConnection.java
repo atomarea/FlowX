@@ -42,6 +42,10 @@ public class ServerConnection implements Serializable, StanzaListener {
 
     private Handler postHandler;
 
+    public ServerConnection() {
+        postHandler = new Handler();
+    }
+
     public void login(String username, String password) throws SmackException, IOException, XMPPException {
         XMPPTCPConnectionConfiguration.Builder config = XMPPTCPConnectionConfiguration.builder();
         config.setSecurityMode(ConnectionConfiguration.SecurityMode.ifpossible);
@@ -62,17 +66,6 @@ public class ServerConnection implements Serializable, StanzaListener {
         xmppConnection.login(username, password);
 
         Data.setConnection(this);
-
-        new Thread() { // TODO: CHANGE TO ANDROID SERVICE :)
-            public void run() {
-                Looper.prepare();
-                postHandler = new Handler();
-
-                while (true) {
-                    Looper.loop();
-                }
-            }
-        }.start();
     }
 
     @Override
@@ -230,4 +223,9 @@ public class ServerConnection implements Serializable, StanzaListener {
     public String getLocalUser() {
         return LocalUser;
     }
+
+    public Handler getPostHandler() {
+        return postHandler;
+    }
+
 }

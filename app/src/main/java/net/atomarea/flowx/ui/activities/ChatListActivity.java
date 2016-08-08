@@ -46,13 +46,6 @@ public class ChatListActivity extends AppCompatActivity {
         });
 
         instance = this;
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Snackbar.make(findViewById(R.id.toolbar), getResources().getString(R.string.logged_in_as, Data.getConnection().getLocalUser()), Snackbar.LENGTH_LONG).show();
-            }
-        }, 1000);
     }
 
     @Override
