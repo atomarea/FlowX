@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.atomarea.flowx.R;
+import net.atomarea.flowx.async.AvatarImageUpdater;
 import net.atomarea.flowx.data.ChatHistory;
 import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
@@ -61,6 +62,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
                 holder.readIndicator.setChatMessage(chatHistory.getLatestChatMessage());
             }
         }
+        if (holder.ContactPicture != null)
+            new AvatarImageUpdater(chatHistory.getRemoteContact().getXmppAddress(), holder.ContactPicture).execute();
         holder.ChatRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

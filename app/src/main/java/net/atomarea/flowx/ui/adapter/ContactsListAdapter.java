@@ -10,11 +10,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.atomarea.flowx.R;
+import net.atomarea.flowx.async.AvatarImageUpdater;
+import net.atomarea.flowx.data.Account;
+import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
 import net.atomarea.flowx.ui.activities.ContactDetailActivity;
 import net.atomarea.flowx.ui.activities.ContactsActivity;
-import net.atomarea.flowx.data.Account;
-import net.atomarea.flowx.data.Data;
 
 /**
  * Created by Tom on 04.08.2016.
@@ -36,6 +37,8 @@ public class ContactsListAdapter extends RecyclerView.Adapter<ContactsListAdapte
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Account contact = Data.getContacts().get(position);
         holder.ContactName.setText(contact.getName());
+        if (holder.ContactPicture != null)
+            new AvatarImageUpdater(contact.getXmppAddress(), holder.ContactPicture).execute();
         holder.ContactRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

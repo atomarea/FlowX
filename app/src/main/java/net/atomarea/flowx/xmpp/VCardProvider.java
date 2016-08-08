@@ -79,7 +79,6 @@ public class VCardProvider extends IQProvider<VCard> {
             switch (eventType) {
                 case XmlPullParser.START_TAG:
                     name = parser.getName();
-                    Log.i("vCard Parser", name);
                     switch (name) {
                         case "N":
                             parseName(parser, vCard);
@@ -308,8 +307,6 @@ public class VCardProvider extends IQProvider<VCard> {
         String binval = null;
         String mimetype = null;
 
-        Log.i("FX XMPP P", "Parsing");
-
         outerloop:
         while (true) {
             int eventType = parser.next();
@@ -318,11 +315,9 @@ public class VCardProvider extends IQProvider<VCard> {
                     String name = parser.getName();
                     switch (name) {
                         case "BINVAL":
-                            Log.i("FX XMPP P", "Found BINVAL");
                             binval = parser.nextText();
                             break;
                         case "TYPE":
-                            Log.i("FX XMPP P", "Found TYPE");
                             mimetype = parser.nextText();
                             break;
                         default:
