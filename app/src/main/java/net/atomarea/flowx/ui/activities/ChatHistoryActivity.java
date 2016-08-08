@@ -9,13 +9,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.data.ChatHistory;
+import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.adapter.ChatHistoryAdapter;
 import net.atomarea.flowx.xmpp.ChatState;
@@ -41,6 +41,10 @@ public class ChatHistoryActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        if (getIntent().getIntExtra(Data.EXTRA_CHAT_HISTORY_POSITION, 0) == -1) {
+            finish();
+            return;
+        }
         chatHistory = Data.getChats().get(getIntent().getIntExtra(Data.EXTRA_CHAT_HISTORY_POSITION, 0));
 
         getSupportActionBar().setTitle(chatHistory.getRemoteContact().getName());
@@ -68,6 +72,11 @@ public class ChatHistoryActivity extends AppCompatActivity {
         instance = this;
 
         Data.getConnection().sendReadMarker(chatHistory);
+
+        for (ChatMessage chatMessage : chatHistory.getChatMessages()) {
+            if (chatMessage.getState().equals(ChatMessage.State.NotDelivered))
+                Data.getConnection().sendMessage(chatHistory.getRemoteContact(), chatMessage);
+        }
 
         String LastMessage = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("lastMessage:" + chatHistory.getRemoteContact().getXmppAddress(), null);
         if (LastMessage != null) editTextMessageInput.setText(LastMessage);

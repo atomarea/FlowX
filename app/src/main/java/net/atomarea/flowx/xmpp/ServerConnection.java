@@ -14,8 +14,10 @@ import net.atomarea.flowx.database.DbHelper;
 import net.atomarea.flowx.notification.NotificationHandler;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.StanzaListener;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
@@ -47,7 +49,7 @@ public class ServerConnection implements Serializable, StanzaListener {
         postHandler = new Handler();
     }
 
-    public void login(String username, String password) throws SmackException, IOException, XMPPException {
+    public void login(final String username, final String password) throws SmackException, IOException, XMPPException {
         XMPPTCPConnectionConfiguration.Builder config = XMPPTCPConnectionConfiguration.builder();
         config.setSecurityMode(ConnectionConfiguration.SecurityMode.ifpossible);
         config.setServiceName(ServerConfig.ServerIP);
@@ -72,6 +74,51 @@ public class ServerConnection implements Serializable, StanzaListener {
         xmppConnection.login(username, password);
 
         Data.setConnection(this);
+
+        xmppConnection.addConnectionListener(new ConnectionListener() {
+            @Override
+            public void connected(XMPPConnection connection) {
+            }
+
+            @Override
+            public void authenticated(XMPPConnection connection, boolean resumed) {
+            }
+
+            @Override
+            public void connectionClosed() {
+                try {
+                    login(username, password);
+                } catch (Exception e) {
+                    xmppConnection.instantShutdown();
+                }
+            }
+
+            @Override
+            public void connectionClosedOnError(Exception e) {
+                Log.e(TAG, "Connection was terminated");
+                try {
+                    login(username, password);
+                } catch (Exception e1) {
+                    xmppConnection.instantShutdown();
+                    e1.printStackTrace();
+                }
+            }
+
+            @Override
+            public void reconnectionSuccessful() {
+
+            }
+
+            @Override
+            public void reconnectingIn(int seconds) {
+
+            }
+
+            @Override
+            public void reconnectionFailed(Exception e) {
+
+            }
+        });
     }
 
     @Override
