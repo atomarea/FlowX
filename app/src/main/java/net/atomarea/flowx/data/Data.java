@@ -58,6 +58,7 @@ public class Data implements Serializable {
                 ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE
         }, ContactContract.ContactEntry._ID + " LIKE ?", new String[]{"%"}, null, null, ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME + " ASC");
         boolean contactsState = contactsCursor.moveToFirst();
+        Contacts.clear();
         while (contactsState) {
             String custom_name = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME));
             String xmpp_address = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS));
