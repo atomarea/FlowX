@@ -30,5 +30,6 @@
     <string name="password">Passwort</string>
     <string name="username">Nutzername</string>
     <string name="activity_login">FlowX Anmeldung</string>
-    <string name="unread_messages">%1$d ungelesene Nachrichten.</string>
+    <string name="unread_messages">%1$d ungelesene Nachrichten</string>
+    <string name="state_writing">schreibt…</string>
 </resources>

@@ -19,6 +19,8 @@ import net.atomarea.flowx.xmpp.ServerConnection;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 
 /**
@@ -39,6 +41,12 @@ public class Data implements Serializable {
 
     public static void initMain() {
         handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                doUiRefresh(true);
+            }
+        }, 4000);
     }
 
     private static Context context;
@@ -114,6 +122,13 @@ public class Data implements Serializable {
         }
         // *** CLEANUP ***
         clean();
+        // *** SORTING ***
+        Collections.sort(Chats, new Comparator<ChatHistory>() {
+            @Override
+            public int compare(ChatHistory lhs, ChatHistory rhs) {
+                return String.valueOf(lhs.getLatestChatMessage().getTime()).compareTo(String.valueOf(rhs.getLatestChatMessage().getTime())) * -1;
+            }
+        });
     }
 
     public static ChatMessage getChatHistoryMessageId(ChatHistory chatHistory, String messageId) {
@@ -168,6 +183,14 @@ public class Data implements Serializable {
         ChatHistory chatHistory = new ChatHistory(contact.getXmppAddress(), contact);
         Chats.add(chatHistory);
         return chatHistory;
+    }
+
+    public static ChatHistory getChatHistoryNullable(String xmppAddress) {
+        for (ChatHistory chatHistory : Chats) {
+            if (chatHistory.getRemoteContact().getXmppAddress().equals(xmppAddress))
+                return chatHistory;
+        }
+        return null;
     }
 
     public static int getAccountPosition(Account remoteContact) {
@@ -257,6 +280,21 @@ public class Data implements Serializable {
 
     public static void doRefresh(Boolean... params) {
         new AsyncDbRecache().execute(params);
+    }
+
+    public static void doUiRefresh() {
+        doUiRefresh(false);
+    }
+
+    public static void doUiRefresh(boolean reschedule) {
+        ChatListActivity.doRefresh();
+        ChatHistoryActivity.doRefresh();
+        if (reschedule) handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                doUiRefresh(true);
+            }
+        }, 4000);
     }
 
     public static class AsyncDbRecache extends AsyncTask<Boolean, Void, Void> {

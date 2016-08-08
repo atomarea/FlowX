@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,9 +16,9 @@ import android.widget.EditText;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.data.ChatHistory;
-import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.adapter.ChatHistoryAdapter;
+import net.atomarea.flowx.xmpp.ChatState;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -55,6 +57,7 @@ public class ChatHistoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String message = editTextMessageInput.getText().toString();
+                Data.getConnection().sendChatState(chatHistory, ChatState.State.Idle);
                 Data.sendTextMessage(chatHistory, message);
                 editTextMessageInput.setText("");
                 recyclerViewChatHistory.getAdapter().notifyDataSetChanged();
@@ -68,6 +71,21 @@ public class ChatHistoryActivity extends AppCompatActivity {
 
         String LastMessage = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("lastMessage:" + chatHistory.getRemoteContact().getXmppAddress(), null);
         if (LastMessage != null) editTextMessageInput.setText(LastMessage);
+
+        editTextMessageInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Data.getConnection().sendChatState(chatHistory, ChatState.State.Writing);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
 
     @Override

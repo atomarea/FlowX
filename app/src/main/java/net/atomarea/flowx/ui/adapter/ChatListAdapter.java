@@ -20,6 +20,7 @@ import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
 import net.atomarea.flowx.ui.activities.ContactDetailActivity;
 import net.atomarea.flowx.ui.view.ReadIndicatorView;
+import net.atomarea.flowx.xmpp.ChatState;
 
 /**
  * Created by Tom on 04.08.2016.
@@ -41,7 +42,14 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     public void onBindViewHolder(final ViewHolder holder, int position) {
         ChatHistory chatHistory = Data.getChats().get(position);
         holder.ContactName.setText(chatHistory.getRemoteContact().getName());
-        if (chatHistory.getLatestChatMessage() != null) {
+        if (chatHistory.getChatState() != null && !chatHistory.getChatState().equals(ChatState.State.Idle) && chatHistory.getChatStateTimeout() > System.currentTimeMillis()) {
+            ChatState.State state = chatHistory.getChatState();
+            if (state.equals(ChatState.State.Writing)) {
+                holder.LastMessage.setText(Html.fromHtml("<b>" + context.getResources().getString(R.string.state_writing) + "</b>"));
+                holder.LastMessage.setTextColor(ContextCompat.getColor(context, R.color.colorAccent2));
+            }
+        } else if (chatHistory.getLatestChatMessage() != null) {
+            holder.LastMessage.setTextColor(ContextCompat.getColor(context, android.R.color.secondary_text_light));
             if (chatHistory.getLatestChatMessage().getType() == ChatMessage.Type.Text)
                 holder.LastMessage.setText(Html.fromHtml(chatHistory.getLatestChatMessage().getData()));
             else {
@@ -62,6 +70,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
                 holder.readIndicator.setChatMessage(chatHistory.getLatestChatMessage());
             }
         }
+        if (chatHistory.getLatestChatMessage() == null)
+            holder.readIndicator.setVisibility(View.GONE);
         if (holder.ContactPicture != null)
             new AvatarImageUpdater(chatHistory.getRemoteContact().getXmppAddress(), holder.ContactPicture).execute();
         holder.ChatRow.setOnClickListener(new View.OnClickListener() {

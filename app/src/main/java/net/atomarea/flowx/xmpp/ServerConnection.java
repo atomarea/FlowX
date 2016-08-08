@@ -37,7 +37,7 @@ public class ServerConnection implements Serializable, StanzaListener {
     private static final String TAG = "FX XMPP";
 
     private XMPPTCPConnection xmppConnection;
-    private String LocalUser;
+    private String LocalUser, LocalUserWoRes;
 
     // TODO <message id='185339fa-962f-418f-aa3b-6a763eea1f37' type='chat' to='tom@flowx.im' from='dom1nic@flowx.im/mobile'><body>https://flowx.im:5281/upload/35d21ccf-f9c0-4e79-966c-742279821c45/20160807_132659588_1853.jpg</body><markable xmlns='urn:xmpp:chat-markers:0'/><request xmlns='urn:xmpp:receipts'/><x xmlns='jabber:x:oob'><url>https://flowx.im:5281/upload/35d21ccf-f9c0-4e79-966c-742279821c45/20160807_132659588_1853.jpg</url></x></message>
 
@@ -53,14 +53,16 @@ public class ServerConnection implements Serializable, StanzaListener {
         config.setServiceName(ServerConfig.ServerIP);
         config.setHost(ServerConfig.ServerIP);
         config.setPort(ServerConfig.ServerPort);
-        config.setDebuggerEnabled(false);
+        config.setDebuggerEnabled(true);
         config.setResource("FlowX-App");
         config.setConnectTimeout(10000);
 
         LocalUser = username + "@flowx.im/FlowX-App";
+        LocalUserWoRes = username + "@flowx.im";
 
         ProviderManager.addExtensionProvider(ReceivedReceipt.ELEMENT, ReceivedReceipt.NAMESPACE, new ReceivedReceipt.Provider());
         ProviderManager.addExtensionProvider(ReadReceipt.ELEMENT, ReadReceipt.NAMESPACE, new ReadReceipt.Provider());
+        ProviderManager.addExtensionProvider(ChatState.ELEMENT, ChatState.NAMESPACE, new ChatState.Provider());
         ProviderManager.removeIQProvider("vCard", "vcard-temp");
         ProviderManager.addIQProvider("vCard", "vcard-temp", new VCardProvider());
 
@@ -100,14 +102,23 @@ public class ServerConnection implements Serializable, StanzaListener {
             } else {
                 for (ExtensionElement ee : message.getExtensions()) {
                     if (ee.getNamespace().equals(ReceivedReceipt.NAMESPACE)) {
-                        ReceivedReceipt rr = (ReceivedReceipt) ee;
-                        DbHelper.updateMessage(DatabaseHelper.get().getWritableDatabase(), from, rr.getID(), ChatMessage.State.DeliveredToContact);
+                        ReceivedReceipt receivedReceipt = (ReceivedReceipt) ee;
+                        DbHelper.updateMessage(DatabaseHelper.get().getWritableDatabase(), from, receivedReceipt.getID(), ChatMessage.State.DeliveredToContact);
                         Data.doRefresh();
                     }
                     if (ee.getNamespace().equals(ReadReceipt.NAMESPACE)) {
-                        ReadReceipt rr = (ReadReceipt) ee;
-                        DbHelper.updateMessage(DatabaseHelper.get().getWritableDatabase(), from, rr.getID(), ChatMessage.State.ReadByContact);
+                        ReadReceipt readReceipt = (ReadReceipt) ee;
+                        DbHelper.updateMessage(DatabaseHelper.get().getWritableDatabase(), from, readReceipt.getID(), ChatMessage.State.ReadByContact);
                         Data.doRefresh();
+                    }
+                    if (ee.getNamespace().equals(ChatState.NAMESPACE)) {
+                        ChatState chatState = (ChatState) ee;
+                        ChatHistory chatHistory = Data.getChatHistoryNullable(chatState.getXmppAddress());
+                        if (chatHistory != null) {
+                            Log.i("CSR", "chatstate refresh " + chatState.getState().name());
+                            chatHistory.setChatState(chatState.getState());
+                            Data.doUiRefresh();
+                        }
                     }
                 }
             }
@@ -132,6 +143,8 @@ public class ServerConnection implements Serializable, StanzaListener {
                 message.setSubject(chatMessage.getType().name());
                 message.setStanzaId(chatMessage.getID());
                 send(message);
+                chatMessage.setState(ChatMessage.State.DeliveredToServer);
+                Data.doUiRefresh();
             }
         });
     }
@@ -176,6 +189,27 @@ public class ServerConnection implements Serializable, StanzaListener {
                 }
             }
         });
+    }
+
+    private long lastSentChatState = 0;
+
+    public void sendChatState(final ChatHistory chatHistory, final ChatState.State state) {
+        if (state.equals(ChatState.State.Idle) || System.currentTimeMillis() - 2000 > lastSentChatState)
+            postHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Message message = new Message();
+                    message.setFrom(LocalUser);
+                    message.setTo(chatHistory.getRemoteContact().getXmppAddress());
+                    message.setBody(null);
+                    message.setSubject(ChatState.NAMESPACE);
+                    message.setType(Message.Type.chat);
+                    message.setStanzaId("FXCS" + System.currentTimeMillis());
+                    message.addExtension(new ChatState(LocalUserWoRes, state));
+                    send(message);
+                    lastSentChatState = System.currentTimeMillis();
+                }
+            });
     }
 
     public void sendContactsUpdate() {

@@ -54,6 +54,8 @@
 
     <string name="activity_login">FlowX Login</string>
 
-    <string name="unread_messages">You have %1$d unread messages.</string>
+    <string name="unread_messages">You have %1$d unread messages</string>
+
+    <string name="state_writing">composing&#8230;</string>
 
 </resources>
