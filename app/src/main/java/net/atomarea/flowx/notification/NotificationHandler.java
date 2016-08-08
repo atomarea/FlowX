@@ -9,7 +9,9 @@ import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 
 import net.atomarea.flowx.R;
+import net.atomarea.flowx.data.Account;
 import net.atomarea.flowx.data.ChatMessage;
+import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.database.DatabaseHelper;
 import net.atomarea.flowx.database.MessageContract;
 
@@ -44,9 +46,11 @@ public class NotificationHandler {
                     MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY
             }, MessageContract.MessageEntry.COLUMN_NAME_STATE + " LIKE ? AND " + MessageContract.MessageEntry.COLUMN_NAME_SENT + " LIKE ?", new String[]{ChatMessage.State.DeliveredToContact.name(), "0"}, null, null, MessageContract.MessageEntry.COLUMN_NAME_TIME + " ASC");
 
+
             boolean messagesState = messagesCursor.moveToFirst();
             while (messagesState) {
-                unreadMessages.add(new ChatMessage("0", messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY)), ChatMessage.Type.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE))), false, 0));
+                Account contact = Data.getAccountByXmpp(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_REMOTE_XMPP_ADDRESS)));
+                unreadMessages.add(new ChatMessage((contact == null ? null : contact.getName()), messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY)), ChatMessage.Type.valueOf(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_TYPE))), false, 0));
                 messagesState = messagesCursor.moveToNext();
             }
 
@@ -60,7 +64,7 @@ public class NotificationHandler {
             NotificationCompat.InboxStyle style;
             builder.setStyle(style = new NotificationCompat.InboxStyle());
             for (int i = 0; i < 6 && i < unreadMessages.size(); i++) {
-                style.addLine(unreadMessages.get(i).getData());
+                style.addLine(unreadMessages.get(i).getID() + ": " + unreadMessages.get(i).getData());
             }
             style.setSummaryText(context.getResources().getString(R.string.unread_messages, unreadMessages.size()));
             builder.setContentText(context.getResources().getString(R.string.unread_messages, unreadMessages.size()));

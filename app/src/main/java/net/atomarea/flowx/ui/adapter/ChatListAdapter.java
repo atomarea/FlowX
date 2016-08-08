@@ -2,6 +2,7 @@ package net.atomarea.flowx.ui.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -12,11 +13,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
-import net.atomarea.flowx.ui.activities.ContactDetailActivity;
 import net.atomarea.flowx.data.ChatHistory;
 import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
+import net.atomarea.flowx.ui.activities.ContactDetailActivity;
+import net.atomarea.flowx.ui.view.ReadIndicatorView;
 
 /**
  * Created by Tom on 04.08.2016.
@@ -51,6 +53,13 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
                 else if (chatHistory.getLatestChatMessage().getType() == ChatMessage.Type.File)
                     holder.LastMessage.setText(R.string.file);
             }
+            if (!chatHistory.getLatestChatMessage().isSent())
+                holder.readIndicator.setVisibility(View.GONE);
+            else {
+                holder.readIndicator.init(ContextCompat.getColor(context, R.color.colorPrimary));
+                holder.readIndicator.setVisibility(View.VISIBLE);
+                holder.readIndicator.setChatMessage(chatHistory.getLatestChatMessage());
+            }
         }
         holder.ChatRow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,6 +93,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private LinearLayout ChatRow;
+        private ReadIndicatorView readIndicator;
         private ImageView ContactPicture;
         private TextView ContactName;
         private TextView LastMessage;
@@ -92,6 +102,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         public ViewHolder(View v) {
             super(v);
             ChatRow = (LinearLayout) v.findViewById(R.id.chat_row);
+            readIndicator = (ReadIndicatorView) v.findViewById(R.id.read_indicator);
             ContactPicture = (ImageView) v.findViewById(R.id.contact_picture);
             ContactName = (TextView) v.findViewById(R.id.contact_name);
             LastMessage = (TextView) v.findViewById(R.id.last_message);

@@ -4,8 +4,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -21,22 +21,22 @@ public class ReadIndicatorView extends View {
 
     private ChatMessage chatMessage;
     private int Diameter, OffsetX, OffsetY;
-    private Paint WhitePaintStroke, WhitePaint;
+    private Paint StandardPaintStroke, StandardPaint;
     private Interpolator interpolator;
     private AnimatorListenerAdapter rotateAnimationAdapter;
 
     public ReadIndicatorView(Context c, AttributeSet a) {
         super(c, a);
-        init();
+        init(Color.WHITE);
     }
 
-    private void init() {
-        WhitePaintStroke = new Paint(Paint.ANTI_ALIAS_FLAG);
-        WhitePaintStroke.setColor(ContextCompat.getColor(getContext(), android.R.color.white));
-        WhitePaintStroke.setStyle(Paint.Style.STROKE);
-        WhitePaintStroke.setStrokeWidth(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
-        WhitePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        WhitePaint.setColor(ContextCompat.getColor(getContext(), android.R.color.white));
+    public void init(int color) {
+        StandardPaintStroke = new Paint(Paint.ANTI_ALIAS_FLAG);
+        StandardPaintStroke.setColor(color);
+        StandardPaintStroke.setStyle(Paint.Style.STROKE);
+        StandardPaintStroke.setStrokeWidth(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
+        StandardPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        StandardPaint.setColor(color);
         interpolator = new AccelerateDecelerateInterpolator();
         rotateAnimationAdapter = new AnimatorListenerAdapter() {
             @Override
@@ -89,15 +89,15 @@ public class ReadIndicatorView extends View {
         if (!chatMessage.isSent()) return;
 
         if (chatMessage.getState() == ChatMessage.State.NotDelivered) {
-            canvas.drawLine(OffsetX + Diameter / 2, OffsetY + Diameter, OffsetX + Diameter / 2, OffsetY, WhitePaintStroke);
+            canvas.drawLine(OffsetX + Diameter / 2, OffsetY + Diameter, OffsetX + Diameter / 2, OffsetY, StandardPaintStroke);
             if (getAnimation() == null || !getAnimation().hasStarted() || getAnimation().hasEnded())
                 rotateAnimate();
         } else if (chatMessage.getState() == ChatMessage.State.DeliveredToServer) {
-            canvas.drawLine(OffsetX + Diameter / 2, OffsetY + Diameter, OffsetX + Diameter / 2, OffsetY, WhitePaintStroke);
+            canvas.drawLine(OffsetX + Diameter / 2, OffsetY + Diameter, OffsetX + Diameter / 2, OffsetY, StandardPaintStroke);
         } else if (chatMessage.getState() == ChatMessage.State.DeliveredToContact) {
-            canvas.drawCircle(OffsetX + Diameter / 2, OffsetY + Diameter / 2, Diameter / 2 - WhitePaintStroke.getStrokeWidth(), WhitePaintStroke);
+            canvas.drawCircle(OffsetX + Diameter / 2, OffsetY + Diameter / 2, Diameter / 2 - StandardPaintStroke.getStrokeWidth(), StandardPaintStroke);
         } else if (chatMessage.getState() == ChatMessage.State.ReadByContact) {
-            canvas.drawCircle(OffsetX + Diameter / 2, OffsetY + Diameter / 2, Diameter / 2, WhitePaint);
+            canvas.drawCircle(OffsetX + Diameter / 2, OffsetY + Diameter / 2, Diameter / 2, StandardPaint);
         }
     }
 

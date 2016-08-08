@@ -48,6 +48,14 @@
                 android:src="@drawable/ic_reply_black_24dp"
                 android:tint="@android:color/secondary_text_light" />
 
+            <net.atomarea.flowx.ui.view.ReadIndicatorView
+                android:id="@+id/read_indicator"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="@dimen/standard_padding"
+                android:layout_marginRight="@dimen/standard_padding" />
+
             <TextView
                 android:id="@+id/last_message"
                 android:layout_width="match_parent"
