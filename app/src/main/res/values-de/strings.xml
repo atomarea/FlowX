@@ -36,4 +36,7 @@
     <string name="title_add_contact">Kontakt hinzufügen</string>
     <string name="action_rename_contact">Umbenennen</string>
     <string name="title_rename_contact">Kontakt umbenennen</string>
+    <string name="action_proceed">Fortfahren</string>
+    <string name="title_proceed">Warnung!</string>
+    <string name="warn_storage_permission">Wenn du dem Zugriff auf Dateien nicht zustimmst, kannst du keine Profilbilder sehen und keine Medien empfangen.</string>
 </resources>

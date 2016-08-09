@@ -64,4 +64,9 @@
     <string name="action_rename_contact">Rename</string>
     <string name="title_rename_contact">Rename contact</string>
 
+    <string name="action_proceed">Proceed anyway</string>
+    <string name="title_proceed">Warning!</string>
+
+    <string name="warn_storage_permission">If you don\'t grant the storage permission, you will not be able to see profile pictures and receive media.</string>
+
 </resources>
