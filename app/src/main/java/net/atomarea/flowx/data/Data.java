@@ -186,6 +186,7 @@ public class Data implements Serializable {
     }
 
     public static ChatHistory getChatHistoryNullable(String xmppAddress) {
+        if (Chats == null) return null;
         for (ChatHistory chatHistory : Chats) {
             if (chatHistory.getRemoteContact().getXmppAddress().equals(xmppAddress))
                 return chatHistory;

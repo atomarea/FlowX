@@ -7,12 +7,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import net.atomarea.flowx.Memory;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.adapter.ChatListAdapter;
@@ -71,6 +69,10 @@ public class ChatListActivity extends AppCompatActivity {
         });
     }
 
+    public static boolean hasInstance() {
+        return instance != null && !instance.isFinishing();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -93,6 +95,7 @@ public class ChatListActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        instance = null;
     }
 
 }

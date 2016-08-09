@@ -2,7 +2,9 @@ package net.atomarea.flowx.notification;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -17,6 +19,8 @@ import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.database.DatabaseHelper;
 import net.atomarea.flowx.database.MessageContract;
+import net.atomarea.flowx.ui.StarterActivity;
+import net.atomarea.flowx.ui.activities.ChatListActivity;
 
 import java.util.ArrayList;
 
@@ -26,7 +30,8 @@ import java.util.ArrayList;
 public class NotificationHandler {
 
     public static void create(Context context) {
-        new NotificationLoaderTask(context).execute();
+        if (!ChatListActivity.hasInstance())
+            new NotificationLoaderTask(context).execute();
     }
 
     public static class NotificationLoaderTask extends AsyncTask<Void, Void, Notification> {
@@ -80,6 +85,10 @@ public class NotificationHandler {
 
             if (PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).getBoolean("vibrate_on_notification", true))
                 builder.setVibrate(new long[]{200, 100, 200, 900});
+
+            builder.setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, StarterActivity.class), PendingIntent.FLAG_CANCEL_CURRENT));
+
+            builder.setAutoCancel(true);
 
             return builder.build();
         }

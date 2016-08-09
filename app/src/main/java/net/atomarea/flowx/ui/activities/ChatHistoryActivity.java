@@ -61,6 +61,7 @@ public class ChatHistoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String message = editTextMessageInput.getText().toString();
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().remove("lastMessage:" + chatHistory.getRemoteContact().getXmppAddress()).apply();
                 Data.getConnection().sendChatState(chatHistory, ChatState.State.Idle);
                 Data.sendTextMessage(chatHistory, message);
                 editTextMessageInput.setText("");
@@ -144,6 +145,8 @@ public class ChatHistoryActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        instance = null;
 
         if (!editTextMessageInput.getText().toString().trim().equals(""))
             PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("lastMessage:" + chatHistory.getRemoteContact().getXmppAddress(), editTextMessageInput.getText().toString()).apply();
