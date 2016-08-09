@@ -11,7 +11,7 @@
     <string name="audio">Audio</string>
     <string name="video">Video</string>
     <string name="file">File</string>
-    <string name="error">An error occured.</string>
+    <string name="error">An error occurred.</string>
 
     <string name="image_viewer">Image Viewer</string>
 
@@ -31,7 +31,7 @@
     <string name="license">License</string>
     <string name="flowx_messenger">FlowX Messenger</string>
     <string name="fx_desc">FlowX Messenger. An XMPP based messenger for Android.</string>
-    <string name="fx_copyright" translatable="false">Copyright &#169; 2014-2016 FlowX Inc.</string>
+    <string name="fx_copyright" translatable="false">Copyright &#169; 2014&#8211;2016 FlowX Inc.</string>
     <string name="fx_url" translatable="false">&#183; www.flowx.im</string>
     <string name="fx_mail" translatable="false">&#183; support@flowx.im</string>
     <string name="fx_dev">Developers</string>
