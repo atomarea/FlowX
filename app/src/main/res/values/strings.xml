@@ -62,6 +62,6 @@
     <string name="title_add_contact">Add a contact</string>
 
     <string name="action_rename_contact">Rename</string>
-    <string name="title_rename_contact">Rename a contact</string>
+    <string name="title_rename_contact">Rename contact</string>
 
 </resources>

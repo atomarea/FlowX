@@ -141,7 +141,6 @@ public class ChatHistoryActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         instance = null;
 
         if (!editTextMessageInput.getText().toString().trim().equals(""))

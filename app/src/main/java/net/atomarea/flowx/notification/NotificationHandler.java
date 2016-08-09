@@ -54,7 +54,6 @@ public class NotificationHandler {
                     MessageContract.MessageEntry.COLUMN_NAME_MESSAGE_BODY
             }, MessageContract.MessageEntry.COLUMN_NAME_STATE + " LIKE ? AND " + MessageContract.MessageEntry.COLUMN_NAME_SENT + " LIKE ?", new String[]{ChatMessage.State.DeliveredToContact.name(), "0"}, null, null, MessageContract.MessageEntry.COLUMN_NAME_TIME + " ASC");
 
-
             boolean messagesState = messagesCursor.moveToFirst();
             while (messagesState) {
                 Account contact = Data.getAccountByXmpp(messagesCursor.getString(messagesCursor.getColumnIndex(MessageContract.MessageEntry.COLUMN_NAME_REMOTE_XMPP_ADDRESS)));
