@@ -29,8 +29,10 @@ public class ImageViewUpdater extends AsyncTask<File, Void, Bitmap> {
     @Override
     protected Bitmap doInBackground(File... params) {
         if (params.length == 0) return null;
-        if (fullSource) return BitmapFactory.decodeFile(params[0].getPath());
-        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(params[0].getPath()), 120, 120, false);
+        Bitmap bitmap = BitmapFactory.decodeFile(params[0].getPath());
+        if (bitmap == null) return null;
+        if (fullSource) return bitmap;
+        return Bitmap.createScaledBitmap(bitmap, 120, 120, false);
     }
 
     @Override
