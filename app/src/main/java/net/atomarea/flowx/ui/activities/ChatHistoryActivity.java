@@ -15,7 +15,6 @@ import android.widget.EditText;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.data.ChatHistory;
-import net.atomarea.flowx.data.ChatMessage;
 import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.adapter.ChatHistoryAdapter;
 import net.atomarea.flowx.xmpp.ChatState;
@@ -124,7 +123,8 @@ public class ChatHistoryActivity extends AppCompatActivity {
 
     public void refresh() {
         recyclerViewChatHistory.getAdapter().notifyDataSetChanged();
-        recyclerViewChatHistory.smoothScrollToPosition(chatHistory.getChatMessages().size() - 1);
+        if (chatHistory.getChatMessages().size() != 0)
+            recyclerViewChatHistory.smoothScrollToPosition(chatHistory.getChatMessages().size() - 1);
         Data.getConnection().sendReadMarker(chatHistory);
     }
 
