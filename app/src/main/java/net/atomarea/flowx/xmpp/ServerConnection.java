@@ -241,8 +241,29 @@ public class ServerConnection implements Serializable, StanzaListener {
                 RosterPacket rosterPacket = new RosterPacket();
                 rosterPacket.setType(IQ.Type.set);
                 RosterPacket.Item item = new RosterPacket.Item(xmppAddress, null);
+                item.setItemType(RosterPacket.ItemType.both);
                 rosterPacket.addRosterItem(item);
                 DbHelper.checkContact(DatabaseHelper.get().getWritableDatabase(), xmppAddress, null);
+                Data.doRefresh();
+                try {
+                    xmppConnection.sendStanza(rosterPacket);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void removeRosterEntry(final String xmppAddress) {
+        postHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                RosterPacket rosterPacket = new RosterPacket();
+                rosterPacket.setType(IQ.Type.set);
+                RosterPacket.Item item = new RosterPacket.Item(xmppAddress, null);
+                item.setItemType(RosterPacket.ItemType.remove);
+                rosterPacket.addRosterItem(item);
+                DbHelper.removeContact(DatabaseHelper.get().getWritableDatabase(), xmppAddress);
                 Data.doRefresh();
                 try {
                     xmppConnection.sendStanza(rosterPacket);

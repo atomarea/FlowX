@@ -58,6 +58,8 @@
 
     <string name="state_writing">composing&#8230;</string>
 
+    <string name="remove_contact">Remove contact</string>
+
     <string name="action_add_contact">Add</string>
     <string name="title_add_contact">Add a contact</string>
 

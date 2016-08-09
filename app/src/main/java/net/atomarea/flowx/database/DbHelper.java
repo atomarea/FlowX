@@ -30,6 +30,13 @@ public class DbHelper {
         contactCursor.close();
     }
 
+    public static void removeContact(SQLiteDatabase db, String xmppAddress) {
+        Cursor contactCursor = db.query(ContactContract.ContactEntry.TABLE_NAME, new String[]{ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS}, ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS + " LIKE ?", new String[]{xmppAddress}, null, null, ContactContract.ContactEntry._ID + " ASC");
+        if (contactCursor.getCount() != 0)
+            db.delete(ContactContract.ContactEntry.TABLE_NAME, ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS + " LIKE ?", new String[]{xmppAddress});
+        contactCursor.close();
+    }
+
     public static void insertMessage(SQLiteDatabase db, String remoteXmppAddress, String messageId, String messageBody, ChatMessage.Type messageType, boolean isSent, long messageTime, ChatMessage.State state) {
         ContentValues messageDetails = new ContentValues();
         messageDetails.put(MessageContract.MessageEntry.COLUMN_NAME_REMOTE_XMPP_ADDRESS, remoteXmppAddress);
