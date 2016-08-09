@@ -13,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
+import net.atomarea.flowx.Memory;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.data.Account;
 import net.atomarea.flowx.data.ChatMessage;
@@ -20,7 +21,6 @@ import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.database.DatabaseHelper;
 import net.atomarea.flowx.database.MessageContract;
 import net.atomarea.flowx.ui.StarterActivity;
-import net.atomarea.flowx.ui.activities.ChatListActivity;
 
 import java.util.ArrayList;
 
@@ -30,7 +30,7 @@ import java.util.ArrayList;
 public class NotificationHandler {
 
     public static void create(Context context) {
-        if (!ChatListActivity.hasInstance())
+        if (Memory.doNotification())
             new NotificationLoaderTask(context).execute();
     }
 

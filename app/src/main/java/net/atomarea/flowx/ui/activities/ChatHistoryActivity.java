@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
+import net.atomarea.flowx.Memory;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.data.ChatHistory;
 import net.atomarea.flowx.data.Data;
@@ -95,6 +96,18 @@ public class ChatHistoryActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Memory.setNotification(false);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Memory.setNotification(true);
     }
 
     @Override

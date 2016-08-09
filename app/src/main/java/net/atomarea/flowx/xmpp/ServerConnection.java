@@ -144,8 +144,10 @@ public class ServerConnection implements Serializable, StanzaListener {
                 message.setType(Message.Type.chat);
                 message.setSubject(chatMessage.getType().name());
                 message.setStanzaId(chatMessage.getID());
-                if (send(message))
+                if (send(message)) {
                     chatMessage.setState(ChatMessage.State.DeliveredToServer);
+                    DbHelper.updateMessage(DatabaseHelper.get().getWritableDatabase(), contact.getXmppAddress(), chatMessage.getID(), ChatMessage.State.DeliveredToServer);
+                }
                 Data.doUiRefresh();
             }
         });

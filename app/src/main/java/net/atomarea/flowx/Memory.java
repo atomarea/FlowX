@@ -9,6 +9,7 @@ import java.util.HashMap;
  */
 public class Memory {
 
+    private static boolean notification = true;
     private static HashMap<String, BitmapDrawable> avatarDrawable;
 
     static {
@@ -23,5 +24,13 @@ public class Memory {
     public static void destroy() {
         for (BitmapDrawable bd : avatarDrawable.values()) bd.getBitmap().recycle();
         avatarDrawable.clear();
+    }
+
+    public static boolean doNotification() {
+        return notification;
+    }
+
+    public static void setNotification(boolean notification) {
+        Memory.notification = notification;
     }
 }
