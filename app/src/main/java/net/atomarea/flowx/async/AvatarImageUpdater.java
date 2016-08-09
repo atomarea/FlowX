@@ -41,9 +41,8 @@ public class AvatarImageUpdater extends AsyncTask<Boolean, Void, VCard> {
         try {
             return VCardManager.getInstanceFor(Data.getConnection().getRawConnection()).loadVCard(xmppAddress);
         } catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Override

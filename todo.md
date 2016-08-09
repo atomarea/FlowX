@@ -16,6 +16,7 @@ PR that file to request changes or suggest ideas. Don't PR that file if you refe
 - Improve chate state (write,record,take picture/video)
 - Improve notifications service
 - Unimplement static data, implement sqlite db
+- check whether user exists with vcard when adding
 
 #### Layout / UI
 - Improve contact details

@@ -55,7 +55,7 @@ public class ServerConnection implements Serializable, StanzaListener {
         config.setServiceName(ServerConfig.ServerIP);
         config.setHost(ServerConfig.ServerIP);
         config.setPort(ServerConfig.ServerPort);
-        config.setDebuggerEnabled(false);
+        config.setDebuggerEnabled(true);
         config.setResource("FlowX-App");
         config.setConnectTimeout(10000);
 
@@ -224,6 +224,25 @@ public class ServerConnection implements Serializable, StanzaListener {
                 RosterPacket.Item item = new RosterPacket.Item(contact.getXmppAddress(), newName);
                 rosterPacket.addRosterItem(item);
                 DbHelper.updateContact(DatabaseHelper.get().getWritableDatabase(), contact.getXmppAddress(), newName);
+                Data.doRefresh();
+                try {
+                    xmppConnection.sendStanza(rosterPacket);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void addRosterEntry(final String xmppAddress) {
+        postHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                RosterPacket rosterPacket = new RosterPacket();
+                rosterPacket.setType(IQ.Type.set);
+                RosterPacket.Item item = new RosterPacket.Item(xmppAddress, null);
+                rosterPacket.addRosterItem(item);
+                DbHelper.checkContact(DatabaseHelper.get().getWritableDatabase(), xmppAddress, null);
                 Data.doRefresh();
                 try {
                     xmppConnection.sendStanza(rosterPacket);

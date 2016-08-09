@@ -16,6 +16,7 @@ import net.atomarea.flowx.database.MessageContract;
 import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
 import net.atomarea.flowx.ui.activities.ChatListActivity;
 import net.atomarea.flowx.ui.activities.ContactDetailActivity;
+import net.atomarea.flowx.ui.activities.ContactsActivity;
 import net.atomarea.flowx.xmpp.ServerConnection;
 
 import java.io.Serializable;
@@ -300,6 +301,7 @@ public class Data implements Serializable {
     public static void doUiRefresh(boolean reschedule) {
         ChatListActivity.doRefresh();
         ChatHistoryActivity.doRefresh();
+        ContactsActivity.doRefresh();
         ContactDetailActivity.doRefresh();
         if (reschedule) handler.postDelayed(new Runnable() {
             @Override
@@ -323,6 +325,7 @@ public class Data implements Serializable {
             super.onPostExecute(aVoid);
             ChatListActivity.doRefresh();
             ChatHistoryActivity.doRefresh();
+            ContactsActivity.doRefresh();
             ContactDetailActivity.doRefresh();
         }
 
