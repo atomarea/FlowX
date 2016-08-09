@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+<github.ankushsachdeva.emojicon.EmojiconEditText xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:emojicon="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rename_contact"
     android:layout_width="match_parent"
+    emojicon:emojiconSize="28sp"
     android:layout_height="wrap_content"
     android:maxLines="1" />

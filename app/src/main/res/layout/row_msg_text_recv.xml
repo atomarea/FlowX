@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:emojicon="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:paddingLeft="@dimen/standard_padding"
     android:paddingRight="@dimen/standard_padding">
@@ -23,10 +24,11 @@
             android:orientation="vertical"
             android:padding="@dimen/standard_padding">
 
-            <TextView
+            <github.ankushsachdeva.emojicon.EmojiconTextView
                 android:id="@+id/message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                emojicon:emojiconSize="25sp"
                 android:fontFamily="sans-serif"
                 android:textColor="@android:color/primary_text_light"
                 android:textSize="16sp" />

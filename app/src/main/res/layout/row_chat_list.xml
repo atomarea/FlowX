@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:emojicon="http://schemas.android.com/apk/res-auto"
     android:id="@+id/chat_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -23,7 +24,7 @@
         android:layout_marginStart="@dimen/standard_padding"
         android:orientation="vertical">
 
-        <TextView
+        <github.ankushsachdeva.emojicon.EmojiconTextView
             android:id="@+id/contact_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -56,12 +57,13 @@
                 android:layout_marginEnd="@dimen/standard_padding"
                 android:layout_marginRight="@dimen/standard_padding" />
 
-            <TextView
+            <github.ankushsachdeva.emojicon.EmojiconTextView
                 android:id="@+id/last_message"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:ellipsize="end"
+                emojicon:emojiconSize="28sp"
                 android:fontFamily="sans-serif"
                 android:maxLines="1"
                 android:textColor="@android:color/secondary_text_light"

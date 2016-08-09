@@ -1,0 +1,1232 @@
+[
+    {
+        "outputFile": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\build\\intermediates\\res\\merged\\debug\\values\\values.xml",
+        "map": [
+            {
+                "to": {
+                    "startLine": 2,
+                    "startColumn": 4,
+                    "startOffset": 55,
+                    "endColumn": 42,
+                    "endOffset": 93
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 4,
+                        "startColumn": 1,
+                        "startOffset": 141,
+                        "endColumn": 39,
+                        "endOffset": 179
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 3,
+                    "startColumn": 4,
+                    "startOffset": 98,
+                    "endColumn": 43,
+                    "endOffset": 137
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 8,
+                        "startColumn": 1,
+                        "startOffset": 308,
+                        "endColumn": 40,
+                        "endOffset": 347
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 4,
+                    "startColumn": 4,
+                    "startOffset": 142,
+                    "endColumn": 43,
+                    "endOffset": 181
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 7,
+                        "startColumn": 1,
+                        "startOffset": 266,
+                        "endColumn": 40,
+                        "endOffset": 305
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 5,
+                    "startColumn": 4,
+                    "startOffset": 186,
+                    "endColumn": 43,
+                    "endOffset": 225
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 6,
+                        "startColumn": 1,
+                        "startOffset": 224,
+                        "endColumn": 40,
+                        "endOffset": 263
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 6,
+                    "startColumn": 4,
+                    "startOffset": 230,
+                    "endColumn": 43,
+                    "endOffset": 269
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 5,
+                        "startColumn": 1,
+                        "startOffset": 182,
+                        "endColumn": 40,
+                        "endOffset": 221
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 7,
+                    "startColumn": 4,
+                    "startOffset": 274,
+                    "endColumn": 63,
+                    "endOffset": 333
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 25,
+                        "startColumn": 1,
+                        "startOffset": 1135,
+                        "endColumn": 60,
+                        "endOffset": 1194
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 8,
+                    "startColumn": 4,
+                    "startOffset": 338,
+                    "endColumn": 43,
+                    "endOffset": 377
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 26,
+                        "startColumn": 1,
+                        "startOffset": 1197,
+                        "endColumn": 40,
+                        "endOffset": 1236
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 9,
+                    "startColumn": 4,
+                    "startOffset": 382,
+                    "endColumn": 41,
+                    "endOffset": 419
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 29,
+                        "startColumn": 1,
+                        "startOffset": 1318,
+                        "endColumn": 38,
+                        "endOffset": 1355
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 10,
+                    "startColumn": 4,
+                    "startOffset": 424,
+                    "endColumn": 44,
+                    "endOffset": 464
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 18,
+                        "startColumn": 1,
+                        "startOffset": 725,
+                        "endColumn": 41,
+                        "endOffset": 765
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 11,
+                    "startColumn": 4,
+                    "startOffset": 469,
+                    "endColumn": 43,
+                    "endOffset": 508
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 12,
+                        "startColumn": 1,
+                        "startOffset": 473,
+                        "endColumn": 40,
+                        "endOffset": 512
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 12,
+                    "startColumn": 4,
+                    "startOffset": 513,
+                    "endColumn": 42,
+                    "endOffset": 551
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 11,
+                        "startColumn": 1,
+                        "startOffset": 432,
+                        "endColumn": 39,
+                        "endOffset": 470
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 13,
+                    "startColumn": 4,
+                    "startOffset": 556,
+                    "endColumn": 43,
+                    "endOffset": 595
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 13,
+                        "startColumn": 1,
+                        "startOffset": 515,
+                        "endColumn": 40,
+                        "endOffset": 554
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 14,
+                    "startColumn": 4,
+                    "startOffset": 600,
+                    "endColumn": 43,
+                    "endOffset": 639
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 14,
+                        "startColumn": 1,
+                        "startOffset": 557,
+                        "endColumn": 40,
+                        "endOffset": 596
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 15,
+                    "startColumn": 4,
+                    "startOffset": 644,
+                    "endColumn": 59,
+                    "endOffset": 699
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 22,
+                        "startColumn": 1,
+                        "startOffset": 945,
+                        "endColumn": 56,
+                        "endOffset": 1000
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 16,
+                    "startColumn": 4,
+                    "startOffset": 704,
+                    "endColumn": 42,
+                    "endOffset": 742
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 28,
+                        "startColumn": 1,
+                        "startOffset": 1277,
+                        "endColumn": 39,
+                        "endOffset": 1315
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 17,
+                    "startColumn": 4,
+                    "startOffset": 747,
+                    "endColumn": 45,
+                    "endOffset": 788
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 17,
+                        "startColumn": 1,
+                        "startOffset": 681,
+                        "endColumn": 42,
+                        "endOffset": 722
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 18,
+                    "startColumn": 4,
+                    "startOffset": 793,
+                    "endColumn": 43,
+                    "endOffset": 832
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 2,
+                        "startColumn": 1,
+                        "startOffset": 54,
+                        "endColumn": 40,
+                        "endOffset": 93
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 19,
+                    "startColumn": 4,
+                    "startOffset": 837,
+                    "endColumn": 46,
+                    "endOffset": 879
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 3,
+                        "startColumn": 1,
+                        "startOffset": 96,
+                        "endColumn": 43,
+                        "endOffset": 138
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 20,
+                    "startColumn": 4,
+                    "startOffset": 884,
+                    "endColumn": 66,
+                    "endOffset": 946
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 23,
+                        "startColumn": 1,
+                        "startOffset": 1003,
+                        "endColumn": 63,
+                        "endOffset": 1065
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 21,
+                    "startColumn": 4,
+                    "startOffset": 951,
+                    "endColumn": 58,
+                    "endOffset": 1005
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 19,
+                        "startColumn": 1,
+                        "startOffset": 768,
+                        "endColumn": 55,
+                        "endOffset": 822
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 22,
+                    "startColumn": 4,
+                    "startOffset": 1010,
+                    "endColumn": 60,
+                    "endOffset": 1066
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 20,
+                        "startColumn": 1,
+                        "startOffset": 825,
+                        "endColumn": 57,
+                        "endOffset": 881
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 23,
+                    "startColumn": 4,
+                    "startOffset": 1071,
+                    "endColumn": 39,
+                    "endOffset": 1106
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 27,
+                        "startColumn": 1,
+                        "startOffset": 1239,
+                        "endColumn": 36,
+                        "endOffset": 1274
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 24,
+                    "startColumn": 4,
+                    "startOffset": 1111,
+                    "endColumn": 42,
+                    "endOffset": 1149
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 15,
+                        "startColumn": 1,
+                        "startOffset": 599,
+                        "endColumn": 39,
+                        "endOffset": 637
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 25,
+                    "startColumn": 4,
+                    "startOffset": 1154,
+                    "endColumn": 42,
+                    "endOffset": 1192
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 16,
+                        "startColumn": 1,
+                        "startOffset": 640,
+                        "endColumn": 39,
+                        "endOffset": 678
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 26,
+                    "startColumn": 4,
+                    "startOffset": 1197,
+                    "endColumn": 68,
+                    "endOffset": 1261
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 24,
+                        "startColumn": 1,
+                        "startOffset": 1068,
+                        "endColumn": 65,
+                        "endOffset": 1132
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 27,
+                    "startColumn": 4,
+                    "startOffset": 1266,
+                    "endColumn": 62,
+                    "endOffset": 1324
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 21,
+                        "startColumn": 1,
+                        "startOffset": 884,
+                        "endColumn": 59,
+                        "endOffset": 942
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 28,
+                    "startColumn": 4,
+                    "startOffset": 1329,
+                    "endColumn": 41,
+                    "endOffset": 1366
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 9,
+                        "startColumn": 1,
+                        "startOffset": 350,
+                        "endColumn": 38,
+                        "endOffset": 387
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 29,
+                    "startColumn": 4,
+                    "startOffset": 1371,
+                    "endColumn": 43,
+                    "endOffset": 1410
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 10,
+                        "startColumn": 1,
+                        "startOffset": 390,
+                        "endColumn": 40,
+                        "endOffset": 429
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 31,
+                    "startColumn": 4,
+                    "startOffset": 1620,
+                    "endColumn": 47,
+                    "endOffset": 1663
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\attrs.xml",
+                    "position": {
+                        "startLine": 25,
+                        "startColumn": 4,
+                        "startOffset": 911,
+                        "endColumn": 47,
+                        "endOffset": 954
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 32,
+                    "startColumn": 4,
+                    "startOffset": 1668,
+                    "endColumn": 56,
+                    "endOffset": 1720
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\attrs.xml",
+                    "position": {
+                        "startLine": 26,
+                        "startColumn": 4,
+                        "startOffset": 959,
+                        "endColumn": 56,
+                        "endOffset": 1011
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 33,
+                    "startColumn": 4,
+                    "startOffset": 1725,
+                    "endColumn": 45,
+                    "endOffset": 1766
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\strings.xml",
+                    "position": {
+                        "startLine": 1,
+                        "startColumn": 4,
+                        "startOffset": 16,
+                        "endColumn": 45,
+                        "endOffset": 57
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 34,
+                    "startColumn": 4,
+                    "startOffset": 1771,
+                    "endLine": 43,
+                    "endColumn": 12,
+                    "endOffset": 2254
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\values\\attrs.xml",
+                    "position": {
+                        "startLine": 28,
+                        "startColumn": 4,
+                        "startOffset": 1017,
+                        "endLine": 37,
+                        "endColumn": 12,
+                        "endOffset": 1500
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "outputFile": "D:\\compile\\FlowX\\libs\\emojicon\\build\\intermediates\\res\\merged\\debug\\values\\values.xml",
+        "map": [
+            {
+                "to": {
+                    "startLine": 2,
+                    "startColumn": 4,
+                    "startOffset": 55,
+                    "endColumn": 42,
+                    "endOffset": 93
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 4,
+                        "startColumn": 1,
+                        "startOffset": 141,
+                        "endColumn": 39,
+                        "endOffset": 179
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 3,
+                    "startColumn": 4,
+                    "startOffset": 98,
+                    "endColumn": 43,
+                    "endOffset": 137
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 8,
+                        "startColumn": 1,
+                        "startOffset": 308,
+                        "endColumn": 40,
+                        "endOffset": 347
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 4,
+                    "startColumn": 4,
+                    "startOffset": 142,
+                    "endColumn": 43,
+                    "endOffset": 181
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 7,
+                        "startColumn": 1,
+                        "startOffset": 266,
+                        "endColumn": 40,
+                        "endOffset": 305
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 5,
+                    "startColumn": 4,
+                    "startOffset": 186,
+                    "endColumn": 43,
+                    "endOffset": 225
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 6,
+                        "startColumn": 1,
+                        "startOffset": 224,
+                        "endColumn": 40,
+                        "endOffset": 263
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 6,
+                    "startColumn": 4,
+                    "startOffset": 230,
+                    "endColumn": 43,
+                    "endOffset": 269
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 5,
+                        "startColumn": 1,
+                        "startOffset": 182,
+                        "endColumn": 40,
+                        "endOffset": 221
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 7,
+                    "startColumn": 4,
+                    "startOffset": 274,
+                    "endColumn": 63,
+                    "endOffset": 333
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 25,
+                        "startColumn": 1,
+                        "startOffset": 1135,
+                        "endColumn": 60,
+                        "endOffset": 1194
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 8,
+                    "startColumn": 4,
+                    "startOffset": 338,
+                    "endColumn": 43,
+                    "endOffset": 377
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 26,
+                        "startColumn": 1,
+                        "startOffset": 1197,
+                        "endColumn": 40,
+                        "endOffset": 1236
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 9,
+                    "startColumn": 4,
+                    "startOffset": 382,
+                    "endColumn": 41,
+                    "endOffset": 419
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 29,
+                        "startColumn": 1,
+                        "startOffset": 1318,
+                        "endColumn": 38,
+                        "endOffset": 1355
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 10,
+                    "startColumn": 4,
+                    "startOffset": 424,
+                    "endColumn": 44,
+                    "endOffset": 464
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 18,
+                        "startColumn": 1,
+                        "startOffset": 725,
+                        "endColumn": 41,
+                        "endOffset": 765
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 11,
+                    "startColumn": 4,
+                    "startOffset": 469,
+                    "endColumn": 43,
+                    "endOffset": 508
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 12,
+                        "startColumn": 1,
+                        "startOffset": 473,
+                        "endColumn": 40,
+                        "endOffset": 512
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 12,
+                    "startColumn": 4,
+                    "startOffset": 513,
+                    "endColumn": 42,
+                    "endOffset": 551
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 11,
+                        "startColumn": 1,
+                        "startOffset": 432,
+                        "endColumn": 39,
+                        "endOffset": 470
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 13,
+                    "startColumn": 4,
+                    "startOffset": 556,
+                    "endColumn": 43,
+                    "endOffset": 595
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 13,
+                        "startColumn": 1,
+                        "startOffset": 515,
+                        "endColumn": 40,
+                        "endOffset": 554
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 14,
+                    "startColumn": 4,
+                    "startOffset": 600,
+                    "endColumn": 43,
+                    "endOffset": 639
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 14,
+                        "startColumn": 1,
+                        "startOffset": 557,
+                        "endColumn": 40,
+                        "endOffset": 596
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 15,
+                    "startColumn": 4,
+                    "startOffset": 644,
+                    "endColumn": 59,
+                    "endOffset": 699
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 22,
+                        "startColumn": 1,
+                        "startOffset": 945,
+                        "endColumn": 56,
+                        "endOffset": 1000
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 16,
+                    "startColumn": 4,
+                    "startOffset": 704,
+                    "endColumn": 42,
+                    "endOffset": 742
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 28,
+                        "startColumn": 1,
+                        "startOffset": 1277,
+                        "endColumn": 39,
+                        "endOffset": 1315
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 17,
+                    "startColumn": 4,
+                    "startOffset": 747,
+                    "endColumn": 45,
+                    "endOffset": 788
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 17,
+                        "startColumn": 1,
+                        "startOffset": 681,
+                        "endColumn": 42,
+                        "endOffset": 722
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 18,
+                    "startColumn": 4,
+                    "startOffset": 793,
+                    "endColumn": 43,
+                    "endOffset": 832
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 2,
+                        "startColumn": 1,
+                        "startOffset": 54,
+                        "endColumn": 40,
+                        "endOffset": 93
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 19,
+                    "startColumn": 4,
+                    "startOffset": 837,
+                    "endColumn": 46,
+                    "endOffset": 879
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 3,
+                        "startColumn": 1,
+                        "startOffset": 96,
+                        "endColumn": 43,
+                        "endOffset": 138
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 20,
+                    "startColumn": 4,
+                    "startOffset": 884,
+                    "endColumn": 66,
+                    "endOffset": 946
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 23,
+                        "startColumn": 1,
+                        "startOffset": 1003,
+                        "endColumn": 63,
+                        "endOffset": 1065
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 21,
+                    "startColumn": 4,
+                    "startOffset": 951,
+                    "endColumn": 58,
+                    "endOffset": 1005
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 19,
+                        "startColumn": 1,
+                        "startOffset": 768,
+                        "endColumn": 55,
+                        "endOffset": 822
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 22,
+                    "startColumn": 4,
+                    "startOffset": 1010,
+                    "endColumn": 60,
+                    "endOffset": 1066
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 20,
+                        "startColumn": 1,
+                        "startOffset": 825,
+                        "endColumn": 57,
+                        "endOffset": 881
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 23,
+                    "startColumn": 4,
+                    "startOffset": 1071,
+                    "endColumn": 39,
+                    "endOffset": 1106
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 27,
+                        "startColumn": 1,
+                        "startOffset": 1239,
+                        "endColumn": 36,
+                        "endOffset": 1274
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 24,
+                    "startColumn": 4,
+                    "startOffset": 1111,
+                    "endColumn": 42,
+                    "endOffset": 1149
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 15,
+                        "startColumn": 1,
+                        "startOffset": 599,
+                        "endColumn": 39,
+                        "endOffset": 637
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 25,
+                    "startColumn": 4,
+                    "startOffset": 1154,
+                    "endColumn": 42,
+                    "endOffset": 1192
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 16,
+                        "startColumn": 1,
+                        "startOffset": 640,
+                        "endColumn": 39,
+                        "endOffset": 678
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 26,
+                    "startColumn": 4,
+                    "startOffset": 1197,
+                    "endColumn": 68,
+                    "endOffset": 1261
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 24,
+                        "startColumn": 1,
+                        "startOffset": 1068,
+                        "endColumn": 65,
+                        "endOffset": 1132
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 27,
+                    "startColumn": 4,
+                    "startOffset": 1266,
+                    "endColumn": 62,
+                    "endOffset": 1324
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 21,
+                        "startColumn": 1,
+                        "startOffset": 884,
+                        "endColumn": 59,
+                        "endOffset": 942
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 28,
+                    "startColumn": 4,
+                    "startOffset": 1329,
+                    "endColumn": 41,
+                    "endOffset": 1366
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 9,
+                        "startColumn": 1,
+                        "startOffset": 350,
+                        "endColumn": 38,
+                        "endOffset": 387
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 29,
+                    "startColumn": 4,
+                    "startOffset": 1371,
+                    "endColumn": 43,
+                    "endOffset": 1410
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\colors.xml",
+                    "position": {
+                        "startLine": 10,
+                        "startColumn": 1,
+                        "startOffset": 390,
+                        "endColumn": 40,
+                        "endOffset": 429
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 31,
+                    "startColumn": 4,
+                    "startOffset": 1620,
+                    "endColumn": 47,
+                    "endOffset": 1663
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\attrs.xml",
+                    "position": {
+                        "startLine": 25,
+                        "startColumn": 4,
+                        "startOffset": 911,
+                        "endColumn": 47,
+                        "endOffset": 954
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 32,
+                    "startColumn": 4,
+                    "startOffset": 1668,
+                    "endColumn": 56,
+                    "endOffset": 1720
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\attrs.xml",
+                    "position": {
+                        "startLine": 26,
+                        "startColumn": 4,
+                        "startOffset": 959,
+                        "endColumn": 56,
+                        "endOffset": 1011
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 33,
+                    "startColumn": 4,
+                    "startOffset": 1725,
+                    "endColumn": 45,
+                    "endOffset": 1766
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\strings.xml",
+                    "position": {
+                        "startLine": 1,
+                        "startColumn": 4,
+                        "startOffset": 16,
+                        "endColumn": 45,
+                        "endOffset": 57
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 34,
+                    "startColumn": 4,
+                    "startOffset": 1771,
+                    "endLine": 43,
+                    "endColumn": 12,
+                    "endOffset": 2254
+                },
+                "from": {
+                    "file": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\values\\attrs.xml",
+                    "position": {
+                        "startLine": 28,
+                        "startColumn": 4,
+                        "startOffset": 1017,
+                        "endLine": 37,
+                        "endColumn": 12,
+                        "endOffset": 1500
+                    }
+                }
+            }
+        ]
+    }
+]

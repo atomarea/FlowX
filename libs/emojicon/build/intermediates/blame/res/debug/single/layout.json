@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "D:\\compile\\FlowX\\libs\\emojicon\\build\\intermediates\\res\\merged\\debug\\layout\\emojicon_grid.xml",
+        "source": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\layout\\emojicon_grid.xml"
+    },
+    {
+        "merged": "D:\\compile\\FlowX\\libs\\emojicon\\build\\intermediates\\res\\merged\\debug\\layout\\emojicon_item.xml",
+        "source": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\layout\\emojicon_item.xml"
+    },
+    {
+        "merged": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\build\\intermediates\\res\\merged\\debug\\layout\\emojicon_grid.xml",
+        "source": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\layout\\emojicon_grid.xml"
+    },
+    {
+        "merged": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\build\\intermediates\\res\\merged\\debug\\layout\\emojicon_item.xml",
+        "source": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\layout\\emojicon_item.xml"
+    },
+    {
+        "merged": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\build\\intermediates\\res\\merged\\debug\\layout\\emojicons.xml",
+        "source": "D:\\compile\\FlowX - nobind\\libs\\emojicon\\src\\main\\res\\layout\\emojicons.xml"
+    },
+    {
+        "merged": "D:\\compile\\FlowX\\libs\\emojicon\\build\\intermediates\\res\\merged\\debug\\layout\\emojicons.xml",
+        "source": "D:\\compile\\FlowX\\libs\\emojicon\\src\\main\\res\\layout\\emojicons.xml"
+    }
+]
