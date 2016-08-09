@@ -114,6 +114,8 @@ public class Data implements Serializable {
                             chatHistory.getChatMessages().add(chatMessage);
                         } else if (!chatMessage.getState().equals(state))
                             chatMessage.setState(state);
+                        if (chatMessage.getState().equals(ChatMessage.State.NotDelivered))
+                            getConnection().sendMessage(chatHistory.getRemoteContact(), chatMessage);
                         messagesState = messagesCursor.moveToNext();
                     }
                 }
