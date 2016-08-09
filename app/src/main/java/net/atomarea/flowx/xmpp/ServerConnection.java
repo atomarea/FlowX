@@ -70,6 +70,7 @@ public class ServerConnection implements Serializable, StanzaListener {
 
         xmppConnection = new XMPPTCPConnection(config.build());
         xmppConnection.addAsyncStanzaListener(this, null);
+        xmppConnection.setPacketReplyTimeout(10000);
         xmppConnection.connect();
         xmppConnection.login(username, password);
 
@@ -87,10 +88,8 @@ public class ServerConnection implements Serializable, StanzaListener {
         if (packet instanceof RosterPacket) {
             RosterPacket rosterPacket = (RosterPacket) packet;
             SQLiteDatabase db = DatabaseHelper.get().getWritableDatabase();
-            for (RosterPacket.Item i : rosterPacket.getRosterItems()) {
-                Log.i("RosterEntry", i.getName() + " " + i.getUser());
+            for (RosterPacket.Item i : rosterPacket.getRosterItems())
                 DbHelper.checkContact(db, i.getUser(), i.getName());
-            }
             Data.doRefresh();
         } else if (packet instanceof Message) {
             Message message = (Message) packet;

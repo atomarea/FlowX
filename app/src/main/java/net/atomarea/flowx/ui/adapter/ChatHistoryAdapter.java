@@ -2,17 +2,21 @@ package net.atomarea.flowx.ui.adapter;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -25,13 +29,18 @@ import net.atomarea.flowx.ui.activities.ImageViewerActivity;
 import net.atomarea.flowx.ui.view.ReadIndicatorView;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Tom on 04.08.2016.
  */
 public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.ViewHolder> {
+
+    private final Pattern urlPattern = Pattern.compile("(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 
     private ChatHistoryActivity activity;
     private ChatHistory chatHistory;
@@ -62,6 +71,30 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final ChatMessage chatMessage = chatHistory.getChatMessages().get(position);
+        if (holder.container != null) {
+            holder.container.setOnClickListener(null);
+            Matcher matcher = urlPattern.matcher(chatMessage.getData());
+            final ArrayList<CharSequence> urls = new ArrayList<>();
+            while (matcher.find()) {
+                urls.add(chatMessage.getData().substring(matcher.start(1), matcher.end()));
+            }
+            if (urls.size() != 0) {
+                holder.container.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AlertDialog.Builder b = new AlertDialog.Builder(activity);
+                        b.setItems(urls.toArray(new CharSequence[urls.size()]), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                CharSequence url = urls.get(which);
+                                activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url.toString())));
+                            }
+                        });
+                        b.create().show();
+                    }
+                });
+            }
+        }
         if (holder.ReadIndicator != null) holder.ReadIndicator.setChatMessage(chatMessage);
         if (chatMessage.getType().equals(ChatMessage.Type.Text))
             holder.Message.setText(Html.fromHtml(chatMessage.getData().replaceAll("\n", "<br />")));
@@ -122,6 +155,7 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
+        private LinearLayout container;
         private ReadIndicatorView ReadIndicator;
         private TextView Message;
         private ImageView MessageImage;
@@ -131,6 +165,7 @@ public class ChatHistoryAdapter extends RecyclerView.Adapter<ChatHistoryAdapter.
 
         public ViewHolder(View v) {
             super(v);
+            container = (LinearLayout) v.findViewById(R.id.container);
             ReadIndicator = (ReadIndicatorView) v.findViewById(R.id.read_indicator);
             Message = (TextView) v.findViewById(R.id.message);
             MessageImage = (ImageView) v.findViewById(R.id.message_image);
