@@ -58,4 +58,10 @@
 
     <string name="state_writing">composing&#8230;</string>
 
+    <string name="action_add_contact">Add</string>
+    <string name="title_add_contact">Add a contact</string>
+
+    <string name="action_rename_contact">Rename</string>
+    <string name="title_rename_contact">Rename a contact</string>
+
 </resources>

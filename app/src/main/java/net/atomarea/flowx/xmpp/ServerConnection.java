@@ -22,6 +22,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.packet.RosterPacket;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
@@ -86,8 +87,10 @@ public class ServerConnection implements Serializable, StanzaListener {
         if (packet instanceof RosterPacket) {
             RosterPacket rosterPacket = (RosterPacket) packet;
             SQLiteDatabase db = DatabaseHelper.get().getWritableDatabase();
-            for (RosterPacket.Item i : rosterPacket.getRosterItems())
+            for (RosterPacket.Item i : rosterPacket.getRosterItems()) {
+                Log.i("RosterEntry", i.getName() + " " + i.getUser());
                 DbHelper.checkContact(db, i.getUser(), i.getName());
+            }
             Data.doRefresh();
         } else if (packet instanceof Message) {
             Message message = (Message) packet;
@@ -211,18 +214,13 @@ public class ServerConnection implements Serializable, StanzaListener {
             });
     }
 
-    public void sendContactsUpdate() {
+    public void updateRosterEntryName(final RosterEntry rosterEntry, final String newName) {
         postHandler.post(new Runnable() {
             @Override
             public void run() {
-                RosterPacket rp = new RosterPacket();
-                rp.setFrom(LocalUser);
-                for (Account contact : Data.getContacts()) {
-                    rp.getRosterItems().add(new RosterPacket.Item(contact.getXmppAddress(), contact.getName()));
-                }
                 try {
-                    xmppConnection.sendStanza(rp);
-                } catch (SmackException.NotConnectedException e) {
+                    rosterEntry.setName(newName);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

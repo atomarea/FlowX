@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,6 +14,10 @@ import net.atomarea.flowx.R;
 import net.atomarea.flowx.async.AvatarImageUpdater;
 import net.atomarea.flowx.data.Account;
 import net.atomarea.flowx.data.Data;
+import net.atomarea.flowx.ui.dialog.Dialog;
+
+import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterEntry;
 
 public class ContactDetailActivity extends AppCompatActivity {
 
@@ -30,7 +35,9 @@ public class ContactDetailActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(contact.getName());
 
-        ((TextView) findViewById(R.id.status)).setText(contact.getStatus());
+        if (contact.getStatus() == null || contact.getStatus().trim().equals(""))
+            findViewById(R.id.card_status).setVisibility(View.GONE);
+        else ((TextView) findViewById(R.id.status)).setText(contact.getStatus());
 
         new AvatarImageUpdater(contact.getXmppAddress(), ((ImageView) findViewById(R.id.contact_picture))).execute(true);
 
@@ -38,7 +45,17 @@ public class ContactDetailActivity extends AppCompatActivity {
         if (fab != null) fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Dialog.newInstance(ContactDetailActivity.this, R.layout.dialog_rename_contact, R.string.title_rename_contact, R.string.action_rename_contact, new Dialog.OnClickListener() {
+                    @Override
+                    public void onPositiveButtonClicked(View rootView) {
+                        String newName = ((EditText) rootView.findViewById(R.id.rename_contact)).getText().toString();
+                        if (!newName.trim().equals("")) {
+                            Roster roster = Roster.getInstanceFor(Data.getConnection().getRawConnection());
+                            RosterEntry rosterEntry = roster.getEntry(contact.getXmppAddress());
+                            Data.getConnection().updateRosterEntryName(rosterEntry, newName);
+                        }
+                    }
+                }).show();
             }
         });
     }

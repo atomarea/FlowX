@@ -12,7 +12,6 @@ PR that file to request changes or suggest ideas. Don't PR that file if you refe
 - Implement media handling (gallery,video compress)
 - Implement single notifications settings in contacts (LED/sound)
 - Implement notification with popup feature
-- Improve XMPP connection (message pending, reconnections)
 - Improve read indicator (fixes)
 - Improve chate state (write,record,take picture/video)
 - Improve notifications service
@@ -28,3 +27,4 @@ PR that file to request changes or suggest ideas. Don't PR that file if you refe
 ### Done
 - Login
 - Network to Service
+- Improve XMPP connection (message pending, reconnections)

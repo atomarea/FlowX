@@ -32,4 +32,8 @@
     <string name="activity_login">FlowX Anmeldung</string>
     <string name="unread_messages">%1$d ungelesene Nachrichten</string>
     <string name="state_writing">schreibt…</string>
+    <string name="action_add_contact">Hinzufügen</string>
+    <string name="title_add_contact">Kontakt hinzufügen</string>
+    <string name="action_rename_contact">Umbenennen</string>
+    <string name="title_rename_contact">Kontakt umbenennen</string>
 </resources>

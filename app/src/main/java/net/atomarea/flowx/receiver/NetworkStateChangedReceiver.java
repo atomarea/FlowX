@@ -17,18 +17,10 @@ public class NetworkStateChangedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
         Log.i("FX NET", "Network State was changed");
-
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(ContactsActivity.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        boolean networkAvailable;
-        if (activeNetworkInfo == null) networkAvailable = false;
-        else if (activeNetworkInfo.getType() == ConnectivityManager.TYPE_BLUETOOTH)
-            networkAvailable = false;
-        else networkAvailable = activeNetworkInfo.isAvailable();
-
-        if (networkAvailable) {
+        if (activeNetworkInfo != null && activeNetworkInfo.getType() != ConnectivityManager.TYPE_BLUETOOTH && activeNetworkInfo.isAvailable()) {
             context.startService(new Intent(context, XmppService.class));
         }
     }

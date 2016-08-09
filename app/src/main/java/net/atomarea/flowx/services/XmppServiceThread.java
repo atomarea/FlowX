@@ -60,6 +60,8 @@ public class XmppServiceThread extends Thread {
 
         if (loginFailed) return;
 
+        Log.i("FX", "Login was successful");
+
         while (threadRunning) {
             Looper.loop();
             if (xmppConnection.hasDropped()) {
