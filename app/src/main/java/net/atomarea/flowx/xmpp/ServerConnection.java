@@ -14,10 +14,8 @@ import net.atomarea.flowx.database.DbHelper;
 import net.atomarea.flowx.notification.NotificationHandler;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.StanzaListener;
-import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
@@ -56,7 +54,7 @@ public class ServerConnection implements Serializable, StanzaListener {
         config.setServiceName(ServerConfig.ServerIP);
         config.setHost(ServerConfig.ServerIP);
         config.setPort(ServerConfig.ServerPort);
-        config.setDebuggerEnabled(true);
+        config.setDebuggerEnabled(false);
         config.setResource("FlowX-App");
         config.setConnectTimeout(10000);
 
@@ -75,53 +73,6 @@ public class ServerConnection implements Serializable, StanzaListener {
         xmppConnection.login(username, password);
 
         Data.setConnection(this);
-
-        xmppConnection.addConnectionListener(new ConnectionListener() {
-            @Override
-            public void connected(XMPPConnection connection) {
-            }
-
-            @Override
-            public void authenticated(XMPPConnection connection, boolean resumed) {
-            }
-
-            @Override
-            public void connectionClosed() {
-                connectionDropped = true;
-                postHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.e(TAG, "Connection was closed");
-                    }
-                });
-            }
-
-            @Override
-            public void connectionClosedOnError(Exception e) {
-                connectionDropped = true;
-                postHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.e(TAG, "Connection was terminated");
-                    }
-                });
-            }
-
-            @Override
-            public void reconnectionSuccessful() {
-
-            }
-
-            @Override
-            public void reconnectingIn(int seconds) {
-
-            }
-
-            @Override
-            public void reconnectionFailed(Exception e) {
-
-            }
-        });
     }
 
     @Override
@@ -129,9 +80,9 @@ public class ServerConnection implements Serializable, StanzaListener {
         String from = null;
         if (packet.getFrom() != null)
             from = packet.getFrom().split("/")[0];
-        String to = null;
+        /*String to = null;
         if (packet.getTo() != null)
-            to = packet.getTo().split("/")[0];
+            to = packet.getTo().split("/")[0];*/
         if (packet instanceof RosterPacket) {
             RosterPacket rosterPacket = (RosterPacket) packet;
             SQLiteDatabase db = DatabaseHelper.get().getWritableDatabase();
@@ -165,7 +116,6 @@ public class ServerConnection implements Serializable, StanzaListener {
                         ChatState chatState = (ChatState) ee;
                         ChatHistory chatHistory = Data.getChatHistoryNullable(chatState.getXmppAddress());
                         if (chatHistory != null) {
-                            Log.i("CSR", "chatstate refresh " + chatState.getState().name());
                             chatHistory.setChatState(chatState.getState());
                             Data.doUiRefresh();
                         }
@@ -175,7 +125,6 @@ public class ServerConnection implements Serializable, StanzaListener {
         } else if (packet instanceof Presence) {
             Presence presence = (Presence) packet;
             SQLiteDatabase db = DatabaseHelper.get().getWritableDatabase();
-            Log.d(TAG, "Presence: " + presence.getFrom() + " " + presence.getStatus());
             DbHelper.updateContact(db, from, presence.getStatus(), System.currentTimeMillis());
             Data.doRefresh(true, false);
         } else Log.d(TAG, "Packet: " + packet.getClass().getSimpleName());
@@ -192,8 +141,8 @@ public class ServerConnection implements Serializable, StanzaListener {
                 message.setType(Message.Type.chat);
                 message.setSubject(chatMessage.getType().name());
                 message.setStanzaId(chatMessage.getID());
-                send(message);
-                chatMessage.setState(ChatMessage.State.DeliveredToServer);
+                if (send(message))
+                    chatMessage.setState(ChatMessage.State.DeliveredToServer);
                 Data.doUiRefresh();
             }
         });
@@ -280,12 +229,13 @@ public class ServerConnection implements Serializable, StanzaListener {
         });
     }
 
-    public void send(Message message) {
+    public boolean send(Message message) {
         try {
             xmppConnection.sendStanza(message);
+            return true;
         } catch (SmackException.NotConnectedException e) {
-            e.printStackTrace();
         }
+        return false;
     }
 
     public void disconnect() {
@@ -293,6 +243,8 @@ public class ServerConnection implements Serializable, StanzaListener {
             @Override
             public void run() {
                 xmppConnection.disconnect();
+                xmppConnection.instantShutdown(); // prevent cached messages to be sent before disconnect
+                Log.i(TAG, "Connection was shut down");
             }
         });
     }

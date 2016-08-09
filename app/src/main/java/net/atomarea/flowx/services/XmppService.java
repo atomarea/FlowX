@@ -22,16 +22,19 @@ public class XmppService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.i("cmd", "onCreate");
         DatabaseHelper.setApplicationContext(getApplicationContext());
         Data.setContext(this);
         Log.i("FX", "Backend starting");
         serviceHandler = new Handler();
-        xmppServiceThread = new XmppServiceThread(this);
-        xmppServiceThread.start();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("FX", "Starting network thread");
+        if (xmppServiceThread != null) xmppServiceThread.disconnectAndStop();
+        xmppServiceThread = new XmppServiceThread(this);
+        xmppServiceThread.start();
         return START_STICKY;
     }
 
