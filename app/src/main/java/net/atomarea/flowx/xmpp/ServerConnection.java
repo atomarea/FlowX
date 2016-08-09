@@ -18,11 +18,11 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.provider.ProviderManager;
-import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.packet.RosterPacket;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
@@ -216,12 +216,18 @@ public class ServerConnection implements Serializable, StanzaListener {
             });
     }
 
-    public void updateRosterEntryName(final RosterEntry rosterEntry, final String newName) {
+    public void updateRosterEntryName(final Account contact, final String newName) {
         postHandler.post(new Runnable() {
             @Override
             public void run() {
+                RosterPacket rosterPacket = new RosterPacket();
+                rosterPacket.setType(IQ.Type.set);
+                RosterPacket.Item item = new RosterPacket.Item(contact.getXmppAddress(), newName);
+                rosterPacket.addRosterItem(item);
+                DbHelper.updateContact(DatabaseHelper.get().getWritableDatabase(), contact.getXmppAddress(), newName);
+                Data.doRefresh();
                 try {
-                    rosterEntry.setName(newName);
+                    xmppConnection.sendStanza(rosterPacket);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

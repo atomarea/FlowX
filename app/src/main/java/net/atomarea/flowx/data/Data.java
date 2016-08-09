@@ -15,6 +15,7 @@ import net.atomarea.flowx.database.DbHelper;
 import net.atomarea.flowx.database.MessageContract;
 import net.atomarea.flowx.ui.activities.ChatHistoryActivity;
 import net.atomarea.flowx.ui.activities.ChatListActivity;
+import net.atomarea.flowx.ui.activities.ContactDetailActivity;
 import net.atomarea.flowx.xmpp.ServerConnection;
 
 import java.io.Serializable;
@@ -74,13 +75,19 @@ public class Data implements Serializable {
                     ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE
             }, ContactContract.ContactEntry._ID + " LIKE ?", new String[]{"%"}, null, null, ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME + " ASC");
             boolean contactsState = contactsCursor.moveToFirst();
-            Contacts.clear();
             while (contactsState) {
                 String custom_name = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME));
                 String xmpp_address = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS));
                 String status = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_STATUS));
                 String last_online = contactsCursor.getString(contactsCursor.getColumnIndex(ContactContract.ContactEntry.COLUMN_NAME_LAST_ONLINE));
-                Contacts.add(new Account(custom_name, xmpp_address, status, last_online));
+                Account contact = getAccountByXmpp(xmpp_address);
+                if (contact == null)
+                    Contacts.add(new Account(custom_name, xmpp_address, status, last_online));
+                else {
+                    contact.setName(custom_name);
+                    contact.setStatus(status);
+                    contact.setLastOnline(Long.valueOf(last_online));
+                }
                 contactsState = contactsCursor.moveToNext();
             }
             contactsCursor.close();
@@ -293,6 +300,7 @@ public class Data implements Serializable {
     public static void doUiRefresh(boolean reschedule) {
         ChatListActivity.doRefresh();
         ChatHistoryActivity.doRefresh();
+        ContactDetailActivity.doRefresh();
         if (reschedule) handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -315,6 +323,7 @@ public class Data implements Serializable {
             super.onPostExecute(aVoid);
             ChatListActivity.doRefresh();
             ChatHistoryActivity.doRefresh();
+            ContactDetailActivity.doRefresh();
         }
 
     }

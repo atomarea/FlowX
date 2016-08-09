@@ -16,10 +16,9 @@ import net.atomarea.flowx.data.Account;
 import net.atomarea.flowx.data.Data;
 import net.atomarea.flowx.ui.dialog.Dialog;
 
-import org.jivesoftware.smack.roster.Roster;
-import org.jivesoftware.smack.roster.RosterEntry;
-
 public class ContactDetailActivity extends AppCompatActivity {
+
+    private static ContactDetailActivity instance;
 
     private Account contact;
 
@@ -50,12 +49,25 @@ public class ContactDetailActivity extends AppCompatActivity {
                     public void onPositiveButtonClicked(View rootView) {
                         String newName = ((EditText) rootView.findViewById(R.id.rename_contact)).getText().toString();
                         if (!newName.trim().equals("")) {
-                            Roster roster = Roster.getInstanceFor(Data.getConnection().getRawConnection());
-                            RosterEntry rosterEntry = roster.getEntry(contact.getXmppAddress());
-                            Data.getConnection().updateRosterEntryName(rosterEntry, newName);
+                            Data.getConnection().updateRosterEntryName(contact, newName);
                         }
                     }
                 }).show();
+            }
+        });
+
+        instance = this;
+    }
+
+    public void refresh() {
+    }
+
+    public static void doRefresh() {
+        if (instance != null) instance.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (instance != null && !instance.isFinishing())
+                    instance.refresh();
             }
         });
     }
@@ -67,5 +79,11 @@ public class ContactDetailActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        instance = null;
     }
 }

@@ -56,4 +56,10 @@ public class DbHelper {
         db.update(ContactContract.ContactEntry.TABLE_NAME, contactDetails, ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS + " LIKE ?", new String[]{remoteXmppAddress});
     }
 
+    public static void updateContact(SQLiteDatabase db, String remoteXmppAddress, String name) {
+        ContentValues contactDetails = new ContentValues();
+        contactDetails.put(ContactContract.ContactEntry.COLUMN_NAME_CUSTOM_NAME, name);
+        db.update(ContactContract.ContactEntry.TABLE_NAME, contactDetails, ContactContract.ContactEntry.COLUMN_NAME_XMPP_ADDRESS + " LIKE ?", new String[]{remoteXmppAddress});
+    }
+
 }
