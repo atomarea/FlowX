@@ -30,14 +30,13 @@
                 android:orientation="vertical"
                 android:padding="@dimen/standard_big_padding">
 
-                <github.ankushsachdeva.emojicon.EmojiconTextView
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:text="@string/status"
                     android:textAllCaps="true"
                     android:textColor="@color/colorAccent"
-                    emojicon:emojiconSize="28sp"
                     android:textSize="14sp" />
 
                 <github.ankushsachdeva.emojicon.EmojiconTextView
@@ -46,8 +45,8 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
                     android:textColor="@android:color/primary_text_light"
-                    emojicon:emojiconSize="28sp"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    emojicon:emojiconSize="22sp" />
 
             </LinearLayout>
 

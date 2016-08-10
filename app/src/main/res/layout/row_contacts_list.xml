@@ -24,10 +24,10 @@
         android:layout_marginLeft="@dimen/standard_padding"
         android:layout_marginStart="@dimen/standard_padding"
         android:ellipsize="end"
-        emojicon:emojiconSize="28sp"
         android:fontFamily="sans-serif-medium"
         android:maxLines="1"
         android:textColor="@android:color/primary_text_light"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        emojicon:emojiconSize="26sp" />
 
 </LinearLayout>

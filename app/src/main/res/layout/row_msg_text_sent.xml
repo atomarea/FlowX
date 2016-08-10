@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:emojicon="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:emojicon="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:paddingLeft="@dimen/standard_padding"
     android:paddingRight="@dimen/standard_padding">
@@ -29,10 +29,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                emojicon:emojiconSize="25sp"
                 android:fontFamily="sans-serif"
                 android:textColor="@android:color/primary_text_dark"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                emojicon:emojiconSize="22sp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
