@@ -3,8 +3,6 @@ PR that file to request changes or suggest ideas. Don't PR that file if you refe
 
 ### To-Do List
 #### Internal
-- Implement roster subscription / add contact / custom name
-- Implement Emoji Button
 - Implement HTTP Upload Feature (send files)
 - Implement HTTP URL's transformations (image/audio/video/location)
 - Implement group chats (MUC)
@@ -12,10 +10,7 @@ PR that file to request changes or suggest ideas. Don't PR that file if you refe
 - Implement media handling (gallery,video compress)
 - Implement single notifications settings in contacts (LED/sound)
 - Implement notification with popup feature
-- Improve read indicator (fixes)
-- Improve chate state (write,record,take picture/video)
-- Improve notifications service
-- Unimplement static data, implement sqlite db
+- Improve read indicator
 - check whether user exists with vcard when adding
 
 #### Layout / UI
@@ -29,3 +24,8 @@ PR that file to request changes or suggest ideas. Don't PR that file if you refe
 - Login
 - Network to Service
 - Improve XMPP connection (message pending, reconnections)
+- Implement Emoji Button
+- Implement roster subscription / add contact / custom name
+- Improve chate state (write,record,take picture/video)
+- Improve notifications service
+- Unimplement static data, implement sqlite db

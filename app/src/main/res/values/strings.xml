@@ -71,4 +71,9 @@
 
     <string name="warn_storage_permission">If you don\'t grant the storage permission, you will not be able to see profile pictures and receive media.</string>
 
+    <string name="emoji_button">Emoji button</string>
+    <string name="bold_button">Bold</string>
+    <string name="italic_button">Italic</string>
+    <string name="underline_button">Underline</string>
+
 </resources>

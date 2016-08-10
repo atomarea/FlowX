@@ -73,6 +73,7 @@
                             android:layout_height="22dp"
                             android:layout_gravity="center_vertical"
                             android:background="?selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/bold_button"
                             android:onClick="onFormatButtonClick"
                             android:src="@drawable/ic_format_bold_black_24dp"
                             android:tint="@android:color/secondary_text_light" />
@@ -83,6 +84,7 @@
                             android:layout_height="22dp"
                             android:layout_gravity="center_vertical"
                             android:background="?selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/italic_button"
                             android:onClick="onFormatButtonClick"
                             android:src="@drawable/ic_format_italic_black_24dp"
                             android:tint="@android:color/secondary_text_light" />
@@ -93,6 +95,7 @@
                             android:layout_height="22dp"
                             android:layout_gravity="center_vertical"
                             android:background="?selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/underline_button"
                             android:onClick="onFormatButtonClick"
                             android:src="@drawable/ic_format_underlined_black_24dp"
                             android:tint="@android:color/secondary_text_light" />
@@ -104,12 +107,14 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
-                        <ImageButton
+                        <ImageView
                             android:id="@+id/emojicon_button"
                             android:layout_width="36dp"
                             android:layout_height="36dp"
                             android:layout_gravity="center_vertical"
                             android:background="?selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/emoji_button"
+                            android:onClick="onEmojiButtonClick"
                             android:src="@drawable/ic_insert_emoticon_black_24dp"
                             android:tint="@android:color/secondary_text_light" />
 

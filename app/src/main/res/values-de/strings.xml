@@ -40,4 +40,8 @@
     <string name="title_proceed">Warnung!</string>
     <string name="warn_storage_permission">Wenn du dem Zugriff auf Dateien nicht zustimmst, kannst du keine Profilbilder sehen und keine Medien empfangen.</string>
     <string name="remove_contact">Kontakt löschen</string>
+    <string name="emoji_button">Emojicons</string>
+    <string name="bold_button">Fett</string>
+    <string name="italic_button">Kursiv</string>
+    <string name="underline_button">Unterstrichen</string>
 </resources>

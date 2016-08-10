@@ -9,8 +9,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import net.atomarea.flowx.Memory;
@@ -23,6 +25,10 @@ import net.atomarea.flowx.xmpp.ChatState;
 import java.text.DateFormat;
 import java.util.Date;
 
+import github.ankushsachdeva.emojicon.EmojiconGridView;
+import github.ankushsachdeva.emojicon.EmojiconsPopup;
+import github.ankushsachdeva.emojicon.emoji.Emojicon;
+
 public class ChatHistoryActivity extends AppCompatActivity {
 
     private static ChatHistoryActivity instance;
@@ -32,6 +38,8 @@ public class ChatHistoryActivity extends AppCompatActivity {
     private EditText editTextMessageInput;
     private RecyclerView recyclerViewChatHistory;
     private LinearLayoutManager linearLayoutManager;
+
+    private EmojiconsPopup emojiconsPopup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +99,8 @@ public class ChatHistoryActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
             }
         });
+
+        initEmojiconsPopup();
     }
 
     @Override
@@ -134,6 +144,17 @@ public class ChatHistoryActivity extends AppCompatActivity {
         }
     }
 
+    public void onEmojiButtonClick(View v) {
+        if (emojiconsPopup != null)
+            if (emojiconsPopup.isShowing()) emojiconsPopup.dismiss();
+            else if (emojiconsPopup.isKeyBoardOpen()) emojiconsPopup.showAtBottom();
+            else {
+                editTextMessageInput.requestFocus();
+                emojiconsPopup.showAtBottomPending();
+                ((InputMethodManager) getSystemService(ContactsActivity.INPUT_METHOD_SERVICE)).showSoftInput(editTextMessageInput, InputMethodManager.SHOW_IMPLICIT);
+            }
+    }
+
     public void refresh() {
         recyclerViewChatHistory.getAdapter().notifyDataSetChanged();
         if (chatHistory.getChatMessages().size() != 0)
@@ -161,4 +182,38 @@ public class ChatHistoryActivity extends AppCompatActivity {
         else
             PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().remove("lastMessage:" + chatHistory.getRemoteContact().getXmppAddress()).apply();
     }
+
+    private void initEmojiconsPopup() {
+        emojiconsPopup = new EmojiconsPopup(findViewById(R.id.root_view), this);
+        emojiconsPopup.setSizeForSoftKeyboard();
+        emojiconsPopup.setOnSoftKeyboardOpenCloseListener(new EmojiconsPopup.OnSoftKeyboardOpenCloseListener() {
+            @Override
+            public void onKeyboardOpen(int keyBoardHeight) {
+            }
+
+            @Override
+            public void onKeyboardClose() {
+                if (emojiconsPopup.isShowing()) emojiconsPopup.dismiss();
+            }
+        });
+        emojiconsPopup.setOnEmojiconClickedListener(new EmojiconGridView.OnEmojiconClickedListener() {
+            @Override
+            public void onEmojiconClicked(Emojicon emojicon) {
+                if (editTextMessageInput != null && emojicon != null) {
+                    int start = editTextMessageInput.getSelectionStart();
+                    int end = editTextMessageInput.getSelectionEnd();
+                    if (start < 0) editTextMessageInput.append(emojicon.getEmoji());
+                    else
+                        editTextMessageInput.getText().replace(Math.min(start, end), Math.max(start, end), emojicon.getEmoji(), 0, emojicon.getEmoji().length());
+                }
+            }
+        });
+        emojiconsPopup.setOnEmojiconBackspaceClickedListener(new EmojiconsPopup.OnEmojiconBackspaceClickedListener() {
+            @Override
+            public void onEmojiconBackspaceClicked(View v) {
+                editTextMessageInput.dispatchKeyEvent(new KeyEvent(0, 0, 0, KeyEvent.KEYCODE_DEL, 0, 0, 0, 0, KeyEvent.KEYCODE_ENDCALL));
+            }
+        });
+    }
+
 }
