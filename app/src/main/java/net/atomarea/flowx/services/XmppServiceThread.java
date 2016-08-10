@@ -53,7 +53,7 @@ public class XmppServiceThread extends Thread {
             Log.i("FX", "Attempting login as " + Username);
             xmppConnection.login(Username, Password);
         } catch (SmackException | IOException | XMPPException e) {
-            Log.e("FX", e.getMessage());
+            Log.e("FX", e.getClass().getSimpleName() + " " + e.getMessage());
             loginFailed = true;
         }
         loginProcessed = true;

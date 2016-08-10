@@ -30,7 +30,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.4.0'
     compile 'com.android.support:support-v4:23.4.0'
     compile 'de.hdodenhof:circleimageview:2.1.0'
-    compile "org.igniterealtime.smack:smack-android-extensions:4.1.0"
-    compile "org.igniterealtime.smack:smack-experimental:4.1.0"
-    compile "org.igniterealtime.smack:smack-tcp:4.1.0"
+    compile "org.igniterealtime.smack:smack-android-extensions:4.1.8"
+    compile "org.igniterealtime.smack:smack-experimental:4.1.8"
+    compile "org.igniterealtime.smack:smack-tcp:4.1.8"
 }
