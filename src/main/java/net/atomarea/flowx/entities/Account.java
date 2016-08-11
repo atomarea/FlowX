@@ -5,14 +5,8 @@ import android.database.Cursor;
 import android.os.SystemClock;
 import android.util.Pair;
 
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.OtrService;
 import net.atomarea.flowx.crypto.PgpDecryptionService;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.xmpp.XmppConnection;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
+
 import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.crypto.OtrCryptoException;
 
@@ -26,6 +20,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.crypto.OtrService;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.xmpp.XmppConnection;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class Account extends AbstractEntity {
 
@@ -106,7 +108,10 @@ public class Account extends AbstractEntity {
 		TOR_NOT_AVAILABLE(true),
 		BIND_FAILURE(true),
 		HOST_UNKNOWN(true),
-		REGISTRATION_PLEASE_WAIT(true);
+		REGISTRATION_PLEASE_WAIT(true),
+		STREAM_ERROR(true),
+		POLICY_VIOLATION(true),
+		REGISTRATION_PASSWORD_TOO_WEAK(true);
 
 		private final boolean isError;
 
@@ -114,11 +119,11 @@ public class Account extends AbstractEntity {
 			return this.isError;
 		}
 
-		private State(final boolean isError) {
+		State(final boolean isError) {
 			this.isError = isError;
 		}
 
-		private State() {
+		State() {
 			this(false);
 		}
 
@@ -156,8 +161,14 @@ public class Account extends AbstractEntity {
 					return R.string.account_status_bind_failure;
 				case HOST_UNKNOWN:
 					return R.string.account_status_host_unknown;
+				case POLICY_VIOLATION:
+					return R.string.account_status_policy_violation;
 				case REGISTRATION_PLEASE_WAIT:
 					return R.string.registration_please_wait;
+				case REGISTRATION_PASSWORD_TOO_WEAK:
+					return R.string.registration_password_too_weak;
+				case STREAM_ERROR:
+					return R.string.account_status_stream_error;
 				default:
 					return R.string.account_status_unknown;
 			}
@@ -313,7 +324,9 @@ public class Account extends AbstractEntity {
 	}
 
 	public boolean hasErrorStatus() {
-		return getXmppConnection() != null && getStatus().isError() && getXmppConnection().getAttempt() >= 3;
+		return getXmppConnection() != null
+				&& (getStatus().isError() || getStatus() == State.CONNECTING)
+				&& getXmppConnection().getAttempt() >= 3;
 	}
 
 	public void setPresenceStatus(Presence.Status status) {

@@ -678,6 +678,9 @@
 	<string name="pref_broadcast_last_activity_summary">Let all your contacts know when you use FlowX</string>
 	<string name="download_failed_could_not_write_file">Download failed: Could not write file</string>
 	<string name="unable_to_connect_to_keychain">Unable to connect to OpenKeychain</string>
+	<string name="registration_password_too_weak">Registration failed: Password too weak</string>
+	<string name="account_status_policy_violation">Policy violation</string>
+	<string name="account_status_stream_error">Stream error</string>
 	<string name="send_image">Send image?</string>
 	<string name="type_pc">Computer</string>
 	<string name="type_phone">Mobile phone</string>

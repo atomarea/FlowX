@@ -34,6 +34,7 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -45,6 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509KeyManager;
@@ -182,20 +184,24 @@ public class XmppConnection implements Runnable {
 				forceCloseSocket();
 				changeStatus(Account.State.REGISTRATION_SUCCESSFUL);
 			} else {
+				final List<String> PASSWORD_TOO_WEAK_MSGS = Arrays.asList(
+						"The password is too weak",
+						"Please use a longer password.");
 				Element error = packet.findChild("error");
-				if (error != null && error.hasChild("conflict")) {
-					forceCloseSocket();
-					changeStatus(Account.State.REGISTRATION_CONFLICT);
-				} else if (error != null
-						&& "wait".equals(error.getAttribute("type"))
-						&& error.hasChild("resource-constraint")) {
-					forceCloseSocket();
-					changeStatus(Account.State.REGISTRATION_PLEASE_WAIT);
-				} else {
-					forceCloseSocket();
-					changeStatus(Account.State.REGISTRATION_FAILED);
-					Log.d(Config.LOGTAG, packet.toString());
+				Account.State state = Account.State.REGISTRATION_FAILED;
+				if (error != null) {
+					if (error.hasChild("conflict")) {
+						state = Account.State.REGISTRATION_CONFLICT;
+					} else if (error.hasChild("resource-constraint")
+							&& "wait".equals(error.getAttribute("type"))) {
+						state = Account.State.REGISTRATION_PLEASE_WAIT;
+					} else if (error.hasChild("not-acceptable")
+							&& PASSWORD_TOO_WEAK_MSGS.contains(error.findChildContent("text"))) {
+						state = Account.State.REGISTRATION_PASSWORD_TOO_WEAK;
+					}
 				}
+				changeStatus(state);
+				forceCloseSocket();
 			}
 		}
 	};
@@ -266,9 +272,30 @@ public class XmppConnection implements Runnable {
 				socket = SocksSocketFactory.createSocketOverTor(destination, account.getPort());
 				startXmpp();
 			} else if (extended && account.getHostname() != null && !account.getHostname().isEmpty()) {
-				socket = new Socket();
+
+				InetSocketAddress address = new InetSocketAddress(account.getHostname(), account.getPort());
+
+				features.encryptionEnabled = account.getPort() == 5223;
+
 				try {
-					socket.connect(new InetSocketAddress(account.getHostname(), account.getPort()), Config.SOCKET_TIMEOUT * 1000);
+					if (features.encryptionEnabled) {
+						try {
+							final TlsFactoryVerifier tlsFactoryVerifier = getTlsFactoryVerifier();
+							socket = tlsFactoryVerifier.factory.createSocket();
+							socket.connect(address, Config.SOCKET_TIMEOUT * 1000);
+							final SSLSession session = ((SSLSocket) socket).getSession();
+							if (!tlsFactoryVerifier.verifier.verify(account.getServer().getDomainpart(),session)) {
+								Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": TLS certificate verification failed");
+								throw new SecurityException();
+							}
+						} catch (KeyManagementException e) {
+							features.encryptionEnabled = false;
+							socket = new Socket();
+						}
+					} else {
+						socket = new Socket();
+						socket.connect(address, Config.SOCKET_TIMEOUT * 1000);
+					}
 				} catch (IOException e) {
 					throw new UnknownHostException();
 				}
@@ -361,6 +388,12 @@ public class XmppConnection implements Runnable {
 			this.changeStatus(Account.State.SERVER_NOT_FOUND);
 		} catch (final SocksSocketFactory.SocksProxyNotFoundException e) {
 			this.changeStatus(Account.State.TOR_NOT_AVAILABLE);
+		} catch(final StreamErrorHostUnknown e) {
+			this.changeStatus(Account.State.HOST_UNKNOWN);
+		} catch(final StreamErrorPolicyViolation e) {
+			this.changeStatus(Account.State.POLICY_VIOLATION);
+		} catch(final StreamError e) {
+			this.changeStatus(Account.State.STREAM_ERROR);
 		} catch (final IOException | XmlPullParserException | NoSuchAlgorithmException e) {
 			Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": " + e.getMessage());
 			this.changeStatus(Account.State.OFFLINE);
@@ -1176,17 +1209,21 @@ public class XmppConnection implements Runnable {
 		if (streamError == null) {
 			return;
 		}
-		Log.d(Config.LOGTAG,account.getJid().toBareJid()+": stream error "+streamError.toString());
 		if (streamError.hasChild("conflict")) {
 			final String resource = account.getResource().split("\\.")[0];
 			account.setResource(resource + "." + nextRandomId());
 			Log.d(Config.LOGTAG,
 					account.getJid().toBareJid() + ": switching resource due to conflict ("
 					+ account.getResource() + ")");
+			throw new IOException();
 		} else if (streamError.hasChild("host-unknown")) {
-			changeStatus(Account.State.HOST_UNKNOWN);
+			throw new StreamErrorHostUnknown();
+		} else if (streamError.hasChild("policy-violation")) {
+			throw new StreamErrorPolicyViolation();
+		} else {
+			Log.d(Config.LOGTAG,account.getJid().toBareJid()+": stream error "+streamError.toString());
+			throw new StreamError();
 		}
-		forceCloseSocket();
 	}
 
 	private void sendStartStream() throws IOException {
@@ -1312,8 +1349,9 @@ public class XmppConnection implements Runnable {
 						}
 						socket.close();
 						Log.d(Config.LOGTAG,account.getJid().toBareJid()+": closed tcp without closing stream");
+						changeStatus(Account.State.OFFLINE);
 					} catch (IOException | InterruptedException e) {
-						return;
+						Log.d(Config.LOGTAG,account.getJid().toBareJid()+": error while closing socket for waitForPush()");
 					}
 				}
 			}).start();
@@ -1482,6 +1520,18 @@ public class XmppConnection implements Runnable {
 	}
 
 	private class IncompatibleServerException extends IOException {
+
+	}
+
+	private class StreamErrorHostUnknown extends StreamError {
+
+	}
+
+	private class StreamErrorPolicyViolation extends StreamError {
+
+	}
+
+	private class StreamError extends IOException {
 
 	}
 
