@@ -55,17 +55,18 @@
             android:launchMode="singleTask"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ui.ConversationActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="stateHidden">
-        </activity>
+            android:minWidth="300dp"
+            android:minHeight="300dp"
+            android:windowSoftInputMode="stateHidden"></activity>
         <activity
             android:theme="@style/ConversationsDialog"
             android:name=".ui.RecordingActivity"
@@ -123,12 +124,10 @@
         <activity
             android:name=".ui.WelcomeActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"
             android:launchMode="singleTask" />
         <activity
             android:name=".ui.MagicCreateActivity"
             android:label="@string/create_account"
-            android:screenOrientation="portrait"
             android:launchMode="singleTask" />
         <activity
             android:name=".ui.SetPresenceActivity"
@@ -191,7 +190,7 @@
         <activity
             android:name=".ui.TrustKeysActivity"
             android:label="@string/trust_omemo_fingerprints"
-            android:windowSoftInputMode="stateAlwaysHidden"/>
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".ui.PublishProfilePictureActivity"
             android:label="@string/mgmt_account_publish_avatar"
@@ -255,8 +254,8 @@
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTask"
             android:theme="@style/ConversationsTheme"
-            android:label="@string/title_activity_updater" >
-        </activity>
+            android:label="@string/title_activity_updater"></activity>
+
         <service android:name=".services.ExportLogsService" />
         <service
             android:name=".services.ContactChooserTargetService"
@@ -265,6 +264,16 @@
                 <action android:name="android.service.chooser.ChooserTargetService" />
             </intent-filter>
         </service>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="net.atomarea.flowx.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

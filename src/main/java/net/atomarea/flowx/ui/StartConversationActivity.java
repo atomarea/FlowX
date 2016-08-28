@@ -781,6 +781,16 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 								}
 							}
 						});
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+							builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+								@Override
+								public void onDismiss(DialogInterface dialog) {
+									if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+										requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, REQUEST_SYNC_CONTACTS);
+									}
+								}
+							});
+						}
 						builder.create().show();
 					} else {
 						requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 0);
@@ -850,8 +860,13 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 		switch (intent.getAction()) {
 			case Intent.ACTION_SENDTO:
 			case Intent.ACTION_VIEW:
-				Log.d(Config.LOGTAG, "received uri=" + intent.getData());
-				return new Invite(intent.getData()).invite();
+				Uri uri = intent.getData();
+				if (uri != null) {
+					Log.d(Config.LOGTAG, "received uri=" + intent.getData());
+					return new Invite(intent.getData()).invite();
+				} else {
+					return false;
+				}
 			case NfcAdapter.ACTION_NDEF_DISCOVERED:
 				for (Parcelable message : getIntent().getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)) {
 					if (message instanceof NdefMessage) {

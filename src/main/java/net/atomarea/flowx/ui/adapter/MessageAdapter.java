@@ -471,17 +471,23 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.image.setVisibility(View.VISIBLE);
         if (viewHolder.pbFile != null) viewHolder.pbFile.setVisibility(View.GONE);
         FileParams params = message.getFileParams();
-        double target = metrics.density * 288;
-        int scalledW;
-        int scalledH;
-        if (params.width <= params.height) {
-            scalledW = (int) (params.width / ((double) params.height / target));
-            scalledH = (int) target;
+        double target = metrics.density * 200;
+        int scaledW;
+        int scaledH;
+        if (Math.max(params.height, params.width) * metrics.density <= target) {
+            scaledW = (int) (params.width * metrics.density);
+            scaledH = (int) (params.height * metrics.density);
+        } else if (Math.max(params.height,params.width) <= target) {
+            scaledW = params.width;
+            scaledH = params.height;
+        } else if (params.width <= params.height) {
+            scaledW = (int) (params.width / ((double) params.height / target));
+            scaledH = (int) target;
         } else {
-            scalledW = (int) target;
-            scalledH = (int) (params.height / ((double) params.width / target));
+            scaledW = (int) target;
+            scaledH = (int) (params.height / ((double) params.width / target));
         }
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scalledW, scalledH);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(scaledW, scaledH);
         layoutParams.setMargins(0, (int) (metrics.density * 4), 0, (int) (metrics.density * 4));
         viewHolder.image.setLayoutParams(layoutParams);
         activity.loadBitmap(message, viewHolder.image);

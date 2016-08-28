@@ -2,15 +2,15 @@ package net.atomarea.flowx.crypto.sasl;
 
 import android.util.Base64;
 
-import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.utils.CryptoHelper;
-import net.atomarea.flowx.xml.TagWriter;
-
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+
+import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.utils.CryptoHelper;
+import net.atomarea.flowx.xml.TagWriter;
 
 public class DigestMd5 extends SaslMechanism {
 	public DigestMd5(final TagWriter tagWriter, final Account account, final SecureRandom rng) {

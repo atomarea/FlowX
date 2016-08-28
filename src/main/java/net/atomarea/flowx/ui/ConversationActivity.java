@@ -25,6 +25,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -84,6 +85,8 @@ import net.atomarea.flowx.xmpp.jid.Jid;
 
 import org.openintents.openpgp.util.OpenPgpApi;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -148,18 +151,25 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     private Pair<Integer, Intent> mPostponedActivityResult;
     private int lastAbState = -1;
     long FirstStartTime = -1;
-    FileUtils mFileUtils;
+    FileBackend mFileBackend;
 
     @SuppressLint("NewApi")
     private static List<Uri> extractUriFromIntent(final Intent intent) {
         List<Uri> uris = new ArrayList<>();
-        if (intent == null) return uris;
+        if (intent == null) {
+            return uris;
+        }
         Uri uri = intent.getData();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && uri == null) {
-            ClipData clipData = intent.getClipData();
-            for (int i = 0; i < clipData.getItemCount(); ++i)
-                uris.add(clipData.getItemAt(i).getUri());
-        } else uris.add(uri);
+            final ClipData clipData = intent.getClipData();
+            if (clipData != null) {
+                for (int i = 0; i < clipData.getItemCount(); ++i) {
+                    uris.add(clipData.getItemAt(i).getUri());
+                }
+            }
+        } else {
+            uris.add(uri);
+        }
         return uris;
     }
 
@@ -1085,8 +1095,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         super.onPause();
         mAudioManager.setMode(AudioManager.MODE_NORMAL);
         this.mActivityPaused = true;
-        if (this.xmppConnectionServiceBound)
-            this.xmppConnectionService.getNotificationService().setIsInForeground(false);
     }
 
     @Override
@@ -1482,6 +1490,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 });
     }
 
+
     private void attachImageToConversation(Conversation conversation, Uri uri) {
         if (conversation == null) {
             return;
@@ -1489,10 +1498,22 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         final Conversation conversation_preview = conversation;
         final Uri uri_preview = uri;
         Bitmap bitmap = BitmapFactory.decodeFile(FileUtils.getPath(this, uri));
-        if (bitmap != null) {
+        File file = new File(FileUtils.getPath(this, uri));
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(file.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        Log.d(Config.LOGTAG, "EXIF: " + orientation);
+        Bitmap rotated_image = null;
+        Log.d(Config.LOGTAG, "Rotate image");
+        rotated_image = FileBackend.rotateBitmap(file, bitmap, orientation);
+        if (rotated_image != null) {
             int scaleSize = 600;
-            int originalWidth = bitmap.getWidth();
-            int originalHeight = bitmap.getHeight();
+            int originalWidth = rotated_image.getWidth();
+            int originalHeight = rotated_image.getHeight();
             int newWidth = -1;
             int newHeight = -1;
             float multFactor;
@@ -1509,9 +1530,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 newWidth = scaleSize;
             }
             Log.d(Config.LOGTAG, "Scaling preview image from " + originalHeight + "px x " + originalWidth + "px to " + newHeight + "px x " + newWidth + "px");
-            Bitmap preview = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, false);
+            Bitmap preview = Bitmap.createScaledBitmap(rotated_image, newWidth, newHeight, false);
             ImageView ImagePreview = new ImageView(this);
-
             LinearLayout.LayoutParams vp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
             ImagePreview.setLayoutParams(vp);
             ImagePreview.setMaxWidth(newWidth);

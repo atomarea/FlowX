@@ -284,7 +284,7 @@ public class XmppConnection implements Runnable {
 							socket = tlsFactoryVerifier.factory.createSocket();
 							socket.connect(address, Config.SOCKET_TIMEOUT * 1000);
 							final SSLSession session = ((SSLSocket) socket).getSession();
-							if (!tlsFactoryVerifier.verifier.verify(account.getServer().getDomainpart(),session)) {
+							if (!tlsFactoryVerifier.verifier.verify(account.getServer().getDomainpart(), session)) {
 								Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": TLS certificate verification failed");
 								throw new SecurityException();
 							}
@@ -310,10 +310,10 @@ public class XmppConnection implements Runnable {
 				startXmpp();
 			} else {
 				final Bundle result = DNSHelper.getSRVRecord(account.getServer(), mXmppConnectionService);
-				final ArrayList<Parcelable>values = result.getParcelableArrayList("values");
-				for(Iterator<Parcelable> iterator = values.iterator(); iterator.hasNext();) {
+				final ArrayList<Parcelable> values = result.getParcelableArrayList("values");
+				for (Iterator<Parcelable> iterator = values.iterator(); iterator.hasNext(); ) {
 					if (Thread.currentThread().isInterrupted()) {
-						Log.d(Config.LOGTAG,account.getJid().toBareJid()+": Thread was interrupted");
+						Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": Thread was interrupted");
 						return;
 					}
 					final Bundle namePort = (Bundle) iterator.next();
@@ -367,10 +367,10 @@ public class XmppConnection implements Runnable {
 
 						if (startXmpp())
 							break; // successfully connected to server that speaks xmpp
-					} catch(final SecurityException e) {
+					} catch (final SecurityException e) {
 						throw e;
 					} catch (final Throwable e) {
-						Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": " + e.getMessage() +"("+e.getClass().getName()+")");
+						Log.d(Config.LOGTAG, account.getJid().toBareJid().toString() + ": " + e.getMessage() + "(" + e.getClass().getName() + ")");
 						if (!iterator.hasNext()) {
 							throw new UnknownHostException();
 						}
@@ -378,12 +378,16 @@ public class XmppConnection implements Runnable {
 				}
 			}
 			processStream();
+		} catch (final java.lang.SecurityException e) {
+			this.changeStatus(Account.State.MISSING_INTERNET_PERMISSION);
 		} catch (final IncompatibleServerException e) {
 			this.changeStatus(Account.State.INCOMPATIBLE_SERVER);
 		} catch (final SecurityException e) {
 			this.changeStatus(Account.State.SECURITY_ERROR);
 		} catch (final UnauthorizedException e) {
 			this.changeStatus(Account.State.UNAUTHORIZED);
+		} catch (final PaymentRequiredException e) {
+			this.changeStatus(Account.State.PAYMENT_REQUIRED);
 		} catch (final UnknownHostException | ConnectException e) {
 			this.changeStatus(Account.State.SERVER_NOT_FOUND);
 		} catch (final SocksSocketFactory.SocksProxyNotFoundException e) {
@@ -505,7 +509,17 @@ public class XmppConnection implements Runnable {
 				}
 				break;
 			} else if (nextTag.isStart("failure")) {
-				throw new UnauthorizedException();
+				final Element failure = tagReader.readElement(nextTag);
+				final String text = failure.findChildContent("text");
+				if (failure.hasChild("account-disabled")
+						&& text != null
+						&& text.contains("renew")
+						&& Config.MAGIC_CREATE_DOMAIN != null
+						&& text.contains(Config.MAGIC_CREATE_DOMAIN)) {
+					throw new PaymentRequiredException();
+				} else {
+					throw new UnauthorizedException();
+				}
 			} else if (nextTag.isStart("challenge")) {
 				final String challenge = tagReader.readElement(nextTag).getContent();
 				final Element response = new Element("response");
@@ -866,7 +880,7 @@ public class XmppConnection implements Runnable {
 		final IqPacket register = new IqPacket(IqPacket.TYPE.GET);
 		register.query("jabber:iq:register");
 		register.setTo(account.getServer());
-		sendIqPacket(register, new OnIqPacketReceived() {
+		sendUnmodifiedIqPacket(register, new OnIqPacketReceived() {
 
 			@Override
 			public void onIqPacketReceived(final Account account, final IqPacket packet) {
@@ -879,7 +893,8 @@ public class XmppConnection implements Runnable {
 					final Element password = new Element("password").setContent(account.getPassword());
 					register.query("jabber:iq:register").addChild(username);
 					register.query().addChild(password);
-					sendIqPacket(register, registrationResponseListener);
+					register.setFrom(account.getJid().toBareJid());
+					sendUnmodifiedIqPacket(register, registrationResponseListener);
 				} else if (packet.getType() == IqPacket.TYPE.RESULT
 						&& (packet.query().hasChild("x", "jabber:x:data"))) {
 					final Data data = Data.parse(packet.query().findChild("x", "jabber:x:data"));
@@ -1245,7 +1260,7 @@ public class XmppConnection implements Runnable {
 		return this.sendUnmodifiedIqPacket(packet, callback);
 	}
 
-	private synchronized String sendUnmodifiedIqPacket(final IqPacket packet, final OnIqPacketReceived callback) {
+	public synchronized String sendUnmodifiedIqPacket(final IqPacket packet, final OnIqPacketReceived callback) {
 		if (packet.getId() == null) {
 			final String id = nextRandomId();
 			packet.setAttribute("id", id);
@@ -1532,6 +1547,10 @@ public class XmppConnection implements Runnable {
 	}
 
 	private class StreamError extends IOException {
+
+	}
+
+	private class PaymentRequiredException extends IOException {
 
 	}
 

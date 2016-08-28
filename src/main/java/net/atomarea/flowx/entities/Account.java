@@ -5,8 +5,6 @@ import android.database.Cursor;
 import android.os.SystemClock;
 import android.util.Pair;
 
-import net.atomarea.flowx.crypto.PgpDecryptionService;
-
 import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.crypto.OtrCryptoException;
 
@@ -23,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.OtrService;
+import net.atomarea.flowx.crypto.PgpDecryptionService;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.xmpp.XmppConnection;
@@ -111,7 +110,9 @@ public class Account extends AbstractEntity {
 		REGISTRATION_PLEASE_WAIT(true),
 		STREAM_ERROR(true),
 		POLICY_VIOLATION(true),
-		REGISTRATION_PASSWORD_TOO_WEAK(true);
+		REGISTRATION_PASSWORD_TOO_WEAK(true),
+		PAYMENT_REQUIRED(true),
+		MISSING_INTERNET_PERMISSION(true);
 
 		private final boolean isError;
 
@@ -169,6 +170,10 @@ public class Account extends AbstractEntity {
 					return R.string.registration_password_too_weak;
 				case STREAM_ERROR:
 					return R.string.account_status_stream_error;
+				case PAYMENT_REQUIRED:
+					return R.string.payment_required;
+				case MISSING_INTERNET_PERMISSION:
+					return R.string.missing_internet_permission;
 				default:
 					return R.string.account_status_unknown;
 			}
@@ -296,7 +301,8 @@ public class Account extends AbstractEntity {
 	}
 
 	public boolean isOnion() {
-		return getServer().toString().toLowerCase().endsWith(".onion");
+		final Jid server = getServer();
+		return server != null && server.toString().toLowerCase().endsWith(".onion");
 	}
 
 	public void setPort(int port) {

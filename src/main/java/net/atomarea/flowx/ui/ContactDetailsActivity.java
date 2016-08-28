@@ -111,21 +111,6 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     private ImageView avatar;
     private boolean showLastSeen = true;
 
-    private OnClickListener onBadgeClick = new OnClickListener() {
-
-
-        @Override
-        public void onClick(View v) {
-            Dialog builder = new Dialog(ContactDetailsActivity.this);
-            LayoutInflater inflater = getLayoutInflater();
-            View a = inflater.inflate(R.layout.test, null);
-            ((ImageView) a.findViewById(R.id.details_contact_photo)).setImageBitmap(avatarService().get(contact, getPixel(400)));
-            builder.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-            builder.setContentView(a);
-            builder.show();
-        }
-    };
-
     @Override
     public void onRosterUpdate() {
         refreshUi();
@@ -191,7 +176,8 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
                                 removeFromRoster).create().show();
                 break;
             case R.id.action_edit_contact:
-                if (contact.getSystemAccount() == null) {
+                Uri systemAccount = contact.getSystemAccount();
+                if (systemAccount == null) {
                     quickEdit(contact.getDisplayName(), 0, new OnValueEdited() {
 
                         @Override
@@ -203,12 +189,8 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
                         }
                     });
                 } else {
-                    Intent intent = new Intent(Intent.ACTION_EDIT);
-                    String[] systemAccount = contact.getSystemAccount().split("#");
-                    long id = Long.parseLong(systemAccount[0]);
-                    Uri uri = Contacts.getLookupUri(id, systemAccount[1]);
-                    intent.setDataAndType(uri, Contacts.CONTENT_ITEM_TYPE);
-                    intent.putExtra("finishActivityOnSaveCompleted", true);
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(systemAccount);
                     startActivity(intent);
                 }
                 break;
@@ -251,6 +233,9 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
     }
 
     private void populateView() {
+        if (contact == null) {
+            return;
+        }
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
         BitmapDrawable bmd = new BitmapDrawable(this.getResources(), avatarService().get(contact, size.x));

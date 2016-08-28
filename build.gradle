@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath 'com.android.tools.build:gradle:2.1.3'
     }
 }
 
@@ -32,8 +32,8 @@ dependencies {
 	compile project(':libs:MemorizingTrustManager')
 	compile project(':libs:emojicon')
 	compile project(':libs:audiowife')
-	compile 'com.android.support:support-v13:23.3.0'
-	compile 'org.bouncycastle:bcprov-jdk15on:1.52'
+    compile 'com.android.support:support-v13:24.2.0'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.52'
 	compile 'org.bouncycastle:bcmail-jdk15on:1.52'
 	compile 'org.jitsi:org.otr4j:0.22'
 	compile 'org.gnu.inet:libidn:1.15'
@@ -51,13 +51,14 @@ dependencies {
 	compile 'com.yalantis:contextmenu:1.0.6'
 	compile 'com.github.manuelpeinado.fadingactionbar:fadingactionbar:3.1.2'
 	compile 'com.android.support:multidex:1.0.1'
-    compile 'com.github.bumptech.glide:glide:3.5.2'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
 	compile 'org.osmdroid:osmdroid-android:4.3'
 	compile 'org.slf4j:slf4j-simple:1.7.9'
-    compile 'com.google.android.gms:play-services:9.0.2'
-    compile 'com.google.android.gms:play-services-gcm:9.0.2'
+    compile 'com.google.android.gms:play-services:9.4.0'
+    compile 'com.google.android.gms:play-services-gcm:9.4.0'
+    compile 'com.android.support:appcompat-v7:24.1.1'
     compile 'com.google.code.gson:gson:2.4'
-    compile 'com.github.chrisbanes:PhotoView:1.2.6'
+    compile 'com.github.chrisbanes:PhotoView:1.3.0'
     compile 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
     compile 'com.github.rtoshiro.fullscreenvideoview:fullscreenvideoview:1.1.0'
     compile 'com.github.dmytrodanylyk.android-process-button:library:1.0.4'
@@ -73,13 +74,13 @@ android {
         config {
         }
     }
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 24
+    buildToolsVersion "24.0.2"
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 23
-        versionCode 1455
-        versionName "1.84"
+        targetSdkVersion 24
+        versionCode 1456
+        versionName "1.86"
         archivesBaseName += "-$versionName"
         applicationId "net.atomarea.flowx"
         multiDexEnabled true

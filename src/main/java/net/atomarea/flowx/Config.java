@@ -35,6 +35,7 @@ public final class Config {
 
     public static final String LOGTAG = "flowx";
     public static final String BUG_REPORTS = "dom1nic@flowx.im";
+    public static final String MAGIC_CREATE_DOMAIN = "flowx.im";
     public static final String DOMAIN_LOCK = "flowx.im"; //only allow account creation for this domain
     public static final String MUC_LOCK = "@conference.flowx.im";
     public static final String JID_LOCK = "@flowx.im";
@@ -47,6 +48,8 @@ public final class Config {
     public static final boolean ALWAYS_NOTIFY_BY_DEFAULT = false;
     public static final long UPDATE_CHECK_TIMER = 24 * 60 * 60; // in seconds
     public static final boolean BACKGROUND_STANZA_LOGGING = false;
+    public static final boolean PUSH_MODE = false; 	//closes the tcp connection when going to background
+    public static final boolean HIDE_MESSAGE_TEXT_IN_NOTIFICATION = false;
     public static final int PING_MAX_INTERVAL = 300;
     public static final int PING_MIN_INTERVAL = 30;
     public static final int CONNECT_DISCO_TIMEOUT = 20;

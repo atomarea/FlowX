@@ -5,7 +5,9 @@ import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.Pair;
 
+import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.ListItem;
@@ -73,8 +75,7 @@ public class UIHelper {
 		} else if (difference < 60 * 2) {
 			return context.getString(R.string.minute_ago);
 		} else if (difference < 60 * 15) {
-			return context.getString(R.string.minutes_ago,
-					Math.round(difference / 60.0));
+			return context.getString(R.string.minutes_ago,Math.round(difference / 60.0));
 		} else if (today(date)) {
 			java.text.DateFormat df = DateFormat.getTimeFormat(context);
 			return df.format(date);
@@ -251,6 +252,29 @@ public class UIHelper {
 		}
 	}
 
+	public static String getMessageHint(Context context, Conversation conversation) {
+		switch (conversation.getNextEncryption()) {
+			case Message.ENCRYPTION_NONE:
+				if (Config.multipleEncryptionChoices()) {
+					return context.getString(R.string.send_unencrypted_message);
+				} else {
+					return context.getString(R.string.send_message_to_x,conversation.getName());
+				}
+			case Message.ENCRYPTION_OTR:
+				return context.getString(R.string.send_otr_message);
+			case Message.ENCRYPTION_AXOLOTL:
+				AxolotlService axolotlService = conversation.getAccount().getAxolotlService();
+				if (axolotlService != null && axolotlService.trustedSessionVerified(conversation)) {
+					return context.getString(R.string.send_omemo_x509_message);
+				} else {
+					return context.getString(R.string.send_omemo_message);
+				}
+			case Message.ENCRYPTION_PGP:
+				return context.getString(R.string.send_pgp_message);
+			default:
+				return "";
+		}
+	}
 	public static String getDisplayedMucCounterpart(final Jid counterpart) {
 		if (counterpart==null) {
 			return "";
