@@ -39,7 +39,6 @@ public final class Config {
     public static final String DOMAIN_LOCK = "flowx.im"; //only allow account creation for this domain
     public static final String MUC_LOCK = "@conference.flowx.im";
     public static final String JID_LOCK = "@flowx.im";
-    public static final boolean PUSH_MODE = false; 	//closes the tcp connection when going to background
     public static boolean AlwayUseOMEMO = false; //true makes OMEMO as default on every 1 to 1 chat
     public static final boolean DISALLOW_REGISTRATION_IN_UI = false; //hide the register checkbox
     public static final int MAX_DISPLAY_MESSAGE_CHARS = 4096;
