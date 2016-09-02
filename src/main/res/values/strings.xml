@@ -693,4 +693,5 @@
 	<string name="account_status_policy_violation">Policy violation</string>
 	<string name="registration_password_too_weak">Registration failed: Password too weak</string>
 	<string name="account_status_stream_error">Stream error</string>
+	<string name="unread_messages">Unread messages:</string>
 </resources>

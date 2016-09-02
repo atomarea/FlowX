@@ -17,6 +17,7 @@ import android.support.v4.app.RemoteInput;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.Html;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.widget.ImageView.ScaleType;
 
 import com.makeramen.roundedimageview.RoundedDrawable;
@@ -160,6 +161,7 @@ public class NotificationService {
         }
         if (this.mIsInForeground && isScreenOn) {
             mXmppConnectionService.vibrate();
+            return;
         }
         synchronized (notifications) {
             final String conversationUuid = message.getConversationUuid();
@@ -231,22 +233,29 @@ public class NotificationService {
             }
             final Builder mBuilder;
             if (notifications.size() == 1 && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                Log.d(Config.LOGTAG, "Notification: Received 1 single notification and using device < Android N");
                 mBuilder = buildSingleConversations(notifications.values().iterator().next());
                 modifyForSoundVibrationAndLight(mBuilder, notify, preferences);
                 notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
             } else {
+                Log.d(Config.LOGTAG, "Notification: Received multiple notification or using Android N");
                 mBuilder = buildMultipleConversation();
                 modifyForSoundVibrationAndLight(mBuilder, notify, preferences);
                 notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
-                for (Map.Entry<String, ArrayList<Message>> entry : notifications.entrySet()) {
-                    Builder singleBuilder = buildSingleConversations(entry.getValue());
-                    singleBuilder.setGroup(CONVERSATIONS_GROUP);
-                    modifyForSoundVibrationAndLight(singleBuilder, notify, preferences);
-                    notificationManager.notify(entry.getKey(), NOTIFICATION_ID, singleBuilder.build());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    for (Map.Entry<String, ArrayList<Message>> entry : notifications.entrySet()) {
+                        Log.d(Config.LOGTAG, "Notification: Received notification for Android N");
+                        Builder singleBuilder = buildSingleConversations(entry.getValue());
+                        singleBuilder.setGroup(CONVERSATIONS_GROUP);
+                        modifyForSoundVibrationAndLight(singleBuilder, notify, preferences);
+                        notificationManager.notify(entry.getKey(), NOTIFICATION_ID, singleBuilder.build());
+                    }
                 }
             }
+            mBuilder.setNumber(mXmppConnectionService.unreadCount());
         }
     }
+
 
 
     private void modifyForSoundVibrationAndLight(Builder mBuilder, boolean notify, SharedPreferences preferences) {
@@ -277,10 +286,13 @@ public class NotificationService {
         final Builder mBuilder = new NotificationCompat.Builder(
                 mXmppConnectionService);
         final NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
+        Integer Unread = mXmppConnectionService.unreadCount();
+        String SummaryText = mXmppConnectionService.getString(R.string.unread_messages) + " " + Unread.toString();
         style.setBigContentTitle(notifications.size()
                 + " "
                 + mXmppConnectionService
                 .getString(R.string.unread_conversations));
+        style.setSummaryText(SummaryText);
         final StringBuilder names = new StringBuilder();
         Conversation conversation = null;
         for (final ArrayList<Message> messages : notifications.values()) {

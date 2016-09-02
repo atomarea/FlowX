@@ -124,10 +124,12 @@
         <activity
             android:name=".ui.WelcomeActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask" />
         <activity
             android:name=".ui.MagicCreateActivity"
             android:label="@string/create_account"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask" />
         <activity
             android:name=".ui.SetPresenceActivity"
@@ -177,6 +179,7 @@
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".ui.RegisterActivity"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".ui.ConferenceDetailsActivity"
@@ -226,6 +229,7 @@
         </activity>
         <activity
             android:name=".ui.ShowFullscreenMessageActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
             android:configChanges="orientation|screenSize">
 
         </activity>
@@ -236,6 +240,7 @@
         <activity
             android:name=".ui.AboutActivity"
             android:label="@string/title_activity_about"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
             android:parentActivityName=".ui.SettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -40,9 +40,6 @@ public class MagicCreateActivity extends XmppActivity implements TextWatcher {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-        if (getResources().getBoolean(R.bool.portrait_only)) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.magic_create);
         mFullJidDisplay = (TextView) findViewById(R.id.full_jid);
