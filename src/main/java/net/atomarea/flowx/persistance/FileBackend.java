@@ -17,6 +17,7 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.v4.content.FileProvider;
 import android.system.Os;
 import android.system.StructStat;
 import android.util.Base64;
@@ -457,10 +458,9 @@ public class FileBackend {
         pathBuilder.append("Camera");
         pathBuilder.append('/');
         pathBuilder.append("IMG_" + this.fileDateFormat.format(new Date()) + ".jpg");
-        Uri uri = Uri.parse("file://" + pathBuilder.toString());
-        File file = new File(uri.toString());
+        File file = new File(pathBuilder.toString());
         file.getParentFile().mkdirs();
-        return uri;
+        return FileProvider.getUriForFile(mXmppConnectionService,"net.atomarea.flowx.files",file);
     }
 
     public Avatar getPepAvatar(Uri image, int size, Bitmap.CompressFormat format) {
