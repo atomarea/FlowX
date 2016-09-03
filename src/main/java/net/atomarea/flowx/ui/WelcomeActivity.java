@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -38,7 +39,7 @@ public class WelcomeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.welcome);
 
-        //check if there is a backed up database --
+        //check if there is a backed up database
         if (hasStoragePermission(REQUEST_READ_EXTERNAL_STORAGE)) {
             dbExist = checkDatabase();
         }

@@ -38,6 +38,10 @@
         <item name="attr/icon_share">@drawable/ic_action_share</item>
     </style>
 
+    <style name="ConversationsTheme.NoAction" parent="ConversationsTheme">
+        <item name="android:windowNoTitle">true</item> <!-- Hides the Action Bar -->
+        <item name="android:windowFullscreen">true</item> <!-- Hides the status bar -->
+    </style>
     <style name="ConversationsTheme.LargerText" parent="ConversationsTheme">
         <item name="TextSizeInfo">14sp</item>
         <item name="TextSizeBody">16sp</item>
