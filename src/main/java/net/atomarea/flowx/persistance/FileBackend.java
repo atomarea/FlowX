@@ -58,7 +58,6 @@ import java.util.Locale;
 
 public class FileBackend {
     private final SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
-
     private XmppConnectionService mXmppConnectionService;
 
     public FileBackend(XmppConnectionService service) {
@@ -281,10 +280,10 @@ public class FileBackend {
         if (extension == null) {
             extension = getExtensionFromUri(uri);
         }
-        String filename = fileDateFormat.format(new Date(message.getTimeSent()))+"_"+message.getUuid().substring(0,4);
-        message.setRelativeFilePath(filename + "." + extension);
+        message.setRelativeFilePath(message.getUuid() + "." + extension);
         copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
     }
+
 
     private String getExtensionFromUri(Uri uri) {
         String[] projection = {MediaStore.MediaColumns.DATA};
@@ -366,16 +365,15 @@ public class FileBackend {
     }
 
     public void copyImageToPrivateStorage(Message message, Uri image) throws FileCopyException {
-        String filename = fileDateFormat.format(new Date(message.getTimeSent()))+"_"+message.getUuid().substring(0,4);
         switch(Config.IMAGE_FORMAT) {
             case JPEG:
-                message.setRelativeFilePath(filename+".jpg");
+                message.setRelativeFilePath(message.getUuid()+".jpg");
                 break;
             case PNG:
-                message.setRelativeFilePath(filename+".png");
+                message.setRelativeFilePath(message.getUuid()+".png");
                 break;
             case WEBP:
-                message.setRelativeFilePath(filename+".webp");
+                message.setRelativeFilePath(message.getUuid()+".webp");
                 break;
         }
         copyImageToPrivateStorage(getFile(message), image);
@@ -457,7 +455,7 @@ public class FileBackend {
         pathBuilder.append('/');
         pathBuilder.append("Camera");
         pathBuilder.append('/');
-        pathBuilder.append("IMG_" + this.fileDateFormat.format(new Date()) + ".jpg");
+        pathBuilder.append(this.fileDateFormat.format(new Date()) + ".jpg");
         File file = new File(pathBuilder.toString());
         file.getParentFile().mkdirs();
         return FileProvider.getUriForFile(mXmppConnectionService,"net.atomarea.flowx.files",file);
@@ -471,11 +469,11 @@ public class FileBackend {
                 return null;
             }
             ByteArrayOutputStream mByteArrayOutputStream = new ByteArrayOutputStream();
-            Base64OutputStream mBase64OutputSttream = new Base64OutputStream(
+            Base64OutputStream mBase64OutputStream = new Base64OutputStream(
                     mByteArrayOutputStream, Base64.DEFAULT);
             MessageDigest digest = MessageDigest.getInstance("SHA-1");
             DigestOutputStream mDigestOutputStream = new DigestOutputStream(
-                    mBase64OutputSttream, digest);
+                    mBase64OutputStream, digest);
             if (!bm.compress(format, 75, mDigestOutputStream)) {
                 return null;
             }
