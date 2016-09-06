@@ -693,5 +693,9 @@
 	<string name="account_status_policy_violation">Policy violation</string>
 	<string name="registration_password_too_weak">Registration failed: Password too weak</string>
 	<string name="account_status_stream_error">Stream error</string>
+	<string name="attach_choose_video">Video</string>
+	<string name="preparing_video">Prepare video for transmission</string>
+	<string name="compressing_video">Compressing video, please wait…</string>
+	<string name="shared_video_with_x">Shared video with %s</string>
 	<string name="unread_messages">Unread messages:</string>
 </resources>

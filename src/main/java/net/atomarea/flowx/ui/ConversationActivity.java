@@ -121,13 +121,15 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     public static final int ATTACHMENT_CHOICE_CHOOSE_FILE = 0x0303;
     public static final int ATTACHMENT_CHOICE_RECORD_VOICE = 0x0304;
     public static final int ATTACHMENT_CHOICE_LOCATION = 0x0305;
-    public static final int ATTACHMENT_CHOICE_INVALID = 0x0306;
+    public static final int ATTACHMENT_CHOICE_CHOOSE_VIDEO = 0x0306;
+    public static final int ATTACHMENT_CHOICE_INVALID = 0x0399;
     private static final String STATE_OPEN_CONVERSATION = "state_open_conversation";
     private static final String STATE_PANEL_OPEN = "state_panel_open";
     private static final String STATE_PENDING_URI = "state_pending_uri";
     final private List<Uri> mPendingImageUris = new ArrayList<>();
     final private List<Uri> mPendingPhotoUris = new ArrayList<>();
     final private List<Uri> mPendingFileUris = new ArrayList<>();
+    final private List<Uri> mPendingVideoUris = new ArrayList<>();
     private String mOpenConverstaion = null;
     private boolean showLastSeen = true;
     private boolean mPanelOpen = true;
@@ -151,7 +153,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     private AtomicBoolean mRedirected = new AtomicBoolean(false);
     private Pair<Integer, Intent> mPostponedActivityResult;
     long FirstStartTime = -1;
-    FileBackend mFileBackend;
 
     @SuppressLint("NewApi")
     private static List<Uri> extractUriFromIntent(final Intent intent) {
@@ -575,6 +576,11 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                         intent.setType("image/*");
                         chooser = true;
                         break;
+                    case ATTACHMENT_CHOICE_CHOOSE_VIDEO:
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        intent.setType("video/*");
+                        chooser = true;
+                        break;
                     case ATTACHMENT_CHOICE_TAKE_PHOTO:
                         Uri uri = xmppConnectionService.getFileBackend().getTakePhotoUri();
                         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
@@ -648,10 +654,14 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             case ATTACHMENT_CHOICE_TAKE_PHOTO:
                 getPreferences().edit().putString("recently_used_quick_action", "photo").apply();
                 break;
+            case ATTACHMENT_CHOICE_CHOOSE_VIDEO:
+                getPreferences().edit().putString("recently_used_quick_action", "video").apply();
+                break;
             case ATTACHMENT_CHOICE_CHOOSE_IMAGE:
                 getPreferences().edit().putString("recently_used_quick_action", "picture").apply();
                 break;
         }
+
         final Conversation conversation = getSelectedConversation();
         final int encryption = conversation.getNextEncryption();
         final int mode = conversation.getMode();
@@ -853,13 +863,15 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         lst.get(1).setResource(R.drawable.ic_send_picture_offline);
         lst.add(new MenuObject(getResources().getString(R.string.attach_take_picture)));
         lst.get(2).setResource(R.drawable.ic_send_photo_offline);
+        lst.add(new MenuObject(getResources().getString(R.string.attach_choose_video)));
+        lst.get(3).setResource(R.drawable.ic_send_video_offline);
         lst.add(new MenuObject(getResources().getString(R.string.attach_file)));
-        lst.get(3).setResource(R.drawable.ic_send_file_offline);
+        lst.get(4).setResource(R.drawable.ic_send_file_offline);
         lst.add(new MenuObject(getResources().getString(R.string.attach_record_voice)));
-        lst.get(4).setResource(R.drawable.ic_send_voice_offline);
+        lst.get(5).setResource(R.drawable.ic_send_voice_offline);
         if (!(new Intent("net.atomarea.flowx.location.request").resolveActivity(getPackageManager()) == null)) {
             lst.add(new MenuObject(getResources().getString(R.string.send_location)));
-            lst.get(5).setResource(R.drawable.ic_send_location_offline);
+            lst.get(6).setResource(R.drawable.ic_send_location_offline);
         }
         MenuParams mp = new MenuParams();
         if (getActionBar() != null) mp.setActionBarSize(getActionBar().getHeight());
@@ -877,12 +889,15 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                         attachFile(ATTACHMENT_CHOICE_TAKE_PHOTO);
                         break;
                     case 3:
-                        attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
+                        attachFile(ATTACHMENT_CHOICE_CHOOSE_VIDEO);
                         break;
                     case 4:
-                        attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
+                        attachFile(ATTACHMENT_CHOICE_CHOOSE_FILE);
                         break;
                     case 5:
+                        attachFile(ATTACHMENT_CHOICE_RECORD_VOICE);
+                        break;
+                    case 6:
                         attachFile(ATTACHMENT_CHOICE_LOCATION);
                         break;
                 }
@@ -1201,6 +1216,9 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     attachImagesToConversation(getSelectedConversation(), foo);
                 }
             }
+            for (Iterator<Uri> i = mPendingVideoUris.iterator(); i.hasNext(); i.remove()) {
+                attachVideoToConversation(getSelectedConversation(), i.next());
+            }
             for (Iterator<Uri> i = mPendingPhotoUris.iterator(); i.hasNext(); i.remove()) {
                 attachPhotoToConversation(getSelectedConversation(), i.next());
             }
@@ -1291,10 +1309,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_FILE || requestCode == ATTACHMENT_CHOICE_RECORD_VOICE) {
                 final List<Uri> uris = extractUriFromIntent(data);
                 final Conversation c = getSelectedConversation();
-                final long max = c.getAccount()
-                        .getXmppConnection()
-                        .getFeatures()
-                        .getMaxHttpUploadSize();
                 final OnPresenceSelected callback = new OnPresenceSelected() {
                     @Override
                     public void onPresenceSelected() {
@@ -1307,12 +1321,47 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                         }
                     }
                 };
-                if (c.getMode() == Conversation.MODE_MULTI
-                        || FileBackend.allFilesUnderSize(this, uris, max)
+                if (c == null || c.getMode() == Conversation.MODE_MULTI
+                        || FileBackend.allFilesUnderSize(this, uris, getMaxHttpUploadSize(c))
                         || c.getNextEncryption() == Message.ENCRYPTION_OTR) {
                     callback.onPresenceSelected();
                 } else {
                     selectPresence(c, callback);
+                }
+            } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_VIDEO) {
+                final List<Uri> uris = extractUriFromIntent(data);
+                final Conversation c = getSelectedConversation();
+                final OnPresenceSelected callback = new OnPresenceSelected() {
+                    @Override
+                    public void onPresenceSelected() {
+                        mPendingVideoUris.clear();
+                        mPendingVideoUris.addAll(uris);
+                        if (xmppConnectionServiceBound) {
+                            for (Iterator<Uri> i = mPendingVideoUris.iterator(); i.hasNext(); i.remove()) {
+                                attachVideoToConversation(c, i.next());
+                            }
+                        }
+                    }
+                };
+                if (c == null || c.getMode() == Conversation.MODE_MULTI
+                        || FileBackend.allFilesUnderSize(this, uris, getMaxHttpUploadSize(c))
+                        || c.getNextEncryption() == Message.ENCRYPTION_OTR) {
+                    callback.onPresenceSelected();
+                } else {
+                    selectPresence(c, callback);
+                }
+            } else if (requestCode == ATTACHMENT_CHOICE_TAKE_PHOTO) {
+                if (mPendingImageUris.size() == 1) {
+                    Uri uri = mPendingImageUris.get(0);
+                    if (xmppConnectionServiceBound) {
+                        attachImagesToConversation(getSelectedConversation(), uri);
+                        mPendingImageUris.clear();
+                    }
+                    Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    intent.setData(uri);
+                    sendBroadcast(intent);
+                } else {
+                    mPendingImageUris.clear();
                 }
             } else if (requestCode == ATTACHMENT_CHOICE_TAKE_PHOTO) {
                 if (mPendingImageUris.size() == 1) {
@@ -1348,7 +1397,9 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             if (requestCode == REQUEST_BATTERY_OP) setNeverAskForBatteryOptimizationsAgain();
         }
     }
-
+    private long getMaxHttpUploadSize(Conversation conversation) {
+        return conversation.getAccount().getXmppConnection().getFeatures().getMaxHttpUploadSize();
+    }
     private void setNeverAskForBatteryOptimizationsAgain() {
         getPreferences().edit().putBoolean("show_battery_optimization", false).commit();
     }
@@ -1433,11 +1484,12 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             }
         });
     }
+
     private void attachPhotoToConversation(Conversation conversation, Uri uri) {
         if (conversation == null) {
             return;
         }
-        final Toast prepareFileToast = Toast.makeText(getApplicationContext(),getText(R.string.preparing_image), Toast.LENGTH_LONG);
+        final Toast prepareFileToast = Toast.makeText(getApplicationContext(), getText(R.string.preparing_image), Toast.LENGTH_LONG);
         prepareFileToast.show();
         xmppConnectionService.attachImageToConversation(conversation, uri,
                 new UiCallback<Message>() {
@@ -1464,6 +1516,46 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                         });
                     }
                 });
+    }
+
+
+    private void attachVideoToConversation(Conversation conversation, Uri uri) {
+        if (conversation == null) {
+            return;
+        }
+        final Toast prepareFileToast = Toast.makeText(getApplicationContext(),getText(R.string.preparing_video), Toast.LENGTH_LONG);
+        prepareFileToast.show();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showProgress();
+            }
+        });
+        xmppConnectionService.attachVideoToConversation(conversation, uri, new UiCallback<Message>() {
+            @Override
+            public void success(Message message) {
+                closeProgress();
+                hidePrepareFileToast(prepareFileToast);
+                xmppConnectionService.sendMessage(message);
+            }
+
+            @Override
+            public void error(final int errorCode, Message message) {
+                hidePrepareFileToast(prepareFileToast);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        replaceToast(getString(errorCode));
+                    }
+                });
+
+            }
+
+            @Override
+            public void userInputRequried(PendingIntent pi, Message message) {
+                hidePrepareFileToast(prepareFileToast);
+            }
+        });
     }
     private void attachImagesToConversation(Conversation conversation, Uri uri) {
         if (conversation == null) return;
@@ -1595,6 +1687,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             Toast.makeText(getApplicationContext(), getText(R.string.error_file_not_found), Toast.LENGTH_LONG).show();
         }
     }
+
     private void hidePrepareFileToast(final Toast prepareFileToast) {
         if (prepareFileToast != null) runOnUiThread(new Runnable() {
 

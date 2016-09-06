@@ -316,14 +316,8 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                     case TAKE_PHOTO:
                         activity.attachFile(ConversationActivity.ATTACHMENT_CHOICE_TAKE_PHOTO);
                         break;
-                    case SEND_LOCATION:
-                        activity.attachFile(ConversationActivity.ATTACHMENT_CHOICE_LOCATION);
-                        break;
                     case RECORD_VOICE:
                         activity.attachFile(ConversationActivity.ATTACHMENT_CHOICE_RECORD_VOICE);
-                        break;
-                    case CHOOSE_PICTURE:
-                        activity.attachFile(ConversationActivity.ATTACHMENT_CHOICE_CHOOSE_IMAGE);
                         break;
                     case CANCEL:
                         if (conversation != null) {
@@ -453,7 +447,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         } else if (multi && !conversation.getMucOptions().participating()) {
             this.mEditMessage.setHint(R.string.you_are_not_participating);
         } else {
-            this.mEditMessage.setHint(UIHelper.getMessageHint(activity,conversation));
+            this.mEditMessage.setHint(UIHelper.getMessageHint(activity, conversation));
             getActivity().invalidateOptionsMenu();
         }
     }
@@ -881,7 +875,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         } else if (!contact.showInRoster() && contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
             showSnackbar(R.string.contact_added_you, R.string.add_back, this.mAddBackClickListener);
         } else if (contact.getOption(Contact.Options.PENDING_SUBSCRIPTION_REQUEST)) {
-            			showSnackbar(R.string.contact_asks_for_presence_subscription, R.string.allow, this.mAllowPresenceSubscription);
+            showSnackbar(R.string.contact_asks_for_presence_subscription, R.string.allow, this.mAllowPresenceSubscription);
         } else if (mode == Conversation.MODE_MULTI
                 && !conversation.getMucOptions().online()
                 && account.getStatus() == Account.State.ONLINE) {
@@ -1032,6 +1026,19 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                     default:
                         return R.drawable.ic_send_cancel_offline;
                 }
+            case CHOOSE_VIDEO:
+                switch (status) {
+                    case CHAT:
+                    case ONLINE:
+                        return R.drawable.ic_send_video_offline;
+                    case AWAY:
+                        return R.drawable.ic_send_video_offline;
+                    case XA:
+                    case DND:
+                        return R.drawable.ic_send_video_offline;
+                    default:
+                        return R.drawable.ic_send_video_offline;
+                }
             case CHOOSE_PICTURE:
                 switch (status) {
                     case CHAT:
@@ -1087,6 +1094,9 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                             break;
                         case "picture":
                             action = SendButtonAction.CHOOSE_PICTURE;
+                            break;
+                        case "video":
+                            action = SendButtonAction.CHOOSE_VIDEO;
                             break;
                         default:
                             action = SendButtonAction.TEXT;
@@ -1395,6 +1405,5 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         }
     }
 
-    enum SendButtonAction {TEXT, TAKE_PHOTO, SEND_LOCATION, RECORD_VOICE, CANCEL, CHOOSE_PICTURE}
-
+    enum SendButtonAction {TEXT, TAKE_PHOTO, SEND_LOCATION, RECORD_VOICE, CANCEL, CHOOSE_PICTURE, CHOOSE_VIDEO}
 }

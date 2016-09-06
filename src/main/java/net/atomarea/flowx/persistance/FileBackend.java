@@ -10,10 +10,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.FileObserver;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
@@ -25,16 +27,6 @@ import android.util.Base64OutputStream;
 import android.util.Log;
 import android.util.LruCache;
 import android.webkit.MimeTypeMap;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.entities.DownloadableFile;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.CryptoHelper;
-import net.atomarea.flowx.utils.ExifHelper;
-import net.atomarea.flowx.utils.FileUtils;
-import net.atomarea.flowx.xmpp.pep.Avatar;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -56,8 +48,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.entities.DownloadableFile;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.CryptoHelper;
+import net.atomarea.flowx.utils.ExifHelper;
+import net.atomarea.flowx.utils.FileUtils;
+import net.atomarea.flowx.xmpp.pep.Avatar;
+
 public class FileBackend {
     private final SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
+
     private XmppConnectionService mXmppConnectionService;
 
     public FileBackend(XmppConnectionService service) {
@@ -280,10 +283,10 @@ public class FileBackend {
         if (extension == null) {
             extension = getExtensionFromUri(uri);
         }
-        message.setRelativeFilePath(message.getUuid() + "." + extension);
+        String filename = fileDateFormat.format(new Date(message.getTimeSent()))+"_"+message.getUuid().substring(0,4);
+        message.setRelativeFilePath(filename + "." + extension);
         copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
     }
-
 
     private String getExtensionFromUri(Uri uri) {
         String[] projection = {MediaStore.MediaColumns.DATA};
@@ -365,15 +368,16 @@ public class FileBackend {
     }
 
     public void copyImageToPrivateStorage(Message message, Uri image) throws FileCopyException {
+        String filename = fileDateFormat.format(new Date(message.getTimeSent()))+"_"+message.getUuid().substring(0,4);
         switch(Config.IMAGE_FORMAT) {
             case JPEG:
-                message.setRelativeFilePath(message.getUuid()+".jpg");
+                message.setRelativeFilePath(filename+".jpg");
                 break;
             case PNG:
-                message.setRelativeFilePath(message.getUuid()+".png");
+                message.setRelativeFilePath(filename+".png");
                 break;
             case WEBP:
-                message.setRelativeFilePath(message.getUuid()+".webp");
+                message.setRelativeFilePath(filename+".webp");
                 break;
         }
         copyImageToPrivateStorage(getFile(message), image);
@@ -426,7 +430,12 @@ public class FileBackend {
     private Bitmap getFullsizeImagePreview(File file, int size) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = calcSampleSize(file, size);
-        return BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+        try {
+            return BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+        } catch (OutOfMemoryError e) {
+            options.inSampleSize *= 2;
+            return BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+        }
     }
 
     private Bitmap getVideoPreview(File file, int size) {
@@ -744,7 +753,6 @@ public class FileBackend {
         int imageWidth = rotated ? options.outHeight : options.outWidth;
         return new Dimensions(imageHeight, imageWidth);
     }
-
 
     private Dimensions getVideoDimensions(File file) throws NotAVideoFile {
         MediaMetadataRetriever metadataRetriever = new MediaMetadataRetriever();

@@ -13,6 +13,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
@@ -24,12 +30,6 @@ import net.atomarea.flowx.ui.adapter.ConversationAdapter;
 import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
-
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class ShareWithActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate {
 
@@ -43,6 +43,7 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 	private class Share {
 		public List<Uri> uris = new ArrayList<>();
 		public boolean image;
+		public boolean video;
 		public String account;
 		public String contact;
 		public String text;
@@ -79,6 +80,8 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 							resId = R.string.shared_images_with_x;
 						} else if (share.image) {
 							resId = R.string.shared_image_with_x;
+						} else if (share.video) {
+							resId = R.string.shared_video_with_x;
 						} else {
 							resId = R.string.shared_file_with_x;
 						}
@@ -86,6 +89,7 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 						if (mReturnToPrevious) {
 							finish();
 						} else {
+							closeProgress();
 							switchToConversation(message.getConversation());
 						}
 					}
@@ -196,6 +200,7 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 				this.share.uris.clear();
 				this.share.uris.add(uri);
 				this.share.image = type.startsWith("image/") || isImage(uri);
+				this.share.video = type.startsWith("video/") || isVideo(uri);
 			} else {
 				this.share.text = text;
 			}
@@ -220,6 +225,15 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 		try {
 			String guess = URLConnection.guessContentTypeFromName(uri.toString());
 			return (guess != null && guess.startsWith("image/"));
+		} catch (final StringIndexOutOfBoundsException ignored) {
+			return false;
+		}
+	}
+
+	protected boolean isVideo(Uri uri) {
+		try {
+			String guess = URLConnection.guessContentTypeFromName(uri.toString());
+			return (guess != null && guess.startsWith("video/"));
 		} catch (final StringIndexOutOfBoundsException ignored) {
 			return false;
 		}
@@ -290,6 +304,12 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 									.attachImageToConversation(conversation, i.next(),
 											attachFileCallback);
 						}
+					} else if (share.video) {
+						showProgress();
+						replaceToast(getString(R.string.preparing_video));
+						ShareWithActivity.this.xmppConnectionService
+								.attachVideoToConversation(conversation, share.uris.get(0),
+										attachFileCallback);
 					} else {
 						replaceToast(getString(R.string.preparing_file));
 						ShareWithActivity.this.xmppConnectionService

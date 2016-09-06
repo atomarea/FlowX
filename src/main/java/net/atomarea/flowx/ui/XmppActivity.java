@@ -7,6 +7,7 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -18,6 +19,7 @@ import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
@@ -120,6 +122,8 @@ public abstract class XmppActivity extends FragmentActivity {
     protected int mTheme;
     protected boolean mUsingEnterKey = false;
     protected Toast mToast;
+    protected ProgressDialog mProgress;
+    Integer oldOrientation = getRequestedOrientation();
     protected void hideToast() {
         if (mToast != null) {
             mToast.cancel();
@@ -131,7 +135,19 @@ public abstract class XmppActivity extends FragmentActivity {
         mToast = Toast.makeText(this, msg ,Toast.LENGTH_LONG);
         mToast.show();
     }
+    protected void showProgress() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+        mProgress.setMessage(getString(R.string.compressing_video));
+        mProgress.setCancelable(false);
+        mProgress.show();
+    }
 
+    protected void closeProgress() {
+        if (mProgress.isShowing()) {
+            mProgress.dismiss();
+            setRequestedOrientation(oldOrientation);
+        }
+    }
     protected Runnable onOpenPGPKeyPublished = new Runnable() {
         @Override
         public void run() {
@@ -412,6 +428,7 @@ public abstract class XmppActivity extends FragmentActivity {
         if (ab != null) {
             ab.setDisplayHomeAsUpEnabled(true);
         }
+        mProgress = new ProgressDialog(this);
     }
 
     protected boolean isOptimizingBattery() {
