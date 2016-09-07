@@ -115,6 +115,7 @@ public class MucOptions {
 
 	public enum Error {
 		NO_RESPONSE,
+		SEVRER_NOT_FOUND,
 		NONE,
 		NICK_IN_USE,
 		PASSWORD_REQUIRED,

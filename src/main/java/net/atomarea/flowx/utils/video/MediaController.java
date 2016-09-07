@@ -28,6 +28,8 @@ public class MediaController {
     private final static int PROCESSOR_TYPE_TI = 5;
     private static volatile MediaController Instance = null;
     private boolean videoConvertFirstWrite = true;
+    private int resultHeight = 0;
+    private int resultWidth = 0;
 
     public static MediaController getInstance() {
         MediaController localInstance = Instance;
@@ -191,18 +193,32 @@ public class MediaController {
         int video_height = Integer.parseInt(height);
         int video_width = Integer.parseInt(width);
 
-        Log.d(Config.LOGTAG, "Video dimensions: height: " + height + " width: " + width + "rotation: " + rotation);
-
         long startTime = -1;
         long endTime = -1;
-
-        int resultWidth = 640;
-        int resultHeight = 360;
 
         int rotationValue = Integer.valueOf(rotation);
         int originalWidth = Integer.valueOf(width);
         int originalHeight = Integer.valueOf(height);
-        double ratio = video_width/video_height;
+        float ratio = (float)video_width / (float)video_height; // 16:9 = 1,7778, 4:3 = 1,3333
+
+        if (video_height > video_width) {
+            resultHeight = Config.VIDEO_SIZE;
+            resultWidth = Math.round(resultHeight * ratio);
+        } else if (video_width > video_height) {
+            resultWidth = Config.VIDEO_SIZE;
+            resultHeight = Math.round(resultWidth / ratio);
+        }
+
+        if (resultHeight > originalHeight) {
+            resultHeight = originalHeight;
+        }
+
+        if (resultWidth > originalWidth) {
+            resultWidth = originalWidth;
+        }
+
+        Log.d(Config.LOGTAG, "Video dimensions: height: " + video_height + " width: " + video_width + " rotation: " + rotation + " ratio: " + ratio);
+        Log.d(Config.LOGTAG, "Video dimensions: Result height: " + resultHeight + " Result width: " + resultWidth + " rotation: " + rotation + " ratio: " + ratio);
 
         int bitrate = Config.VIDEO_BITRATE;
         int rotateRender = 0;

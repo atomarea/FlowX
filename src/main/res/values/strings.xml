@@ -698,4 +698,6 @@
 	<string name="compressing_video">Compressing video, please wait…</string>
 	<string name="shared_video_with_x">Shared video with %s</string>
 	<string name="unread_messages">Unread messages:</string>
+	<string name="no_permission_to_access_x">No permission to access %s</string>
+	<string name="remote_server_not_found">Remote server not found</string>
 </resources>

@@ -1541,6 +1541,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
             @Override
             public void error(final int errorCode, Message message) {
+                closeProgress();
                 hidePrepareFileToast(prepareFileToast);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -1553,6 +1554,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
             @Override
             public void userInputRequried(PendingIntent pi, Message message) {
+                closeProgress();
                 hidePrepareFileToast(prepareFileToast);
             }
         });
