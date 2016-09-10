@@ -2786,12 +2786,19 @@ public class XmppConnectionService extends Service {
                             Log.d(Config.LOGTAG, account.getJid().toBareJid()
                                     + ": successfully fetched vCard avatar for " + avatar.owner);
                             if (avatar.owner.isBareJid()) {
-                                Contact contact = account.getRoster()
-                                        .getContact(avatar.owner);
-                                contact.setAvatar(avatar);
-                                getAvatarService().clear(contact);
+                                if (account.getJid().toBareJid().equals(avatar.owner) && account.getAvatar() == null) {
+                                    Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": had no avatar. replacing with vcard");
+                                    account.setAvatar(avatar.getFilename());
+                                    databaseBackend.updateAccount(account);
+                                    getAvatarService().clear(account);
+                                    updateAccountUi();
+                                } else {
+                                    Contact contact = account.getRoster().getContact(avatar.owner);
+                                    contact.setAvatar(avatar);
+                                    getAvatarService().clear(contact);
+                                    updateRosterUi();
+                                }
                                 updateConversationUi();
-                                updateRosterUi();
                             } else {
                                 Conversation conversation = find(account, avatar.owner.toBareJid());
                                 if (conversation != null && conversation.getMode() == Conversation.MODE_MULTI) {

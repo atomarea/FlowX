@@ -671,7 +671,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         Uri uri;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             try {
-                uri = FileProvider.getUriForFile(activity, "de.pixart.messenger.files", file);
+                uri = FileProvider.getUriForFile(activity, "net.atomarea.flowx.files", file);
             } catch (IllegalArgumentException e) {
                 Toast.makeText(activity,activity.getString(R.string.no_permission_to_access_x,file.getAbsolutePath()), Toast.LENGTH_SHORT).show();
                 return;
