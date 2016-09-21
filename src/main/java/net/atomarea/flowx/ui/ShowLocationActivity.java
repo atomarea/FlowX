@@ -1,10 +1,14 @@
 package net.atomarea.flowx.ui;
 
-import android.app.ActionBar;
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +33,7 @@ public class ShowLocationActivity extends Activity implements OnMapReadyCallback
 	private GoogleMap mGoogleMap;
 	private LatLng mLocation;
 	private String mLocationName;
+    private MarkerOptions options;
 
     class InfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
@@ -59,12 +64,12 @@ public class ShowLocationActivity extends Activity implements OnMapReadyCallback
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		ActionBar actionBar = getActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
+        if (getActionBar() != null) {
+            getActionBar().setHomeButtonEnabled(true);
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
-		setContentView(R.layout.show_locaction_activity);
+		setContentView(R.layout.activity_show_locaction);
 		MapFragment fragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
 		fragment.getMapAsync(this);
 	}
@@ -104,44 +109,75 @@ public class ShowLocationActivity extends Activity implements OnMapReadyCallback
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
 		this.mGoogleMap = googleMap;
-		this.mGoogleMap.setMyLocationEnabled(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                this.mGoogleMap.setBuildingsEnabled(true);
+                this.mGoogleMap.setMyLocationEnabled(true);
+            }
+        } else {
+            this.mGoogleMap.setBuildingsEnabled(true);
+            this.mGoogleMap.setMyLocationEnabled(true);
+        }
 		if (this.mLocation != null) {
 			this.markAndCenterOnLocation(this.mLocation,this.mLocationName);
 		}
 	}
 
-	private void markAndCenterOnLocation(LatLng location, String name) {
-		this.mGoogleMap.clear();
-        MarkerOptions options = new MarkerOptions();
-        options.position(location);
-        double longitude = mLocation.longitude;
-        double latitude = mLocation.latitude;
+    private static String getAddress(Context context, LatLng location) {
+        double longitude = location.longitude;
+        double latitude = location.latitude;
+        String address = "";
         if (latitude != 0 && longitude != 0) {
-            Geocoder geoCoder = new Geocoder(getBaseContext(), Locale.getDefault());
+            Geocoder geoCoder = new Geocoder(context, Locale.getDefault());
             try {
                 List<Address> addresses = geoCoder.getFromLocation(latitude, longitude, 1);
-
-                String address = "";
                 if (addresses != null) {
                     Address Address = addresses.get(0);
                     StringBuilder strAddress = new StringBuilder("");
-
                     for (int i = 0; i < Address.getMaxAddressLineIndex(); i++) {
                         strAddress.append(Address.getAddressLine(i)).append("\n");
                     }
                     address = strAddress.toString();
                     address = address.substring(0, address.length()-1); //trim last \n
-                    options.snippet(address);
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        return address;
+    }
+
+	private void markAndCenterOnLocation(final LatLng location, String name) {
+		this.mGoogleMap.clear();
+        options = new MarkerOptions();
+        options.position(location);
+        double longitude = mLocation.longitude;
+        double latitude = mLocation.latitude;
+        this.mGoogleMap.setInfoWindowAdapter(new InfoWindowAdapter());
+
+        if (latitude != 0 && longitude != 0) {
+            new AsyncTask<Void, Void, Void>() {
+                String address = null;
+
+                @Override
+                protected Void doInBackground(Void... params) {
+                    address = getAddress(ShowLocationActivity.this, location);
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void result) {
+                    super.onPostExecute(result);
+                    options.snippet(String.valueOf(address));
+                    mGoogleMap.addMarker(options).showInfoWindow();
+                }
+            }.execute();
+        }
         if (name != null) {
 			options.title(name);
 		}
-        this.mGoogleMap.setInfoWindowAdapter(new InfoWindowAdapter());
-        this.mGoogleMap.addMarker(options).showInfoWindow();
 		this.mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, Config.DEFAULT_ZOOM));
 	}
 

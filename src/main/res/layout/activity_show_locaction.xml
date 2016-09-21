@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         map:mapType="normal"
-        map:uiCompass="false"
+        map:uiCompass="true"
         map:uiRotateGestures="false"
         map:uiScrollGestures="true"
         map:uiTiltGestures="false"
