@@ -20,7 +20,6 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.FileObserver;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
@@ -644,9 +643,10 @@ public class XmppConnectionService extends Service {
                 case ACTION_REPLY_TO_CONVERSATION:
                     Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
                     if (remoteInput != null && c != null) {
-
-                        String body = remoteInput.getString("text_reply");
-                        directReply(c, body);
+                        final CharSequence body = remoteInput.getCharSequence("text_reply");
+                        if (body != null && body.length() > 0) {
+                            directReply(c, body.toString());
+                        }
                     }
                     break;
                 case ACTION_DISABLE_ACCOUNT:
@@ -3388,16 +3388,16 @@ public class XmppConnectionService extends Service {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                databaseBackend.deleteMessagesInConversation(conversation);
+                databaseBackend.updateConversation(conversation);
             }
         };
         mDatabaseExecutor.execute(runnable);
     }
 
-    public void sendBlockRequest(final Blockable blockable) {
+    public void sendBlockRequest(final Blockable blockable, boolean reportSpam) {
         if (blockable != null && blockable.getBlockedJid() != null) {
             final Jid jid = blockable.getBlockedJid();
-            this.sendIqPacket(blockable.getAccount(), getIqGenerator().generateSetBlockRequest(jid), new OnIqPacketReceived() {
+            this.sendIqPacket(blockable.getAccount(), getIqGenerator().generateSetBlockRequest(jid, reportSpam), new OnIqPacketReceived() {
 
                 @Override
                 public void onIqPacketReceived(final Account account, final IqPacket packet) {

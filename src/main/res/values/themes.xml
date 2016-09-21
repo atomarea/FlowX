@@ -13,6 +13,9 @@
         <item name="TextSizeInfo">12sp</item>
         <item name="TextSizeBody">14sp</item>
         <item name="TextSizeHeadline">20sp</item>
+        <item name="attr/color_text_primary">@color/black87</item>
+        <item name="attr/dialog_horizontal_padding">16dp</item>
+        <item name="attr/dialog_vertical_padding">16dp</item>
 
         <item name="attr/icon_add_group">@drawable/ic_action_add_group</item>
         <item name="attr/icon_add_person">@drawable/ic_action_add_person</item>

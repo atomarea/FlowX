@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.os.SystemClock;
 import android.util.Pair;
 
+import net.atomarea.flowx.crypto.PgpDecryptionService;
+
 import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.crypto.OtrCryptoException;
 
@@ -21,7 +23,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.OtrService;
-import net.atomarea.flowx.crypto.PgpDecryptionService;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.xmpp.XmppConnection;
@@ -276,8 +277,10 @@ public class Account extends AbstractEntity {
 		return jid.getLocalpart();
 	}
 
-	public void setJid(final Jid jid) {
-		this.jid = jid;
+	public boolean setJid(final Jid next) {
+		final Jid prev = this.jid != null ? this.jid.toBareJid() : null;
+		this.jid = next;
+		return prev == null || (next != null && !prev.equals(next.toBareJid()));
 	}
 
 	public Jid getServer() {

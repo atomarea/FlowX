@@ -26,6 +26,7 @@
     <attr name="icon_settings" format="reference"/>
     <attr name="icon_share" format="reference"/>
     <attr name="icon_import_export" format="reference"/>
-
-
+    <attr name="dialog_horizontal_padding" format="dimension"/>
+    <attr name="dialog_vertical_padding" format="dimension"/>
+    <attr name="color_text_primary" format="reference|color" />
 </resources>

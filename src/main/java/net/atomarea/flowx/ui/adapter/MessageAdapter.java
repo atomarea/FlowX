@@ -17,6 +17,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -52,6 +53,7 @@ import net.atomarea.flowx.entities.Message.FileParams;
 import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.ui.ConversationActivity;
 import net.atomarea.flowx.ui.ShowFullscreenMessageActivity;
+import net.atomarea.flowx.ui.widget.ClickableMovementMethod;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.GeoHelper;
 import net.atomarea.flowx.utils.UIHelper;
@@ -59,8 +61,6 @@ import net.atomarea.flowx.utils.UIHelper;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import nl.changer.audiowife.AudioWife;
@@ -309,10 +309,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 body = message.getMergedBody();
             }
             if (body.length() > Config.MAX_DISPLAY_MESSAGE_CHARS) {
-                body = body.substring(0, Config.MAX_DISPLAY_MESSAGE_CHARS)+"\u2026";
+                body = body.substring(0, Config.MAX_DISPLAY_MESSAGE_CHARS) + "\u2026";
             }
 
-            final SpannableString formattedBody = new SpannableString(body);
+            Spannable formattedBody = new SpannableString(body);
             int i = body.indexOf(Message.MERGE_SEPARATOR);
             while (i >= 0) {
                 final int end = i + Message.MERGE_SEPARATOR.length();
@@ -321,12 +321,8 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }
             if (message.getType() != Message.TYPE_PRIVATE) {
                 if (message.hasMeCommand()) {
-                    final Spannable span = new SpannableString(formattedBody);
-                    span.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, nick.length(),
+                    formattedBody.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, nick.length(),
                             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    viewHolder.messageBody.setText(span);
-                } else {
-                    viewHolder.messageBody.setText(formattedBody);
                 }
             } else {
                 String privateMarker;
@@ -341,45 +337,24 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                         to = "";
                     privateMarker = activity.getString(R.string.private_message_to, to);
                 }
-                final Spannable span = new SpannableString(privateMarker + " "
-                        + formattedBody);
-                span.setSpan(new ForegroundColorSpan(getMessageTextColor(darkBackground, false)), 0, privateMarker
+                formattedBody = new SpannableStringBuilder().append(privateMarker).append(' ').append(formattedBody);
+                formattedBody.setSpan(new ForegroundColorSpan(getMessageTextColor(darkBackground, false)), 0, privateMarker
                         .length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                span.setSpan(new StyleSpan(Typeface.BOLD), 0,
+                formattedBody.setSpan(new StyleSpan(Typeface.BOLD), 0,
                         privateMarker.length(),
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 if (message.hasMeCommand())
-                    span.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), privateMarker.length() + 1,
+                    formattedBody.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), privateMarker.length() + 1,
                             privateMarker.length() + 1 + nick.length(),
                             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                viewHolder.messageBody.setText(span);
             }
-            int urlCount = 0;
-            final Matcher matcher = Patterns.WEB_URL.matcher(body);
-            int beginWebURL = Integer.MAX_VALUE;
-            int endWebURL = 0;
-            while (matcher.find()) {
-                MatchResult result = matcher.toMatchResult();
-                beginWebURL = result.start();
-                endWebURL = result.end();
-                urlCount++;
-            }
-            final Matcher geoMatcher = GeoHelper.GEO_URI.matcher(body);
-            while (geoMatcher.find()) {
-                urlCount++;
-            }
-            final Matcher xmppMatcher = XMPP_PATTERN.matcher(body);
-            while (xmppMatcher.find()) {
-                MatchResult result = xmppMatcher.toMatchResult();
-                if (beginWebURL < result.start() || endWebURL > result.end()) {
-                    urlCount++;
-                }
-            }
-            viewHolder.messageBody.setTextIsSelectable(urlCount <= 1);
+            Linkify.addLinks(formattedBody, Linkify.WEB_URLS);
+            Linkify.addLinks(formattedBody, XMPP_PATTERN, "xmpp");
+            Linkify.addLinks(formattedBody, GeoHelper.GEO_URI, "geo");
             viewHolder.messageBody.setAutoLinkMask(0);
-            Linkify.addLinks(viewHolder.messageBody, Linkify.WEB_URLS);
-            Linkify.addLinks(viewHolder.messageBody, XMPP_PATTERN, "xmpp");
-            Linkify.addLinks(viewHolder.messageBody, GeoHelper.GEO_URI, "geo");
+            viewHolder.messageBody.setText(formattedBody);
+            viewHolder.messageBody.setTextIsSelectable(true);
+            viewHolder.messageBody.setMovementMethod(ClickableMovementMethod.getInstance());
         } else {
             viewHolder.messageBody.setText("");
             viewHolder.messageBody.setTextIsSelectable(false);
@@ -479,7 +454,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         if (Math.max(params.height, params.width) * metrics.density <= target) {
             scaledW = (int) (params.width * metrics.density);
             scaledH = (int) (params.height * metrics.density);
-        } else if (Math.max(params.height,params.width) <= target) {
+        } else if (Math.max(params.height, params.width) <= target) {
             scaledW = params.width;
             scaledH = params.height;
         } else if (params.width <= params.height) {
@@ -673,7 +648,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             try {
                 uri = FileProvider.getUriForFile(activity, "net.atomarea.flowx.files", file);
             } catch (IllegalArgumentException e) {
-                Toast.makeText(activity,activity.getString(R.string.no_permission_to_access_x,file.getAbsolutePath()), Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, activity.getString(R.string.no_permission_to_access_x, file.getAbsolutePath()), Toast.LENGTH_SHORT).show();
                 return;
             }
             openIntent.setDataAndType(uri, mime);
@@ -685,12 +660,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         PackageManager manager = activity.getPackageManager();
         List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
         if (info.size() == 0) {
-            openIntent.setDataAndType(Uri.fromFile(file),"*/*");
+            openIntent.setDataAndType(Uri.fromFile(file), "*/*");
         }
         try {
             getContext().startActivity(openIntent);
-        }  catch (ActivityNotFoundException e) {
-            Toast.makeText(activity,R.string.no_application_found_to_open_file,Toast.LENGTH_SHORT).show();
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(activity, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
         }
     }
 

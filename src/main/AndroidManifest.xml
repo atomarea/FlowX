@@ -237,6 +237,7 @@
         <activity
             android:name=".ui.ShowFullscreenMessageActivity"
             android:hardwareAccelerated="true"
+            android:theme="@style/ConversationsTheme.NoAction"
             android:configChanges="orientation|screenSize">
 
         </activity>

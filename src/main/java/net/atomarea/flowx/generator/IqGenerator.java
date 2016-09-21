@@ -5,18 +5,6 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 
-import org.whispersystems.libaxolotl.IdentityKey;
-import org.whispersystems.libaxolotl.ecc.ECPublicKey;
-import org.whispersystems.libaxolotl.state.PreKeyRecord;
-import org.whispersystems.libaxolotl.state.SignedPreKeyRecord;
-
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TimeZone;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
@@ -31,6 +19,18 @@ import net.atomarea.flowx.xmpp.forms.Data;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
+
+import org.whispersystems.libaxolotl.IdentityKey;
+import org.whispersystems.libaxolotl.ecc.ECPublicKey;
+import org.whispersystems.libaxolotl.state.PreKeyRecord;
+import org.whispersystems.libaxolotl.state.SignedPreKeyRecord;
+
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
 
 public class IqGenerator extends AbstractGenerator {
 
@@ -254,10 +254,14 @@ public class IqGenerator extends AbstractGenerator {
 		return iq;
 	}
 
-	public IqPacket generateSetBlockRequest(final Jid jid) {
+	public IqPacket generateSetBlockRequest(final Jid jid, boolean reportSpam) {
 		final IqPacket iq = new IqPacket(IqPacket.TYPE.SET);
 		final Element block = iq.addChild("block", Xmlns.BLOCKING);
-		block.addChild("item").setAttribute("jid", jid.toBareJid().toString());
+		final Element item = block.addChild("item").setAttribute("jid", jid.toBareJid().toString());
+		if (reportSpam) {
+			item.addChild("report", "urn:xmpp:reporting:0").addChild("spam");
+		}
+		Log.d(Config.LOGTAG,iq.toString());
 		return iq;
 	}
 

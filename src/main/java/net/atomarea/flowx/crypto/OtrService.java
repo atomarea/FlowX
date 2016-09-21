@@ -2,6 +2,15 @@ package net.atomarea.flowx.crypto;
 
 import android.util.Log;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.entities.Conversation;
+import net.atomarea.flowx.generator.MessageGenerator;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.xmpp.chatstate.ChatState;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
+import net.atomarea.flowx.xmpp.stanzas.MessagePacket;
 import net.java.otr4j.OtrEngineHost;
 import net.java.otr4j.OtrException;
 import net.java.otr4j.OtrPolicy;
@@ -25,16 +34,6 @@ import java.security.PublicKey;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.entities.Account;
-import net.atomarea.flowx.entities.Conversation;
-import net.atomarea.flowx.generator.MessageGenerator;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.xmpp.chatstate.ChatState;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
-import net.atomarea.flowx.xmpp.stanzas.MessagePacket;
 
 public class OtrService extends OtrCryptoEngineImpl implements OtrEngineHost {
 

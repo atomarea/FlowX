@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -23,7 +22,6 @@ import com.beardedhen.androidbootstrap.BootstrapButton;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.PgpEngine;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Bookmark;
 import net.atomarea.flowx.entities.Contact;
@@ -592,13 +590,6 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             TextView tvStatus = (TextView) view.findViewById(R.id.contact_jid);
             if (mAdvancedMode && user.getPgpKeyId() != 0) {
                 tvKey.setVisibility(View.VISIBLE);
-                tvKey.setOnClickListener(new OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        viewPgpKey(user);
-                    }
-                });
                 tvKey.setText(OpenPgpUtils.convertKeyIdToHex(user.getPgpKeyId()));
             }
             Contact contact = user.getContact();
@@ -635,21 +626,11 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         }
     }
 
-    private void viewPgpKey(User user) {
-        PgpEngine pgp = xmppConnectionService.getPgpEngine();
-        if (pgp != null) {
-            PendingIntent intent = pgp.getIntentForKey(
-                    mConversation.getAccount(), user.getPgpKeyId());
-            if (intent != null) {
-                try {
-                    startIntentSenderForResult(intent.getIntentSender(), 0,
-                            null, 0, 0, 0);
-                } catch (SendIntentException ignored) {
 
-                }
-            }
-        }
-    }
+
+
+
+
 
     @Override
     public void onAffiliationChangedSuccessful(Jid jid) {

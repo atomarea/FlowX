@@ -5,6 +5,12 @@ import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.Pair;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
@@ -14,13 +20,8 @@ import net.atomarea.flowx.entities.ListItem;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Presence;
 import net.atomarea.flowx.entities.Transferable;
+import net.atomarea.flowx.ui.XmppActivity;
 import net.atomarea.flowx.xmpp.jid.Jid;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
 public class UIHelper {
 
@@ -92,10 +93,6 @@ public class UIHelper {
 
 	private static boolean today(Date date) {
 		return sameDay(date,new Date(System.currentTimeMillis()));
-	}
-
-	public static boolean sameDay(long timestamp1, long timestamp2) {
-		return sameDay(new Date(timestamp1),new Date(timestamp2));
 	}
 
 	private static boolean sameDay(Date a, Date b) {
@@ -275,6 +272,7 @@ public class UIHelper {
 				return "";
 		}
 	}
+
 	public static String getDisplayedMucCounterpart(final Jid counterpart) {
 		if (counterpart==null) {
 			return "";

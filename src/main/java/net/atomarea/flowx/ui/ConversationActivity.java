@@ -21,8 +21,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.ExifInterface;
@@ -30,8 +28,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -126,13 +122,16 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     private static final String STATE_OPEN_CONVERSATION = "state_open_conversation";
     private static final String STATE_PANEL_OPEN = "state_panel_open";
     private static final String STATE_PENDING_URI = "state_pending_uri";
+    private static final String STATE_FIRST_VISIBLE = "first_visible";
+    private static final String STATE_OFFSET_FROM_TOP = "offset_from_top";
     final private List<Uri> mPendingImageUris = new ArrayList<>();
     final private List<Uri> mPendingPhotoUris = new ArrayList<>();
     final private List<Uri> mPendingFileUris = new ArrayList<>();
     final private List<Uri> mPendingVideoUris = new ArrayList<>();
-    private String mOpenConverstaion = null;
+    private String mOpenConversation = null;
     private boolean showLastSeen = true;
     private boolean mPanelOpen = true;
+    private Pair<Integer, Integer> mScrollPosition = null;
     private Uri mPendingGeoUri = null;
     private boolean forbidProcessingPendings = false;
     private Message mPendingDownloadableMessage = null;
@@ -246,12 +245,22 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            mOpenConverstaion = savedInstanceState.getString(STATE_OPEN_CONVERSATION, null);
+            mOpenConversation = savedInstanceState.getString(STATE_OPEN_CONVERSATION, null);
             mPanelOpen = savedInstanceState.getBoolean(STATE_PANEL_OPEN, true);
+            int pos = savedInstanceState.getInt(STATE_FIRST_VISIBLE, -1);
+            int offset = savedInstanceState.getInt(STATE_OFFSET_FROM_TOP, 1);
+            if (pos >= 0 && offset <= 0) {
+                Log.d(Config.LOGTAG, "retrieved scroll position from instanceState " + pos + ":" + offset);
+                mScrollPosition = new Pair<>(pos, offset);
+            } else {
+                mScrollPosition = null;
+            }
             String pending = savedInstanceState.getString(STATE_PENDING_URI, null);
             if (pending != null) {
                 mPendingImageUris.clear();
                 mPendingImageUris.add(Uri.parse(pending));
+                mPendingPhotoUris.clear();
+                mPendingPhotoUris.add(Uri.parse(pending));
             }
         }
 
@@ -1051,7 +1060,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     @Override
     protected void onNewIntent(final Intent intent) {
         if (intent != null && ACTION_VIEW_CONVERSATION.equals(intent.getAction())) {
-            mOpenConverstaion = null;
+            mOpenConversation = null;
             if (xmppConnectionServiceBound) {
                 handleViewConversationIntent(intent);
                 intent.setAction(Intent.ACTION_MAIN);
@@ -1093,13 +1102,24 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     @Override
     public void onSaveInstanceState(final Bundle savedInstanceState) {
         Conversation conversation = getSelectedConversation();
-        if (conversation != null)
+        if (conversation != null) {
             savedInstanceState.putString(STATE_OPEN_CONVERSATION, conversation.getUuid());
-        else savedInstanceState.remove(STATE_OPEN_CONVERSATION);
+            Pair<Integer, Integer> scrollPosition = mConversationFragment.getScrollPosition();
+            if (scrollPosition != null) {
+                savedInstanceState.putInt(STATE_FIRST_VISIBLE, scrollPosition.first);
+                savedInstanceState.putInt(STATE_OFFSET_FROM_TOP, scrollPosition.second);
+            }
+        } else {
+            savedInstanceState.remove(STATE_OPEN_CONVERSATION);
+        }
         savedInstanceState.putBoolean(STATE_PANEL_OPEN, isConversationsOverviewVisable());
-        if (this.mPendingImageUris.size() >= 1)
+        if (this.mPendingImageUris.size() >= 1) {
             savedInstanceState.putString(STATE_PENDING_URI, this.mPendingImageUris.get(0).toString());
-        else savedInstanceState.remove(STATE_PENDING_URI);
+        } else if (this.mPendingPhotoUris.size() >= 1) {
+            savedInstanceState.putString(STATE_PENDING_URI, this.mPendingPhotoUris.get(0).toString());
+        } else {
+            savedInstanceState.remove(STATE_PENDING_URI);
+        }
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -1173,7 +1193,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 startActivity(startConversationActivity);
                 finish();
             }
-        } else if (selectConversationByUuid(mOpenConverstaion)) {
+        } else if (selectConversationByUuid(mOpenConversation)) {
             if (mPanelOpen) showConversationsOverview();
             else {
                 if (isConversationsOverviewHideable()) {
@@ -1181,8 +1201,11 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     updateActionBarTitle(true);
                 }
             }
-            this.mConversationFragment.reInit(getSelectedConversation());
-            mOpenConverstaion = null;
+            if (this.mConversationFragment.reInit(getSelectedConversation())) {
+                Log.d(Config.LOGTAG, "setting scroll position on fragment");
+                this.mConversationFragment.setScrollPosition(mScrollPosition);
+            }
+            mOpenConversation = null;
         } else if (intent != null && ACTION_VIEW_CONVERSATION.equals(intent.getAction())) {
             clearPending();
             handleViewConversationIntent(intent);
@@ -1364,16 +1387,18 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     mPendingImageUris.clear();
                 }
             } else if (requestCode == ATTACHMENT_CHOICE_TAKE_PHOTO) {
-                if (mPendingImageUris.size() == 1) {
-                    Uri uri = mPendingImageUris.get(0);
+                if (mPendingPhotoUris.size() == 1) {
+                    Uri uri = mPendingPhotoUris.get(0);
                     if (xmppConnectionServiceBound) {
                         attachImagesToConversation(getSelectedConversation(), uri);
-                        mPendingImageUris.clear();
+                        mPendingPhotoUris.clear();
                     }
                     Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
                     intent.setData(uri);
                     sendBroadcast(intent);
-                } else mPendingImageUris.clear();
+                } else {
+                    mPendingPhotoUris.clear();
+                }
             } else if (requestCode == ATTACHMENT_CHOICE_LOCATION) {
                 double latitude = data.getDoubleExtra("latitude", 0);
                 double longitude = data.getDoubleExtra("longitude", 0);
@@ -1392,14 +1417,17 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         } else {
             mPendingImageUris.clear();
             mPendingFileUris.clear();
+            mPendingPhotoUris.clear();
             if (requestCode == ConversationActivity.REQUEST_DECRYPT_PGP)
                 mConversationFragment.onActivityResult(requestCode, resultCode, data);
             if (requestCode == REQUEST_BATTERY_OP) setNeverAskForBatteryOptimizationsAgain();
         }
     }
+
     private long getMaxHttpUploadSize(Conversation conversation) {
         return conversation.getAccount().getXmppConnection().getFeatures().getMaxHttpUploadSize();
     }
+
     private void setNeverAskForBatteryOptimizationsAgain() {
         getPreferences().edit().putBoolean("show_battery_optimization", false).commit();
     }
@@ -1523,7 +1551,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         if (conversation == null) {
             return;
         }
-        final Toast prepareFileToast = Toast.makeText(getApplicationContext(),getText(R.string.preparing_video), Toast.LENGTH_LONG);
+        final Toast prepareFileToast = Toast.makeText(getApplicationContext(), getText(R.string.preparing_video), Toast.LENGTH_LONG);
         prepareFileToast.show();
         runOnUiThread(new Runnable() {
             @Override
@@ -1559,6 +1587,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             }
         });
     }
+
     private void attachImagesToConversation(Conversation conversation, Uri uri) {
         if (conversation == null) return;
         final Toast prepareFileToast = Toast.makeText(getApplicationContext(), getText(R.string.preparing_image), Toast.LENGTH_LONG);

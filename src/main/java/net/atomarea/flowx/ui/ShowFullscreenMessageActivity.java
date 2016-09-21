@@ -10,8 +10,8 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageButton;
@@ -23,16 +23,18 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.github.rtoshiro.view.video.FullscreenVideoLayout;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+
 import java.io.File;
 import java.io.IOException;
 
-import net.atomarea.flowx.R;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class ShowFullscreenMessageActivity extends Activity {
 
-    Integer oldOrientation = getRequestedOrientation();
+    Integer oldOrientation;
     PhotoView mImage;
     FullscreenVideoLayout mVideo;
     ImageView mFullscreenbutton;
@@ -45,20 +47,12 @@ public class ShowFullscreenMessageActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        oldOrientation = getRequestedOrientation();
+
         WindowManager.LayoutParams layout = getWindow().getAttributes();
         layout.screenBrightness = 1;
         getWindow().setAttributes(layout);
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        getActionBar().hide();
-        if (Build.VERSION.SDK_INT < 16) {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
-            View decorView = getWindow().getDecorView();
-            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-            decorView.setSystemUiVisibility(uiOptions);
-        }
         setContentView(R.layout.activity_fullscreen_message);
         mImage = (PhotoView) findViewById(R.id.message_image_view);
         mVideo = (FullscreenVideoLayout) findViewById(R.id.message_video_view);
@@ -102,15 +96,28 @@ public class ShowFullscreenMessageActivity extends Activity {
             if (intent.hasExtra("image")) {
                 mFileUri = intent.getParcelableExtra("image");
                 mFile = new File(mFileUri.getPath());
-                if (mFileUri != null) {
-                    DisplayImage(mFile);
+                if (mFileUri != null && mFile.exists() && mFile.length() > 0) {
+                    try {
+                        DisplayImage(mFile);
+                    } catch (Exception e) {
+                        Log.d(Config.LOGTAG, "Illegal exeption :" + e);
+                        Toast.makeText(ShowFullscreenMessageActivity.this, getString(R.string.error_file_corrupt), Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
                 } else {
                     Toast.makeText(ShowFullscreenMessageActivity.this, getString(R.string.file_deleted), Toast.LENGTH_SHORT).show();
                 }
             } else if (intent.hasExtra("video")) {
                 mFileUri = intent.getParcelableExtra("video");
-                if (mFileUri != null) {
-                    DisplayVideo(mFileUri);
+                mFile = new File(mFileUri.getPath());
+                if (mFileUri != null && mFile.exists() && mFile.length() > 0) {
+                    try {
+                        DisplayVideo(mFileUri);
+                    } catch (Exception e) {
+                        Log.d(Config.LOGTAG, "Illegal exeption :" + e);
+                        Toast.makeText(ShowFullscreenMessageActivity.this, getString(R.string.error_file_corrupt), Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
                 } else {
                     Toast.makeText(ShowFullscreenMessageActivity.this, getString(R.string.file_deleted), Toast.LENGTH_SHORT).show();
                 }
@@ -193,6 +200,8 @@ public class ShowFullscreenMessageActivity extends Activity {
     protected void onResume() {
         WindowManager.LayoutParams layout = getWindow().getAttributes();
         layout.screenBrightness = 1;
+        getWindow().setAttributes(layout);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         mVideo.setShouldAutoplay(true);
         super.onResume();
     }
