@@ -1221,7 +1221,10 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             this.mConversationFragment.setupIme();
         }
         if (xmppConnectionService.getAccounts().size() != 0) {
-            AppUpdate();
+            if (xmppConnectionService.hasInternetConnection()) {
+                if (xmppConnectionService.isWIFI() || (xmppConnectionService.isMobile() && !xmppConnectionService.isMobileRoaming()))
+                    AppUpdate();
+            }
         }
 
         if (this.mPostponedActivityResult != null) {

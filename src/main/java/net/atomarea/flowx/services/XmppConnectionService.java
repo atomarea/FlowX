@@ -880,6 +880,46 @@ public class XmppConnectionService extends Service {
         return activeNetwork != null && activeNetwork.isConnected();
     }
 
+    public boolean isWIFI() {
+        ConnectivityManager cm = (ConnectivityManager) getApplicationContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (activeNetwork != null) { // connected to the internet
+            if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isMobile() {
+        ConnectivityManager cm = (ConnectivityManager) getApplicationContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (activeNetwork != null) { // connected to the internet
+            if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
+                if (!activeNetwork.isRoaming()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isMobileRoaming() {
+        ConnectivityManager cm = (ConnectivityManager) getApplicationContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (activeNetwork != null) { // connected to the internet
+            if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
+                if (activeNetwork.isRoaming()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @SuppressLint("TrulyRandom")
     @Override
     public void onCreate() {
@@ -1561,7 +1601,6 @@ public class XmppConnectionService extends Service {
                     conversation.setMode(Conversation.MODE_SINGLE);
                     conversation.setContactJid(jid.toBareJid());
                 }
-                conversation.setNextEncryption(-1);
                 conversation.addAll(0, databaseBackend.getMessages(conversation, Config.PAGE_SIZE));
                 this.databaseBackend.updateConversation(conversation);
             } else {
@@ -1602,7 +1641,6 @@ public class XmppConnectionService extends Service {
     public void archiveConversation(Conversation conversation) {
         getNotificationService().clear(conversation);
         conversation.setStatus(Conversation.STATUS_ARCHIVED);
-        conversation.setNextEncryption(-1);
         synchronized (this.conversations) {
             if (conversation.getMode() == Conversation.MODE_MULTI) {
                 if (conversation.getAccount().getStatus() == Account.State.ONLINE) {

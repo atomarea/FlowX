@@ -45,8 +45,17 @@ public class AbstractConnectionManager {
 	}
 
 	public long getAutoAcceptFileSize() {
-		String config = this.mXmppConnectionService.getPreferences().getString(
-				"auto_accept_file_size", "9999485760");
+		String config = "0";
+		if (mXmppConnectionService.isWIFI()) {
+			config = this.mXmppConnectionService.getPreferences().getString(
+					"auto_accept_file_size_wifi", "10485760");
+		} else if (mXmppConnectionService.isMobile()) {
+			config = this.mXmppConnectionService.getPreferences().getString(
+					"auto_accept_file_size_mobile", "262144");
+		} else if (mXmppConnectionService.isMobileRoaming()) {
+			config = this.mXmppConnectionService.getPreferences().getString(
+					"auto_accept_file_size_roaming", "1");
+		}
 		try {
 			return Long.parseLong(config);
 		} catch (NumberFormatException e) {

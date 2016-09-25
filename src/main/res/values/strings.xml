@@ -702,4 +702,8 @@
 	<string name="remote_server_not_found">Remote server not found</string>
 	<string name="report_jid_as_spammer">Report this User as sending unwanted messages.</string>
 	<string name="error_file_corrupt">This file seems to be corrupt.</string>
+	<string name="select_text">Select text</string>
+	<string name="pref_accept_files_wifi">Accept files in WiFi connections</string>
+	<string name="pref_accept_files_mobile">Accept files in mobile connections</string>
+	<string name="pref_accept_files_mobileroaming">Accept files in mobile roaming connections</string>
 </resources>

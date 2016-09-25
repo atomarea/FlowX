@@ -5,16 +5,6 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.util.Pair;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.DownloadableFile;
@@ -30,6 +20,16 @@ import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.OnIqPacketReceived;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class HttpUploadConnection implements Transferable {
 
@@ -171,10 +171,12 @@ public class HttpUploadConnection implements Transferable {
 				connection.setRequestProperty("Content-Type", mime == null ? "application/octet-stream" : mime);
 				connection.setRequestProperty("User-Agent",mXmppConnectionService.getIqGenerator().getIdentityName());
 				connection.setDoOutput(true);
+				connection.setConnectTimeout(Config.SOCKET_TIMEOUT * 1000);
+				connection.setReadTimeout(Config.SOCKET_TIMEOUT * 1000);
 				connection.connect();
 				os = connection.getOutputStream();
 				transmitted = 0;
-				int count = -1;
+				int count;
 				byte[] buffer = new byte[4096];
 				while (((count = mFileInputStream.read(buffer)) != -1) && !canceled) {
 					transmitted += count;

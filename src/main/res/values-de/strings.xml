@@ -584,4 +584,5 @@
     <string name="preparing_video">Video wird für die Übertragung vorbereitet</string>
     <string name="shared_video_with_x">Video mit %s geteilt</string>
     <string name="unread_messages">Ungelesene Nachrichten:</string>
+    <string name="select_text">Text auswählen</string>
 </resources>

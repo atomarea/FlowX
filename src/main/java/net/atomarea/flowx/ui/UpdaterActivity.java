@@ -18,25 +18,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.persistance.DatabaseBackend;
-import net.atomarea.flowx.services.UpdaterWebService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.services.UpdaterWebService;
 
 public class UpdaterActivity extends Activity {
 
@@ -45,7 +38,8 @@ public class UpdaterActivity extends Activity {
     private int versionCode = 0;
     private DownloadManager downloadManager;
     private long downloadReference;
-    //broadcast receiver to get notification about ongoing downloads
+    private String FileName = "update.apk";
+
     BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
 
         @Override
@@ -53,9 +47,7 @@ public class UpdaterActivity extends Activity {
             //check if the broadcast message is for our Enqueued download
             long referenceId = intent.getExtras().getLong(DownloadManager.EXTRA_DOWNLOAD_ID);
             if (downloadReference == referenceId) {
-                File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "flowx.apk");
-                Log.d(Config.LOGTAG, "AppUpdater: Downloading of the new app version complete. Starting installation from " + file);
-
+                File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), FileName);
                 //start the installation of the latest version
                 Intent installIntent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
                 installIntent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
@@ -63,7 +55,6 @@ public class UpdaterActivity extends Activity {
                 installIntent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
                 installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(installIntent);
-
                 UpdaterActivity.this.finish();
             }
         }
@@ -100,36 +91,6 @@ public class UpdaterActivity extends Activity {
         }
     }
 
-    private void ExportDatabase() throws IOException {
-
-        // Get hold of the db:
-        InputStream myInput = new FileInputStream(this.getDatabasePath(DatabaseBackend.DATABASE_NAME));
-
-        // Set the output folder on the SDcard
-        File directory = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlowX/.Database/");
-
-        // Create the folder if it doesn't exist:
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        // Set the output file stream up:
-        OutputStream myOutput = new FileOutputStream(directory.getPath() + "/Database.bak");
-
-        // Transfer bytes from the input file to the output file
-        byte[] buffer = new byte[1024];
-        int length;
-        while ((length = myInput.read(buffer)) > 0) {
-            myOutput.write(buffer, 0, length);
-        }
-
-        // Close and clear the streams
-        myOutput.flush();
-        myOutput.close();
-        myInput.close();
-    }
-
-
     @Override
     public void onDestroy() {
         //unregister your receivers
@@ -157,9 +118,7 @@ public class UpdaterActivity extends Activity {
             NetworkInfo[] info = connectivity.getAllNetworkInfo();
             if (info != null) {
                 for (int i = 0; i < info.length; i++) {
-                    Log.d(Config.LOGTAG, "AppUpdater: " + String.valueOf(i));
                     if (info[i].getState() == NetworkInfo.State.CONNECTED) {
-                        Log.d(Config.LOGTAG, "AppUpdater: connected to update Server!");
                         return true;
                     }
                 }
@@ -172,16 +131,13 @@ public class UpdaterActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                Log.d(Config.LOGTAG, "AppUpdater: Permission is granted");
                 return true;
             } else {
 
-                Log.d(Config.LOGTAG, "AppUpdater: Permission is revoked");
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 return false;
             }
         } else { //permission is automatically granted on sdk<23 upon installation
-            Log.d(Config.LOGTAG, "AppUpdater: Permission is granted");
             return true;
         }
     }
@@ -219,16 +175,13 @@ public class UpdaterActivity extends Activity {
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
             String responseMessage = intent.getStringExtra(UpdaterWebService.RESPONSE_MESSAGE);
-            Log.d(Config.LOGTAG, "AppUpdater: Reponse: " + responseMessage);
 
             if (responseMessage == "" || responseMessage.isEmpty() || responseMessage == null) {
                 Toast.makeText(getApplicationContext(),
                         getText(R.string.failed),
                         Toast.LENGTH_LONG).show();
-                Log.e(Config.LOGTAG, "AppUpdater: error connecting to server");
                 UpdaterActivity.this.finish();
             } else {
-                Log.d(Config.LOGTAG, "AppUpdater: connecting to server");
                 //parse the JSON reponse
                 JSONObject reponseObj;
 
@@ -237,15 +190,6 @@ public class UpdaterActivity extends Activity {
                     reponseObj = new JSONObject(responseMessage);
                     boolean success = reponseObj.getBoolean("success");
                     if (success) {
-                        if (isStoragePermissionGranted()) {
-                            //start backing up database
-                            try {
-                                ExportDatabase();
-                                Log.d(Config.LOGTAG, "AppUpdater: Database successfully exported");
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
                         //Overall information about the contents of a package
                         //This corresponds to all of the information collected from AndroidManifest.xml.
                         PackageInfo pInfo = null;
@@ -261,14 +205,13 @@ public class UpdaterActivity extends Activity {
                         int latestVersionCode = reponseObj.getInt("latestVersionCode");
                         String latestVersion = reponseObj.getString("latestVersion");
                         String filesize = reponseObj.getString("filesize");
+                        String changelog = reponseObj.getString("changelog");
                         //get the lastest application URI from the JSON string
                         appURI = reponseObj.getString("appURI");
                         //check if we need to upgrade?
                         if (latestVersionCode > versionCode) {
-                            Log.d(Config.LOGTAG, "AppUpdater: update available");
                             //delete old downloaded version files
                             File dir = new File(getExternalFilesDir(null), Environment.DIRECTORY_DOWNLOADS);
-                            Log.d(Config.LOGTAG, "AppUpdater: delete old update files in: " + dir);
                             if (dir.isDirectory()) {
                                 String[] children = dir.list();
                                 for (int i = 0; i < children.length; i++) {
@@ -283,7 +226,7 @@ public class UpdaterActivity extends Activity {
                             builder.setCancelable(false);
 
                             String UpdateMessageInfo = getResources().getString(R.string.update_available);
-                            builder.setMessage(String.format(UpdateMessageInfo, latestVersion, filesize, versionName))
+                            builder.setMessage(String.format(UpdateMessageInfo, latestVersion, filesize, versionName, changelog))
                                     .setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
                                         //if the user agrees to upgrade
                                         public void onClick(DialogInterface dialog, int id) {
@@ -298,13 +241,24 @@ public class UpdaterActivity extends Activity {
                                                 DownloadManager.Request request = new DownloadManager.Request(Download_Uri);
                                                 //request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
                                                 //request.setAllowedOverRoaming(false);
-                                                request.setTitle("FlowX Messenger Update");
-                                                request.setDestinationInExternalFilesDir(UpdaterActivity.this, Environment.DIRECTORY_DOWNLOADS, "flowx.apk");
+                                                request.setTitle("Pix-Art Messenger Update");
+                                                request.setDestinationInExternalFilesDir(UpdaterActivity.this, Environment.DIRECTORY_DOWNLOADS, FileName);
                                                 downloadReference = downloadManager.enqueue(request);
                                                 Toast.makeText(getApplicationContext(),
                                                         getText(R.string.download_started),
                                                         Toast.LENGTH_LONG).show();
                                             }
+                                        }
+                                    })
+                                    .setNeutralButton(R.string.changelog, new DialogInterface.OnClickListener() {
+                                        //open link to changelog
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            Uri uri = Uri.parse("https://github.com/kriztan/Conversations/blob/development/CHANGELOG.md"); // missing 'http://' will cause crashed
+                                            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(intent);
+                                            //restart updater to show dialog again after coming back after opening changelog
+                                            recreate();
                                         }
                                     })
                                     .setNegativeButton(R.string.remind_later, new DialogInterface.OnClickListener() {
@@ -319,22 +273,18 @@ public class UpdaterActivity extends Activity {
                             Toast.makeText(getApplicationContext(),
                                     getText(R.string.no_update_available),
                                     Toast.LENGTH_SHORT).show();
-                            Log.d(Config.LOGTAG, "AppUpdater: no update available");
                             UpdaterActivity.this.finish();
                         }
                     } else {
                         Toast.makeText(getApplicationContext(),
                                 getText(R.string.failed),
                                 Toast.LENGTH_LONG).show();
-                        Log.e(Config.LOGTAG, "AppUpdater: contact to server not successfull");
                         UpdaterActivity.this.finish();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
-
         }
-
     }
 }

@@ -1,41 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/copy_text"
         android:title="@string/copy_text"
-        android:visible="false"/>
+        android:visible="false" />
+    <item
+        android:id="@+id/select_text"
+        android:title="@string/select_text"
+        android:visible="false" />
     <item
         android:id="@+id/retry_decryption"
         android:title="Retry decryption"
-        android:visible="false"/>
+        android:visible="false" />
     <item
         android:id="@+id/correct_message"
         android:title="@string/correct_message"
-        android:visible="false"/>
+        android:visible="false" />
     <item
         android:id="@+id/share_with"
         android:title="@string/share_with"
-        android:visible="false"/>
+        android:visible="false" />
     <item
         android:id="@+id/copy_url"
         android:title="@string/copy_original_url"
-        android:visible="false"/>
+        android:visible="false" />
     <item
         android:id="@+id/send_again"
         android:title="@string/send_again"
-        android:visible="false"/>
+        android:visible="false" />
     <item
         android:id="@+id/download_file"
         android:title="@string/download_x_file"
-        android:visible="false"/>
+        android:visible="false" />
     <item
         android:id="@+id/cancel_transmission"
         android:title="@string/cancel_transmission"
-        android:visible="false"/>
+        android:visible="false" />
     <item
         android:id="@+id/delete_file"
         android:title="@string/delete_x_file"
-        android:visible="false"/>
+        android:visible="false" />
 
 </menu>

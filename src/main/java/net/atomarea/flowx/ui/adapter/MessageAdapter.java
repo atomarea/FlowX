@@ -54,6 +54,7 @@ import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.ui.ConversationActivity;
 import net.atomarea.flowx.ui.ShowFullscreenMessageActivity;
 import net.atomarea.flowx.ui.widget.ClickableMovementMethod;
+import net.atomarea.flowx.ui.widget.ListSelectionManager;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.GeoHelper;
 import net.atomarea.flowx.utils.UIHelper;
@@ -90,6 +91,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     };
     private boolean mIndicateReceived = false;
     private HashMap<Integer, AudioWife> audioPlayer;
+    private final ListSelectionManager listSelectionManager = new ListSelectionManager();
 
     public MessageAdapter(ConversationActivity a, List<Message> messages) {
         super(a, 0, messages);
@@ -355,6 +357,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             viewHolder.messageBody.setText(formattedBody);
             viewHolder.messageBody.setTextIsSelectable(true);
             viewHolder.messageBody.setMovementMethod(ClickableMovementMethod.getInstance());
+            listSelectionManager.onUpdate(viewHolder.messageBody, message);
         } else {
             viewHolder.messageBody.setText("");
             viewHolder.messageBody.setTextIsSelectable(false);
@@ -524,6 +527,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder = null;
                 break;
         }
+        if (viewHolder.messageBody != null) listSelectionManager.onCreate(viewHolder.messageBody);
         view.setTag(viewHolder);
 
         if (viewHolder == null) return view;
@@ -612,7 +616,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
         return view;
     }
-
+    @Override
+    public void notifyDataSetChanged() {
+        listSelectionManager.onBeforeNotifyDataSetChanged();
+        super.notifyDataSetChanged();
+        listSelectionManager.onAfterNotifyDataSetChanged();
+    }
     public void openDownloadable(Message message) {
         DownloadableFile file = activity.xmppConnectionService.getFileBackend().getFile(message);
         if (!file.exists()) {
@@ -682,7 +691,14 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     public void updatePreferences() {
         this.mIndicateReceived = activity.indicateReceived();
     }
-
+    public TextView getMessageBody(View view) {
+        final Object tag = view.getTag();
+        if (tag instanceof ViewHolder) {
+            final ViewHolder viewHolder = (ViewHolder) tag;
+            return viewHolder.messageBody;
+        }
+        return null;
+    }
     private static class ViewHolder {
 
         public Button load_more_messages;

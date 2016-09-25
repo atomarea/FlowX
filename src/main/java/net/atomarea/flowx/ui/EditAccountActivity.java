@@ -266,7 +266,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     }
 
 
-
     protected boolean accountInfoEdited() {
         if (this.mAccount == null) {
             return false;
@@ -402,7 +401,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 updateAccountInformation(true);
             }
         }
-        if(mAccount.getPresenceStatusMessage() == null) {
+        if (mAccount.getPresenceStatusMessage() == null) {
             mStatusMessage.setText(R.string.no_status);
             mStatusView.setVisibility(View.VISIBLE);
             mStatus.setVisibility(View.VISIBLE);
@@ -436,7 +435,11 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 startActivity(intent);
                 break;
             case R.id.action_check_updates:
-                startActivity(new Intent(this, UpdaterActivity.class));
+                if (xmppConnectionService.hasInternetConnection()) {
+                    startActivity(new Intent(this, UpdaterActivity.class));
+                } else {
+                    Toast.makeText(this, R.string.account_status_no_internet, Toast.LENGTH_LONG).show();
+                }
                 break;
             case R.id.action_restart:
                 if (xmppConnectionServiceBound) {

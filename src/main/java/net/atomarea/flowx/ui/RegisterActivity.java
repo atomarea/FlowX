@@ -132,6 +132,9 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
                 return;
             }
             if (registerNewAccount) {
+                if (XmppConnection.errorMessage != null) {
+                    Toast.makeText(RegisterActivity.this, XmppConnection.errorMessage, Toast.LENGTH_LONG).show();
+                }
                 if (!password.equals(passwordConfirm)) {
                     mPasswordConfirm.setError(getString(R.string.passwords_do_not_match));
                     mPasswordConfirm.requestFocus();
@@ -145,7 +148,11 @@ public class RegisterActivity extends XmppActivity implements OnAccountUpdate,
                 mAccount.setJid(jid);
                 mAccount.setPort(numericPort);
                 mAccount.setHostname(hostname);
-                mAccountJid.setError(null);
+                if (XmppConnection.errorMessage != null) {
+                    mAccountJid.setError(XmppConnection.errorMessage);
+                } else {
+                    mAccountJid.setError(null);
+                }
                 mPasswordConfirm.setError(null);
                 mAccount.setPassword(password);
                 mAccount.setOption(Account.OPTION_REGISTER, registerNewAccount);

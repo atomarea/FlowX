@@ -13,6 +13,8 @@ import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputType;
+import android.text.Selection;
+import android.text.Spannable;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -60,6 +62,8 @@ import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 import net.atomarea.flowx.xmpp.jid.Jid;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -206,10 +210,11 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                                     final int pxOffset = (v == null) ? 0 : v.getTop();
                                     ConversationFragment.this.conversation.populateWithMessages(ConversationFragment.this.messageList);
                                     try {
-                                        										updateStatusMessages();
-                                        									} catch (IllegalStateException e) {
-                                        										Log.d(Config.LOGTAG,"caught illegal state exception while updating status messages");
-                                        									}                                    messageListAdapter.notifyDataSetChanged();
+                                        updateStatusMessages();
+                                    } catch (IllegalStateException e) {
+                                        Log.d(Config.LOGTAG, "caught illegal state exception while updating status messages");
+                                    }
+                                    messageListAdapter.notifyDataSetChanged();
                                     int pos = Math.max(getIndexOf(uuid, messageList), 0);
                                     messagesView.setSelectionFromTop(pos, pxOffset);
                                     messagesLoaded = true;
@@ -265,7 +270,8 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         }
         return -1;
     }
-    public Pair<Integer,Integer> getScrollPosition() {
+
+    public Pair<Integer, Integer> getScrollPosition() {
         if (this.messagesView.getCount() == 0 ||
                 this.messagesView.getLastVisiblePosition() == this.messagesView.getCount() - 1) {
             return null;
@@ -280,11 +286,12 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         }
     }
 
-    public void setScrollPosition(Pair<Integer,Integer> scrollPosition) {
+    public void setScrollPosition(Pair<Integer, Integer> scrollPosition) {
         if (scrollPosition != null) {
             this.messagesView.setSelectionFromTop(scrollPosition.first, scrollPosition.second);
         }
     }
+
     protected OnClickListener clickToDecryptListener = new OnClickListener() {
 
         @Override
@@ -615,6 +622,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             activity.getMenuInflater().inflate(R.menu.message_context, menu);
             menu.setHeaderTitle(R.string.message_options);
             MenuItem copyText = menu.findItem(R.id.copy_text);
+            MenuItem selectText = menu.findItem(R.id.select_text);
             MenuItem retryDecryption = menu.findItem(R.id.retry_decryption);
             MenuItem correctMessage = menu.findItem(R.id.correct_message);
             MenuItem shareWith = menu.findItem(R.id.share_with);
@@ -627,6 +635,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                     && !GeoHelper.isGeoUri(m.getBody())
                     && m.treatAsDownloadable() != Message.Decision.MUST) {
                 copyText.setVisible(true);
+                selectText.setVisible(METHOD_START_SELECTION != null);
             }
             if (m.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED) {
                 retryDecryption.setVisible(true);
@@ -651,7 +660,8 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                     || (m.isFileOrImage() && t instanceof TransferablePlaceholder && m.hasFileOnRemoteHost())) {
                 downloadFile.setVisible(true);
                 downloadFile.setTitle(activity.getString(R.string.download_x_file, UIHelper.getFileDescriptionString(activity, m)));
-            }updateStatusMessages();
+            }
+            updateStatusMessages();
             boolean waitingOfferedSending = m.getStatus() == Message.STATUS_WAITING
                     || m.getStatus() == Message.STATUS_UNSEND
                     || m.getStatus() == Message.STATUS_OFFERED;
@@ -673,6 +683,9 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 return true;
             case R.id.copy_text:
                 copyText(selectedMessage);
+                return true;
+            case R.id.select_text:
+                selectText(selectedMessage);
                 return true;
             case R.id.correct_message:
                 correctMessage(selectedMessage);
@@ -722,11 +735,36 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         }
     }
 
+
     private void copyText(Message message) {
         if (activity.copyTextToClipboard(message.getMergedBody(),
                 R.string.message_text)) {
             Toast.makeText(activity, R.string.message_copied_to_clipboard,
                     Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void selectText(Message message) {
+        final int index;
+        synchronized (this.messageList) {
+            index = this.messageList.indexOf(message);
+        }
+        if (index >= 0) {
+            final int first = this.messagesView.getFirstVisiblePosition();
+            final int last = first + this.messagesView.getChildCount();
+            if (index >= first && index < last) {
+                final View view = this.messagesView.getChildAt(index - first);
+                final TextView messageBody = this.messageListAdapter.getMessageBody(view);
+                if (messageBody != null) {
+                    final Spannable text = (Spannable) messageBody.getText();
+                    Selection.setSelection(text, 0, text.length());
+                    try {
+                        Object editor = FIELD_EDITOR != null ? FIELD_EDITOR.get(messageBody) : messageBody;
+                        METHOD_START_SELECTION.invoke(editor);
+                    } catch (Exception e) {
+                    }
+                }
+            }
         }
     }
 
@@ -1431,6 +1469,33 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 activity.selectPresenceToAttachFile(choice, conversation.getNextEncryption());
             }
         }
+    }
+
+    private static final Field FIELD_EDITOR;
+    private static final Method METHOD_START_SELECTION;
+
+    static {
+        Field editor;
+        try {
+            editor = TextView.class.getDeclaredField("mEditor");
+            editor.setAccessible(true);
+        } catch (Exception e) {
+            editor = null;
+        }
+        FIELD_EDITOR = editor;
+        Class<?> editorClass = editor != null ? editor.getType() : TextView.class;
+        String[] startSelectionNames = {"startSelectionActionMode", "startSelectionActionModeWithSelection"};
+        Method startSelection = null;
+        for (String startSelectionName : startSelectionNames) {
+            try {
+                startSelection = editorClass.getDeclaredMethod(startSelectionName);
+                startSelection.setAccessible(true);
+                break;
+            } catch (Exception e) {
+                startSelection = null;
+            }
+        }
+        METHOD_START_SELECTION = startSelection;
     }
 
     enum SendButtonAction {TEXT, TAKE_PHOTO, SEND_LOCATION, RECORD_VOICE, CANCEL, CHOOSE_PICTURE, CHOOSE_VIDEO}
