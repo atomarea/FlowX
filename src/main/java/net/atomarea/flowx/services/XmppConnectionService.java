@@ -632,10 +632,6 @@ public class XmppConnectionService extends Service {
                         mNotificationService.clear();
                     }
                     break;
-                case ACTION_DISABLE_FOREGROUND:
-                    getPreferences().edit().putBoolean("keep_foreground_service", false).commit();
-                    toggleForegroundService();
-                    break;
                 case ACTION_TRY_AGAIN:
                     resetAllAttemptCounts(false);
                     interactive = true;
@@ -965,7 +961,6 @@ public class XmppConnectionService extends Service {
 
         this.pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "XmppConnectionService");
-        toggleForegroundService();
         updateUnreadCountBadge();
         toggleScreenEventReceiver();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Config.PUSH_MODE) {
@@ -1007,24 +1002,6 @@ public class XmppConnectionService extends Service {
             } catch (IllegalArgumentException e) {
                 //ignored
             }
-        }
-    }
-
-    public void toggleForegroundService() {
-        if (getPreferences().getBoolean("keep_foreground_service", false)) {
-            startForeground(NotificationService.FOREGROUND_NOTIFICATION_ID, this.mNotificationService.createForegroundNotification());
-        } else {
-            stopForeground(true);
-        }
-    }
-
-    @Override
-    public void onTaskRemoved(final Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
-        if (!getPreferences().getBoolean("keep_foreground_service", false)) {
-            this.logoutAndSave(false);
-        } else {
-            Log.d(Config.LOGTAG, "ignoring onTaskRemoved because foreground service is activated");
         }
     }
 

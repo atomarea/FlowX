@@ -125,11 +125,6 @@
             android:key="auto_accept_file_size_roaming"
             android:summary="@string/pref_accept_files_summary"
             android:title="@string/pref_accept_files_mobileroaming" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="keep_foreground_service"
-            android:title="@string/pref_keep_foreground_service"
-            android:summary="@string/pref_keep_foreground_service_summary" />
         <net.atomarea.flowx.ui.ExportLogsPreference
             android:key="export_logs"
             android:title="@string/pref_export_logs"

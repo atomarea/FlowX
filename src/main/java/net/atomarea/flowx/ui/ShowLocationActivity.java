@@ -30,10 +30,11 @@ import java.util.Locale;
 
 public class ShowLocationActivity extends Activity implements OnMapReadyCallback {
 
-	private GoogleMap mGoogleMap;
-	private LatLng mLocation;
-	private String mLocationName;
+    private GoogleMap mGoogleMap;
+    private LatLng mLocation;
+    private String mLocationName;
     private MarkerOptions options;
+    private Marker marker;
 
     class InfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
@@ -60,55 +61,55 @@ public class ShowLocationActivity extends Activity implements OnMapReadyCallback
         }
     }
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         if (getActionBar() != null) {
             getActionBar().setHomeButtonEnabled(true);
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-		setContentView(R.layout.activity_show_locaction);
-		MapFragment fragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
-		fragment.getMapAsync(this);
-	}
+        setContentView(R.layout.activity_show_locaction);
+        MapFragment fragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
+        fragment.getMapAsync(this);
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				finish();
-				return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		Intent intent = getIntent();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = getIntent();
 
-		this.mLocationName = intent != null ? intent.getStringExtra("name") : null;
+        this.mLocationName = intent != null ? intent.getStringExtra("name") : null;
 
-		if (intent != null && intent.hasExtra("longitude") && intent.hasExtra("latitude")) {
-			double longitude = intent.getDoubleExtra("longitude",0);
-			double latitude = intent.getDoubleExtra("latitude",0);
-			this.mLocation = new LatLng(latitude,longitude);
-			if (this.mGoogleMap != null) {
-				markAndCenterOnLocation(this.mLocation, this.mLocationName);
-			}
-		}
-	}
+        if (intent != null && intent.hasExtra("longitude") && intent.hasExtra("latitude")) {
+            double longitude = intent.getDoubleExtra("longitude",0);
+            double latitude = intent.getDoubleExtra("latitude",0);
+            this.mLocation = new LatLng(latitude,longitude);
+            if (this.mGoogleMap != null) {
+                markAndCenterOnLocation(this.mLocation, this.mLocationName);
+            }
+        }
+    }
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-	}
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 
-	@Override
-	public void onMapReady(GoogleMap googleMap) {
-		this.mGoogleMap = googleMap;
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        this.mGoogleMap = googleMap;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -119,10 +120,10 @@ public class ShowLocationActivity extends Activity implements OnMapReadyCallback
             this.mGoogleMap.setBuildingsEnabled(true);
             this.mGoogleMap.setMyLocationEnabled(true);
         }
-		if (this.mLocation != null) {
-			this.markAndCenterOnLocation(this.mLocation,this.mLocationName);
-		}
-	}
+        if (this.mLocation != null) {
+            this.markAndCenterOnLocation(this.mLocation,this.mLocationName);
+        }
+    }
 
     private static String getAddress(Context context, LatLng location) {
         double longitude = location.longitude;
@@ -149,17 +150,25 @@ public class ShowLocationActivity extends Activity implements OnMapReadyCallback
         return address;
     }
 
-	private void markAndCenterOnLocation(final LatLng location, String name) {
-		this.mGoogleMap.clear();
+    private void markAndCenterOnLocation(final LatLng location, String name) {
+        mGoogleMap.clear();
         options = new MarkerOptions();
         options.position(location);
         double longitude = mLocation.longitude;
         double latitude = mLocation.latitude;
-        this.mGoogleMap.setInfoWindowAdapter(new InfoWindowAdapter());
-
+        mGoogleMap.setInfoWindowAdapter(new InfoWindowAdapter());
+        if (name != null) {
+            options.title(name);
+        }
         if (latitude != 0 && longitude != 0) {
             new AsyncTask<Void, Void, Void>() {
                 String address = null;
+
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, Config.DEFAULT_ZOOM));
+                }
 
                 @Override
                 protected Void doInBackground(Void... params) {
@@ -171,14 +180,17 @@ public class ShowLocationActivity extends Activity implements OnMapReadyCallback
                 protected void onPostExecute(Void result) {
                     super.onPostExecute(result);
                     options.snippet(String.valueOf(address));
-                    mGoogleMap.addMarker(options).showInfoWindow();
+                    marker = mGoogleMap.addMarker(options);
+                    marker.showInfoWindow();
                 }
             }.execute();
         }
-        if (name != null) {
-			options.title(name);
-		}
-		this.mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, Config.DEFAULT_ZOOM));
-	}
 
+        mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                marker.showInfoWindow();
+            }
+        });
+    }
 }

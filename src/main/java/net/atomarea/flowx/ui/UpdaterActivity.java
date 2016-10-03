@@ -241,24 +241,13 @@ public class UpdaterActivity extends Activity {
                                                 DownloadManager.Request request = new DownloadManager.Request(Download_Uri);
                                                 //request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
                                                 //request.setAllowedOverRoaming(false);
-                                                request.setTitle("Pix-Art Messenger Update");
+                                                request.setTitle("FlowX Update");
                                                 request.setDestinationInExternalFilesDir(UpdaterActivity.this, Environment.DIRECTORY_DOWNLOADS, FileName);
                                                 downloadReference = downloadManager.enqueue(request);
                                                 Toast.makeText(getApplicationContext(),
                                                         getText(R.string.download_started),
                                                         Toast.LENGTH_LONG).show();
                                             }
-                                        }
-                                    })
-                                    .setNeutralButton(R.string.changelog, new DialogInterface.OnClickListener() {
-                                        //open link to changelog
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            Uri uri = Uri.parse("https://github.com/kriztan/Conversations/blob/development/CHANGELOG.md"); // missing 'http://' will cause crashed
-                                            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            startActivity(intent);
-                                            //restart updater to show dialog again after coming back after opening changelog
-                                            recreate();
                                         }
                                     })
                                     .setNegativeButton(R.string.remind_later, new DialogInterface.OnClickListener() {

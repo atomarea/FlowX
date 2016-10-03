@@ -6,6 +6,7 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,9 +21,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.media.AudioManager;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -101,11 +99,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     public static final String TEXT = "text";
     public static final String NICK = "nick";
     public static final String PRIVATE_MESSAGE = "pm";
-
-    private SensorManager mSensorManager;
-    private AudioManager mAudioManager;
-    private Sensor mSensor;
-
     public static final int REQUEST_SEND_MESSAGE = 0x0201;
     public static final int REQUEST_DECRYPT_PGP = 0x0202;
     public static final int REQUEST_ENCRYPT_MESSAGE = 0x0207;
@@ -129,7 +122,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     final private List<Uri> mPendingFileUris = new ArrayList<>();
     final private List<Uri> mPendingVideoUris = new ArrayList<>();
     private String mOpenConversation = null;
-    private boolean showLastSeen = true;
     private boolean mPanelOpen = true;
     private Pair<Integer, Integer> mScrollPosition = null;
     private Uri mPendingGeoUri = null;
@@ -263,10 +255,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 mPendingPhotoUris.add(Uri.parse(pending));
             }
         }
-
-        mSensor = (mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE)).getDefaultSensor(Sensor.TYPE_PROXIMITY);
-        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-
         setContentView(R.layout.fragment_conversations_overview);
 
         this.mConversationFragment = new ConversationFragment();
@@ -375,7 +363,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         if (mContentView instanceof SlidingPaneLayout) {
             SlidingPaneLayout mSlidingPaneLayout = (SlidingPaneLayout) mContentView;
             mSlidingPaneLayout.setParallaxDistance(150);
-            // mSlidingPaneLayout.setShadowResource(R.drawable.es_slidingpane_shadow);
             mSlidingPaneLayout.setSliderFadeColor(0);
             mSlidingPaneLayout.setPanelSlideListener(new PanelSlideListener() {
                 @Override
@@ -1079,14 +1066,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
     @Override
-    public void onPause() {
-        listView.discardUndo();
-        super.onPause();
-        mAudioManager.setMode(AudioManager.MODE_NORMAL);
-        this.mActivityPaused = true;
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         final int theme = findTheme();
@@ -1448,7 +1427,11 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
                     Uri uri = Uri.parse("package:" + getPackageName());
                     intent.setData(uri);
-                    startActivityForResult(intent, REQUEST_BATTERY_OP);
+                    try {
+                        startActivityForResult(intent, REQUEST_BATTERY_OP);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(ConversationActivity.this, R.string.device_does_not_support_battery_op, Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -1459,6 +1442,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     }
                 });
             }
+            builder.create().show();
         }
     }
 

@@ -39,6 +39,8 @@ public final class Config {
     public static final String DOMAIN_LOCK = "flowx.im"; //only allow account creation for this domain
     public static final String MUC_LOCK = "@conference.flowx.im";
     public static final String JID_LOCK = "@flowx.im";
+    public static final boolean USE_ALWAYS_FOREGROUND = false; //if set to true the foreground service is always enabled
+    public static final boolean SHOW_DISABLE_FOREGROUND = false; //if set to true the foreground notification has a button to disable it
     public static final int VIDEO_BITRATE = 500000;
     public static final int VIDEO_SIZE = 640;
     public static final int VIDEO_MAX_SIZE = 5242880; //5 MiB
