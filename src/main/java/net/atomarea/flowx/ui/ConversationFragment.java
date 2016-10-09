@@ -949,8 +949,8 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 case NO_RESPONSE:
                     showSnackbar(R.string.conference_not_found, R.string.leave, leaveMuc);
                     break;
-                case SEVRER_NOT_FOUND:
-                    showSnackbar(R.string.remote_server_not_found, R.string.leave, leaveMuc);
+                case SERVER_NOT_FOUND:
+                    showSnackbar(R.string.remote_server_not_found,R.string.leave, leaveMuc);
                     break;
                 case PASSWORD_REQUIRED:
                     showSnackbar(R.string.conference_requires_password, R.string.enter_password, enterPassword);

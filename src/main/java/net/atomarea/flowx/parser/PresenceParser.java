@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.PgpEngine;
 import net.atomarea.flowx.entities.Account;
@@ -183,18 +184,18 @@ public class PresenceParser extends AbstractParser implements
 			final String resource = from.isBareJid() ? "" : from.getResourcepart();
 			contact.setPresenceName(packet.findChildContent("nick", "http://jabber.org/protocol/nick"));
 			Avatar avatar = Avatar.parsePresence(packet.findChild("x", "vcard-temp:x:update"));
-            if (avatar != null && (!contact.isSelf() || account.getAvatar() == null)) {
-                avatar.owner = from.toBareJid();
+			if (avatar != null && (!contact.isSelf() || account.getAvatar() == null)) {
+				avatar.owner = from.toBareJid();
 				if (mXmppConnectionService.getFileBackend().isAvatarCached(avatar)) {
-                    if (avatar.owner.equals(account.getJid().toBareJid())) {
-                        account.setAvatar(avatar.getFilename());
-                        mXmppConnectionService.databaseBackend.updateAccount(account);
-                        mXmppConnectionService.getAvatarService().clear(account);
-                        mXmppConnectionService.updateConversationUi();
-                        mXmppConnectionService.updateAccountUi();
-                    } else if (contact.setAvatar(avatar)) {
-                        mXmppConnectionService.getAvatarService().clear(contact);
-                        mXmppConnectionService.updateConversationUi();
+					if (avatar.owner.equals(account.getJid().toBareJid())) {
+						account.setAvatar(avatar.getFilename());
+						mXmppConnectionService.databaseBackend.updateAccount(account);
+						mXmppConnectionService.getAvatarService().clear(account);
+						mXmppConnectionService.updateConversationUi();
+						mXmppConnectionService.updateAccountUi();
+					} else if (contact.setAvatar(avatar)) {
+						mXmppConnectionService.getAvatarService().clear(contact);
+						mXmppConnectionService.updateConversationUi();
 						mXmppConnectionService.updateRosterUi();
 					}
 				} else if (mXmppConnectionService.isDataSaverDisabled()){

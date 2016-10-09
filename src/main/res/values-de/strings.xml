@@ -585,4 +585,13 @@
     <string name="shared_video_with_x">Video mit %s geteilt</string>
     <string name="unread_messages">Ungelesene Nachrichten:</string>
     <string name="select_text">Text auswählen</string>
+    <string name="error_publish_avatar_offline">Du benötigst eine aktive Verbindung, um dein Bild hochzuladen!</string>
+    <string name="missing_omemo_keys">OMEMO-Schlüssel fehlen</string>
+    <string name="missing_presence_subscription">Online-Status nicht vorhanden</string>
+    <string name="pref_accept_files_mobile">Dateien im Mobilen Netz annehmen</string>
+    <string name="pref_accept_files_mobileroaming">Dateien im Roaming annehmen</string>
+    <string name="pref_accept_files_wifi">Dateien im WLAN annehmen</string>
+    <string name="pref_delete_omemo_identities">Verschlüsselte Identitäten löschen</string>
+    <string name="pref_delete_omemo_identities_summary">Kontakte müssen sich neu authifizieren mit dir.</string>
+    <string name="delete_selected_keys">ausgewählte Schlüssel löschen</string>
 </resources>

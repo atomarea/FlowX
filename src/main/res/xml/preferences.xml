@@ -92,6 +92,10 @@
             android:key="confirm_messages"
             android:summary="@string/pref_confirm_messages_summary"
             android:title="@string/pref_confirm_messages" />
+        <Preference
+            android:key="delete_omemo_identities"
+            android:title="@string/pref_delete_omemo_identities"
+            android:summary="@string/pref_delete_omemo_identities_summary" />
     </PreferenceScreen>
 
     <PreferenceScreen

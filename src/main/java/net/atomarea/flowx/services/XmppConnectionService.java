@@ -154,6 +154,7 @@ public class XmppConnectionService extends Service {
     private final List<String> mInProgressAvatarFetches = new ArrayList<>();
     private WakeLock wakeLock;
     private long mLastActivity = 0;
+    public static VideoCompressor CompressVideo;
     public DatabaseBackend databaseBackend;
     private ContentObserver contactObserver = new ContentObserver(null) {
         @Override
@@ -331,8 +332,8 @@ public class XmppConnectionService extends Service {
                     joinMuc(conversation);
                 }
                 account.pendingConferenceJoins.clear();
-                scheduleWakeUpCall(Config.PING_MAX_INTERVAL, account.getUuid().hashCode());
-            } else if (account.getStatus() == Account.State.OFFLINE) {
+                scheduleWakeUpCall(Config.PUSH_MODE ? Config.PING_MIN_INTERVAL : Config.PING_MAX_INTERVAL, account.getUuid().hashCode());
+            } else if (account.getStatus() == Account.State.OFFLINE || account.getStatus() == Account.State.DISABLED) {
                 resetSendingToWaiting(account);
                 final boolean disabled = account.isOptionSet(Account.OPTION_DISABLED);
                 final boolean pushMode = Config.CLOSE_TCP_WHEN_SWITCHING_TO_BACKGROUND
@@ -348,6 +349,7 @@ public class XmppConnectionService extends Service {
                 reconnectAccount(account, true, false);
             } else if ((account.getStatus() != Account.State.CONNECTING)
                     && (account.getStatus() != Account.State.NO_INTERNET)) {
+                resetSendingToWaiting(account);
                 if (connection != null) {
                     int next = connection.getTimeToNextAttempt();
                     Log.d(Config.LOGTAG, account.getJid().toBareJid()
@@ -538,7 +540,7 @@ public class XmppConnectionService extends Service {
             Log.d(Config.LOGTAG, conversation.getAccount().getJid().toBareJid() + ": not compressing video. sending as file");
             attachFileToConversation(conversation, uri, callback);
         } else {
-            VideoCompressor CompressVideo = new VideoCompressor(path, compressed_path, new Interface() {
+            CompressVideo = new VideoCompressor(path, compressed_path,  new Interface() {
                 @Override
                 public void videocompressed(boolean result) {
                     if (result) {
@@ -583,7 +585,6 @@ public class XmppConnectionService extends Service {
         @Override
         protected void onPostExecute(Boolean compressed) {
             super.onPostExecute(compressed);
-            wakeLock.release();
             File video = new File(compressedpath);
             if (mListener != null) {
                 if (video.exists() && video.length() > 0) {
@@ -594,6 +595,7 @@ public class XmppConnectionService extends Service {
                     Log.d(Config.LOGTAG, "Compression failed!");
                 }
             }
+            wakeLock.release();
         }
     }
 
@@ -608,6 +610,7 @@ public class XmppConnectionService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         final String action = intent == null ? null : intent.getAction();
+        String pushedAccountHash = null;
         boolean interactive = false;
         if (action != null) {
             final Conversation c = findConversationByUuid(intent.getStringExtra("uuid"));
@@ -679,6 +682,7 @@ public class XmppConnectionService extends Service {
                     break;
                 case ACTION_GCM_MESSAGE_RECEIVED:
                     Log.d(Config.LOGTAG, "gcm push message arrived in service. extras=" + intent.getExtras());
+                    pushedAccountHash = intent.getStringExtra("account");
                     break;
             }
         }
@@ -717,7 +721,7 @@ public class XmppConnectionService extends Service {
                             }
                         } else {
                             pingCandidates.add(account);
-                            if (msToNextPing <= 0) {
+                            if (msToNextPing <= 0 || CryptoHelper.getAccountFingerprint(account).equals(pushedAccountHash)) {
                                 pingNow = true;
                             } else {
                                 this.scheduleWakeUpCall((int) (msToNextPing / 1000), account.getUuid().hashCode());
@@ -1361,6 +1365,13 @@ public class XmppConnectionService extends Service {
                     for (Conversation conversation : conversations) {
                         conversation.addAll(0, databaseBackend.getMessages(conversation, Config.PAGE_SIZE));
                         checkDeletedFiles(conversation);
+                        conversation.findUnsentTextMessages(new Conversation.OnMessageFound() {
+
+                            @Override
+                            public void onMessageFound(Message message) {
+                                markMessage(message, Message.STATUS_WAITING);
+                            }
+                        });
                         conversation.findUnreadMessages(new Conversation.OnMessageFound() {
                             @Override
                             public void onMessageFound(Message message) {
@@ -2097,7 +2108,7 @@ public class XmppConnectionService extends Service {
                 @Override
                 public void onFetchFailed(final Conversation conversation, Element error) {
                     if (error != null && "remote-server-not-found".equals(error.getName())) {
-                        conversation.getMucOptions().setError(MucOptions.Error.SEVRER_NOT_FOUND);
+                        conversation.getMucOptions().setError(MucOptions.Error.SERVER_NOT_FOUND);
                     } else {
                         join(conversation);
                         fetchConferenceConfiguration(conversation);
@@ -3156,7 +3167,10 @@ public class XmppConnectionService extends Service {
         if (this.markRead(conversation)) {
             updateConversationUi();
         }
-        if (confirmMessages() && markable != null && markable.getRemoteMsgId() != null) {
+        if (confirmMessages()
+                && markable != null
+                && markable.trusted()
+                && markable.getRemoteMsgId() != null) {
             Log.d(Config.LOGTAG, conversation.getAccount().getJid().toBareJid() + ": sending read marker to " + markable.getCounterpart().toString());
             Account account = conversation.getAccount();
             final Jid to = markable.getCounterpart();
@@ -3164,7 +3178,6 @@ public class XmppConnectionService extends Service {
             this.sendMessagePacket(conversation.getAccount(), packet);
         }
     }
-
     public SecureRandom getRNG() {
         return this.mRandom;
     }

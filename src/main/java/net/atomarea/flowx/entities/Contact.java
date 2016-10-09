@@ -6,6 +6,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.utils.UIHelper;
+import net.atomarea.flowx.xml.Element;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
+import net.atomarea.flowx.xmpp.pep.Avatar;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,13 +20,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.utils.UIHelper;
-import net.atomarea.flowx.xml.Element;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
-import net.atomarea.flowx.xmpp.pep.Avatar;
 
 public class Contact implements ListItem, Blockable {
 	public static final String TABLENAME = "contacts";
@@ -118,7 +118,7 @@ public class Contact implements ListItem, Blockable {
 			return this.systemName;
 		} else if (this.serverName != null) {
 			return this.serverName;
-		} else if (this.presenceName != null) {
+		} else if (this.presenceName != null && mutualPresenceSubscription()) {
 			return this.presenceName;
 		} else if (jid.hasLocalpart()) {
 			return jid.getLocalpart();
@@ -487,7 +487,7 @@ public class Contact implements ListItem, Blockable {
 		}
 	}
 
-	public boolean trusted() {
+	public boolean mutualPresenceSubscription() {
 		return getOption(Options.FROM) && getOption(Options.TO);
 	}
 

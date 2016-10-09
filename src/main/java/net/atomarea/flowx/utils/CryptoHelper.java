@@ -3,6 +3,13 @@ package net.atomarea.flowx.utils;
 import android.os.Bundle;
 import android.util.Pair;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.entities.Account;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
+
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
@@ -22,12 +29,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public final class CryptoHelper {
 	public static final String FILETRANSFER = "?FILETRANSFERv1:";
@@ -202,6 +203,15 @@ public final class CryptoHelper {
 		MessageDigest md = MessageDigest.getInstance("SHA-1");
 		byte[] fingerprint = md.digest(input);
 		return prettifyFingerprintCert(bytesToHex(fingerprint));
+	}
+
+	public static String getAccountFingerprint(Account account) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			return bytesToHex(md.digest(account.getJid().toBareJid().toString().getBytes("UTF-8")));
+		} catch (Exception e) {
+			return "";
+		}
 	}
 
 	public static int encryptionTypeToText(int encryption) {

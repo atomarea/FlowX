@@ -115,7 +115,7 @@ public class MucOptions {
 
 	public enum Error {
 		NO_RESPONSE,
-		SEVRER_NOT_FOUND,
+		SERVER_NOT_FOUND,
 		NONE,
 		NICK_IN_USE,
 		PASSWORD_REQUIRED,
@@ -126,7 +126,6 @@ public class MucOptions {
 		UNKNOWN
 	}
 
-	public static final String STATUS_CODE_ROOM_CONFIG_CHANGED = "104";
 	public static final String STATUS_CODE_SELF_PRESENCE = "110";
 	public static final String STATUS_CODE_ROOM_CREATED = "201";
 	public static final String STATUS_CODE_BANNED = "301";

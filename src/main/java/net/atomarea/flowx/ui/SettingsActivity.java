@@ -1,6 +1,8 @@
 package net.atomarea.flowx.ui;
 
+import android.app.AlertDialog;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -19,6 +21,8 @@ import net.atomarea.flowx.R;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.services.ExportLogsService;
 import net.atomarea.flowx.xmpp.XmppConnection;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,6 +81,64 @@ public class SettingsActivity extends XmppActivity implements
 				return true;
 			}
 		});
+
+		final Preference deleteOmemoPreference = mSettingsFragment.findPreference("delete_omemo_identities");
+		deleteOmemoPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				deleteOmemoIdentities();
+				return true;
+			}
+		});
+	}
+
+	private void deleteOmemoIdentities() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.pref_delete_omemo_identities);
+		final List<CharSequence> accounts = new ArrayList<>();
+		for(Account account : xmppConnectionService.getAccounts()) {
+			if (!account.isOptionSet(Account.OPTION_DISABLED)) {
+				accounts.add(account.getJid().toBareJid().toString());
+			}
+		}
+		final boolean[] checkedItems = new boolean[accounts.size()];
+		builder.setMultiChoiceItems(accounts.toArray(new CharSequence[accounts.size()]), checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+				checkedItems[which] = isChecked;
+				final AlertDialog alertDialog = (AlertDialog) dialog;
+				for(boolean item : checkedItems) {
+					if (item) {
+						alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
+						return;
+					}
+				}
+				alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+			}
+		});
+		builder.setNegativeButton(R.string.cancel,null);
+		builder.setPositiveButton(R.string.delete_selected_keys, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				for(int i = 0; i < checkedItems.length; ++i) {
+					if (checkedItems[i]) {
+						try {
+							Jid jid = Jid.fromString(accounts.get(i).toString());
+							Account account = xmppConnectionService.findAccountByJid(jid);
+							if (account != null) {
+								account.getAxolotlService().regenerateKeys(true);
+							}
+						} catch (InvalidJidException e) {
+							//
+						}
+
+					}
+				}
+			}
+		});
+		AlertDialog dialog = builder.create();
+		dialog.show();
+		dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 	}
 
 	@Override

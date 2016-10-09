@@ -51,6 +51,7 @@ import net.atomarea.flowx.entities.DownloadableFile;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Message.FileParams;
 import net.atomarea.flowx.entities.Transferable;
+import net.atomarea.flowx.persistance.FileBackend;
 import net.atomarea.flowx.ui.ConversationActivity;
 import net.atomarea.flowx.ui.ShowFullscreenMessageActivity;
 import net.atomarea.flowx.ui.widget.ClickableMovementMethod;
@@ -655,7 +656,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         Uri uri;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             try {
-                uri = FileProvider.getUriForFile(activity, "net.atomarea.flowx.files", file);
+                uri = FileProvider.getUriForFile(activity, FileBackend.CONVERSATIONS_FILE_PROVIDER, file);
             } catch (IllegalArgumentException e) {
                 Toast.makeText(activity, activity.getString(R.string.no_permission_to_access_x, file.getAbsolutePath()), Toast.LENGTH_SHORT).show();
                 return;

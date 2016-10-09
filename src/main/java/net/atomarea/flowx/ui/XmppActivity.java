@@ -122,7 +122,7 @@ public abstract class XmppActivity extends FragmentActivity {
     protected int mTheme;
     protected boolean mUsingEnterKey = false;
     protected Toast mToast;
-    protected ProgressDialog mProgress;
+    protected ProgressDialog mProgress = null;
     Integer oldOrientation = getRequestedOrientation();
     protected void hideToast() {
         if (mToast != null) {
@@ -136,6 +136,9 @@ public abstract class XmppActivity extends FragmentActivity {
         mToast.show();
     }
     protected void showProgress() {
+        if (mProgress == null) {
+            mProgress = new ProgressDialog(XmppActivity.this);
+        }
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
         mProgress.setMessage(getString(R.string.compressing_video));
         mProgress.setCancelable(false);
@@ -143,9 +146,11 @@ public abstract class XmppActivity extends FragmentActivity {
     }
 
     protected void closeProgress() {
-        if (mProgress.isShowing()) {
+        if (mProgress != null && mProgress.isShowing()) {
             mProgress.dismiss();
             setRequestedOrientation(oldOrientation);
+        } else {
+            mProgress = null;
         }
     }
     protected Runnable onOpenPGPKeyPublished = new Runnable() {
@@ -428,7 +433,6 @@ public abstract class XmppActivity extends FragmentActivity {
         if (ab != null) {
             ab.setDisplayHomeAsUpEnabled(true);
         }
-        mProgress = new ProgressDialog(this);
     }
 
     protected boolean isOptimizingBattery() {

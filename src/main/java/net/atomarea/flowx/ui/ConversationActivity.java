@@ -1213,7 +1213,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         if (!forbidProcessingPendings) {
             int ImageUrisCount = mPendingImageUris.size();
             if (ImageUrisCount == 1) {
-                Uri uri = mPendingImageUris.get(0);
+                Uri uri = FileBackend.getIndexableTakePhotoUri(mPendingImageUris.get(0));
+                mPendingImageUris.set(0, uri);
                 attachImageToConversation(getSelectedConversation(), uri);
             } else {
                 for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove()) {
@@ -1534,7 +1535,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
 
-    private void attachVideoToConversation(Conversation conversation, Uri uri) {
+    private void attachVideoToConversation(Conversation conversation, final Uri uri) {
         if (conversation == null) {
             return;
         }

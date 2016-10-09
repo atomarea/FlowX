@@ -57,7 +57,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class FileBackend {
-    private final SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
+    private static final SimpleDateFormat IMAGE_DATE_FORMAT = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
+
+    public static final String CONVERSATIONS_FILE_PROVIDER = "net.atomarea.flowx.files";
 
     private XmppConnectionService mXmppConnectionService;
 
@@ -116,8 +118,7 @@ public class FileBackend {
         final DownloadableFile file;
         String path = message.getRelativeFilePath();
         if (path == null) {
-            String filename = fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4);
-            path = filename;
+            path = message.getUuid();
         }
         if (path.startsWith("/")) {
             file = new DownloadableFile(path);
@@ -125,10 +126,6 @@ public class FileBackend {
             String mime = message.getMimeType();
             if (mime != null && mime.startsWith("image")) {
                 file = new DownloadableFile(getConversationsImageDirectory() + path);
-            } else if (mime != null && mime.startsWith("video")) {
-                file = new DownloadableFile(getConversationsVideoDirectory() + path);
-            } else if (mime != null && mime.startsWith("audio")) {
-                file = new DownloadableFile(getConversationsAudioDirectory() + path);
             } else {
                 file = new DownloadableFile(getConversationsFileDirectory() + path);
             }
@@ -276,13 +273,12 @@ public class FileBackend {
 
     public void copyFileToPrivateStorage(Message message, Uri uri) throws FileCopyException {
         String mime = mXmppConnectionService.getContentResolver().getType(uri);
-        Log.d(Config.LOGTAG, "copy " + uri.toString() + " to private storage (mime=" + mime + ")");
+        Log.d(Config.LOGTAG, "copy " + uri.toString() + " to private storage (mime="+mime+")");
         String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime);
         if (extension == null) {
             extension = getExtensionFromUri(uri);
         }
-        String filename = fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4);
-        message.setRelativeFilePath(filename + "." + extension);
+        message.setRelativeFilePath(message.getUuid() + "." + extension);
         copyFileToPrivateStorage(mXmppConnectionService.getFileBackend().getFile(message), uri);
     }
 
@@ -366,16 +362,15 @@ public class FileBackend {
     }
 
     public void copyImageToPrivateStorage(Message message, Uri image) throws FileCopyException {
-        String filename = fileDateFormat.format(new Date(message.getTimeSent())) + "_" + message.getUuid().substring(0, 4);
-        switch (Config.IMAGE_FORMAT) {
+        switch(Config.IMAGE_FORMAT) {
             case JPEG:
-                message.setRelativeFilePath(filename + ".jpg");
+                message.setRelativeFilePath(message.getUuid()+".jpg");
                 break;
             case PNG:
-                message.setRelativeFilePath(filename + ".png");
+                message.setRelativeFilePath(message.getUuid()+".png");
                 break;
             case WEBP:
-                message.setRelativeFilePath(filename + ".webp");
+                message.setRelativeFilePath(message.getUuid()+".webp");
                 break;
         }
         copyImageToPrivateStorage(getFile(message), image);
@@ -456,19 +451,26 @@ public class FileBackend {
         return frame;
     }
 
+    private static String getTakePhotoPath() {
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)+"/Camera/";
+    }
+
     public Uri getTakePhotoUri() {
-        StringBuilder pathBuilder = new StringBuilder();
-        pathBuilder.append(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM));
-        pathBuilder.append('/');
-        pathBuilder.append("Camera");
-        pathBuilder.append('/');
-        pathBuilder.append(this.fileDateFormat.format(new Date()) + ".jpg");
-        File file = new File(pathBuilder.toString());
+        File file = new File(getTakePhotoPath()+"IMG_" + this.IMAGE_DATE_FORMAT.format(new Date()) + ".jpg");
         file.getParentFile().mkdirs();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return FileProvider.getUriForFile(mXmppConnectionService, "net.atomarea.flowx.files", file);
+            return FileProvider.getUriForFile(mXmppConnectionService, CONVERSATIONS_FILE_PROVIDER, file);
         } else {
             return Uri.fromFile(file);
+        }
+    }
+
+    public static Uri getIndexableTakePhotoUri(Uri original) {
+        if ("file".equals(original.getScheme())) {
+            return original;
+        } else {
+            List<String> segments = original.getPathSegments();
+            return Uri.parse("file://"+getTakePhotoPath()+segments.get(segments.size() - 1));
         }
     }
 
