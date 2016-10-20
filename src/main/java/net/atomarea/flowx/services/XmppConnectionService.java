@@ -540,7 +540,7 @@ public class XmppConnectionService extends Service {
             Log.d(Config.LOGTAG, conversation.getAccount().getJid().toBareJid() + ": not compressing video. sending as file");
             attachFileToConversation(conversation, uri, callback);
         } else {
-            CompressVideo = new VideoCompressor(path, compressed_path,  new Interface() {
+            CompressVideo = new VideoCompressor(path, compressed_path, new Interface() {
                 @Override
                 public void videocompressed(boolean result) {
                     if (result) {
@@ -572,19 +572,18 @@ public class XmppConnectionService extends Service {
         protected void onPreExecute() {
             super.onPreExecute();
             Log.d(Config.LOGTAG, "Start video compression");
+            wakeLock.acquire();
         }
 
         @Override
         protected Boolean doInBackground(String... params) {
-            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CompressPixArtMessengerVideo");
-            wakeLock.acquire();
             return MediaController.getInstance().convertVideo(originalpath, compressedpath);
         }
 
         @Override
         protected void onPostExecute(Boolean compressed) {
             super.onPostExecute(compressed);
+            wakeLock.release();
             File video = new File(compressedpath);
             if (mListener != null) {
                 if (video.exists() && video.length() > 0) {
@@ -595,7 +594,6 @@ public class XmppConnectionService extends Service {
                     Log.d(Config.LOGTAG, "Compression failed!");
                 }
             }
-            wakeLock.release();
         }
     }
 
@@ -1195,7 +1193,7 @@ public class XmppConnectionService extends Service {
 
             }
             if (packet != null) {
-                if (account.getXmppConnection().getFeatures().sm() || conversation.getMode() == Conversation.MODE_MULTI) {
+                if (account.getXmppConnection().getFeatures().sm() || (conversation.getMode() == Conversation.MODE_MULTI && message.getCounterpart().isBareJid())) {
                     message.setStatus(Message.STATUS_UNSEND);
                 } else {
                     message.setStatus(Message.STATUS_SEND);
@@ -1229,7 +1227,7 @@ public class XmppConnectionService extends Service {
 
         if (resend) {
             if (packet != null && addToConversation) {
-                if (account.getXmppConnection().getFeatures().sm() || conversation.getMode() == Conversation.MODE_MULTI) {
+                if (account.getXmppConnection().getFeatures().sm() || (conversation.getMode() == Conversation.MODE_MULTI && message.getCounterpart().isBareJid())) {
                     markMessage(message, Message.STATUS_UNSEND);
                 } else {
                     markMessage(message, Message.STATUS_SEND);
@@ -1649,7 +1647,7 @@ public class XmppConnectionService extends Service {
                     );
                 }
             }
-            this.databaseBackend.updateConversation(conversation);
+            updateConversation(conversation);
             this.conversations.remove(conversation);
             updateConversationUi();
         }
@@ -2171,7 +2169,7 @@ public class XmppConnectionService extends Service {
                 }
                 pushBookmarks(conversation.getAccount());
             }
-            databaseBackend.updateConversation(conversation);
+            updateConversation(conversation);
             joinMuc(conversation);
         }
     }
@@ -2892,8 +2890,13 @@ public class XmppConnectionService extends Service {
         }
     }
 
-    public void updateConversation(Conversation conversation) {
-        this.databaseBackend.updateConversation(conversation);
+    public void updateConversation(final Conversation conversation) {
+        mDatabaseExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                databaseBackend.updateConversation(conversation);
+            }
+        });
     }
 
     private void reconnectAccount(final Account account, final boolean force, final boolean interactive) {
@@ -3178,6 +3181,7 @@ public class XmppConnectionService extends Service {
             this.sendMessagePacket(conversation.getAccount(), packet);
         }
     }
+
     public SecureRandom getRNG() {
         return this.mRandom;
     }

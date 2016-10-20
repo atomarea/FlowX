@@ -29,7 +29,6 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -82,14 +81,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     private DisplayMetrics metrics;
 
-    private OnLongClickListener openContextMenu = new OnLongClickListener() {
-
-        @Override
-        public boolean onLongClick(View v) {
-            v.showContextMenu();
-            return true;
-        }
-    };
     private boolean mIndicateReceived = false;
     private HashMap<Integer, AudioWife> audioPlayer;
     private final ListSelectionManager listSelectionManager = new ListSelectionManager();
@@ -159,13 +150,20 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 viewHolder.edit_indicator.setVisibility(View.GONE);
             }
         }
-        boolean multiReceived = message.getConversation().getMode() == Conversation.MODE_MULTI && message.getMergedStatus() <= Message.STATUS_RECEIVED;
+        boolean multiReceived = message.getConversation().getMode() == Conversation.MODE_MULTI
+                && message.getMergedStatus() <= Message.STATUS_RECEIVED;
         if (message.getType() == Message.TYPE_IMAGE || message.getType() == Message.TYPE_FILE || message.getTransferable() != null) {
             FileParams params = message.getFileParams();
-            if (params.size > (1.5 * 1024 * 1024)) filesize = params.size / (1024 * 1024) + " MB";
-            else if (params.size > 0) filesize = params.size / 1024 + " KB";
-            if (message.getTransferable() != null && message.getTransferable().getStatus() == Transferable.STATUS_FAILED)
+            if (params.size > (1 * 1024 * 1024)) {
+                filesize = params.size / (1024 * 1024)+ " MiB";
+            } else if (params.size > (1 * 1024)) {
+                filesize = params.size / 1024 + " KiB";
+            } else if (params.size > 0) {
+                filesize = "1 KiB";
+            }
+            if (message.getTransferable() != null && message.getTransferable().getStatus() == Transferable.STATUS_FAILED) {
                 error = true;
+            }
         }
         switch (message.getMergedStatus()) {
             case Message.STATUS_WAITING:
@@ -367,7 +365,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         viewHolder.messageBody.setLinkTextColor(this.getMessageTextColor(darkBackground, true));
         viewHolder.messageBody.setHighlightColor(ContextCompat.getColor(activity, darkBackground ? R.color.grey800 : R.color.grey500));
         viewHolder.messageBody.setTypeface(null, Typeface.NORMAL);
-        viewHolder.messageBody.setOnLongClickListener(openContextMenu);
     }
 
     private void displayDownloadableMessage(ViewHolder viewHolder,
@@ -384,7 +381,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 activity.startDownloadable(message);
             }
         });
-        viewHolder.download_button.setOnLongClickListener(openContextMenu);
     }
 
     private void displayAudioMessage(ViewHolder viewHolder, final Message message, int position) {
@@ -425,7 +421,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 openDownloadable(message);
             }
         });
-        viewHolder.download_button.setOnLongClickListener(openContextMenu);
     }
 
     private void displayLocationMessage(ViewHolder viewHolder, final Message message) {
@@ -442,7 +437,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 showLocation(message);
             }
         });
-        viewHolder.download_button.setOnLongClickListener(openContextMenu);
     }
 
     private void displayImageMessage(ViewHolder viewHolder, final Message message) {
@@ -478,7 +472,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 openDownloadable(message);
             }
         });
-        viewHolder.image.setOnLongClickListener(openContextMenu);
     }
 
 

@@ -48,6 +48,7 @@
                 android:textColor="@color/black12"
                 android:textColorHighlight="@color/grey800"
                 android:textColorLink="@color/black12"
+                android:longClickable="true"
                 android:textSize="?attr/TextSizeBody"
                 emojicon:emojiconSize="25sp" />
 
@@ -58,6 +59,7 @@
                 android:layout_height="40dp"
                 android:visibility="gone"
                 app:bootstrapBrand="success"
+                android:longClickable="true"
                 app:bootstrapSize="sm"
                 app:buttonMode="regular"
                 app:roundedCorners="true" />

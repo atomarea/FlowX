@@ -1,14 +1,5 @@
 package net.atomarea.flowx.generator;
 
-import net.java.otr4j.OtrException;
-import net.java.otr4j.session.Session;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlMessage;
@@ -21,6 +12,14 @@ import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.stanzas.MessagePacket;
+import net.java.otr4j.OtrException;
+import net.java.otr4j.session.Session;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MessageGenerator extends AbstractGenerator {
 	public static final String OTR_FALLBACK_MESSAGE = "I would like to start a private (OTR encrypted) conversation but your client doesn’t seem to support that";
@@ -183,6 +182,10 @@ public class MessageGenerator extends AbstractGenerator {
 		packet.setFrom(conversation.getAccount().getJid());
 		Element x = packet.addChild("x", "jabber:x:conference");
 		x.setAttribute("jid", conversation.getJid().toBareJid().toString());
+		String password = conversation.getMucOptions().getPassword();
+		if (password != null) {
+			x.setAttribute("password",password);
+		}
 		return packet;
 	}
 

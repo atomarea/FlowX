@@ -240,7 +240,7 @@ public class PublishProfilePictureActivity extends XmppActivity {
 			if (this.avatarUri == null) {
 				if (this.account.getAvatar() != null
 						|| this.defaultUri == null) {
-					this.avatar.setImageBitmap(avatarService().get(account, getPixel(192)));
+					this.avatar.setImageBitmap(avatarService().get(account, getPixel(300)));
 					if (this.defaultUri != null) {
 						this.avatar
 								.setOnLongClickListener(this.backToDefaultListener);

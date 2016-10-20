@@ -700,7 +700,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                                     public void onClick(DialogInterface dialog,
                                                         int which) {
                                         conversation.setNextEncryption(Message.ENCRYPTION_NONE);
-                                        xmppConnectionService.databaseBackend.updateConversation(conversation);
+                                        xmppConnectionService.updateConversation(conversation);
                                         selectPresenceToAttachFile(attachmentChoice, Message.ENCRYPTION_NONE);
                                     }
                                 });
@@ -913,7 +913,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             conversation.setNextEncryption(Message.ENCRYPTION_NONE);
         }
         final ConversationFragment fragment = (ConversationFragment) getFragmentManager().findFragmentByTag("conversation");
-        xmppConnectionService.databaseBackend.updateConversation(conversation);
+        xmppConnectionService.updateConversation(conversation);
         fragment.updateChatMsgHint();
         invalidateOptionsMenu();
         refreshUi();
@@ -935,8 +935,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                             till = System.currentTimeMillis() + (durations[which] * 1000);
                         }
                         conversation.setMutedTill(till);
-                        ConversationActivity.this.xmppConnectionService.databaseBackend
-                                .updateConversation(conversation);
+                        ConversationActivity.this.xmppConnectionService.updateConversation(conversation);
                         updateConversationList();
                         ConversationActivity.this.mConversationFragment.updateMessages();
                         invalidateOptionsMenu();
@@ -947,7 +946,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
 
     public void unmuteConversation(final Conversation conversation) {
         conversation.setMutedTill(0);
-        this.xmppConnectionService.databaseBackend.updateConversation(conversation);
+        this.xmppConnectionService.updateConversation(conversation);
         updateConversationList();
         ConversationActivity.this.mConversationFragment.updateMessages();
         invalidateOptionsMenu();
@@ -1210,35 +1209,52 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             this.onActivityResult(mPostponedActivityResult.first, RESULT_OK, mPostponedActivityResult.second);
         }
 
+        final boolean stopping;
+        if (Build.VERSION.SDK_INT >= 17) {
+            stopping = isFinishing() || isDestroyed();
+        } else {
+            stopping = isFinishing();
+        }
+
         if (!forbidProcessingPendings) {
             int ImageUrisCount = mPendingImageUris.size();
             if (ImageUrisCount == 1) {
-                Uri uri = FileBackend.getIndexableTakePhotoUri(mPendingImageUris.get(0));
-                mPendingImageUris.set(0, uri);
+                Uri uri = mPendingImageUris.get(0);
+                Log.d(Config.LOGTAG,"ConversationsActivity.onBackendConnected() - attaching image to conversations. stopping="+Boolean.toString(stopping));
                 attachImageToConversation(getSelectedConversation(), uri);
             } else {
                 for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove()) {
                     Uri foo = i.next();
+                    Log.d(Config.LOGTAG,"ConversationsActivity.onBackendConnected() - attaching images to conversations. stopping="+Boolean.toString(stopping));
                     attachImagesToConversation(getSelectedConversation(), foo);
                 }
             }
-            for (Iterator<Uri> i = mPendingVideoUris.iterator(); i.hasNext(); i.remove()) {
-                attachVideoToConversation(getSelectedConversation(), i.next());
-            }
+
             for (Iterator<Uri> i = mPendingPhotoUris.iterator(); i.hasNext(); i.remove()) {
+                Log.d(Config.LOGTAG,"ConversationsActivity.onBackendConnected() - attaching photo to conversations. stopping="+Boolean.toString(stopping));
                 attachPhotoToConversation(getSelectedConversation(), i.next());
             }
+
+            for (Iterator<Uri> i = mPendingVideoUris.iterator(); i.hasNext(); i.remove()) {
+                Log.d(Config.LOGTAG,"ConversationsActivity.onBackendConnected() - attaching video to conversations. stopping="+Boolean.toString(stopping));
+                attachVideoToConversation(getSelectedConversation(), i.next());
+            }
+
             for (Iterator<Uri> i = mPendingFileUris.iterator(); i.hasNext(); i.remove()) {
+                Log.d(Config.LOGTAG,"ConversationsActivity.onBackendConnected() - attaching file to conversations. stopping="+Boolean.toString(stopping));
                 attachFileToConversation(getSelectedConversation(), i.next());
             }
+
             if (mPendingGeoUri != null) {
                 attachLocationToConversation(getSelectedConversation(), mPendingGeoUri);
                 mPendingGeoUri = null;
             }
         }
         forbidProcessingPendings = false;
-        ExceptionHelper.checkForCrash(this, this.xmppConnectionService);
-        openBatteryOptimizationDialogIfNeeded();
+
+        if (!ExceptionHelper.checkForCrash(this, this.xmppConnectionService)) {
+            openBatteryOptimizationDialogIfNeeded();
+        }
     }
 
     private void handleViewConversationIntent(final Intent intent) {
