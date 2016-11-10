@@ -1,9 +1,5 @@
 package net.atomarea.flowx.parser;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
@@ -12,6 +8,10 @@ import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public abstract class AbstractParser {
 
@@ -91,5 +91,18 @@ public abstract class AbstractParser {
 		user.setAffiliation(affiliation);
 		user.setRole(role);
 		return user;
+	}
+	public static String extractErrorMessage(Element packet) {
+		final Element error = packet.findChild("error");
+		if (error != null && error.getChildren().size() > 0) {
+			final String text = error.findChildContent("text");
+			if (text != null && !text.trim().isEmpty()) {
+				return text;
+			} else {
+				return error.getChildren().get(0).getName().replace("-"," ");
+			}
+		} else {
+			return null;
+		}
 	}
 }

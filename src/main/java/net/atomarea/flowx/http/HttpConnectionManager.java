@@ -1,6 +1,10 @@
 package net.atomarea.flowx.http;
 
-import android.os.Build;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.services.AbstractConnectionManager;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.CryptoHelper;
+import net.atomarea.flowx.utils.SSLSocketHelper;
 
 import org.apache.http.conn.ssl.StrictHostnameVerifier;
 
@@ -18,12 +22,6 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
-
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.services.AbstractConnectionManager;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.CryptoHelper;
-import net.atomarea.flowx.utils.SSLSocketHelper;
 
 public class HttpConnectionManager extends AbstractConnectionManager {
 
@@ -96,6 +94,6 @@ public class HttpConnectionManager extends AbstractConnectionManager {
 	}
 
 	public Proxy getProxy() throws IOException {
-		return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(InetAddress.getLocalHost(), 8118));
+		return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(InetAddress.getByAddress(new byte[]{127,0,0,1}), 8118));
 	}
 }

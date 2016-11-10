@@ -73,6 +73,7 @@ import net.atomarea.flowx.utils.ExceptionHelper;
 import net.atomarea.flowx.utils.FileUtils;
 import net.atomarea.flowx.utils.UIHelper;
 import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
+import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
@@ -143,6 +144,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     private boolean mActivityPaused = false;
     private AtomicBoolean mRedirected = new AtomicBoolean(false);
     private Pair<Integer, Intent> mPostponedActivityResult;
+    private boolean mUnprocessedNewIntent = false;
     long FirstStartTime = -1;
 
     @SuppressLint("NewApi")
@@ -502,7 +504,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
     public void sendReadMarkerIfNecessary(final Conversation conversation) {
-        if (!mActivityPaused && conversation != null) {
+        if (!mActivityPaused && !mUnprocessedNewIntent && conversation != null) {
             if (!conversation.isRead()) xmppConnectionService.sendReadMarker(conversation);
             else xmppConnectionService.markRead(conversation);
         }
@@ -829,8 +831,13 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     protected void clearHistoryDialog(final Conversation conversation) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.clear_conversation_history));
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_clear_history, null);
-        final CheckBox endConversationCheckBox = (CheckBox) dialogView.findViewById(R.id.end_conversation_checkbox);
+        View dialogView = getLayoutInflater().inflate(
+                R.layout.dialog_clear_history, null);
+        final CheckBox endConversationCheckBox = (CheckBox) dialogView
+                .findViewById(R.id.end_conversation_checkbox);
+        if (conversation.getMode() == Conversation.MODE_SINGLE) {
+            endConversationCheckBox.setVisibility(View.VISIBLE);
+        }
         builder.setView(dialogView);
         builder.setNegativeButton(getString(R.string.cancel), null);
         builder.setPositiveButton(getString(R.string.delete_messages),
@@ -839,8 +846,14 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         ConversationActivity.this.xmppConnectionService.clearConversationHistory(conversation);
-                        if (endConversationCheckBox.isChecked()) endConversation(conversation);
-                        else {
+                        if (conversation.getMode() == Conversation.MODE_SINGLE) {
+                            if (endConversationCheckBox.isChecked()) {
+                                endConversation(conversation);
+                            } else {
+                                updateConversationList();
+                                ConversationActivity.this.mConversationFragment.updateMessages();
+                            }
+                        } else {
                             updateConversationList();
                             ConversationActivity.this.mConversationFragment.updateMessages();
                         }
@@ -848,7 +861,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 });
         builder.create().show();
     }
-
     protected void attachFileDialog() {
         View menuAttachFile = findViewById(R.id.action_attach_file);
         if (menuAttachFile == null) return;
@@ -1220,28 +1232,28 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             int ImageUrisCount = mPendingImageUris.size();
             if (ImageUrisCount == 1) {
                 Uri uri = mPendingImageUris.get(0);
-                Log.d(Config.LOGTAG,"ConversationsActivity.onBackendConnected() - attaching image to conversations. stopping="+Boolean.toString(stopping));
+                Log.d(Config.LOGTAG, "ConversationsActivity.onBackendConnected() - attaching image to conversations. stopping=" + Boolean.toString(stopping));
                 attachImageToConversation(getSelectedConversation(), uri);
             } else {
                 for (Iterator<Uri> i = mPendingImageUris.iterator(); i.hasNext(); i.remove()) {
                     Uri foo = i.next();
-                    Log.d(Config.LOGTAG,"ConversationsActivity.onBackendConnected() - attaching images to conversations. stopping="+Boolean.toString(stopping));
+                    Log.d(Config.LOGTAG, "ConversationsActivity.onBackendConnected() - attaching images to conversations. stopping=" + Boolean.toString(stopping));
                     attachImagesToConversation(getSelectedConversation(), foo);
                 }
             }
 
             for (Iterator<Uri> i = mPendingPhotoUris.iterator(); i.hasNext(); i.remove()) {
-                Log.d(Config.LOGTAG,"ConversationsActivity.onBackendConnected() - attaching photo to conversations. stopping="+Boolean.toString(stopping));
+                Log.d(Config.LOGTAG, "ConversationsActivity.onBackendConnected() - attaching photo to conversations. stopping=" + Boolean.toString(stopping));
                 attachPhotoToConversation(getSelectedConversation(), i.next());
             }
 
             for (Iterator<Uri> i = mPendingVideoUris.iterator(); i.hasNext(); i.remove()) {
-                Log.d(Config.LOGTAG,"ConversationsActivity.onBackendConnected() - attaching video to conversations. stopping="+Boolean.toString(stopping));
+                Log.d(Config.LOGTAG, "ConversationsActivity.onBackendConnected() - attaching video to conversations. stopping=" + Boolean.toString(stopping));
                 attachVideoToConversation(getSelectedConversation(), i.next());
             }
 
             for (Iterator<Uri> i = mPendingFileUris.iterator(); i.hasNext(); i.remove()) {
-                Log.d(Config.LOGTAG,"ConversationsActivity.onBackendConnected() - attaching file to conversations. stopping="+Boolean.toString(stopping));
+                Log.d(Config.LOGTAG, "ConversationsActivity.onBackendConnected() - attaching file to conversations. stopping=" + Boolean.toString(stopping));
                 attachFileToConversation(getSelectedConversation(), i.next());
             }
 
@@ -1276,13 +1288,19 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 } else this.mConversationFragment.highlightInConference(nick);
             } else this.mConversationFragment.appendText(text);
             hideConversationsOverview();
+            mUnprocessedNewIntent = false;
             openConversation();
-            if (mContentView instanceof SlidingPaneLayout)
+            if (mContentView instanceof SlidingPaneLayout) {
                 updateActionBarTitle(true); //fixes bug where slp isn't properly closed yet
+            }
             if (downloadUuid != null) {
                 final Message message = mSelectedConversation.findMessageWithFileAndUuid(downloadUuid);
-                if (message != null) startDownloadable(message);
+                if (message != null) {
+                    startDownloadable(message);
+                }
             }
+        } else {
+            mUnprocessedNewIntent = false;
         }
     }
 
@@ -1424,7 +1442,8 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
     private long getMaxHttpUploadSize(Conversation conversation) {
-        return conversation.getAccount().getXmppConnection().getFeatures().getMaxHttpUploadSize();
+        final XmppConnection connection = conversation.getAccount().getXmppConnection();
+        return connection == null ? -1 : connection.getFeatures().getMaxHttpUploadSize();
     }
 
     private void setNeverAskForBatteryOptimizationsAgain() {

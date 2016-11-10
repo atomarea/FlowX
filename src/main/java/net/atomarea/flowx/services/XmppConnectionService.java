@@ -152,6 +152,7 @@ public class XmppConnectionService extends Service {
     private final List<Conversation> conversations = new CopyOnWriteArrayList<>();
     private final IqGenerator mIqGenerator = new IqGenerator(this);
     private final List<String> mInProgressAvatarFetches = new ArrayList<>();
+    private final HashSet<Jid> mLowPingTimeoutMode = new HashSet<>();
     private WakeLock wakeLock;
     private long mLastActivity = 0;
     public static VideoCompressor CompressVideo;
@@ -304,6 +305,14 @@ public class XmppConnectionService extends Service {
                 mOnAccountUpdate.onAccountUpdate();
             }
             if (account.getStatus() == Account.State.ONLINE) {
+                synchronized (mLowPingTimeoutMode) {
+                    if (mLowPingTimeoutMode.remove(account.getJid().toBareJid())) {
+                        Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": leaving low ping timeout mode");
+                    }
+                }
+                if (account.setShowErrorNotification(true)) {
+                    databaseBackend.updateAccount(account);
+                }
                 mMessageArchiveService.executePendingQueries(account);
                 if (connection != null && connection.getFeatures().csi()) {
                     if (checkListeners()) {
@@ -332,17 +341,19 @@ public class XmppConnectionService extends Service {
                     joinMuc(conversation);
                 }
                 account.pendingConferenceJoins.clear();
-                scheduleWakeUpCall(Config.PUSH_MODE ? Config.PING_MIN_INTERVAL : Config.PING_MAX_INTERVAL, account.getUuid().hashCode());
+                scheduleWakeUpCall(Config.PING_MAX_INTERVAL, account.getUuid().hashCode());
             } else if (account.getStatus() == Account.State.OFFLINE || account.getStatus() == Account.State.DISABLED) {
                 resetSendingToWaiting(account);
-                final boolean disabled = account.isOptionSet(Account.OPTION_DISABLED);
-                final boolean pushMode = Config.CLOSE_TCP_WHEN_SWITCHING_TO_BACKGROUND
-                        && mPushManagementService.available(account)
-                        && checkListeners();
-                Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": push mode " + Boolean.toString(pushMode));
-                if (!disabled && !pushMode) {
-                    int timeToReconnect = mRandom.nextInt(20) + 10;
-                    scheduleWakeUpCall(timeToReconnect, account.getUuid().hashCode());
+                if (!account.isOptionSet(Account.OPTION_DISABLED)) {
+                    synchronized (mLowPingTimeoutMode) {
+                        if (mLowPingTimeoutMode.contains(account.getJid().toBareJid())) {
+                            Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": went into offline state during low ping mode. reconnecting now");
+                            reconnectAccount(account, true, false);
+                        } else {
+                            int timeToReconnect = mRandom.nextInt(20) + 10;
+                            scheduleWakeUpCall(timeToReconnect, account.getUuid().hashCode());
+                        }
+                    }
                 }
             } else if (account.getStatus() == Account.State.REGISTRATION_SUCCESSFUL) {
                 databaseBackend.updateAccount(account);
@@ -708,7 +719,8 @@ public class XmppConnectionService extends Service {
                         long lastSent = account.getXmppConnection().getLastPingSent();
                         long pingInterval = "ui".equals(action) ? Config.PING_MIN_INTERVAL * 1000 : Config.PING_MAX_INTERVAL * 1000;
                         long msToNextPing = (Math.max(lastReceived, lastSent) + pingInterval) - SystemClock.elapsedRealtime();
-                        long pingTimeoutIn = (lastSent + Config.PING_TIMEOUT * 1000) - SystemClock.elapsedRealtime();
+                        int pingTimeout = mLowPingTimeoutMode.contains(account.getJid().toBareJid()) ? Config.LOW_PING_TIMEOUT * 1000 : Config.PING_TIMEOUT * 1000;
+                        long pingTimeoutIn = (lastSent + pingTimeout) - SystemClock.elapsedRealtime();
                         if (lastSent > lastReceived) {
                             if (pingTimeoutIn < 0) {
                                 Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": ping timeout");
@@ -719,10 +731,18 @@ public class XmppConnectionService extends Service {
                             }
                         } else {
                             pingCandidates.add(account);
-                            if (msToNextPing <= 0 || CryptoHelper.getAccountFingerprint(account).equals(pushedAccountHash)) {
+                            if (CryptoHelper.getAccountFingerprint(account).equals(pushedAccountHash)) {
+                                pingNow = true;
+                                if (mLowPingTimeoutMode.add(account.getJid().toBareJid())) {
+                                    Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": entering low ping timeout mode");
+                                }
+                            } else if (msToNextPing <= 0) {
                                 pingNow = true;
                             } else {
                                 this.scheduleWakeUpCall((int) (msToNextPing / 1000), account.getUuid().hashCode());
+                                if (mLowPingTimeoutMode.remove(account.getJid().toBareJid())) {
+                                    Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": leaving low ping timeout mode");
+                                }
                             }
                         }
                     } else if (account.getStatus() == Account.State.OFFLINE) {
@@ -755,9 +775,12 @@ public class XmppConnectionService extends Service {
         }
         if (pingNow) {
             for (Account account : pingCandidates) {
-                account.getXmppConnection().sendPing();
-                Log.d(Config.LOGTAG, account.getJid().toBareJid() + " send ping (action=" + action + ")");
-                this.scheduleWakeUpCall(Config.PING_TIMEOUT, account.getUuid().hashCode());
+                synchronized (mLowPingTimeoutMode) {
+                    final boolean lowTimeout = mLowPingTimeoutMode.contains(account.getJid().toBareJid());
+                    account.getXmppConnection().sendPing();
+                    Log.d(Config.LOGTAG, account.getJid().toBareJid() + " send ping (action=" + action + ",lowTimeout=" + Boolean.toString(lowTimeout) + ")");
+                    scheduleWakeUpCall(lowTimeout ? Config.LOW_PING_TIMEOUT : Config.PING_TIMEOUT, account.getUuid().hashCode());
+                }
             }
         }
         if (wakeLock.isHeld()) {
@@ -965,7 +988,7 @@ public class XmppConnectionService extends Service {
         this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "XmppConnectionService");
         updateUnreadCountBadge();
         toggleScreenEventReceiver();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Config.PUSH_MODE) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             scheduleNextIdlePing();
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -2961,6 +2984,10 @@ public class XmppConnectionService extends Service {
     }
 
     public Message markMessage(final Account account, final Jid recipient, final String uuid, final int status) {
+        return markMessage(account, recipient, uuid, status, null);
+    }
+
+    public Message markMessage(final Account account, final Jid recipient, final String uuid, final int status, String errorMessage) {
         if (uuid == null) {
             return null;
         }
@@ -2991,11 +3018,16 @@ public class XmppConnectionService extends Service {
     }
 
     public void markMessage(Message message, int status) {
+        markMessage(message, status, null);
+    }
+
+    public void markMessage(Message message, int status, String errorMessage) {
         if (status == Message.STATUS_SEND_FAILED
                 && (message.getStatus() == Message.STATUS_SEND_RECEIVED || message
                 .getStatus() == Message.STATUS_SEND_DISPLAYED)) {
             return;
         }
+        message.setErrorMessage(errorMessage);
         message.setStatus(status);
         databaseBackend.updateMessage(message);
         updateConversationUi();
@@ -3420,7 +3452,9 @@ public class XmppConnectionService extends Service {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
+                databaseBackend.deleteMessagesInConversation(conversation);
                 databaseBackend.updateConversation(conversation);
+
             }
         };
         mDatabaseExecutor.execute(runnable);

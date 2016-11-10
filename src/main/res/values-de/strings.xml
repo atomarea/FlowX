@@ -594,4 +594,5 @@
     <string name="pref_delete_omemo_identities">Verschlüsselte Identitäten löschen</string>
     <string name="pref_delete_omemo_identities_summary">Kontakte müssen sich neu authifizieren mit dir.</string>
     <string name="delete_selected_keys">ausgewählte Schlüssel löschen</string>
+    <string name="navigate">Standort navigieren</string>
 </resources>

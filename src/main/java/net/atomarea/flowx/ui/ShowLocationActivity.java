@@ -7,9 +7,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -81,8 +84,21 @@ public class ShowLocationActivity extends Activity implements OnMapReadyCallback
             case android.R.id.home:
                 finish();
                 return true;
+            case R.id.action_navigate:
+                double longitude = mLocation.longitude;
+                double latitude = mLocation.latitude;
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("geo:" + String.valueOf(latitude) + "," + String.valueOf(longitude)));
+                startActivity(intent);
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.showlocation, menu);
+        return true;
     }
 
     @Override
@@ -167,6 +183,8 @@ public class ShowLocationActivity extends Activity implements OnMapReadyCallback
                 @Override
                 protected void onPreExecute() {
                     super.onPreExecute();
+                    marker = mGoogleMap.addMarker(options);
+                    marker.showInfoWindow();
                     mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, Config.DEFAULT_ZOOM));
                 }
 
@@ -179,6 +197,7 @@ public class ShowLocationActivity extends Activity implements OnMapReadyCallback
                 @Override
                 protected void onPostExecute(Void result) {
                     super.onPostExecute(result);
+                    marker.remove();
                     options.snippet(String.valueOf(address));
                     marker = mGoogleMap.addMarker(options);
                     marker.showInfoWindow();
@@ -189,7 +208,9 @@ public class ShowLocationActivity extends Activity implements OnMapReadyCallback
         mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                marker.showInfoWindow();
+                if (marker != null) {
+                    marker.showInfoWindow();
+                }
             }
         });
     }

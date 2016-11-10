@@ -5,9 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 
-import net.atomarea.flowx.Config;
 import net.atomarea.flowx.persistance.DatabaseBackend;
 
 public class EventReceiver extends BroadcastReceiver {
@@ -25,9 +23,6 @@ public class EventReceiver extends BroadcastReceiver {
 			mgr.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis() + 1000, 1000 * 60 * MINUTEN, PendingIntent.getBroadcast(context, 1337, new Intent(bg), 0));
 		}
 		final String action = intent.getAction();
-		if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION) && Config.PUSH_MODE) {
-			return;
-		}
 		if (action.equals("ui") || DatabaseBackend.getInstance(context).hasEnabledAccounts()) {
 			context.startService(mIntentForService);
 		}

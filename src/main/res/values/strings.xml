@@ -710,4 +710,7 @@
 	<string name="pref_delete_omemo_identities">Delete OMEMO identities</string>
 	<string name="pref_delete_omemo_identities_summary">Regenerate your OMEMO keys. All your contacts will have to verify you again. Use this only as a last resort.</string>
 	<string name="delete_selected_keys">Delete selected keys</string>
+	<string name="show_error_message">Show error message</string>
+	<string name="error_message">Error Message</string>
+	<string name="navigate">Navigate to location</string>
 </resources>

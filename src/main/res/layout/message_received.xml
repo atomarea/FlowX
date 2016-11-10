@@ -39,7 +39,7 @@
                 android:contentDescription="@string/app_name"
                 android:scaleType="centerCrop" />
 
-            <github.ankushsachdeva.emojicon.EmojiconTextView
+            <net.atomarea.flowx.ui.widget.CopyTextView
                 android:id="@+id/message_body"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

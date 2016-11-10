@@ -631,6 +631,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             MenuItem downloadFile = menu.findItem(R.id.download_file);
             MenuItem cancelTransmission = menu.findItem(R.id.cancel_transmission);
             MenuItem deleteFile = menu.findItem(R.id.delete_file);
+            MenuItem showErrorMessage = menu.findItem(R.id.show_error_message);
             if (!treatAsFile
                     && !GeoHelper.isGeoUri(m.getBody())
                     && m.treatAsDownloadable() != Message.Decision.MUST) {
@@ -672,6 +673,9 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 deleteFile.setVisible(true);
                 deleteFile.setTitle(activity.getString(R.string.delete_x_file, UIHelper.getFileDescriptionString(activity, m)));
             }
+            if (m.getStatus() == Message.STATUS_SEND_FAILED && m.getErrorMessage() != null) {
+                showErrorMessage.setVisible(true);
+            }
         }
     }
 
@@ -705,9 +709,20 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             case R.id.delete_file:
                 deleteFile(selectedMessage);
                 return true;
+            case R.id.show_error_message:
+                showErrorMessage(selectedMessage);
+                return true;
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    private void showErrorMessage(final Message message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle(R.string.error_message);
+        builder.setMessage(message.getErrorMessage());
+        builder.setPositiveButton(R.string.confirm, null);
+        builder.create().show();
     }
 
     private void shareWith(Message message) {
@@ -737,7 +752,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
 
 
     private void copyText(Message message) {
-        if (activity.copyTextToClipboard(message.getMergedBody(),
+        if (activity.copyTextToClipboard(message.getMergedBody().toString(),
                 R.string.message_text)) {
             Toast.makeText(activity, R.string.message_copied_to_clipboard,
                     Toast.LENGTH_SHORT).show();
@@ -950,7 +965,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                     showSnackbar(R.string.conference_not_found, R.string.leave, leaveMuc);
                     break;
                 case SERVER_NOT_FOUND:
-                    showSnackbar(R.string.remote_server_not_found,R.string.leave, leaveMuc);
+                    showSnackbar(R.string.remote_server_not_found, R.string.leave, leaveMuc);
                     break;
                 case PASSWORD_REQUIRED:
                     showSnackbar(R.string.conference_requires_password, R.string.enter_password, enterPassword);

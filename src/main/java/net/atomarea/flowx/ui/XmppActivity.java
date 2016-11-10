@@ -27,6 +27,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaMetadataRetriever;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -443,7 +444,15 @@ public abstract class XmppActivity extends FragmentActivity {
             return false;
         }
     }
-
+    protected boolean isAffectedByDataSaver() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            return cm.isActiveNetworkMetered()
+                    && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED;
+        } else {
+            return false;
+        }
+    }
     protected boolean usingEnterKey() {
         return getPreferences().getBoolean("display_enter_key", false);
     }

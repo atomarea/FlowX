@@ -48,11 +48,13 @@ public final class Config {
     public static final boolean DISALLOW_REGISTRATION_IN_UI = false; //hide the register checkbox
     public static final int MAX_DISPLAY_MESSAGE_CHARS = 4096;
     public static final int IDLE_PING_INTERVAL = 600; //540 is minimum according to docs;
+    public static final int LOW_PING_TIMEOUT = 1; // used after push received
     public static final boolean CLOSE_TCP_WHEN_SWITCHING_TO_BACKGROUND = false;
     public static final boolean ALWAYS_NOTIFY_BY_DEFAULT = false;
     public static final long UPDATE_CHECK_TIMER = 24 * 60 * 60; // in seconds
+    public static final long FREQUENT_RESTARTS_DETECTION_WINDOW = 10 * 60 * 60 * 1000; // 10 hours
+    public static final long FREQUENT_RESTARTS_THRESHOLD = 10;
     public static final boolean BACKGROUND_STANZA_LOGGING = false;
-    public static final boolean PUSH_MODE = false; 	//closes the tcp connection when going to background
     public static final boolean HIDE_MESSAGE_TEXT_IN_NOTIFICATION = false;
     public static final int PING_MAX_INTERVAL = 300;
     public static final int PING_MIN_INTERVAL = 30;

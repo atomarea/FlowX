@@ -31,9 +31,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.lang.String.format;
+
+
 public class ShareWithActivity extends XmppActivity implements XmppConnectionService.OnConversationUpdate {
 
 	private boolean mReturnToPrevious = false;
+	private static final String STATE_SHARING_IS_RUNNING = "state_sharing_is_running";
+	static boolean ContactChosen = false;
+	static boolean IntentReceived = false;
+	boolean SharingIsRunning = false;
 
 	@Override
 	public void onConversationUpdate() {
@@ -89,7 +96,6 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 						if (mReturnToPrevious) {
 							finish();
 						} else {
-							closeProgress();
 							switchToConversation(message.getConversation());
 						}
 					}
@@ -161,7 +167,16 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 			}
 		});
 
-		this.share = new Share();
+		if (savedInstanceState != null) {
+			SharingIsRunning = savedInstanceState.getBoolean(STATE_SHARING_IS_RUNNING, false);
+		}
+		if (!SharingIsRunning) {
+			Log.d(Config.LOGTAG, "ShareWithActivity onCreate: state restored");
+			this.share = new Share();
+		} else {
+			Log.d(Config.LOGTAG, "ShareWithActivity onCreate: shring running, finish()");
+			this.finish();
+		}
 	}
 
 	@Override
@@ -187,22 +202,31 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 		Intent intent = getIntent();
 		if (intent == null) {
 			return;
+		} else {
+			IntentReceived = true;
 		}
+		Log.d(Config.LOGTAG, "ShareWithActivity onStart() getIntent " + intent.toString());
 		this.mReturnToPrevious = getPreferences().getBoolean("return_to_previous", false);
 		final String type = intent.getType();
 		final String action = intent.getAction();
 		Log.d(Config.LOGTAG, "action: "+action+ ", type:"+type);
 		share.uuid = intent.getStringExtra("uuid");
 		if (Intent.ACTION_SEND.equals(action)) {
+			final String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
 			final String text = intent.getStringExtra(Intent.EXTRA_TEXT);
 			final Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+			Log.d(Config.LOGTAG, "ShareWithActivity onStart() Uri: " + uri);
 			if (type != null && uri != null && (text == null || !type.equals("text/plain"))) {
 				this.share.uris.clear();
 				this.share.uris.add(uri);
 				this.share.image = type.startsWith("image/") || isImage(uri);
 				this.share.video = type.startsWith("video/") || isVideo(uri);
 			} else {
-				this.share.text = text;
+				if (subject != null) {
+					this.share.text = format("[%s]%n%s", subject, text);
+				} else {
+					this.share.text = text;
+				}
 			}
 		} else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
 			this.share.image = type != null && type.startsWith("image/");
@@ -219,6 +243,18 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 			}
 		}
 
+	}
+
+	@Override
+	public void onSaveInstanceState(final Bundle savedInstanceState) {
+		Log.d(Config.LOGTAG, "ShareWithActivity onSaveInstanceState: IntentReceived: " + IntentReceived + " ContactChosen: " + ContactChosen);
+		if (IntentReceived && ContactChosen) {
+			Log.d(Config.LOGTAG, "ShareWithActivity onSaveInstanceState: state saved");
+			savedInstanceState.putBoolean(STATE_SHARING_IS_RUNNING, true);
+		} else {
+			Log.d(Config.LOGTAG, "ShareWithActivity onSaveInstanceState: sharing is running, do nothing at this point");
+		}
+		super.onSaveInstanceState(savedInstanceState);
 	}
 
 	protected boolean isImage(Uri uri) {
@@ -274,6 +310,7 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 				return;
 			}
 		}
+		ContactChosen = true;
 		share(conversation);
 	}
 
@@ -297,6 +334,7 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 				public void onPresenceSelected() {
 					attachmentCounter.set(share.uris.size());
 					if (share.image) {
+						Log.d(Config.LOGTAG, "ShareWithActivity share() image " + share.uris.size() + " uri(s) " + share.uris.toString());
 						share.multiple = share.uris.size() > 1;
 						replaceToast(getString(share.multiple ? R.string.preparing_images : R.string.preparing_image));
 						for (Iterator<Uri> i = share.uris.iterator(); i.hasNext(); i.remove()) {
@@ -305,12 +343,13 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
 											attachFileCallback);
 						}
 					} else if (share.video) {
-						showProgress();
+						Log.d(Config.LOGTAG, "ShareWithActivity share() video " + share.uris.size() + " uri(s) " + share.uris.toString());
 						replaceToast(getString(R.string.preparing_video));
 						ShareWithActivity.this.xmppConnectionService
 								.attachVideoToConversation(conversation, share.uris.get(0),
 										attachFileCallback);
 					} else {
+						Log.d(Config.LOGTAG, "ShareWithActivity share() file " + share.uris.size() + " uri(s) " + share.uris.toString());
 						replaceToast(getString(R.string.preparing_file));
 						ShareWithActivity.this.xmppConnectionService
 								.attachFileToConversation(conversation, share.uris.get(0),
