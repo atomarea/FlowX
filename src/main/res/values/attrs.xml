@@ -29,4 +29,5 @@
     <attr name="dialog_horizontal_padding" format="dimension"/>
     <attr name="dialog_vertical_padding" format="dimension"/>
     <attr name="color_text_primary" format="reference|color" />
+    <attr name="icon_alpha" format="float"/>
 </resources>

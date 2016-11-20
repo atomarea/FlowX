@@ -48,11 +48,8 @@ import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -71,7 +68,6 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
@@ -81,7 +77,6 @@ import net.atomarea.flowx.entities.Presences;
 import net.atomarea.flowx.services.AvatarService;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.services.XmppConnectionService.XmppConnectionBinder;
-import net.atomarea.flowx.ui.widget.Switch;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.ExceptionHelper;
 import net.atomarea.flowx.utils.UIHelper;
@@ -125,15 +120,18 @@ public abstract class XmppActivity extends FragmentActivity {
     protected Toast mToast;
     protected ProgressDialog mProgress = null;
     Integer oldOrientation = getRequestedOrientation();
+    protected void replaceToast(String msg) {
+        replaceToast(msg, true);
+    }
+
     protected void hideToast() {
         if (mToast != null) {
             mToast.cancel();
         }
     }
-
-    protected void replaceToast(String msg) {
+    protected void replaceToast(String msg, boolean showlong) {
         hideToast();
-        mToast = Toast.makeText(this, msg ,Toast.LENGTH_LONG);
+        mToast = Toast.makeText(this, msg ,showlong ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
         mToast.show();
     }
     protected void showProgress() {
@@ -764,139 +762,6 @@ public abstract class XmppActivity extends FragmentActivity {
         }
         builder.setView(view);
         builder.setNegativeButton(R.string.cancel, null);
-        builder.create().show();
-    }
-
-    protected boolean addFingerprintRow(LinearLayout keys, final Account account, final String fingerprint, boolean highlight, View.OnClickListener onKeyClickedListener) {
-        final XmppAxolotlSession.Trust trust = account.getAxolotlService()
-                .getFingerprintTrust(fingerprint);
-        if (trust == null) {
-            return false;
-        }
-        return addFingerprintRowWithListeners(keys, account, fingerprint, highlight, trust, true,
-                new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        account.getAxolotlService().setFingerprintTrust(fingerprint,
-                                (isChecked) ? XmppAxolotlSession.Trust.TRUSTED :
-                                        XmppAxolotlSession.Trust.UNTRUSTED);
-                    }
-                },
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        account.getAxolotlService().setFingerprintTrust(fingerprint,
-                                XmppAxolotlSession.Trust.UNTRUSTED);
-                        v.setEnabled(true);
-                    }
-                },
-                onKeyClickedListener
-
-        );
-    }
-
-    protected boolean addFingerprintRowWithListeners(LinearLayout keys, final Account account,
-                                                     final String fingerprint,
-                                                     boolean highlight,
-                                                     XmppAxolotlSession.Trust trust,
-                                                     boolean showTag,
-                                                     CompoundButton.OnCheckedChangeListener
-                                                             onCheckedChangeListener,
-                                                     View.OnClickListener onClickListener,
-                                                     View.OnClickListener onKeyClickedListener) {
-        if (trust == XmppAxolotlSession.Trust.COMPROMISED) {
-            return false;
-        }
-        View view = getLayoutInflater().inflate(R.layout.contact_key, keys, false);
-        TextView key = (TextView) view.findViewById(R.id.key);
-        key.setOnClickListener(onKeyClickedListener);
-        TextView keyType = (TextView) view.findViewById(R.id.key_type);
-        keyType.setOnClickListener(onKeyClickedListener);
-        Switch trustToggle = (Switch) view.findViewById(R.id.tgl_trust);
-        trustToggle.setVisibility(View.VISIBLE);
-        trustToggle.setOnCheckedChangeListener(onCheckedChangeListener);
-        trustToggle.setOnClickListener(onClickListener);
-        final View.OnLongClickListener purge = new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                showPurgeKeyDialog(account, fingerprint);
-                return true;
-            }
-        };
-        view.setOnLongClickListener(purge);
-        key.setOnLongClickListener(purge);
-        keyType.setOnLongClickListener(purge);
-        boolean x509 = Config.X509_VERIFICATION
-                && (trust == XmppAxolotlSession.Trust.TRUSTED_X509 || trust == XmppAxolotlSession.Trust.INACTIVE_TRUSTED_X509);
-        switch (trust) {
-            case UNTRUSTED:
-            case TRUSTED:
-            case TRUSTED_X509:
-                trustToggle.setChecked(trust.trusted(), false);
-                trustToggle.setEnabled(!Config.X509_VERIFICATION || trust != XmppAxolotlSession.Trust.TRUSTED_X509);
-                if (Config.X509_VERIFICATION && trust == XmppAxolotlSession.Trust.TRUSTED_X509) {
-                    trustToggle.setOnClickListener(null);
-                }
-                key.setTextColor(getPrimaryTextColor());
-                keyType.setTextColor(getSecondaryTextColor());
-                break;
-            case UNDECIDED:
-                trustToggle.setChecked(false, false);
-                trustToggle.setEnabled(false);
-                key.setTextColor(getPrimaryTextColor());
-                keyType.setTextColor(getSecondaryTextColor());
-                break;
-            case INACTIVE_UNTRUSTED:
-            case INACTIVE_UNDECIDED:
-                trustToggle.setOnClickListener(null);
-                trustToggle.setChecked(false, false);
-                trustToggle.setEnabled(false);
-                key.setTextColor(getTertiaryTextColor());
-                keyType.setTextColor(getTertiaryTextColor());
-                break;
-            case INACTIVE_TRUSTED:
-            case INACTIVE_TRUSTED_X509:
-                trustToggle.setOnClickListener(null);
-                trustToggle.setChecked(true, false);
-                trustToggle.setEnabled(false);
-                key.setTextColor(getTertiaryTextColor());
-                keyType.setTextColor(getTertiaryTextColor());
-                break;
-        }
-
-        if (showTag) {
-            keyType.setText(getString(x509 ? R.string.omemo_fingerprint_x509 : R.string.omemo_fingerprint));
-        } else {
-            keyType.setVisibility(View.GONE);
-        }
-        if (highlight) {
-            keyType.setTextColor(getResources().getColor(R.color.accent));
-            keyType.setText(getString(x509 ? R.string.omemo_fingerprint_x509_selected_message : R.string.omemo_fingerprint_selected_message));
-        } else {
-            keyType.setText(getString(x509 ? R.string.omemo_fingerprint_x509 : R.string.omemo_fingerprint));
-        }
-
-        key.setText(CryptoHelper.prettifyFingerprint(fingerprint.substring(2)));
-        keys.addView(view);
-        return true;
-    }
-
-    public void showPurgeKeyDialog(final Account account, final String fingerprint) {
-        Builder builder = new Builder(this);
-        builder.setTitle(getString(R.string.purge_key));
-        builder.setIconAttribute(android.R.attr.alertDialogIcon);
-        builder.setMessage(getString(R.string.purge_key_desc_part1)
-                + "\n\n" + CryptoHelper.prettifyFingerprint(fingerprint.substring(2))
-                + "\n\n" + getString(R.string.purge_key_desc_part2));
-        builder.setNegativeButton(getString(R.string.cancel), null);
-        builder.setPositiveButton(getString(R.string.purge_key),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        account.getAxolotlService().purgeKey(fingerprint);
-                        refreshUi();
-                    }
-                });
         builder.create().show();
     }
 

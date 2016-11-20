@@ -46,14 +46,13 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
+import net.atomarea.flowx.crypto.axolotl.FingerprintStatus;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.DownloadableFile;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Message.FileParams;
 import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.persistance.FileBackend;
-import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.ui.ConversationActivity;
 import net.atomarea.flowx.ui.ShowFullscreenMessageActivity;
 import net.atomarea.flowx.ui.widget.ClickableMovementMethod;
@@ -63,16 +62,19 @@ import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.GeoHelper;
 import net.atomarea.flowx.utils.UIHelper;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import ezvcard.Ezvcard;
+import ezvcard.VCard;
 import nl.changer.audiowife.AudioWife;
 
 public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextView.CopyHandler {
-    private XmppConnectionService mXmppConnectionService;
     private AudioWife audioWife;
 
     private static final int SENT = 0;
@@ -205,48 +207,68 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
                 if (multiReceived) info = UIHelper.getMessageDisplayName(message);
                 break;
         }
-        if (error && type == SENT) viewHolder.time.setTextColor(activity.getWarningTextColor());
-        else viewHolder.time.setTextColor(this.getMessageTextColor(darkBackground, false));
-        if (message.getEncryption() == Message.ENCRYPTION_NONE)
+        if (error && type == SENT) {
+            viewHolder.time.setTextColor(activity.getWarningTextColor());
+        } else {
+            viewHolder.time.setTextColor(this.getMessageTextColor(darkBackground,false));
+        }
+        if (message.getEncryption() == Message.ENCRYPTION_NONE) {
             viewHolder.indicator.setVisibility(View.GONE);
-        else {
+        } else {
             viewHolder.indicator.setImageResource(darkBackground ? R.drawable.ic_secure_indicator : R.drawable.ic_secure_indicator_white);
             viewHolder.indicator.setVisibility(View.VISIBLE);
             if (message.getEncryption() == Message.ENCRYPTION_AXOLOTL) {
-                XmppAxolotlSession.Trust trust = message.getConversation().getAccount().getAxolotlService().getFingerprintTrust(message.getFingerprint());
-                if (trust == null || (!trust.trusted() && !trust.trustedInactive())) {
+                FingerprintStatus status = message.getConversation()
+                        .getAccount().getAxolotlService().getFingerprintTrust(
+                                message.getFingerprint());
+
+                if(status == null || (!status.isTrustedAndActive())) {
                     viewHolder.indicator.setColorFilter(activity.getWarningTextColor());
                     viewHolder.indicator.setAlpha(1.0f);
                 } else {
                     viewHolder.indicator.clearColorFilter();
-                    if (darkBackground) viewHolder.indicator.setAlpha(0.7f);
-                    else viewHolder.indicator.setAlpha(0.57f);
+                    if (darkBackground) {
+                        viewHolder.indicator.setAlpha(0.7f);
+                    } else {
+                        viewHolder.indicator.setAlpha(0.57f);
+                    }
                 }
             } else {
                 viewHolder.indicator.clearColorFilter();
-                if (darkBackground) viewHolder.indicator.setAlpha(0.7f);
-                else viewHolder.indicator.setAlpha(0.57f);
+                if (darkBackground) {
+                    viewHolder.indicator.setAlpha(0.7f);
+                } else {
+                    viewHolder.indicator.setAlpha(0.57f);
+                }
             }
         }
 
-        String formatedTime = UIHelper.readableTimeDifferenceFull(getContext(), message.getMergedTimeSent());
+        String formatedTime = UIHelper.readableTimeDifferenceFull(getContext(),
+                message.getMergedTimeSent());
         if (message.getStatus() <= Message.STATUS_RECEIVED) {
-            if ((filesize != null) && (info != null))
-                viewHolder.time.setText(formatedTime + " \u00B7 " + filesize + " \u00B7 " + info);
-            else if ((filesize == null) && (info != null))
+            if ((filesize != null) && (info != null)) {
+                viewHolder.time.setText(formatedTime + " \u00B7 " + filesize +" \u00B7 " + info);
+            } else if ((filesize == null) && (info != null)) {
                 viewHolder.time.setText(formatedTime + " \u00B7 " + info);
-            else if ((filesize != null))
+            } else if ((filesize != null) && (info == null)) {
                 viewHolder.time.setText(formatedTime + " \u00B7 " + filesize);
-            else viewHolder.time.setText(formatedTime);
+            } else {
+                viewHolder.time.setText(formatedTime);
+            }
         } else {
-            if ((filesize != null) && (info != null))
+            if ((filesize != null) && (info != null)) {
                 viewHolder.time.setText(filesize + " \u00B7 " + info);
-            else if ((filesize == null) && (info != null))
-                if (error) viewHolder.time.setText(info + " \u00B7 " + formatedTime);
-                else viewHolder.time.setText(info);
-            else if ((filesize != null))
+            } else if ((filesize == null) && (info != null)) {
+                if (error) {
+                    viewHolder.time.setText(info + " \u00B7 " + formatedTime);
+                } else {
+                    viewHolder.time.setText(info);
+                }
+            } else if ((filesize != null) && (info == null)) {
                 viewHolder.time.setText(filesize + " \u00B7 " + formatedTime);
-            else viewHolder.time.setText(formatedTime);
+            } else {
+                viewHolder.time.setText(formatedTime);
+            }
         }
     }
 
@@ -417,8 +439,28 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
         viewHolder.messageBody.setVisibility(View.GONE);
         if (viewHolder.pbFile != null) viewHolder.pbFile.setVisibility(View.GONE);
         viewHolder.download_button.setVisibility(View.VISIBLE);
-        viewHolder.download_button.setText(activity.getString(R.string.open_x_file, UIHelper.getFileDescriptionString(activity, message)));
-        viewHolder.download_button.setOnClickListener(new OnClickListener() {
+        String mimeType = message.getMimeType();
+        String fullName = "";
+        if (mimeType != null) {
+            } else if (message.getMimeType().contains("vcard")) {
+                File file = new File(activity.xmppConnectionService.getFileBackend().getFile(message).toString());
+                VCard vcard = null;
+                String name = null;
+                String version = null;
+                try {
+                    vcard = Ezvcard.parse(file).first();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (vcard != null) {
+                    version = vcard.getVersion().toString();
+                    Log.d(Config.LOGTAG, "VCard version: " + version);
+                    name = vcard.getFormattedName().getValue();
+                    fullName = " (" + name + ")";
+                }
+        }
+                viewHolder.download_button.setText(activity.getString(R.string.open_x_file, UIHelper.getFileDescriptionString(activity, message) + fullName));
+                viewHolder.download_button.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -427,6 +469,27 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
         });
     }
 
+    private void displayXmppMessage(final ViewHolder viewHolder, final String body) {
+        String contact = body.toLowerCase();
+        contact = contact.split(":")[1];
+        contact = contact.split("\\?")[0];
+        String add_contact = activity.getString(R.string.add_to_contact_list) + " (" + contact + ")";
+        viewHolder.aw_player.setVisibility(View.GONE);
+        viewHolder.download_button.setVisibility(View.VISIBLE);
+        viewHolder.download_button.setText(add_contact);
+        viewHolder.download_button.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(body));
+                activity.startActivity(intent);
+            }
+        });
+        viewHolder.image.setVisibility(View.GONE);
+        viewHolder.messageBody.setVisibility(View.GONE);
+
+    }
     private void displayLocationMessage(ViewHolder viewHolder, final Message message) {
         viewHolder.aw_player.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.GONE);
@@ -443,6 +506,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
         Glide
                 .with(activity)
                 .load(Uri.parse(url))
+                .asBitmap()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .fitCenter()
                 .placeholder(R.drawable.ic_map_marker_grey600_48dp)
@@ -631,6 +695,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
                 displayLocationMessage(viewHolder,message);
             } else if (message.bodyIsHeart()) {
                 displayHeartMessage(viewHolder, message.getBody().trim());
+            } else if (message.bodyIsXmpp()) {
+                                displayXmppMessage(viewHolder, message.getBody().trim());
             } else if (message.treatAsDownloadable() == Message.Decision.MUST ||
                     message.treatAsDownloadable() == Message.Decision.SHOULD) {
                 try {

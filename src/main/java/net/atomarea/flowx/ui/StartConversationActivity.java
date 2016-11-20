@@ -7,6 +7,7 @@ import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.app.ListFragment;
@@ -98,6 +99,7 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
     private AtomicBoolean mRequestedContactsPermission = new AtomicBoolean(false);
     private final int REQUEST_SYNC_CONTACTS = 0x101;
     private final int REQUEST_CREATE_CONFERENCE = 0x102;
+    private Dialog mCurrentDialog = null;
 
     private MenuItem.OnActionExpandListener mOnActionExpandListener = new MenuItem.OnActionExpandListener() {
 
@@ -319,7 +321,20 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
     @Override
     public void onStart() {
         super.onStart();
-        askForContactsPermissions();
+        final int theme = findTheme();
+        if (this.mTheme != theme) {
+            recreate();
+        } else {
+            askForContactsPermissions();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        if (mCurrentDialog != null) {
+            mCurrentDialog.dismiss();
+        }
+        super.onStop();
     }
 
     protected void openConversationForContact(int position) {
@@ -421,11 +436,11 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
     }
 
     @SuppressLint("InflateParams")
-    protected void showCreateContactDialog(final String prefilledJid, final String fingerprint) {
+    protected void showCreateContactDialog(final String prefilledJid, final Invite invite) {
         EnterJidDialog dialog = new EnterJidDialog(
                 this, mKnownHosts, mActivatedAccounts,
                 getString(R.string.create_contact), getString(R.string.create),
-                prefilledJid, null, fingerprint == null
+                prefilledJid, null, invite == null || !invite.hasFingerprints()
         );
 
         dialog.setOnEnterJidDialogPositiveListener(new EnterJidDialog.OnEnterJidDialogPositiveListener() {
@@ -444,14 +459,15 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
                 if (contact.showInRoster()) {
                     throw new EnterJidDialog.JidError(getString(R.string.contact_already_exists));
                 } else {
-                    contact.addOtrFingerprint(fingerprint);
                     xmppConnectionService.createContact(contact);
+                    if (invite != null && invite.hasFingerprints()) {
+                        xmppConnectionService.verifyFingerprints(contact,invite.getFingerprints());
+                    }
                     switchToConversation(contact);
                     return true;
                 }
             }
         });
-
         dialog.show();
     }
 
@@ -898,8 +914,15 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
         return false;
     }
 
-
     private boolean handleJid(Invite invite) {
+        Account account = xmppConnectionService.findAccountByJid(invite.getJid());
+        if (account != null && !account.isOptionSet(Account.OPTION_DISABLED) && invite.hasFingerprints()) {
+            if (xmppConnectionService.verifyFingerprints(account,invite.getFingerprints())) {
+                switchToAccount(account);
+                finish();
+                return true;
+            }
+        }
         List<Contact> contacts = xmppConnectionService.findContacts(invite.getJid());
         if (invite.isMuc()) {
             Conversation muc = xmppConnectionService.findFirstMuc(invite.getJid());
@@ -911,15 +934,12 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
                 return false;
             }
         } else if (contacts.size() == 0) {
-            showCreateContactDialog(invite.getJid().toString(), invite.getFingerprint());
+            showCreateContactDialog(invite.getJid().toString(), invite);
             return false;
         } else if (contacts.size() == 1) {
             Contact contact = contacts.get(0);
-            if (invite.getFingerprint() != null) {
-                if (contact.addOtrFingerprint(invite.getFingerprint())) {
-                    Log.d(Config.LOGTAG, "added new fingerprint");
-                    xmppConnectionService.syncRosterToDisk(contact.getAccount());
-                }
+            if (invite.hasFingerprints()) {
+                xmppConnectionService.verifyFingerprints(contact,invite.getFingerprints());
             }
             switchToConversation(contact);
             return true;

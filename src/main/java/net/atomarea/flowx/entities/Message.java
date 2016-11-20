@@ -4,17 +4,18 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.text.SpannableStringBuilder;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import net.atomarea.flowx.Config;
-import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
+import net.atomarea.flowx.crypto.axolotl.FingerprintStatus;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.GeoHelper;
 import net.atomarea.flowx.utils.MimeUtils;
 import net.atomarea.flowx.utils.UIHelper;
+import net.atomarea.flowx.utils.XmppUri;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class Message extends AbstractEntity {
 
@@ -226,7 +227,7 @@ public class Message extends AbstractEntity {
 		values.put(RELATIVE_FILE_PATH, relativeFilePath);
 		values.put(SERVER_MSG_ID, serverMsgId);
 		values.put(FINGERPRINT, axolotlFingerprint);
-		values.put(READ,read ? 1 : 0);
+		values.put(READ, read ? 1 : 0);
 		values.put(EDITED, edited);
 		values.put(OOB, oob ? 1 : 0);
 		values.put(ERROR_MESSAGE,errorMessage);
@@ -414,7 +415,7 @@ public class Message extends AbstractEntity {
 				return (message.getRemoteMsgId().equals(this.remoteMsgId) || message.getRemoteMsgId().equals(this.uuid))
 						&& this.counterpart.equals(message.getCounterpart())
 						&& (body.equals(otherBody)
-						||(message.getEncryption() == Message.ENCRYPTION_PGP
+						|| (message.getEncryption() == Message.ENCRYPTION_PGP
 						&& CryptoHelper.UUID_PATTERN.matcher(message.getRemoteMsgId()).matches()));
 			} else {
 				return this.remoteMsgId == null
@@ -455,7 +456,7 @@ public class Message extends AbstractEntity {
 
 	public boolean isLastCorrectableMessage() {
 		Message next = next();
-		while(next != null) {
+		while (next != null) {
 			if (next.isCorrectable()) {
 				return false;
 			}
@@ -492,6 +493,8 @@ public class Message extends AbstractEntity {
 						!this.getBody().startsWith(ME_COMMAND) &&
 						!this.bodyIsHeart() &&
 						!message.bodyIsHeart() &&
+						!this.bodyIsXmpp() &&
+						!message.bodyIsXmpp() &&
 						this.isTrusted() == message.isTrusted()
 				);
 	}
@@ -518,8 +521,7 @@ public class Message extends AbstractEntity {
 				break;
 			}
 			body.append("\n\n");
-			body.setSpan(new MergeSeparator(), body.length() - 2, body.length(),
-					SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
+			body.setSpan(new MergeSeparator(), body.length() - 2, body.length(), SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE);
 			body.append(current.getBody().trim());
 		}
 		return body;
@@ -532,7 +534,7 @@ public class Message extends AbstractEntity {
 	public int getMergedStatus() {
 		int status = this.status;
 		Message current = this;
-		while(current.mergeable(current.next())) {
+		while (current.mergeable(current.next())) {
 			current = current.next();
 			if (current == null) {
 				break;
@@ -545,7 +547,7 @@ public class Message extends AbstractEntity {
 	public long getMergedTimeSent() {
 		long time = this.timeSent;
 		Message current = this;
-		while(current.mergeable(current.next())) {
+		while (current.mergeable(current.next())) {
 			current = current.next();
 			if (current == null) {
 				break;
@@ -620,7 +622,7 @@ public class Message extends AbstractEntity {
 			String extension = filename.substring(dotPosition + 1);
 			// we want the real file extension, not the crypto one
 			if (Transferable.VALID_CRYPTO_EXTENSIONS.contains(extension)) {
-				return extractRelevantExtension(filename.substring(0,dotPosition));
+				return extractRelevantExtension(filename.substring(0, dotPosition));
 			} else {
 				return extension;
 			}
@@ -679,6 +681,10 @@ public class Message extends AbstractEntity {
 
 	public boolean bodyIsHeart() {
 		return body != null && UIHelper.HEARTS.contains(body.trim());
+	}
+
+	public boolean bodyIsXmpp() {
+		return body != null && XmppUri.isXmppUri(body.trim());
 	}
 
 	public FileParams getFileParams() {
@@ -811,13 +817,13 @@ public class Message extends AbstractEntity {
 	}
 
 	public boolean isTrusted() {
-		XmppAxolotlSession.Trust t = conversation.getAccount().getAxolotlService().getFingerprintTrust(axolotlFingerprint);
-		return t != null && t.trusted();
+		FingerprintStatus s = conversation.getAccount().getAxolotlService().getFingerprintTrust(axolotlFingerprint);
+		return s != null && s.isTrustedAndActive();
 	}
 
-	private  int getPreviousEncryption() {
-		for (Message iterator = this.prev(); iterator != null; iterator = iterator.prev()){
-			if( iterator.isCarbon() || iterator.getStatus() == STATUS_RECEIVED ) {
+	private int getPreviousEncryption() {
+		for (Message iterator = this.prev(); iterator != null; iterator = iterator.prev()) {
+			if (iterator.isCarbon() || iterator.getStatus() == STATUS_RECEIVED) {
 				continue;
 			}
 			return iterator.getEncryption();
@@ -826,8 +832,8 @@ public class Message extends AbstractEntity {
 	}
 
 	private int getNextEncryption() {
-		for (Message iterator = this.next(); iterator != null; iterator = iterator.next()){
-			if( iterator.isCarbon() || iterator.getStatus() == STATUS_RECEIVED ) {
+		for (Message iterator = this.next(); iterator != null; iterator = iterator.next()) {
+			if (iterator.isCarbon() || iterator.getStatus() == STATUS_RECEIVED) {
 				continue;
 			}
 			return iterator.getEncryption();

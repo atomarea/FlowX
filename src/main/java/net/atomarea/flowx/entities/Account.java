@@ -5,8 +5,16 @@ import android.database.Cursor;
 import android.os.SystemClock;
 import android.util.Pair;
 
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.crypto.OtrService;
 import net.atomarea.flowx.crypto.PgpDecryptionService;
-
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.XmppUri;
+import net.atomarea.flowx.xmpp.XmppConnection;
+import net.atomarea.flowx.xmpp.jid.InvalidJidException;
+import net.atomarea.flowx.xmpp.jid.Jid;
 import net.java.otr4j.crypto.OtrCryptoEngineImpl;
 import net.java.otr4j.crypto.OtrCryptoException;
 
@@ -15,19 +23,13 @@ import org.json.JSONObject;
 
 import java.security.PublicKey;
 import java.security.interfaces.DSAPublicKey;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
-
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.OtrService;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.xmpp.XmppConnection;
-import net.atomarea.flowx.xmpp.jid.InvalidJidException;
-import net.atomarea.flowx.xmpp.jid.Jid;
 
 public class Account extends AbstractEntity {
 
@@ -486,7 +488,7 @@ public class Account extends AbstractEntity {
 				if (publicKey == null || !(publicKey instanceof DSAPublicKey)) {
 					return null;
 				}
-				this.otrFingerprint = new OtrCryptoEngineImpl().getFingerprint(publicKey);
+				this.otrFingerprint = new OtrCryptoEngineImpl().getFingerprint(publicKey).toLowerCase(Locale.US);
 				return this.otrFingerprint;
 			} catch (final OtrCryptoException ignored) {
 				return null;
@@ -599,12 +601,44 @@ public class Account extends AbstractEntity {
 	}
 
 	public String getShareableUri() {
-		final String fingerprint = this.getOtrFingerprint();
-		if (fingerprint != null) {
-			return "xmpp:" + this.getJid().toBareJid().toString() + "?otr-fingerprint="+fingerprint;
+		List<XmppUri.Fingerprint> fingerprints = this.getFingerprints();
+		String uri = "xmpp:"+this.getJid().toBareJid().toString();
+		if (fingerprints.size() > 0) {
+			StringBuilder builder = new StringBuilder(uri);
+			builder.append('?');
+			for(int i = 0; i < fingerprints.size(); ++i) {
+				XmppUri.FingerprintType type = fingerprints.get(i).type;
+				if (type == XmppUri.FingerprintType.OMEMO) {
+					builder.append(XmppUri.OMEMO_URI_PARAM);
+					builder.append(fingerprints.get(i).deviceId);
+				} else if (type == XmppUri.FingerprintType.OTR) {
+					builder.append(XmppUri.OTR_URI_PARAM);
+				}
+				builder.append('=');
+				builder.append(fingerprints.get(i).fingerprint);
+				if (i != fingerprints.size() -1) {
+					builder.append(';');
+				}
+			}
+			return builder.toString();
 		} else {
-			return "xmpp:" + this.getJid().toBareJid().toString();
+			return uri;
 		}
+	}
+
+	private List<XmppUri.Fingerprint> getFingerprints() {
+		ArrayList<XmppUri.Fingerprint> fingerprints = new ArrayList<>();
+		final String otr = this.getOtrFingerprint();
+		if (otr != null) {
+			fingerprints.add(new XmppUri.Fingerprint(XmppUri.FingerprintType.OTR,otr));
+		}
+		fingerprints.add(new XmppUri.Fingerprint(XmppUri.FingerprintType.OMEMO,axolotlService.getOwnFingerprint().substring(2),axolotlService.getOwnDeviceId()));
+		for(XmppAxolotlSession session : axolotlService.findOwnSessions()) {
+			if (session.getTrust().isVerified() && session.getTrust().isActive()) {
+				fingerprints.add(new XmppUri.Fingerprint(XmppUri.FingerprintType.OMEMO,session.getFingerprint().substring(2).replaceAll("\\s",""),session.getRemoteAddress().getDeviceId()));
+			}
+		}
+		return fingerprints;
 	}
 
 	public boolean isBlocked(final ListItem contact) {

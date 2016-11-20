@@ -50,7 +50,6 @@ public class ShowFullscreenMessageActivity extends Activity {
         oldOrientation = getRequestedOrientation();
 
         WindowManager.LayoutParams layout = getWindow().getAttributes();
-        layout.screenBrightness = 1;
         getWindow().setAttributes(layout);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_fullscreen_message);
@@ -199,7 +198,6 @@ public class ShowFullscreenMessageActivity extends Activity {
     @Override
     protected void onResume() {
         WindowManager.LayoutParams layout = getWindow().getAttributes();
-        layout.screenBrightness = 1;
         getWindow().setAttributes(layout);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         mVideo.setShouldAutoplay(true);
@@ -210,7 +208,6 @@ public class ShowFullscreenMessageActivity extends Activity {
     protected void onPause() {
         mVideo.reset();
         WindowManager.LayoutParams layout = getWindow().getAttributes();
-        layout.screenBrightness = -1;
         getWindow().setAttributes(layout);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setRequestedOrientation(oldOrientation);
@@ -221,7 +218,6 @@ public class ShowFullscreenMessageActivity extends Activity {
     public void onStop () {
         mVideo.reset();
         WindowManager.LayoutParams layout = getWindow().getAttributes();
-        layout.screenBrightness = -1;
         getWindow().setAttributes(layout);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setRequestedOrientation(oldOrientation);

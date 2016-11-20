@@ -51,13 +51,16 @@ import net.atomarea.flowx.entities.Presence;
 import net.atomarea.flowx.entities.Transferable;
 import net.atomarea.flowx.entities.TransferablePlaceholder;
 import net.atomarea.flowx.http.HttpDownloadConnection;
+import net.atomarea.flowx.persistance.FileBackend;
 import net.atomarea.flowx.services.MessageArchiveService;
 import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.ui.XmppActivity.OnPresenceSelected;
 import net.atomarea.flowx.ui.XmppActivity.OnValueEdited;
 import net.atomarea.flowx.ui.adapter.MessageAdapter;
+import net.atomarea.flowx.ui.widget.ListSelectionManager;
 import net.atomarea.flowx.utils.GeoHelper;
 import net.atomarea.flowx.utils.UIHelper;
+import net.atomarea.flowx.utils.XmppUri;
 import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 import net.atomarea.flowx.xmpp.jid.Jid;
@@ -612,7 +615,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         final Message m = this.selectedMessage;
         final Transferable t = m.getTransferable();
         Message relevantForCorrection = m;
-        while (relevantForCorrection.mergeable(relevantForCorrection.next())) {
+        while(relevantForCorrection.mergeable(relevantForCorrection.next())) {
             relevantForCorrection = relevantForCorrection.next();
         }
         if (m.getType() != Message.TYPE_STATUS) {
@@ -634,18 +637,26 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             MenuItem showErrorMessage = menu.findItem(R.id.show_error_message);
             if (!treatAsFile
                     && !GeoHelper.isGeoUri(m.getBody())
+                    && !XmppUri.isXmppUri(m.getBody())
                     && m.treatAsDownloadable() != Message.Decision.MUST) {
                 copyText.setVisible(true);
-                selectText.setVisible(METHOD_START_SELECTION != null);
+                selectText.setVisible(ListSelectionManager.isSupported());
             }
             if (m.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED) {
                 retryDecryption.setVisible(true);
             }
-            if (relevantForCorrection.getType() == Message.TYPE_TEXT
-                    && relevantForCorrection.isLastCorrectableMessage()) {
+            if ((relevantForCorrection.getType() == Message.TYPE_TEXT
+                    && relevantForCorrection.isLastCorrectableMessage()
+                    && conversation.getMode() == Conversation.MODE_SINGLE)
+                    || (relevantForCorrection.getType() == Message.TYPE_TEXT
+                    && relevantForCorrection.isLastCorrectableMessage()
+                    && conversation.getMode() == Conversation.MODE_MULTI
+                    && m.getConversation().getMucOptions().nonanonymous())) {
                 correctMessage.setVisible(true);
             }
-            if (treatAsFile || (GeoHelper.isGeoUri(m.getBody()))) {
+            if (treatAsFile
+                    || GeoHelper.isGeoUri(m.getBody())
+                    || XmppUri.isXmppUri(m.getBody())) {
                 shareWith.setVisible(true);
             }
             if (m.getStatus() == Message.STATUS_SEND_FAILED) {
@@ -653,16 +664,16 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             }
             if (m.hasFileOnRemoteHost()
                     || GeoHelper.isGeoUri(m.getBody())
+                    || XmppUri.isXmppUri(m.getBody())
                     || m.treatAsDownloadable() == Message.Decision.MUST
                     || (t != null && t instanceof HttpDownloadConnection)) {
                 copyUrl.setVisible(true);
             }
             if ((m.getType() == Message.TYPE_TEXT && t == null && m.treatAsDownloadable() != Message.Decision.NEVER)
-                    || (m.isFileOrImage() && t instanceof TransferablePlaceholder && m.hasFileOnRemoteHost())) {
+                    || (m.isFileOrImage() && t instanceof TransferablePlaceholder && m.hasFileOnRemoteHost())){
                 downloadFile.setVisible(true);
-                downloadFile.setTitle(activity.getString(R.string.download_x_file, UIHelper.getFileDescriptionString(activity, m)));
+                downloadFile.setTitle(activity.getString(R.string.download_x_file,UIHelper.getFileDescriptionString(activity, m)));
             }
-            updateStatusMessages();
             boolean waitingOfferedSending = m.getStatus() == Message.STATUS_WAITING
                     || m.getStatus() == Message.STATUS_UNSEND
                     || m.getStatus() == Message.STATUS_OFFERED;
@@ -670,14 +681,19 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
                 cancelTransmission.setVisible(true);
             }
             if (treatAsFile) {
-                deleteFile.setVisible(true);
-                deleteFile.setTitle(activity.getString(R.string.delete_x_file, UIHelper.getFileDescriptionString(activity, m)));
+                String path = m.getRelativeFilePath();
+                Log.d(Config.LOGTAG, "Path = " + path);
+                if (path == null || !path.startsWith("/") || path.contains(FileBackend.getConversationsDirectory())) {
+                    deleteFile.setVisible(true);
+                    deleteFile.setTitle(activity.getString(R.string.delete_x_file, UIHelper.getFileDescriptionString(activity, m)));
+                }
             }
             if (m.getStatus() == Message.STATUS_SEND_FAILED && m.getErrorMessage() != null) {
                 showErrorMessage.setVisible(true);
             }
         }
     }
+
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
@@ -746,7 +762,7 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             activity.startActivity(Intent.createChooser(shareIntent, getText(R.string.share_with)));
         } catch (ActivityNotFoundException e) {
             //This should happen only on faulty androids because normally chooser is always available
-            Toast.makeText(activity, R.string.no_application_found_to_open_file, Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity,R.string.no_application_found_to_open_file,Toast.LENGTH_SHORT).show();
         }
     }
 

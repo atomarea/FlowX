@@ -4,4 +4,6 @@
     <item name="message_image_view" type="id" />
     <item name="message_video_view" type="id" />
     <item name="import_text" type="id" />
+    <item type="id" name="TAG_ACCOUNT"/>
+    <item type="id" name="TAG_FINGERPRINT"/>
 </resources>

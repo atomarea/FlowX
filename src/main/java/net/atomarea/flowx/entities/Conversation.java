@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 public class Conversation extends AbstractEntity implements Blockable, Comparable<Conversation> {
     public static final String TABLENAME = "conversations";
@@ -629,7 +630,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     return null;
                 }
                 DSAPublicKey remotePubKey = (DSAPublicKey) getOtrSession().getRemotePublicKey();
-                this.otrFingerprint = getAccount().getOtrService().getFingerprint(remotePubKey);
+                this.otrFingerprint = getAccount().getOtrService().getFingerprint(remotePubKey).toLowerCase(Locale.US);
             } catch (final OtrCryptoException | UnsupportedOperationException ignored) {
                 return null;
             }
@@ -698,6 +699,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         return Message.ENCRYPTION_NONE;
     }
 
+
     public int getNextEncryption() {
         final AxolotlService axolotlService = getAccount().getAxolotlService();
         int next = this.getIntAttribute(ATTRIBUTE_NEXT_ENCRYPTION, -1);
@@ -708,7 +710,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
                     && axolotlService.isConversationAxolotlCapable(this)
                     && getAccount().getSelfContact().getPresences().allOrNonSupport(AxolotlService.PEP_DEVICE_LIST_NOTIFY)
                     && getContact().getPresences().allOrNonSupport(AxolotlService.PEP_DEVICE_LIST_NOTIFY)
-                    && Config.AlwayUseOMEMO) {
+                    && Config.AlwayUseOMEMO){
                 return Message.ENCRYPTION_AXOLOTL;
             } else {
                 next = this.getMostRecentlyUsedIncomingEncryption();

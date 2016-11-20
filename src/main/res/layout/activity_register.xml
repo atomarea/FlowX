@@ -39,7 +39,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="textEmailAddress"
                         android:hint="@string/username_hint"
-                        android:textColor="@color/black87"
+                        android:textColor="@color/black54"
                         android:textColorHint="@color/black54"
                         android:textSize="?attr/TextSizeBody" />
                     <EditText

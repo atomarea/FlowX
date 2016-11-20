@@ -7,13 +7,17 @@ import net.atomarea.flowx.xmpp.jid.Jid;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class XmppUri {
 
 	protected String jid;
 	protected boolean muc;
-	protected String fingerprint;
+	protected List<Fingerprint> fingerprints = new ArrayList<>();
+	public static final String OMEMO_URI_PARAM = "omemo-sid-";
+	public static final String OTR_URI_PARAM = "otr-fingerprint";
 
 	public XmppUri(String uri) {
 		try {
@@ -31,6 +35,10 @@ public class XmppUri {
 		parse(uri);
 	}
 
+	public static boolean isXmppUri(String uri) {
+		String scheme = Uri.parse(uri).getScheme();
+		return "xmpp".equalsIgnoreCase(scheme);
+	}
 	protected void parse(Uri uri) {
 		String scheme = uri.getScheme();
 		String host = uri.getHost();
@@ -56,7 +64,7 @@ public class XmppUri {
 			} else {
 				jid = uri.getSchemeSpecificPart().split("\\?")[0];
 			}
-			fingerprint = parseFingerprint(uri.getQuery());
+			this.fingerprints = parseFingerprints(uri.getQuery());
 		} else if ("imto".equalsIgnoreCase(scheme)) {
 			// sample: imto://xmpp/foo@bar.com
 			try {
@@ -73,18 +81,28 @@ public class XmppUri {
 		}
 	}
 
-	protected  String parseFingerprint(String query) {
-		if (query == null) {
-			return null;
-		} else {
-			final String NEEDLE = "otr-fingerprint=";
-			int index = query.indexOf(NEEDLE);
-			if (index >= 0 && query.length() >= (NEEDLE.length() + index + 40)) {
-				return query.substring(index + NEEDLE.length(), index + NEEDLE.length() + 40);
-			} else {
-				return null;
+	protected List<Fingerprint> parseFingerprints(String query) {
+		List<Fingerprint> fingerprints = new ArrayList<>();
+		String[] pairs = query == null ? new String[0] : query.split(";");
+		for(String pair : pairs) {
+			String[] parts = pair.split("=",2);
+			if (parts.length == 2) {
+				String key = parts[0].toLowerCase(Locale.US);
+				String value = parts[1].toLowerCase(Locale.US);
+				if (OTR_URI_PARAM.equals(key)) {
+					fingerprints.add(new Fingerprint(FingerprintType.OTR,value));
+				}
+				if (key.startsWith(OMEMO_URI_PARAM)) {
+					try {
+						int id = Integer.parseInt(key.substring(OMEMO_URI_PARAM.length()));
+						fingerprints.add(new Fingerprint(FingerprintType.OMEMO,value,id));
+					} catch (Exception e) {
+						//ignoring invalid device id
+					}
+				}
 			}
 		}
+		return fingerprints;
 	}
 
 	public Jid getJid() {
@@ -95,7 +113,36 @@ public class XmppUri {
 		}
 	}
 
-	public String getFingerprint() {
-		return this.fingerprint;
+	public List<Fingerprint> getFingerprints() {
+		return this.fingerprints;
+	}
+
+	public boolean hasFingerprints() {
+		return fingerprints.size() > 0;
+	}
+	public enum FingerprintType {
+		OMEMO,
+		OTR
+	}
+
+	public static class Fingerprint {
+		public final FingerprintType type;
+		public final String fingerprint;
+		public final int deviceId;
+
+		public Fingerprint(FingerprintType type, String fingerprint) {
+			this(type, fingerprint, 0);
+		}
+
+		public Fingerprint(FingerprintType type, String fingerprint, int deviceId) {
+			this.type = type;
+			this.fingerprint = fingerprint;
+			this.deviceId = deviceId;
+		}
+
+		@Override
+		public String toString() {
+			return type.toString()+": "+fingerprint+(deviceId != 0 ? " "+String.valueOf(deviceId) : "");
+		}
 	}
 }

@@ -301,13 +301,19 @@ public class FileBackend {
         return pos > 0 ? filename.substring(pos + 1) : null;
     }
 
+
     private void copyImageToPrivateStorage(File file, Uri image, int sampleSize) throws FileCopyException {
         file.getParentFile().mkdirs();
         InputStream is = null;
         OutputStream os = null;
         try {
-            file.createNewFile();
+            if (!file.exists() && !file.createNewFile()) {
+                throw new FileCopyException(R.string.error_unable_to_create_temporary_file);
+            }
             is = mXmppConnectionService.getContentResolver().openInputStream(image);
+            if (is == null) {
+                throw new FileCopyException(R.string.error_not_an_image_file);
+            }
             Bitmap originalBitmap;
             BitmapFactory.Options options = new BitmapFactory.Options();
             int inSampleSize = (int) Math.pow(2, sampleSize);
@@ -323,7 +329,7 @@ public class FileBackend {
             scaledBitmap = rotate(scaledBitmap, rotation);
             boolean targetSizeReached = false;
             int quality = Config.IMAGE_QUALITY;
-            while (!targetSizeReached) {
+            while(!targetSizeReached) {
                 os = new FileOutputStream(file);
                 boolean success = scaledBitmap.compress(Config.IMAGE_FORMAT, quality, os);
                 if (!success) {
@@ -334,7 +340,6 @@ public class FileBackend {
                 quality -= 5;
             }
             scaledBitmap.recycle();
-            return;
         } catch (FileNotFoundException e) {
             throw new FileCopyException(R.string.error_file_not_found);
         } catch (IOException e) {
@@ -349,8 +354,6 @@ public class FileBackend {
             } else {
                 throw new FileCopyException(R.string.error_out_of_memory);
             }
-        } catch (NullPointerException e) {
-            throw new FileCopyException(R.string.error_io_exception);
         } finally {
             close(os);
             close(is);
@@ -501,6 +504,7 @@ public class FileBackend {
             return null;
         }
     }
+
 
     public Avatar getStoredPepAvatar(String hash) {
         if (hash == null) {

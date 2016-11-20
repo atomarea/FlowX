@@ -6,7 +6,6 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
@@ -14,16 +13,17 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.persistance.FileBackend;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
 
 public class RecordingActivity extends Activity implements View.OnClickListener {
 
@@ -56,6 +56,7 @@ public class RecordingActivity extends Activity implements View.OnClickListener 
 		this.mCancelButton.setOnClickListener(this);
 		this.mStopButton = (Button) this.findViewById(R.id.share_button);
 		this.mStopButton.setOnClickListener(this);
+		this.setFinishOnTouchOutside(false);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
@@ -63,7 +64,11 @@ public class RecordingActivity extends Activity implements View.OnClickListener 
 	protected void onStart() {
 		super.onStart();
 		Log.d(Config.LOGTAG, "output: " + getOutputFile());
-		startRecording();
+		if (!startRecording()) {
+			mStopButton.setEnabled(false);
+			mStopButton.setTextColor(0x8a000000);
+			Toast.makeText(this,R.string.unable_to_start_recording,Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	@Override
@@ -74,7 +79,7 @@ public class RecordingActivity extends Activity implements View.OnClickListener 
 		}
 	}
 
-	private void startRecording() {
+	private boolean startRecording() {
 		mRecorder = new MediaRecorder();
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
@@ -96,12 +101,14 @@ public class RecordingActivity extends Activity implements View.OnClickListener 
 			mStartTime = SystemClock.elapsedRealtime();
 			mHandler.postDelayed(mTickExecutor, 100);
 			Log.d(Config.LOGTAG,"started recording to "+mOutputFile.getAbsolutePath());
-		} catch (IOException e) {
+			return true;
+		} catch (Exception e) {
 			Log.e(Config.LOGTAG, "prepare() failed "+e.getMessage());
+			return false;
 		}
 	}
 
-	protected  void stopRecording(boolean saveFile) {
+	protected void stopRecording(boolean saveFile) {
 		mRecorder.stop();
 		mRecorder.release();
 		mRecorder = null;
@@ -114,8 +121,7 @@ public class RecordingActivity extends Activity implements View.OnClickListener 
 
 	private File getOutputFile() {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
-		return new File(Environment.getExternalStorageDirectory().getAbsolutePath().toString()
-				+ FileBackend.getConversationsAudioDirectory() + "/"
+		return new File(FileBackend.getConversationsAudioDirectory() + "/"
 				+ dateFormat.format(new Date())
 				+ ".m4a");
 	}

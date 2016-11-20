@@ -5,12 +5,6 @@ import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
@@ -20,8 +14,13 @@ import net.atomarea.flowx.entities.ListItem;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Presence;
 import net.atomarea.flowx.entities.Transferable;
-import net.atomarea.flowx.ui.XmppActivity;
 import net.atomarea.flowx.xmpp.jid.Jid;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class UIHelper {
 
@@ -192,6 +191,12 @@ public class UIHelper {
 					return new Pair<>(context.getString(R.string.received_location), true);
 				} else {
 					return new Pair<>(context.getString(R.string.location), true);
+				}
+			} else if (message.bodyIsXmpp()) {
+				if (message.getStatus() == Message.STATUS_RECEIVED) {
+					return new Pair<>(context.getString(R.string.received_contact), true);
+				} else {
+					return new Pair<>(context.getString(R.string.contact), true);
 				}
 			} else if (message.treatAsDownloadable() == Message.Decision.MUST) {
 				return new Pair<>(context.getString(R.string.x_file_offered_for_download,

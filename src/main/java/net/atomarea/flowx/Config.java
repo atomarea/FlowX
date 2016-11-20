@@ -52,8 +52,8 @@ public final class Config {
     public static final boolean CLOSE_TCP_WHEN_SWITCHING_TO_BACKGROUND = false;
     public static final boolean ALWAYS_NOTIFY_BY_DEFAULT = false;
     public static final long UPDATE_CHECK_TIMER = 24 * 60 * 60; // in seconds
-    public static final long FREQUENT_RESTARTS_DETECTION_WINDOW = 10 * 60 * 60 * 1000; // 10 hours
-    public static final long FREQUENT_RESTARTS_THRESHOLD = 10;
+    public static final long FREQUENT_RESTARTS_DETECTION_WINDOW = 12 * 60 * 60 * 1000; // 10 hours
+    public static final long FREQUENT_RESTARTS_THRESHOLD = 16;
     public static final boolean BACKGROUND_STANZA_LOGGING = false;
     public static final boolean HIDE_MESSAGE_TEXT_IN_NOTIFICATION = false;
     public static final int PING_MAX_INTERVAL = 300;
@@ -97,6 +97,7 @@ public final class Config {
     public static final boolean REPORT_WRONG_FILESIZE_IN_OTR_JINGLE = true;
 
     public static final long MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
+    public static final long OMEMO_AUTO_EXPIRY = 7 * MILLISECONDS_IN_DAY;
     public static final long MAM_MAX_CATCHUP = MILLISECONDS_IN_DAY / 2;
     public static final int MAM_MAX_MESSAGES = 500;
 

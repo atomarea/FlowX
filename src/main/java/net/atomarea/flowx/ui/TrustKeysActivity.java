@@ -10,9 +10,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.OmemoActivity;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
+import net.atomarea.flowx.crypto.axolotl.FingerprintStatus;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
@@ -27,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdated {
+public class TrustKeysActivity extends OmemoActivity implements OnKeyStatusUpdated {
 	private List<Jid> contactJids;
 
 	private Account mAccount;
@@ -108,16 +110,14 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 		for(final String fingerprint : ownKeysToTrust.keySet()) {
 			hasOwnKeys = true;
 			addFingerprintRowWithListeners(ownKeys, mAccount, fingerprint, false,
-					XmppAxolotlSession.Trust.fromBoolean(ownKeysToTrust.get(fingerprint)), false,
+					FingerprintStatus.createActive(ownKeysToTrust.get(fingerprint)), false, false,
 					new CompoundButton.OnCheckedChangeListener() {
 						@Override
 						public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 							ownKeysToTrust.put(fingerprint, isChecked);
 							// own fingerprints have no impact on locked status.
 						}
-					},
-					null,
-					null
+					}
 			);
 		}
 
@@ -133,16 +133,14 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 				final Map<String, Boolean> fingerprints = entry.getValue();
 				for (final String fingerprint : fingerprints.keySet()) {
 					addFingerprintRowWithListeners(keysContainer, mAccount, fingerprint, false,
-							XmppAxolotlSession.Trust.fromBoolean(fingerprints.get(fingerprint)), false,
+							FingerprintStatus.createActive(fingerprints.get(fingerprint)), false, false,
 							new CompoundButton.OnCheckedChangeListener() {
 								@Override
 								public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 									fingerprints.put(fingerprint, isChecked);
 									lockOrUnlockAsNeeded();
 								}
-							},
-							null,
-							null
+							}
 					);
 				}
 				if (fingerprints.size() == 0) {
@@ -184,7 +182,7 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 		List<Jid> acceptedTargets = mConversation == null ? new ArrayList<Jid>() : mConversation.getAcceptedCryptoTargets();
 		ownKeysToTrust.clear();
 		AxolotlService service = this.mAccount.getAxolotlService();
-		Set<IdentityKey> ownKeysSet = service.getKeysWithTrust(XmppAxolotlSession.Trust.UNDECIDED);
+		Set<IdentityKey> ownKeysSet = service.getKeysWithTrust(FingerprintStatus.createActiveUndecided());
 		for(final IdentityKey identityKey : ownKeysSet) {
 			if(!ownKeysToTrust.containsKey(identityKey)) {
 				ownKeysToTrust.put(identityKey.getFingerprint().replaceAll("\\s", ""), false);
@@ -193,9 +191,9 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 		synchronized (this.foreignKeysToTrust) {
 			foreignKeysToTrust.clear();
 			for (Jid jid : contactJids) {
-				Set<IdentityKey> foreignKeysSet = service.getKeysWithTrust(XmppAxolotlSession.Trust.UNDECIDED, jid);
+				Set<IdentityKey> foreignKeysSet = service.getKeysWithTrust(FingerprintStatus.createActiveUndecided(), jid);
 				if (hasNoOtherTrustedKeys(jid) && ownKeysSet.size() == 0) {
-					foreignKeysSet.addAll(service.getKeysWithTrust(XmppAxolotlSession.Trust.UNTRUSTED, jid));
+					foreignKeysSet.addAll(service.getKeysWithTrust(FingerprintStatus.createActive(false), jid));
 				}
 				Map<String, Boolean> foreignFingerprints = new HashMap<>();
 				for (final IdentityKey identityKey : foreignKeysSet) {
@@ -211,7 +209,6 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 		return ownKeysSet.size() + foreignKeysToTrust.size() > 0;
 	}
 
-	@Override
 	public void onBackendConnected() {
 		Intent intent = getIntent();
 		this.mAccount = extractAccount(intent);
@@ -248,7 +245,9 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 							Toast.makeText(TrustKeysActivity.this,R.string.error_fetching_omemo_key,Toast.LENGTH_SHORT).show();
 							break;
 						case SUCCESS_VERIFIED:
-							Toast.makeText(TrustKeysActivity.this,R.string.verified_omemo_key_with_certificate,Toast.LENGTH_LONG).show();
+							Toast.makeText(TrustKeysActivity.this,
+									Config.X509_VERIFICATION ? R.string.verified_omemo_key_with_certificate : R.string.all_omemo_keys_have_been_verified,
+									Toast.LENGTH_LONG).show();
 							break;
 					}
 				}
@@ -280,7 +279,7 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 		for(final String fingerprint :ownKeysToTrust.keySet()) {
 			mAccount.getAxolotlService().setFingerprintTrust(
 					fingerprint,
-					XmppAxolotlSession.Trust.fromBoolean(ownKeysToTrust.get(fingerprint)));
+					FingerprintStatus.createActive(ownKeysToTrust.get(fingerprint)));
 		}
 		List<Jid> acceptedTargets = mConversation == null ? new ArrayList<Jid>() : mConversation.getAcceptedCryptoTargets();
 		synchronized (this.foreignKeysToTrust) {
@@ -293,7 +292,7 @@ public class TrustKeysActivity extends XmppActivity implements OnKeyStatusUpdate
 				for (final String fingerprint : value.keySet()) {
 					mAccount.getAxolotlService().setFingerprintTrust(
 							fingerprint,
-							XmppAxolotlSession.Trust.fromBoolean(value.get(fingerprint)));
+							FingerprintStatus.createActive(value.get(fingerprint)));
 				}
 			}
 		}

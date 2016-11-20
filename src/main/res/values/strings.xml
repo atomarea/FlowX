@@ -702,6 +702,7 @@
 	<string name="remote_server_not_found">Remote server not found</string>
 	<string name="report_jid_as_spammer">Report this User as sending unwanted messages.</string>
 	<string name="error_file_corrupt">This file seems to be corrupt.</string>
+	<string name="this_device_is_no_longer_in_use">This device is no longer in use</string>
 	<string name="select_text">Select text</string>
 	<string name="pref_accept_files_wifi">Accept files in WiFi connections</string>
 	<string name="pref_accept_files_mobile">Accept files in mobile connections</string>
@@ -713,4 +714,12 @@
 	<string name="show_error_message">Show error message</string>
 	<string name="error_message">Error Message</string>
 	<string name="navigate">Navigate to location</string>
+	<string name="unable_to_start_recording">Unable to start recording</string>
+	<string name="add_to_contact_list">Add to contact list</string>
+	<string name="received_contact">Received contact</string>
+	<string name="contact">Contact</string>
+	<string name="error_unable_to_create_temporary_file">Unable to create temporary file</string>
+	<string name="this_device_has_been_verified">This device has been verified</string>
+	<string name="copy_fingerprint">Copy fingerprint</string>
+	<string name="all_omemo_keys_have_been_verified">All OMEMO keys have been verified</string>
 </resources>

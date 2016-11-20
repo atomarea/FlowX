@@ -497,13 +497,6 @@ public class NotificationService {
         return PendingIntent.getService(mXmppConnectionService, 45, intent, 0);
     }
 
-    private PendingIntent createDisableAccountIntent(final Account account) {
-        final Intent intent = new Intent(mXmppConnectionService, XmppConnectionService.class);
-        intent.setAction(XmppConnectionService.ACTION_DISABLE_ACCOUNT);
-        intent.putExtra("account", account.getJid().toBareJid().toString());
-        return PendingIntent.getService(mXmppConnectionService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
     private boolean wasHighlightedOrPrivate(final Message message) {
         final String nick = message.getConversation().getMucOptions().getActualNick();
         final Pattern highlight = generateNickHighlightPattern(nick);
