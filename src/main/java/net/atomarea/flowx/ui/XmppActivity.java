@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -16,12 +15,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.IntentSender.SendIntentException;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -84,7 +81,6 @@ import net.atomarea.flowx.xmpp.OnKeyStatusUpdated;
 import net.atomarea.flowx.xmpp.OnUpdateBlocklist;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
-import net.java.otr4j.session.SessionID;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -152,12 +148,6 @@ public abstract class XmppActivity extends FragmentActivity {
             mProgress = null;
         }
     }
-    protected Runnable onOpenPGPKeyPublished = new Runnable() {
-        @Override
-        public void run() {
-            Toast.makeText(XmppActivity.this, R.string.openpgp_has_been_published, Toast.LENGTH_SHORT).show();
-        }
-    };
     protected ConferenceInvite mPendingConferenceInvite = null;
     protected ServiceConnection mConnection = new ServiceConnection() {
 
@@ -281,57 +271,6 @@ public abstract class XmppActivity extends FragmentActivity {
             inputManager.hideSoftInputFromWindow(focus.getWindowToken(),
                     InputMethodManager.HIDE_NOT_ALWAYS);
         }
-    }
-
-    public boolean hasPgp() {
-        return xmppConnectionService.getPgpEngine() != null;
-    }
-
-    public void showInstallPgpDialog() {
-        Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.openkeychain_required));
-        builder.setIconAttribute(android.R.attr.alertDialogIcon);
-        builder.setMessage(getText(R.string.openkeychain_required_long));
-        builder.setNegativeButton(getString(R.string.cancel), null);
-        builder.setNeutralButton(getString(R.string.restart),
-                new OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (xmppConnectionServiceBound) {
-                            unbindService(mConnection);
-                            xmppConnectionServiceBound = false;
-                        }
-                        stopService(new Intent(XmppActivity.this,
-                                XmppConnectionService.class));
-                        finish();
-                    }
-                });
-        builder.setPositiveButton(getString(R.string.install),
-                new OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Uri uri = Uri
-                                .parse("market://details?id=org.sufficientlysecure.keychain");
-                        Intent marketIntent = new Intent(Intent.ACTION_VIEW,
-                                uri);
-                        PackageManager manager = getApplicationContext()
-                                .getPackageManager();
-                        List<ResolveInfo> infos = manager
-                                .queryIntentActivities(marketIntent, 0);
-                        if (infos.size() > 0) {
-                            startActivity(marketIntent);
-                        } else {
-                            uri = Uri.parse("http://www.openkeychain.org/");
-                            Intent browserIntent = new Intent(
-                                    Intent.ACTION_VIEW, uri);
-                            startActivity(browserIntent);
-                        }
-                        finish();
-                    }
-                });
-        builder.create().show();
     }
 
     abstract void onBackendConnected();
@@ -552,93 +491,6 @@ public abstract class XmppActivity extends FragmentActivity {
         startActivityForResult(intent, REQUEST_INVITE_TO_CONVERSATION);
     }
 
-    protected void announcePgp(Account account, final Conversation conversation, final Runnable onSuccess) {
-        if (account.getPgpId() == 0) {
-            choosePgpSignId(account);
-        } else {
-            String status = null;
-            if (manuallyChangePresence()) {
-                status = account.getPresenceStatusMessage();
-            }
-            if (status == null) {
-                status = "";
-            }
-            xmppConnectionService.getPgpEngine().generateSignature(account, status, new UiCallback<Account>() {
-
-                @Override
-                public void userInputRequried(PendingIntent pi,
-                                              Account account) {
-                    try {
-                        startIntentSenderForResult(pi.getIntentSender(), REQUEST_ANNOUNCE_PGP, null, 0, 0, 0);
-                    } catch (final SendIntentException ignored) {
-                    }
-                }
-
-                @Override
-                public void success(Account account) {
-                    xmppConnectionService.databaseBackend.updateAccount(account);
-                    xmppConnectionService.sendPresence(account);
-                    if (conversation != null) {
-                        conversation.setNextEncryption(Message.ENCRYPTION_PGP);
-                        xmppConnectionService.updateConversation(conversation);
-                        refreshUi();
-                    }
-                    if (onSuccess != null) {
-                        runOnUiThread(onSuccess);
-                    }
-                }
-
-                @Override
-                public void error(int error, Account account) {
-                    displayErrorDialog(error);
-                }
-            });
-        }
-    }
-
-    protected boolean noAccountUsesPgp() {
-        for (Account account : xmppConnectionService.getAccounts()) {
-            if (account.getPgpId() != 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-
-    @SuppressWarnings("deprecation")
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    protected void setListItemBackgroundOnView(View view) {
-        int sdk = android.os.Build.VERSION.SDK_INT;
-        if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-            view.setBackgroundDrawable(getResources().getDrawable(R.drawable.greybackground));
-        } else {
-            view.setBackground(getResources().getDrawable(R.drawable.greybackground));
-        }
-    }
-
-    protected void choosePgpSignId(Account account) {
-        xmppConnectionService.getPgpEngine().chooseKey(account, new UiCallback<Account>() {
-            @Override
-            public void success(Account account1) {
-            }
-
-            @Override
-            public void error(int errorCode, Account object) {
-
-            }
-
-            @Override
-            public void userInputRequried(PendingIntent pi, Account object) {
-                try {
-                    startIntentSenderForResult(pi.getIntentSender(),
-                            REQUEST_CHOOSE_PGP_ID, null, 0, 0, 0);
-                } catch (final SendIntentException ignored) {
-                }
-            }
-        });
-    }
-
     protected void displayErrorDialog(final int errorCode) {
         runOnUiThread(new Runnable() {
 
@@ -781,19 +633,6 @@ public abstract class XmppActivity extends FragmentActivity {
     public void selectPresence(final Conversation conversation,
                                final OnPresenceSelected listener) {
         final Contact contact = conversation.getContact();
-        if (conversation.hasValidOtrSession()) {
-            SessionID id = conversation.getOtrSession().getSessionID();
-            Jid jid;
-            try {
-                jid = Jid.fromString(id.getAccountID() + "/" + id.getUserID());
-            } catch (InvalidJidException e) {
-                jid = null;
-            }
-            conversation.setNextCounterpart(jid);
-            listener.onPresenceSelected();
-        } else 	if (!contact.showInRoster()) {
-            showAddToRosterDialog(conversation);
-        } else {
             final Presences presences = contact.getPresences();
             if (presences.size() == 0) {
                 if (!contact.getOption(Contact.Options.TO)
@@ -819,7 +658,6 @@ public abstract class XmppActivity extends FragmentActivity {
                 showPresenceSelectionDialog(presences,conversation,listener);
             }
         }
-    }
 
     private void showPresenceSelectionDialog(Presences presences, final Conversation conversation, final OnPresenceSelected listener) {
         final Contact contact = conversation.getContact();

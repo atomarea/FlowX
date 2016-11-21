@@ -6,8 +6,6 @@ import android.os.SystemClock;
 import android.util.Pair;
 
 import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.OtrService;
-import net.atomarea.flowx.crypto.PgpDecryptionService;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
 import net.atomarea.flowx.services.XmppConnectionService;
@@ -15,19 +13,14 @@ import net.atomarea.flowx.utils.XmppUri;
 import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
-import net.java.otr4j.crypto.OtrCryptoEngineImpl;
-import net.java.otr4j.crypto.OtrCryptoException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.PublicKey;
-import java.security.interfaces.DSAPublicKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -83,14 +76,6 @@ public class Account extends AbstractEntity {
 
 	public Contact getSelfContact() {
 		return getRoster().getContact(jid);
-	}
-
-	public boolean hasPendingPgpIntent(Conversation conversation) {
-		return pgpDecryptionService != null && pgpDecryptionService.hasPendingIntent(conversation);
-	}
-
-	public boolean isPgpDecryptionServiceConnected() {
-		return pgpDecryptionService != null && pgpDecryptionService.isConnected();
 	}
 
 	public boolean setShowErrorNotification(boolean newValue) {
@@ -211,9 +196,7 @@ public class Account extends AbstractEntity {
 	protected String hostname = null;
 	protected int port = 5222;
 	protected boolean online = false;
-	private OtrService mOtrService = null;
 	private AxolotlService axolotlService = null;
-	private PgpDecryptionService pgpDecryptionService = null;
 	private XmppConnection xmppConnection = null;
 	private long mEndGracePeriod = 0L;
 	private String otrFingerprint;
@@ -454,20 +437,10 @@ public class Account extends AbstractEntity {
 	}
 
 	public void initAccountServices(final XmppConnectionService context) {
-		this.mOtrService = new OtrService(context, this);
 		this.axolotlService = new AxolotlService(this, context);
-		this.pgpDecryptionService = new PgpDecryptionService(context);
 		if (xmppConnection != null) {
 			xmppConnection.addOnAdvancedStreamFeaturesAvailableListener(axolotlService);
 		}
-	}
-
-	public OtrService getOtrService() {
-		return this.mOtrService;
-	}
-
-	public PgpDecryptionService getPgpDecryptionService() {
-		return this.pgpDecryptionService;
 	}
 
 	public XmppConnection getXmppConnection() {
@@ -476,26 +449,6 @@ public class Account extends AbstractEntity {
 
 	public void setXmppConnection(final XmppConnection connection) {
 		this.xmppConnection = connection;
-	}
-
-	public String getOtrFingerprint() {
-		if (this.otrFingerprint == null) {
-			try {
-				if (this.mOtrService == null) {
-					return null;
-				}
-				final PublicKey publicKey = this.mOtrService.getPublicKey();
-				if (publicKey == null || !(publicKey instanceof DSAPublicKey)) {
-					return null;
-				}
-				this.otrFingerprint = new OtrCryptoEngineImpl().getFingerprint(publicKey).toLowerCase(Locale.US);
-				return this.otrFingerprint;
-			} catch (final OtrCryptoException ignored) {
-				return null;
-			}
-		} else {
-			return this.otrFingerprint;
-		}
 	}
 
 	public String getRosterVersion() {
@@ -628,10 +581,6 @@ public class Account extends AbstractEntity {
 
 	private List<XmppUri.Fingerprint> getFingerprints() {
 		ArrayList<XmppUri.Fingerprint> fingerprints = new ArrayList<>();
-		final String otr = this.getOtrFingerprint();
-		if (otr != null) {
-			fingerprints.add(new XmppUri.Fingerprint(XmppUri.FingerprintType.OTR,otr));
-		}
 		fingerprints.add(new XmppUri.Fingerprint(XmppUri.FingerprintType.OMEMO,axolotlService.getOwnFingerprint().substring(2),axolotlService.getOwnDeviceId()));
 		for(XmppAxolotlSession session : axolotlService.findOwnSessions()) {
 			if (session.getTrust().isVerified() && session.getTrust().isActive()) {

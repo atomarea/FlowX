@@ -4,29 +4,20 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import net.atomarea.flowx.Config;
-import net.atomarea.flowx.crypto.PgpDecryptionService;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
-import net.java.otr4j.OtrException;
-import net.java.otr4j.crypto.OtrCryptoException;
-import net.java.otr4j.session.SessionID;
-import net.java.otr4j.session.SessionImpl;
-import net.java.otr4j.session.SessionStatus;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.interfaces.DSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 public class Conversation extends AbstractEntity implements Blockable, Comparable<Conversation> {
     public static final String TABLENAME = "conversations";
@@ -47,7 +38,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     public static final String MODE = "mode";
     public static final String ATTRIBUTES = "attributes";
 
-    public static final String ATTRIBUTE_NEXT_ENCRYPTION = "next_encryption";
+    public static final String ATTRIBUTE_NEXT_ENCRYPTION = "";
     public static final String ATTRIBUTE_MUC_PASSWORD = "muc_password";
     public static final String ATTRIBUTE_MUTED_TILL = "muted_till";
     public static final String ATTRIBUTE_ALWAYS_NOTIFY = "always_notify";
@@ -68,8 +59,6 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
 
     protected final ArrayList<Message> messages = new ArrayList<>();
     protected Account account = null;
-
-    private transient SessionImpl otrSession;
 
     private transient String otrFingerprint = null;
     private Smp mSmp = new Smp();
@@ -206,10 +195,6 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
             final int maxsize = Config.PAGE_SIZE * Config.MAX_NUM_PAGES;
             if (size > maxsize) {
                 List<Message> discards = this.messages.subList(0, size - maxsize);
-                final PgpDecryptionService pgpDecryptionService = account.getPgpDecryptionService();
-                if (pgpDecryptionService != null) {
-                    pgpDecryptionService.discard(discards);
-                }
                 discards.clear();
                 untieMessages();
             }
@@ -547,114 +532,10 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         this.mode = mode;
     }
 
-    public SessionImpl startOtrSession(String presence, boolean sendStart) {
-        if (this.otrSession != null) {
-            return this.otrSession;
-        } else {
-            final SessionID sessionId = new SessionID(this.getJid().toBareJid().toString(),
-                    presence,
-                    "xmpp");
-            this.otrSession = new SessionImpl(sessionId, getAccount().getOtrService());
-            try {
-                if (sendStart) {
-                    this.otrSession.startSession();
-                    return this.otrSession;
-                }
-                return this.otrSession;
-            } catch (OtrException e) {
-                return null;
-            }
-        }
-
-    }
-
-    public SessionImpl getOtrSession() {
-        return this.otrSession;
-    }
-
-    public void resetOtrSession() {
-        this.otrFingerprint = null;
-        this.otrSession = null;
-        this.mSmp.hint = null;
-        this.mSmp.secret = null;
-        this.mSmp.status = Smp.STATUS_NONE;
-    }
-
     public Smp smp() {
         return mSmp;
     }
 
-    public boolean startOtrIfNeeded() {
-        if (this.otrSession != null && this.otrSession.getSessionStatus() != SessionStatus.ENCRYPTED) {
-            try {
-                this.otrSession.startSession();
-                return true;
-            } catch (OtrException e) {
-                this.resetOtrSession();
-                return false;
-            }
-        } else {
-            return true;
-        }
-    }
-
-
-    public boolean endOtrIfNeeded() {
-        if (this.otrSession != null) {
-            if (this.otrSession.getSessionStatus() == SessionStatus.ENCRYPTED) {
-                try {
-                    this.otrSession.endSession();
-                    this.resetOtrSession();
-                    return true;
-                } catch (OtrException e) {
-                    this.resetOtrSession();
-                    return false;
-                }
-            } else {
-                this.resetOtrSession();
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    public boolean hasValidOtrSession() {
-        return this.otrSession != null;
-    }
-
-    public synchronized String getOtrFingerprint() {
-        if (this.otrFingerprint == null) {
-            try {
-                if (getOtrSession() == null || getOtrSession().getSessionStatus() != SessionStatus.ENCRYPTED) {
-                    return null;
-                }
-                DSAPublicKey remotePubKey = (DSAPublicKey) getOtrSession().getRemotePublicKey();
-                this.otrFingerprint = getAccount().getOtrService().getFingerprint(remotePubKey).toLowerCase(Locale.US);
-            } catch (final OtrCryptoException | UnsupportedOperationException ignored) {
-                return null;
-            }
-        }
-        return this.otrFingerprint;
-    }
-
-    public boolean verifyOtrFingerprint() {
-        final String fingerprint = getOtrFingerprint();
-        if (fingerprint != null) {
-            getContact().addOtrFingerprint(fingerprint);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isOtrFingerprintVerified() {
-        return getContact().getOtrFingerprints().contains(getOtrFingerprint());
-    }
-
-    /**
-     * short for is Private and Non-anonymous
-     */
     private boolean isPnNA() {
         return mode == MODE_SINGLE || (getMucOptions().membersOnly() && getMucOptions().nonanonymous());
     }
@@ -699,41 +580,9 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         return Message.ENCRYPTION_NONE;
     }
 
-
     public int getNextEncryption() {
-        final AxolotlService axolotlService = getAccount().getAxolotlService();
-        int next = this.getIntAttribute(ATTRIBUTE_NEXT_ENCRYPTION, -1);
-        if (next == -1) {
-            if (Config.supportOmemo()
-                    && axolotlService != null
-                    && mode == MODE_SINGLE
-                    && axolotlService.isConversationAxolotlCapable(this)
-                    && getAccount().getSelfContact().getPresences().allOrNonSupport(AxolotlService.PEP_DEVICE_LIST_NOTIFY)
-                    && getContact().getPresences().allOrNonSupport(AxolotlService.PEP_DEVICE_LIST_NOTIFY)
-                    && Config.AlwayUseOMEMO){
-                return Message.ENCRYPTION_AXOLOTL;
-            } else {
-                next = this.getMostRecentlyUsedIncomingEncryption();
-            }
-        }
-
-        if (!Config.supportUnencrypted() && next <= 0) {
-            if (Config.supportOmemo()
-                    && ((axolotlService != null && axolotlService.isConversationAxolotlCapable(this)) || !Config.multipleEncryptionChoices())) {
-                return Message.ENCRYPTION_AXOLOTL;
-            } else if (Config.supportOtr() && mode == MODE_SINGLE) {
-                return Message.ENCRYPTION_OTR;
-            } else if (Config.supportOpenPgp()
-                    && (mode == MODE_SINGLE) || !Config.multipleEncryptionChoices()) {
-                return Message.ENCRYPTION_PGP;
-            }
-        } else if (next == Message.ENCRYPTION_AXOLOTL
-                && (!Config.supportOmemo() || axolotlService == null || !axolotlService.isConversationAxolotlCapable(this))) {
-            next = Message.ENCRYPTION_NONE;
-        }
-        return next;
+        return Math.max(this.getIntAttribute(ATTRIBUTE_NEXT_ENCRYPTION, Message.ENCRYPTION_NONE), Message.ENCRYPTION_NONE);
     }
-
 
     public void setNextEncryption(int encryption) {
         this.setAttribute(ATTRIBUTE_NEXT_ENCRYPTION, String.valueOf(encryption));
@@ -946,7 +795,6 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
         synchronized (this.messages) {
             this.messages.addAll(index, messages);
         }
-        account.getPgpDecryptionService().decrypt(messages);
     }
 
     public void sort() {

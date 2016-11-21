@@ -1,9 +1,9 @@
 package net.atomarea.flowx.crypto.sasl;
 
-import java.security.SecureRandom;
-
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.xml.TagWriter;
+
+import java.security.SecureRandom;
 
 public class Anonymous extends SaslMechanism {
 

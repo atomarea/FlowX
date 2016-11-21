@@ -32,7 +32,7 @@
             android:layout_alignParentLeft="true"
             android:layout_below="@+id/key"
             android:maxLines="1"
-            android:textColor="@color/black54"
+            android:textColor="@color/black87"
             android:textSize="?attr/TextSizeInfo"
             android:longClickable="true"/>
 
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/key"
-            android:textColor="@color/black54"
+            android:textColor="@color/black87"
             android:textSize="?attr/TextSizeInfo"
             android:visibility="gone"
             android:longClickable="true"/>
@@ -72,10 +72,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginRight="16dp"/>
-                //android:src="@drawable/ic_verified_fingerprint"
+                android:layout_marginRight="16dp"
+                android:src="@drawable/ic_verified_fingerprint" />
 
-            <eu.siacs.conversations.ui.widget.Switch
+            <net.atomarea.flowx.ui.widget.Switch
                 android:id="@+id/tgl_trust"
                 style="@style/MD"
                 android:layout_width="wrap_content"

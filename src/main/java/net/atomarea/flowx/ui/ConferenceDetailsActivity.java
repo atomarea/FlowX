@@ -32,9 +32,6 @@ import net.atomarea.flowx.services.XmppConnectionService;
 import net.atomarea.flowx.services.XmppConnectionService.OnConversationUpdate;
 import net.atomarea.flowx.services.XmppConnectionService.OnMucRosterUpdate;
 import net.atomarea.flowx.xmpp.jid.Jid;
-
-import org.openintents.openpgp.util.OpenPgpUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -576,7 +573,6 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
         Collections.sort(users);
         for (final User user : users) {
             View view = inflater.inflate(R.layout.contact, membersView, false);
-            this.setListItemBackgroundOnView(view);
             view.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -586,12 +582,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             registerForContextMenu(view);
             view.setTag(user);
             TextView tvDisplayName = (TextView) view.findViewById(R.id.contact_display_name);
-            TextView tvKey = (TextView) view.findViewById(R.id.key);
             TextView tvStatus = (TextView) view.findViewById(R.id.contact_jid);
-            if (mAdvancedMode && user.getPgpKeyId() != 0) {
-                tvKey.setVisibility(View.VISIBLE);
-                tvKey.setText(OpenPgpUtils.convertKeyIdToHex(user.getPgpKeyId()));
-            }
             Contact contact = user.getContact();
             String name = user.getName();
             if (contact != null) {

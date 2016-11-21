@@ -1,22 +1,9 @@
 package net.atomarea.flowx.parser;
 
-import android.text.Html;
 import android.util.Log;
 import android.util.Pair;
 
-import net.java.otr4j.session.Session;
-import net.java.otr4j.session.SessionStatus;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 import net.atomarea.flowx.Config;
-import net.atomarea.flowx.crypto.OtrService;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlMessage;
 import net.atomarea.flowx.entities.Account;
@@ -30,7 +17,6 @@ import net.atomarea.flowx.entities.ServiceDiscoveryResult;
 import net.atomarea.flowx.http.HttpConnectionManager;
 import net.atomarea.flowx.services.MessageArchiveService;
 import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.Xmlns;
 import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.OnMessagePacketReceived;
@@ -38,6 +24,14 @@ import net.atomarea.flowx.xmpp.chatstate.ChatState;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.MessagePacket;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public class MessageParser extends AbstractParser implements OnMessagePacketReceived {
 
@@ -64,62 +58,6 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 			}
 		}
 		return false;
-	}
-
-	private Message parseOtrChat(String body, Jid from, String id, Conversation conversation) {
-		String presence;
-		if (from.isBareJid()) {
-			presence = "";
-		} else {
-			presence = from.getResourcepart();
-		}
-		if (body.matches("^\\?OTRv\\d{1,2}\\?.*")) {
-			conversation.endOtrIfNeeded();
-		}
-		if (!conversation.hasValidOtrSession()) {
-			conversation.startOtrSession(presence,false);
-		} else {
-			String foreignPresence = conversation.getOtrSession().getSessionID().getUserID();
-			if (!foreignPresence.equals(presence)) {
-				conversation.endOtrIfNeeded();
-				conversation.startOtrSession(presence, false);
-			}
-		}
-		try {
-			conversation.setLastReceivedOtrMessageId(id);
-			Session otrSession = conversation.getOtrSession();
-			body = otrSession.transformReceiving(body);
-			SessionStatus status = otrSession.getSessionStatus();
-			if (body == null && status == SessionStatus.ENCRYPTED) {
-				mXmppConnectionService.onOtrSessionEstablished(conversation);
-				return null;
-			} else if (body == null && status == SessionStatus.FINISHED) {
-				conversation.resetOtrSession();
-				mXmppConnectionService.updateConversationUi();
-				return null;
-			} else if (body == null || (body.isEmpty())) {
-				return null;
-			}
-			if (body.startsWith(CryptoHelper.FILETRANSFER)) {
-				String key = body.substring(CryptoHelper.FILETRANSFER.length());
-				conversation.setSymmetricKey(CryptoHelper.hexToBytes(key));
-				return null;
-			}
-			if (clientMightSendHtml(conversation.getAccount(), from)) {
-				Log.d(Config.LOGTAG,conversation.getAccount().getJid().toBareJid()+": received OTR message from bad behaving client. escaping HTML…");
-				body = Html.fromHtml(body).toString();
-			}
-
-			final OtrService otrService = conversation.getAccount().getOtrService();
-			Message finishedMessage = new Message(conversation, body, Message.ENCRYPTION_OTR, Message.STATUS_RECEIVED);
-			finishedMessage.setFingerprint(otrService.getFingerprint(otrSession.getRemotePublicKey()));
-			conversation.setLastReceivedOtrMessageId(null);
-
-			return finishedMessage;
-		} catch (Exception e) {
-			conversation.resetOtrSession();
-			return null;
-		}
 	}
 
 	private static boolean clientMightSendHtml(Account account, Jid from) {
@@ -273,9 +211,6 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 						Message.STATUS_SEND_FAILED,
 						extractErrorMessage(packet));
 				if (message != null) {
-					if (message.getEncryption() == Message.ENCRYPTION_OTR) {
-						message.getConversation().endOtrIfNeeded();
-					}
 				}
 			}
 			return true;
@@ -394,19 +329,14 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 					status = Message.STATUS_RECEIVED;
 				}
 			}
-			final Message message;
+			Message message = null;
 			if (body != null && body.startsWith("?OTR") && Config.supportOtr()) {
 				if (!isForwarded && !isTypeGroupChat && isProperlyAddressed && !conversationMultiMode) {
-					message = parseOtrChat(body, from, remoteMsgId, conversation);
-					if (message == null) {
-						return;
-					}
+	
 				} else {
 					Log.d(Config.LOGTAG,account.getJid().toBareJid()+": ignoring OTR message from "+from+" isForwarded="+Boolean.toString(isForwarded)+", isProperlyAddressed="+Boolean.valueOf(isProperlyAddressed));
 					message = new Message(conversation, body, Message.ENCRYPTION_NONE, status);
 				}
-			} else if (pgpEncrypted != null && Config.supportOpenPgp()) {
-				message = new Message(conversation, pgpEncrypted, Message.ENCRYPTION_PGP, status);
 			} else if (axolotlEncrypted != null && Config.supportOmemo()) {
 				Jid origin;
 				if (conversationMultiMode) {
@@ -501,10 +431,6 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 							if (mXmppConnectionService.confirmMessages() && remoteMsgId != null && !isForwarded && !isTypeGroupChat) {
 								sendMessageReceipts(account, packet);
 							}
-							if (replacedMessage.getEncryption() == Message.ENCRYPTION_PGP) {
-								conversation.getAccount().getPgpDecryptionService().discard(replacedMessage);
-								conversation.getAccount().getPgpDecryptionService().decrypt(replacedMessage, false);
-							}
 						}
 						return;
 					} else {
@@ -539,10 +465,6 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 				}
 			}
 
-			if (message.getEncryption() == Message.ENCRYPTION_PGP) {
-				notify = conversation.getAccount().getPgpDecryptionService().decrypt(message, notify);
-			}
-
 			if (query == null) {
 				mXmppConnectionService.updateConversationUi();
 			}
@@ -554,14 +476,6 @@ public class MessageParser extends AbstractParser implements OnMessagePacketRece
 					&& !isTypeGroupChat) {
 				sendMessageReceipts(account, packet);
 			}
-
-			if (message.getStatus() == Message.STATUS_RECEIVED
-					&& conversation.getOtrSession() != null
-					&& !conversation.getOtrSession().getSessionID().getUserID()
-					.equals(message.getCounterpart().getResourcepart())) {
-				conversation.endOtrIfNeeded();
-			}
-
 			if (message.getEncryption() == Message.ENCRYPTION_NONE || mXmppConnectionService.saveEncryptedMessages()) {
 				mXmppConnectionService.databaseBackend.createMessage(message);
 			}

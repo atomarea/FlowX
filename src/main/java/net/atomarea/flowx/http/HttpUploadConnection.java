@@ -1,19 +1,8 @@
 package net.atomarea.flowx.http;
 
-import android.app.PendingIntent;
 import android.os.PowerManager;
 import android.util.Log;
 import android.util.Pair;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.entities.Account;
@@ -24,13 +13,22 @@ import net.atomarea.flowx.parser.IqParser;
 import net.atomarea.flowx.persistance.FileBackend;
 import net.atomarea.flowx.services.AbstractConnectionManager;
 import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.ui.UiCallback;
 import net.atomarea.flowx.utils.CryptoHelper;
 import net.atomarea.flowx.utils.Xmlns;
 import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.OnIqPacketReceived;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class HttpUploadConnection implements Transferable {
 
@@ -198,23 +196,6 @@ public class HttpUploadConnection implements Transferable {
 					message.setTransferable(null);
 					message.setCounterpart(message.getConversation().getJid().toBareJid());
 					if (message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
-						mXmppConnectionService.getPgpEngine().encrypt(message, new UiCallback<Message>() {
-							@Override
-							public void success(Message message) {
-								mXmppConnectionService.resendMessage(message,delayed);
-							}
-
-							@Override
-							public void error(int errorCode, Message object) {
-								Log.d(Config.LOGTAG,"pgp encryption failed");
-								fail("pgp encryption failed");
-							}
-
-							@Override
-							public void userInputRequried(PendingIntent pi, Message object) {
-								fail("pgp encryption failed");
-							}
-						});
 					} else {
 						mXmppConnectionService.resendMessage(message, delayed);
 					}

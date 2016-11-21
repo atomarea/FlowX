@@ -39,8 +39,6 @@ public final class Config {
     public static final String DOMAIN_LOCK = "flowx.im"; //only allow account creation for this domain
     public static final String MUC_LOCK = "@conference.flowx.im";
     public static final String JID_LOCK = "@flowx.im";
-    public static final boolean USE_ALWAYS_FOREGROUND = false; //if set to true the foreground service is always enabled
-    public static final boolean SHOW_DISABLE_FOREGROUND = false; //if set to true the foreground notification has a button to disable it
     public static final int VIDEO_BITRATE = 500000;
     public static final int VIDEO_SIZE = 640;
     public static final int VIDEO_MAX_SIZE = 5242880; //5 MiB
@@ -49,7 +47,6 @@ public final class Config {
     public static final int MAX_DISPLAY_MESSAGE_CHARS = 4096;
     public static final int IDLE_PING_INTERVAL = 600; //540 is minimum according to docs;
     public static final int LOW_PING_TIMEOUT = 1; // used after push received
-    public static final boolean CLOSE_TCP_WHEN_SWITCHING_TO_BACKGROUND = false;
     public static final boolean ALWAYS_NOTIFY_BY_DEFAULT = false;
     public static final long UPDATE_CHECK_TIMER = 24 * 60 * 60; // in seconds
     public static final long FREQUENT_RESTARTS_DETECTION_WINDOW = 12 * 60 * 60 * 1000; // 10 hours
@@ -87,7 +84,7 @@ public final class Config {
 
     public static final int REFRESH_UI_INTERVAL = 500;
 
-    public static final boolean DISABLE_STRING_PREP = false; // setting to true might increase startup performance
+    public static final boolean DISABLE_STRING_PREP = true; // setting to true might increase startup performance
     public static final boolean RESET_ATTEMPT_COUNT_ON_NETWORK_CHANGE = true; //setting to true might increase power consumption
 
     public static final boolean IGNORE_ID_REWRITE_IN_MUC = true;

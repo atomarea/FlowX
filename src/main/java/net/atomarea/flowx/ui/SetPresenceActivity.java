@@ -92,7 +92,6 @@ public class SetPresenceActivity extends XmppActivity implements View.OnClickLis
         if (resultCode == RESULT_OK) {
             if (xmppConnectionServiceBound && mAccount != null) {
                 if (requestCode == REQUEST_ANNOUNCE_PGP) {
-                    announcePgp(mAccount, null, onPresenceChanged);
                 }
                 this.mPostponedActivityResult = null;
             } else {
@@ -105,16 +104,15 @@ public class SetPresenceActivity extends XmppActivity implements View.OnClickLis
         Presence.Status status = getStatusFromSpinner();
         boolean allAccounts = mAllAccounts.isChecked();
         String statusMessage = mStatusMessage.getText().toString().trim();
-        if (allAccounts && noAccountUsesPgp()) {
+        if (allAccounts) {
             xmppConnectionService.changeStatus(status, statusMessage);
             finish();
         } else if (mAccount != null) {
-            if (mAccount.getPgpId() == 0 || !hasPgp()) {
+            if (mAccount.getPgpId() == 0) {
                 xmppConnectionService.changeStatus(mAccount, status, statusMessage, true);
                 finish();
             } else {
                 xmppConnectionService.changeStatus(mAccount, status, statusMessage, false);
-                announcePgp(mAccount, null, onPresenceChanged);
             }
         }
     }
@@ -172,9 +170,6 @@ public class SetPresenceActivity extends XmppActivity implements View.OnClickLis
             if (this.mPostponedActivityResult != null) {
                 this.onActivityResult(mPostponedActivityResult.first, RESULT_OK, mPostponedActivityResult.second);
             }
-            boolean e = noAccountUsesPgp();
-            mAllAccounts.setEnabled(e);
-            mAllAccounts.setTextColor(e ? getPrimaryTextColor() : getSecondaryTextColor());
         }
         redrawTemplates();
     }
@@ -190,7 +185,6 @@ public class SetPresenceActivity extends XmppActivity implements View.OnClickLis
                 if (template.getStatusMessage() == null) continue;
                 View templateLayout = inflater.inflate(R.layout.presence_template, mTemplatesView, false);
                 templateLayout.setTag(template);
-                setListItemBackgroundOnView(templateLayout);
                 templateLayout.setOnClickListener(this);
                 TextView message = (TextView) templateLayout.findViewById(R.id.presence_status_message);
                 ImageButton button = (ImageButton) templateLayout.findViewById(R.id.delete_button);

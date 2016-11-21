@@ -3,13 +3,10 @@ package net.atomarea.flowx.ui;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputType;
@@ -19,7 +16,6 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -295,26 +291,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         }
     }
 
-    protected OnClickListener clickToDecryptListener = new OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            PendingIntent pendingIntent = conversation.getAccount().getPgpDecryptionService().getPendingIntent();
-            if (pendingIntent != null) {
-                try {
-                    activity.startIntentSenderForResult(pendingIntent.getIntentSender(),
-                            ConversationActivity.REQUEST_DECRYPT_PGP,
-                            null,
-                            0,
-                            0,
-                            0);
-                } catch (SendIntentException e) {
-                    conversation.getAccount().getPgpDecryptionService().continueDecryption(true);
-                }
-            }
-            updateSnackBar(conversation);
-        }
-    };
     protected OnClickListener clickToVerify = new OnClickListener() {
 
         @Override
@@ -453,12 +429,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
             conversation.setCorrectingMessage(null);
         }
         switch (conversation.getNextEncryption()) {
-            case Message.ENCRYPTION_OTR:
-                sendOtrMessage(message);
-                break;
-            case Message.ENCRYPTION_PGP:
-                sendPgpMessage(message);
-                break;
             case Message.ENCRYPTION_AXOLOTL:
                 if (!activity.trustKeysIfNeeded(ConversationActivity.REQUEST_TRUST_KEYS_TEXT)) {
                     sendAxolotlMessage(message);
@@ -852,13 +822,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         } else {
             activity.xmppConnectionService.markMessage(message, Message.STATUS_SEND_FAILED);
         }
-    }
-
-    private void retryDecryption(Message message) {
-        message.setEncryption(Message.ENCRYPTION_PGP);
-        activity.updateConversationList();
-        updateMessages();
-        conversation.getAccount().getPgpDecryptionService().decrypt(message, false);
     }
 
     protected void privateMessageWith(final Jid counterpart) {
@@ -1281,100 +1244,6 @@ public class ConversationFragment extends Fragment implements EditMessage.Keyboa
         ConversationActivity activity = (ConversationActivity) getActivity();
         activity.xmppConnectionService.sendMessage(message);
         messageSent();
-    }
-
-    protected void sendPgpMessage(final Message message) {
-        final ConversationActivity activity = (ConversationActivity) getActivity();
-        final XmppConnectionService xmppService = activity.xmppConnectionService;
-        final Contact contact = message.getConversation().getContact();
-        if (activity.hasPgp()) {
-            if (conversation.getMode() == Conversation.MODE_SINGLE) {
-                if (contact.getPgpKeyId() != 0) {
-                    xmppService.getPgpEngine().hasKey(contact,
-                            new UiCallback<Contact>() {
-
-                                @Override
-                                public void userInputRequried(PendingIntent pi,
-                                                              Contact contact) {
-                                    activity.runIntent(
-                                            pi,
-                                            ConversationActivity.REQUEST_ENCRYPT_MESSAGE);
-                                }
-
-                                @Override
-                                public void success(Contact contact) {
-                                    activity.encryptTextMessage(message);
-                                }
-
-                                @Override
-                                public void error(int error, Contact contact) {
-
-                                }
-                            });
-
-                } else {
-                    showNoPGPKeyDialog(false,
-                            new DialogInterface.OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    conversation
-                                            .setNextEncryption(Message.ENCRYPTION_NONE);
-                                    xmppService.updateConversation(conversation);
-                                    xmppService.sendMessage(message);
-                                    messageSent();
-                                }
-                            });
-                }
-            } else {
-                if (conversation.getMucOptions().pgpKeysInUse()) {
-                    if (!conversation.getMucOptions().everybodyHasKeys()) {
-                        Toast warning = Toast
-                                .makeText(getActivity(),
-                                        R.string.missing_public_keys,
-                                        Toast.LENGTH_LONG);
-                        warning.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                        warning.show();
-                    }
-                    activity.encryptTextMessage(message);
-                } else {
-                    showNoPGPKeyDialog(true,
-                            new DialogInterface.OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    conversation
-                                            .setNextEncryption(Message.ENCRYPTION_NONE);
-                                    message.setEncryption(Message.ENCRYPTION_NONE);
-                                    xmppService.updateConversation(conversation);
-                                    xmppService.sendMessage(message);
-                                    messageSent();
-                                }
-                            });
-                }
-            }
-        } else {
-            activity.showInstallPgpDialog();
-        }
-    }
-
-    public void showNoPGPKeyDialog(boolean plural,
-                                   DialogInterface.OnClickListener listener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setIconAttribute(android.R.attr.alertDialogIcon);
-        if (plural) {
-            builder.setTitle(getString(R.string.no_pgp_keys));
-            builder.setMessage(getText(R.string.contacts_have_no_pgp_keys));
-        } else {
-            builder.setTitle(getString(R.string.no_pgp_key));
-            builder.setMessage(getText(R.string.contact_has_no_pgp_key));
-        }
-        builder.setNegativeButton(getString(R.string.cancel), null);
-        builder.setPositiveButton(getString(R.string.send_unencrypted),
-                listener);
-        builder.create().show();
     }
 
     protected void sendAxolotlMessage(final Message message) {

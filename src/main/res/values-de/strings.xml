@@ -3,16 +3,16 @@
 
     <string name="action_settings">Einstellungen</string>
     <string name="action_add">Neue Unterhaltung</string>
-    <string name="action_accounts">Mein Account</string>
-    <string name="action_end_conversation">Unterhaltung beenden</string>
-    <string name="action_contact_details">Kontakt anzeigen</string>
+    <string name="action_accounts">Account</string>
+    <string name="action_end_conversation">Chat schließen</string>
+    <string name="action_contact_details">Anzeigen</string>
     <string name="action_muc_details">Konferenzdetails</string>
     <string name="action_secure">Verschlüsselte Unterhaltung</string>
     <string name="action_add_account">Anmeldung</string>
     <string name="action_edit_contact">Name bearbeiten</string>
     <string name="action_add_phone_book">Zum Telefonbuch hinzufügen</string>
-    <string name="action_delete_contact">Aus Kontaktliste entfernen</string>
-    <string name="action_block_contact">Kontakt blockieren</string>
+    <string name="action_delete_contact">Entfernen</string>
+    <string name="action_block_contact">Blockieren</string>
     <string name="action_unblock_contact">Kontakt freigeben</string>
     <string name="action_block_domain">Domain sperren</string>
     <string name="action_unblock_domain">Domain entsperren</string>
@@ -21,7 +21,7 @@
     <string name="title_activity_conference_details">Konferenzdetails</string>
     <string name="title_activity_contact_details">Kontakt</string>
     <string name="title_activity_sharewith">Mit Unterhaltung teilen</string>
-    <string name="title_activity_start_conversation">Beginne Unterhaltung</string>
+    <string name="title_activity_start_conversation">Chat</string>
     <string name="title_activity_choose_contact">Kontakt auswählen</string>
     <string name="title_activity_block_list">Blacklist</string>
     <string name="just_now">gerade</string>
@@ -45,13 +45,13 @@
     <string name="remove_bookmark_text">Möchtest du die Gruppe löschen? Die Unterhaltung mit dieser Gruppe wird dabei nicht entfernt.</string>
     <string name="register_account">Registrieren</string>
     <string name="share_with">Teile mit&#8230;</string>
-    <string name="start_conversation">Beginne Unterhaltung</string>
+    <string name="start_conversation">Chat</string>
     <string name="invite_contact">In Gruppe einladen</string>
     <string name="contacts">Kontakte</string>
     <string name="cancel">Abbrechen</string>
     <string name="set">Einstellen</string>
     <string name="add">Hinzufügen</string>
-    <string name="edit">Bearbeiten</string>
+    <string name="edit">Ändern</string>
     <string name="delete">Entfernen</string>
     <string name="block">Blockieren</string>
     <string name="unblock">Freigeben</string>
@@ -73,9 +73,9 @@
     <string name="preparing_image">Bereite Bild für die Übertragung vor</string>
     <string name="action_clear_history">Verlauf löschen</string>
     <string name="clear_conversation_history">Unterhaltungsverlauf löschen</string>
-    <string name="clear_histor_msg">Möchtest du alle Nachrichten in dieser Unterhaltung löschen?\n\n<b>Achtung:</b> Dies beeinflusst nicht Nachrichten, die auf anderen Geräten oder Servern gespeichert sind.</string>
+    <string name="clear_histor_msg">Möchtest du alle Nachrichten in dieser Unterhaltung löschen?</string>
     <string name="delete_messages">Nachrichten löschen</string>
-    <string name="also_end_conversation">Diese Unterhaltung danach beenden</string>
+    <string name="also_end_conversation">Chat schließen</string>
     <string name="choose_presence">Ressource des Kontakts auswählen</string>
     <string name="send_unencrypted_message">schreiben</string>
     <string name="send_otr_message">OTR-verschlüsselt schreiben</string>
@@ -217,9 +217,9 @@
     <string name="search">Suche</string>
     <string name="create_contact">Kontakt hinzufügen</string>
     <string name="join_conference">Gruppe beitreten</string>
-    <string name="delete_contact">Kontakt löschen</string>
-    <string name="view_contact_details">Kontakt anzeigen</string>
-    <string name="block_contact">Kontakt blockieren</string>
+    <string name="delete_contact">Löschen</string>
+    <string name="view_contact_details">Anzeigen</string>
+    <string name="block_contact">Blockieren</string>
     <string name="unblock_contact">Kontakte freigeben</string>
     <string name="create">Hinzufügen</string>
     <string name="contact_already_exists">Der Kontakt existiert bereits</string>
@@ -254,7 +254,7 @@
     <string name="server_info_session_established">Verbindungsabfrage</string>
     <string name="additional_information">Zusätzliche Informationen</string>
     <string name="skip">Überspringen</string>
-    <string name="disable_notifications">Benachrichtigungen abschalten</string>
+    <string name="disable_notifications">Stummschalten</string>
     <string name="disable_notifications_for_this_conversation">Benachrichtigungen für diese Unterhaltung deaktivieren</string>
     <string name="notifications_disabled">Benachrichtigungen sind deaktiviert</string>
     <string name="enable">Aktivieren</string>
@@ -313,7 +313,7 @@
     <string name="scan_qr_code">Scanne QR-Code</string>
     <string name="show_qr_code">QR-Code</string>
     <string name="show_block_list">Blacklist</string>
-    <string name="account_details">Mein Account</string>
+    <string name="account_details">Account</string>
     <string name="verify_otr">Prüfe OTR</string>
     <string name="remote_fingerprint">Fingerabdruck der Gegenseite</string>
     <string name="scan">Scanne</string>
@@ -446,7 +446,7 @@
     <string name="none">keine</string>
     <string name="recently_used">zuletzt verwendet</string>
     <string name="choose_quick_action">wähle Schnell-Taste</string>
-    <string name="hide_offline">Online anzeigen</string>
+    <string name="hide_offline">nur online</string>
     <string name="file_not_found_on_remote_host">Datei auf Server nicht gefunden</string>
     <string name="search_for_contacts_or_groups">Nach Kontakten oder Gruppen suchen</string>
     <string name="send_private_message">private Nachricht senden</string>
@@ -507,7 +507,7 @@
     <string name="no_storage_permission">FlowX benötigt Zugriff auf Speicher</string>
     <string name="notify_on_all_messages">Benachrichtige alle Nachrichten</string>
     <string name="notify_only_when_highlighted">Benachrichtige nur hervorgerufene Nachrichten</string>
-    <string name="notify_never">Benachrichtigungen abschalten</string>
+    <string name="notify_never">Stummschalten</string>
     <string name="notify_paused">Benachrichtigungen pausieren</string>
     <string name="battery_optimizations_enabled">Stromsparmodus deaktivieren</string>
     <string name="battery_optimizations_enabled_explained">Durch den Stromsparmodus kann FlowX Nachrichten verlieren oder verzögert zugestellt bekommen. Wir empfehlen den Modus zu deaktivieren!</string>
@@ -527,7 +527,7 @@
     <string name="pref_led">LED Benachrichtigung</string>
     <string name="pref_led_summary">Schaltet die LED ein bei empfangenen Nachrichten.</string>
     <string name="no_application_to_share_uri">Keine Anwendung zum Teilen gefunden!</string>
-    <string name="share_uri_with">Teile mit…</string>
+    <string name="share_uri_with">Teilen</string>
     <string name="pref_attachments">Anhänge</string>
     <string name="shared_text_with_x">Teile Text mit %s</string>
     <string translatable="false" name="welcome_header">Herzlich Willkommen</string>
@@ -556,7 +556,7 @@
     <string name="invite_again">Erneut einladen</string>
     <string name="import_database">Chatverlauf wiederherstellen</string>
     <string name="import_text">Es wurde eine Wiederherstellung gefunden, welches importiert werden kann.</string>
-    <string name="action_check_update">Auf Updates prüfen</string>
+    <string name="action_check_update">Updates prüfen</string>
     <string name="remind_later">später</string>
     <string name="checking_for_updates">Auf FlowX Messenger Updates prüfen</string>
     <string name="title_activity_updater">Update Dienst</string>

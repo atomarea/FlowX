@@ -2,13 +2,7 @@ package net.atomarea.flowx.parser;
 
 import android.util.Log;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-
-
 import net.atomarea.flowx.Config;
-import net.atomarea.flowx.crypto.PgpEngine;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
@@ -23,6 +17,10 @@ import net.atomarea.flowx.xmpp.OnPresencePacketReceived;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.pep.Avatar;
 import net.atomarea.flowx.xmpp.stanzas.PresencePacket;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PresenceParser extends AbstractParser implements
 		OnPresencePacketReceived {
@@ -85,17 +83,6 @@ public class PresenceParser extends AbstractParser implements
 							mXmppConnectionService.pushConferenceConfiguration(mucOptions.getConversation(),
 									IqGenerator.defaultRoomConfiguration(),
 									null);
-						}
-						if (mXmppConnectionService.getPgpEngine() != null) {
-							Element signed = packet.findChild("x", "jabber:x:signed");
-							if (signed != null) {
-								Element status = packet.findChild("status");
-								String msg = status == null ? "" : status.getContent();
-								long keyId = mXmppConnectionService.getPgpEngine().fetchKeyId(mucOptions.getAccount(), msg, signed.getContent());
-								if (keyId != 0) {
-									user.setPgpKeyId(keyId);
-								}
-							}
 						}
 						if (avatar != null) {
 							avatar.owner = from;
@@ -229,13 +216,7 @@ public class PresenceParser extends AbstractParser implements
 				contact.setLastseen(AbstractParser.parseTimestamp(packet));
 			}
 
-			PgpEngine pgp = mXmppConnectionService.getPgpEngine();
 			Element x = packet.findChild("x", "jabber:x:signed");
-			if (pgp != null && x != null) {
-				Element status = packet.findChild("status");
-				String msg = status != null ? status.getContent() : "";
-				contact.setPgpKeyId(pgp.fetchKeyId(account, msg, x.getContent()));
-			}
 			boolean online = sizeBefore < contact.getPresences().size();
 			mXmppConnectionService.onContactStatusChanged.onContactStatusChanged(contact, online);
 		} else if (type.equals("unavailable")) {

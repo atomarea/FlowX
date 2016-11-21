@@ -3,16 +3,6 @@ package net.atomarea.flowx.xmpp.jingle;
 import android.util.Log;
 import android.util.Pair;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.crypto.axolotl.OnMessageCreatedCallback;
@@ -36,6 +26,16 @@ import net.atomarea.flowx.xmpp.jingle.stanzas.Content;
 import net.atomarea.flowx.xmpp.jingle.stanzas.JinglePacket;
 import net.atomarea.flowx.xmpp.jingle.stanzas.Reason;
 import net.atomarea.flowx.xmpp.stanzas.IqPacket;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JingleConnection implements Transferable {
 
@@ -104,23 +104,11 @@ public class JingleConnection implements Transferable {
 				mXmppConnectionService.markMessage(message,Message.STATUS_RECEIVED);
 				if (acceptedAutomatically) {
 					message.markUnread();
-					if (message.getEncryption() == Message.ENCRYPTION_PGP) {
-						account.getPgpDecryptionService().decrypt(message, true);
-					} else {
+
 						JingleConnection.this.mXmppConnectionService.getNotificationService().push(message);
-					}
+
 				}
 			} else {
-				if (message.getEncryption() == Message.ENCRYPTION_PGP) {
-					account.getPgpDecryptionService().decrypt(message, false);
-				}
-				if (message.getEncryption() == Message.ENCRYPTION_PGP || message.getEncryption() == Message.ENCRYPTION_DECRYPTED) {
-					file.delete();
-				}
-			}
-			Log.d(Config.LOGTAG,"successfully transmitted file:" + file.getAbsolutePath()+" ("+file.getSha1Sum()+")");
-			if (message.getEncryption() != Message.ENCRYPTION_PGP) {
-				mXmppConnectionService.getFileBackend().updateMediaScanner(file);
 			}
 		}
 
@@ -453,10 +441,6 @@ public class JingleConnection implements Transferable {
 			try {
 				if (message.getEncryption() == Message.ENCRYPTION_OTR) {
 					Conversation conversation = this.message.getConversation();
-					if (!this.mXmppConnectionService.renewSymmetricKey(conversation)) {
-						Log.d(Config.LOGTAG, account.getJid().toBareJid() + ": could not set symmetric key");
-						cancel();
-					}
 					this.file.setKeyAndIv(conversation.getSymmetricKey());
 					pair = AbstractConnectionManager.createInputStream(this.file, false);
 					this.file.setExpectedSize(pair.second);

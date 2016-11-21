@@ -1,7 +1,6 @@
 package net.atomarea.flowx.ui;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,9 +10,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract.Contacts;
 import android.support.v4.content.ContextCompat;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,8 +27,12 @@ import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
 
 import net.atomarea.flowx.Config;
+import net.atomarea.flowx.OmemoActivity;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.crypto.axolotl.FingerprintStatus;
+import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.services.XmppConnectionService.OnAccountUpdate;
@@ -47,7 +48,7 @@ import java.util.List;
 
 import github.ankushsachdeva.emojicon.EmojiconTextView;
 
-public class ContactDetailsActivity extends XmppActivity implements OnAccountUpdate, OnRosterUpdate, OnUpdateBlocklist, OnKeyStatusUpdated {
+public class ContactDetailsActivity extends OmemoActivity implements OnAccountUpdate, OnRosterUpdate, OnUpdateBlocklist, OnKeyStatusUpdated {
     public static final String ACTION_VIEW_CONTACT = "view_contact";
 
     private Contact contact;
@@ -166,6 +167,8 @@ public class ContactDetailsActivity extends XmppActivity implements OnAccountUpd
                 break;
             case R.id.action_share:
                 shareUri();
+                break;
+            case R.id.verified_fingerprint:
                 break;
             case R.id.action_delete_contact:
                 builder.setTitle(getString(R.string.action_delete_contact))

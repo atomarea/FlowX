@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.security.KeyChain;
 import android.security.KeyChainAliasCallback;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -23,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import net.atomarea.flowx.Config;
+import net.atomarea.flowx.OmemoActivity;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.entities.Account;
@@ -36,7 +36,7 @@ import net.atomarea.flowx.xmpp.pep.Avatar;
 
 import java.util.Set;
 
-public class EditAccountActivity extends XmppActivity implements OnAccountUpdate,
+public class EditAccountActivity extends OmemoActivity implements OnAccountUpdate,
         OnKeyStatusUpdated, KeyChainAliasCallback, XmppConnectionService.OnShowErrorToast {
 
     private EditText mAccountJid;
@@ -56,8 +56,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
     private RelativeLayout mQR_View;
     private TextView mQR_Text;
     private TextView mAccount_info;
-
-
     private boolean mFetchingAvatar = false;
 
     private final OnClickListener mSaveButtonClickListener = new OnClickListener() {
@@ -455,12 +453,7 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
                 break;
             case R.id.action_clear_devices:
                 showWipePepDialog();
-                break;
-            case R.id.resetkeys:
                 showRegenerateAxolotlKeyDialog();
-                break;
-            case R.id.action_renew_certificate:
-                renewCertificate();
                 break;
             case R.id.action_change_presence:
                 changePresence();
@@ -479,10 +472,6 @@ public class EditAccountActivity extends XmppActivity implements OnAccountUpdate
             changePasswordIntent.putExtra("password", newPassword);
         }
         startActivity(changePasswordIntent);
-    }
-
-    private void renewCertificate() {
-        KeyChain.choosePrivateKeyAlias(this, this, null, null, null, -1, null);
     }
 
     private void changePresence() {

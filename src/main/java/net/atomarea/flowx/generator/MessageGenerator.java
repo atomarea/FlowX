@@ -1,14 +1,5 @@
 package net.atomarea.flowx.generator;
 
-import net.java.otr4j.OtrException;
-import net.java.otr4j.session.Session;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
-
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.crypto.axolotl.XmppAxolotlMessage;
@@ -21,6 +12,12 @@ import net.atomarea.flowx.xml.Element;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 import net.atomarea.flowx.xmpp.jid.Jid;
 import net.atomarea.flowx.xmpp.stanzas.MessagePacket;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MessageGenerator extends AbstractGenerator {
 	public static final String OTR_FALLBACK_MESSAGE = "I would like to start a private (OTR encrypted) conversation but your client doesn’t seem to support that";
@@ -92,27 +89,6 @@ public class MessageGenerator extends AbstractGenerator {
 		packet.addChild("no-copy", "urn:xmpp:hints");
 		packet.addChild("no-permanent-store", "urn:xmpp:hints");
 		packet.addChild("no-permanent-storage", "urn:xmpp:hints"); //do not copy this. this is wrong. it is *store*
-	}
-
-	public MessagePacket generateOtrChat(Message message) {
-		Session otrSession = message.getConversation().getOtrSession();
-		if (otrSession == null) {
-			return null;
-		}
-		MessagePacket packet = preparePacket(message);
-		addMessageHints(packet);
-		try {
-			String content;
-			if (message.hasFileOnRemoteHost()) {
-				content = message.getFileParams().url.toString();
-			} else {
-				content = message.getBody();
-			}
-			packet.setBody(otrSession.transformSending(content)[0]);
-			return packet;
-		} catch (OtrException e) {
-			return null;
-		}
 	}
 
 	public MessagePacket generateChat(Message message) {

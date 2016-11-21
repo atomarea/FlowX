@@ -33,7 +33,6 @@ import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SlidingPaneLayout.PanelSlideListener;
 import android.util.Log;
 import android.util.Pair;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -59,7 +58,6 @@ import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.crypto.axolotl.FingerprintStatus;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Blockable;
-import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Transferable;
@@ -77,8 +75,6 @@ import net.atomarea.flowx.xmpp.XmppConnection;
 import net.atomarea.flowx.xmpp.chatstate.ChatState;
 import net.atomarea.flowx.xmpp.jid.InvalidJidException;
 import net.atomarea.flowx.xmpp.jid.Jid;
-
-import org.openintents.openpgp.util.OpenPgpApi;
 
 import java.io.File;
 import java.io.IOException;
@@ -475,7 +471,11 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                             ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(getString(R.string.contact_has_stopped_typing));
                             v.setOnClickListener(this);
                         } else
-                            ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
+                        if (conversation.getContact().getLastseen() > 0) {
+                            ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText(UIHelper.lastseen(getApplicationContext(), conversation.getContact().isActive(), conversation.getContact().getLastseen()));
+                        } else {
+                            ((EmojiconTextView) getActionBar().getCustomView().findViewById(R.id.subtitle)).setText("...");
+                        }
                     } else if (useSubjectToIdentifyConference()) {
                         ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText((conversation.getParticipants() == null ? "" : conversation.getParticipants()));
                         v.findViewById(R.id.subtitle).setVisibility((conversation.getParticipants() == null ? View.GONE : View.VISIBLE));
@@ -487,7 +487,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 ab.setDisplayHomeAsUpEnabled(false);
                 ab.setHomeButtonEnabled(false);
                 ((EmojiconTextView) v.findViewById(R.id.title2)).setText(R.string.app_name);
-                ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText("");
             }
         }
     }
@@ -663,55 +662,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         final Conversation conversation = getSelectedConversation();
         final int encryption = conversation.getNextEncryption();
         final int mode = conversation.getMode();
-        if (encryption == Message.ENCRYPTION_PGP) {
-            if (hasPgp()) {
-                if (mode == Conversation.MODE_SINGLE && conversation.getContact().getPgpKeyId() != 0) {
-                    xmppConnectionService.getPgpEngine().hasKey(
-                            conversation.getContact(),
-                            new UiCallback<Contact>() {
-                                @Override
-                                public void userInputRequried(PendingIntent pi, Contact contact) {
-                                    ConversationActivity.this.runIntent(pi, attachmentChoice);
-                                }
-
-                                @Override
-                                public void success(Contact contact) {
-                                    selectPresenceToAttachFile(attachmentChoice, encryption);
-                                }
-
-                                @Override
-                                public void error(int error, Contact contact) {
-                                    displayErrorDialog(error);
-                                }
-                            });
-                } else if (mode == Conversation.MODE_MULTI && conversation.getMucOptions().pgpKeysInUse()) {
-                    if (!conversation.getMucOptions().everybodyHasKeys()) {
-                        Toast warning = Toast.makeText(this, R.string.missing_public_keys, Toast.LENGTH_LONG);
-                        warning.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
-                        warning.show();
-                    }
-                    selectPresenceToAttachFile(attachmentChoice, encryption);
-                } else {
-                    final ConversationFragment fragment = (ConversationFragment) getFragmentManager()
-                            .findFragmentByTag("conversation");
-                    if (fragment != null) {
-                        fragment.showNoPGPKeyDialog(false,
-                                new OnClickListener() {
-
-                                    @Override
-                                    public void onClick(DialogInterface dialog,
-                                                        int which) {
-                                        conversation.setNextEncryption(Message.ENCRYPTION_NONE);
-                                        xmppConnectionService.updateConversation(conversation);
-                                        selectPresenceToAttachFile(attachmentChoice, Message.ENCRYPTION_NONE);
-                                    }
-                                });
-                    }
-                }
-            } else {
-                showInstallPgpDialog();
-            }
-        } else if (encryption != Message.ENCRYPTION_AXOLOTL || !trustKeysIfNeeded(REQUEST_TRUST_KEYS_MENU, attachmentChoice))
+        if (encryption != Message.ENCRYPTION_AXOLOTL || !trustKeysIfNeeded(REQUEST_TRUST_KEYS_MENU, attachmentChoice))
             selectPresenceToAttachFile(attachmentChoice, encryption);
     }
 
@@ -1329,16 +1280,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 mConversationFragment.onActivityResult(requestCode, resultCode, data);
             else if (requestCode == REQUEST_CHOOSE_PGP_ID) {
                 if (xmppConnectionServiceBound) {
-                    if (data.getExtras().containsKey(OpenPgpApi.EXTRA_SIGN_KEY_ID)) {
-                        mSelectedConversation.getAccount().setPgpSignId(data.getExtras().getLong(OpenPgpApi.EXTRA_SIGN_KEY_ID));
-                        announcePgp(mSelectedConversation.getAccount(), null, onOpenPGPKeyPublished);
-                    } else choosePgpSignId(mSelectedConversation.getAccount());
-                    this.mPostponedActivityResult = null;
-                } else this.mPostponedActivityResult = new Pair<>(requestCode, data);
-            } else if (requestCode == REQUEST_ANNOUNCE_PGP) {
-                if (xmppConnectionServiceBound) {
-                    announcePgp(mSelectedConversation.getAccount(), mSelectedConversation, onOpenPGPKeyPublished);
-                    this.mPostponedActivityResult = null;
                 } else this.mPostponedActivityResult = new Pair<>(requestCode, data);
             } else if (requestCode == ATTACHMENT_CHOICE_CHOOSE_IMAGE) {
                 mPendingImageUris.clear();
@@ -1766,26 +1707,6 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             this.startIntentSenderForResult(pi.getIntentSender(), requestCode, null, 0, 0, 0);
         } catch (final SendIntentException ignored) {
         }
-    }
-
-    public void encryptTextMessage(Message message) {
-        xmppConnectionService.getPgpEngine().encrypt(message,
-                new UiCallback<Message>() {
-                    @Override
-                    public void userInputRequried(PendingIntent pi, Message message) {
-                        ConversationActivity.this.runIntent(pi, ConversationActivity.REQUEST_SEND_MESSAGE);
-                    }
-
-                    @Override
-                    public void success(Message message) {
-                        message.setEncryption(Message.ENCRYPTION_DECRYPTED);
-                        xmppConnectionService.sendMessage(message);
-                    }
-
-                    @Override
-                    public void error(int error, Message message) {
-                    }
-                });
     }
 
     public boolean useSendButtonToIndicateStatus() {

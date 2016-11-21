@@ -167,8 +167,6 @@ public class UIHelper {
 				default:
 					return new Pair<>("",false);
 			}
-		} else if (message.getEncryption() == Message.ENCRYPTION_PGP) {
-			return new Pair<>(context.getString(R.string.pgp_message),true);
 		} else if (message.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED) {
 			return new Pair<>(context.getString(R.string.decryption_failed), true);
 		} else if (message.getType() == Message.TYPE_FILE || message.getType() == Message.TYPE_IMAGE) {

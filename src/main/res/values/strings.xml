@@ -79,9 +79,7 @@
 	<string name="also_end_conversation">End this conversation afterwards</string>
 	<string name="choose_presence">Choose presence to contact</string>
 	<string name="send_unencrypted_message">Send</string>
-	<string name="send_otr_message">Send OTR encrypted message</string>
 	<string name="send_omemo_message">Send encrypted</string>
-	<string name="send_pgp_message">Send OpenPGP encrypted message</string>
 	<string name="your_nick_has_been_changed">Your nickname has been changed</string>
 	<string name="send_unencrypted">Send unencrypted</string>
 	<string name="decryption_failed">Decryption failed. Maybe you don’t have the proper private key.</string>
@@ -91,10 +89,6 @@
 	<string name="install">Install</string>
 	<string name="offering">offering…</string>
 	<string name="waiting">waiting…</string>
-	<string name="no_pgp_key">No OpenPGP Key found</string>
-	<string name="contact_has_no_pgp_key">Conversations is unable to encrypt your messages because your contact is not announcing his or hers public key.\n\n<small>Please ask your contact to setup OpenPGP.</small></string>
-	<string name="no_pgp_keys">No OpenPGP Keys found</string>
-	<string name="contacts_have_no_pgp_keys">Conversations is unable to encrypt your messages because your contacts are not announcing their public key.\n\n<small>Please ask your contacts to setup OpenPGP.</small></string>
 	<string name="encrypted_message_received"><i>Encrypted message received. Touch to view and decrypt.</i></string>
 	<string name="pref_general">General</string>
 	<string name="pref_xmpp_resource">Resource</string>
@@ -118,7 +112,6 @@
 	<string name="pref_confirm_messages">Confirm Messages</string>
 	<string name="pref_confirm_messages_summary">Let your contact know when you have received and read a message</string>
 	<string name="pref_ui_options">UI Options</string>
-	<string name="openpgp_error">OpenKeychain reported an error</string>
 	<string name="error_decrypting_file">I/O Error decrypting file</string>
 	<string name="accept">Accept</string>
 	<string name="error">An error has occurred</string>
@@ -153,14 +146,11 @@
 	<string name="account_status_security_error">Security error</string>
 	<string name="account_status_incompatible_server">Incompatible server</string>
 	<string name="encryption_choice_unencrypted">Unencrypted</string>
-	<string name="encryption_choice_otr">OTR</string>
-	<string name="encryption_choice_pgp">OpenPGP</string>
 	<string name="encryption_choice_omemo">OMEMO</string>
 	<string name="mgmt_account_edit">Edit account</string>
 	<string name="mgmt_account_delete">Delete account</string>
 	<string name="mgmt_account_disable">Temporarily disable</string>
 	<string name="mgmt_account_publish_avatar">Publish avatar</string>
-	<string name="mgmt_account_publish_pgp">Publish OpenPGP public key</string>
 	<string name="mgmt_account_enable">Enable account</string>
 	<string name="mgmt_account_are_you_sure">Are you sure?</string>
 	<string name="mgmt_account_delete_confirm_text">If you delete your account your entire conversation history will be lost</string>
@@ -204,11 +194,8 @@
 	<string name="last_seen_days">last seen %d days ago</string>
 	<string name="never_seen"></string>
 	<string name="install_openkeychain">Encrypted message. Please install OpenKeychain to decrypt.</string>
-	<string name="unknown_otr_fingerprint">Unknown OTR fingerprint</string>
-	<string name="openpgp_messages_found">OpenPGP encrypted messages found</string>
 	<string name="reception_failed">Reception failed</string>
 	<string name="your_fingerprint">Your fingerprint</string>
-	<string name="otr_fingerprint">OTR fingerprint</string>
 	<string name="omemo_fingerprint">OMEMO fingerprint</string>
 	<string name="omemo_fingerprint_selected_message">OMEMO fingerprint of message</string>
 	<string name="this_device_omemo_fingerprint">Own OMEMO fingerprint</string>
@@ -317,7 +304,6 @@
 	<string name="pref_expert_options_other">Other</string>
 	<string name="pref_conference_name">Group name</string>
 	<string name="pref_conference_name_summary">Use room’s subject instead of JID to identify Groups</string>
-	<string name="toast_message_otr_fingerprint">OTR fingerprint copied to clipboard!</string>
 	<string name="toast_message_omemo_fingerprint">OMEMO fingerprint copied to clipboard!</string>
 	<string name="conference_banned">You are banned from this Group</string>
 	<string name="conference_members_only">This conference is members only</string>
@@ -339,7 +325,6 @@
 	<string name="show_qr_code">QR code</string>
 	<string name="show_block_list">Blocklist</string>
 	<string name="account_details">Account details</string>
-	<string name="verify_otr">Verify OTR</string>
 	<string name="remote_fingerprint">Remote Fingerprint</string>
 	<string name="scan">scan</string>
 	<string name="or_touch_phones">(or touch phones)</string>
@@ -355,7 +340,6 @@
 	<string name="finish">Finish</string>
 	<string name="verified">Verified!</string>
 	<string name="smp_requested">Contact requested SMP verification</string>
-	<string name="no_otr_session_found">No valid OTR session has been found!</string>
 	<string name="conversations_foreground_service">FlowX</string>
 	<string name="pref_keep_foreground_service">Keep service in foreground</string>
 	<string name="pref_keep_foreground_service_summary">Prevents the operating system from killing your connection</string>
@@ -376,7 +360,6 @@
 	<string name="no_application_found_to_open_file">No application found to open file</string>
 	<string name="could_not_verify_fingerprint">Could not verify fingerprint</string>
 	<string name="manually_verify">Manually verify</string>
-	<string name="are_you_sure_verify_fingerprint">Are you sure that you want to verify your contacts OTR fingerprint?</string>
 	<string name="pref_show_dynamic_tags">Show dynamic tags</string>
 	<string name="pref_show_dynamic_tags_summary">Display read-only tags underneath contacts</string>
 	<string name="enable_notifications">Enable notifications</string>
@@ -387,7 +370,6 @@
 	<string name="secret_accepted">Secret accepted!</string>
 	<string name="reset">Reset</string>
 	<string name="account_image_description">Account avatar</string>
-	<string name="copy_otr_clipboard_description">Copy OTR fingerprint to clipboard</string>
 	<string name="copy_omemo_clipboard_description">Copy OMEMO fingerprint to clipboard</string>
 	<string name="regenerate_omemo_key">Regenerate keys?</string>
 	<string name="wipe_omemo_pep">Wipe other devices from PEP</string>
@@ -403,7 +385,6 @@
 	<string name="updating">Updating…</string>
 	<string name="password_changed">Password changed!</string>
 	<string name="could_not_change_password">Could not change password</string>
-	<string name="otr_session_not_started">Send a message to start an encrypted chat</string>
 	<string name="ask_question">Ask question</string>
 	<string name="smp_explain_question">If you and your contact have a secret in common that no one else knows (like an inside joke or simply what you had for lunch the last time you met) you can use that secret to verify each other’s fingerprints.\n\nYou provide a hint or a question for your contact who will respond with a case-sensitive answer.</string>
 	<string name="smp_explain_answer">Your contact would like to verify your fingerprint by challenging you with a shared secret. Your contact provided the following hint or question for that secret.</string>
@@ -586,7 +567,6 @@
 	<string name="joining_conference">Joining group…</string>
 	<string name="conference_shutdown">The Group was shut down</string>
 	<string name="conference_unknown_error">You are no longer in this conference</string>
-	<string name="pgp_message">OpenPGP encrypted message</string>
 	<string name="mam_prefs">Archiving preferences</string>
 	<string name="server_side_mam_prefs">Server-side archiving preferences</string>
 	<string name="fetching_mam_prefs">Fetching archiving preferences. Please wait…</string>
@@ -636,8 +616,6 @@
 	<string name="secure_password_generated">A secure password has been generated</string>
 	<string name="device_does_not_support_battery_op">Your device does not support opting out of battery optimization</string>
 	<string name="account_status_bind_failure">Bind failure</string>
-	<string name="openpgp_has_been_published">OpenPGP public key has been published.</string>
-	<string name="republish_pgp_keys">Remember to republish your OpenPGP public keys!</string>
 	<string name="account_status_host_unknown">Host unbekannt</string>
 	<string name="registration_please_wait">Registration failed: Try again later</string>
 	<string name="edit_subject_hint">The subject of this Group</string>

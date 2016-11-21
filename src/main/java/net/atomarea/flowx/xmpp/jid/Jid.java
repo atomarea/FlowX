@@ -2,11 +2,10 @@ package net.atomarea.flowx.xmpp.jid;
 
 import android.util.LruCache;
 
-import net.java.otr4j.session.SessionID;
+import net.atomarea.flowx.Config;
 
 import java.net.IDN;
 
-import net.atomarea.flowx.Config;
 import gnu.inet.encoding.Stringprep;
 import gnu.inet.encoding.StringprepException;
 
@@ -35,14 +34,6 @@ public final class Jid {
 
 	public String getResourcepart() {
 		return resourcepart;
-	}
-
-	public static Jid fromSessionID(final SessionID id) throws InvalidJidException{
-		if (id.getUserID().isEmpty()) {
-			return Jid.fromString(id.getAccountID());
-		} else {
-			return Jid.fromString(id.getAccountID()+"/"+id.getUserID());
-		}
 	}
 
 	public static Jid fromString(final String jid) throws InvalidJidException {

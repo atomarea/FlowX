@@ -676,18 +676,6 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
                     } else displayOpenableMessage(viewHolder, message);
                 } else displayOpenableMessage(viewHolder, message);
             }
-        } else if (message.getEncryption() == Message.ENCRYPTION_PGP) {
-            if (activity.hasPgp())
-                displayInfoMessage(viewHolder, activity.getString(R.string.encrypted_message), darkBackground);
-            else {
-                displayInfoMessage(viewHolder, activity.getString(R.string.install_openkeychain), darkBackground);
-                viewHolder.message_box.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        activity.showInstallPgpDialog();
-                    }
-                });
-            }
         } else if (message.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED) {
             displayDecryptionFailed(viewHolder,darkBackground);
         } else {

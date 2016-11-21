@@ -180,8 +180,7 @@ public class SettingsActivity extends XmppActivity implements
 						|| name.equals("manually_change_presence")) {
 					xmppConnectionService.toggleScreenEventReceiver();
 				}
-				if (name.equals("manually_change_presence") && !noAccountUsesPgp()) {
-					Toast.makeText(this, R.string.republish_pgp_keys, Toast.LENGTH_LONG).show();
+				if (name.equals("manually_change_presence")) {
 				}
 				xmppConnectionService.refreshAllPresences();
 			}

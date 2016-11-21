@@ -10,6 +10,7 @@
         android:id="@+id/action_security"
         android:icon="?attr/icon_not_secure"
         android:orderInCategory="20"
+        android:visible="false"
         android:showAsAction="always"
         android:title="@string/action_secure"/>
     <item

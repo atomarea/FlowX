@@ -319,9 +319,8 @@ public class ShareWithActivity extends XmppActivity implements XmppConnectionSer
         final XmppConnection connection = account.getXmppConnection();
         final long max = connection == null ? -1 : connection.getFeatures().getMaxHttpUploadSize();
         mListView.setEnabled(false);
-        if (conversation.getNextEncryption() == Message.ENCRYPTION_PGP && !hasPgp()) {
+        if (conversation.getNextEncryption() == Message.ENCRYPTION_PGP) {
             if (share.uuid == null) {
-                showInstallPgpDialog();
             } else {
                 Toast.makeText(this, R.string.openkeychain_not_installed, Toast.LENGTH_SHORT).show();
                 finish();
