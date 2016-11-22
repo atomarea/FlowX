@@ -88,6 +88,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import de.timroes.android.listview.EnhancedListView;
 import github.ankushsachdeva.emojicon.EmojiconTextView;
 
+import static android.view.View.VISIBLE;
+
 public class ConversationActivity extends XmppActivity implements OnAccountUpdate, OnConversationUpdate, OnRosterUpdate, OnUpdateBlocklist, XmppConnectionService.OnShowErrorToast, View.OnClickListener {
 
     public static final String CONVERSATION = "conversationUuid";
@@ -324,8 +326,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                         swipedConversation = null;
                         if (Build.VERSION.SDK_INT >= 21)
                             listView.setSelectionFromTop(index + (listView.getChildCount() < position ? 1 : 0), top);
-                        else
-                            Toast.makeText(getApplicationContext(), "TODO! Blame the devs :D", Toast.LENGTH_SHORT).show(); // TODO: !
+
                     }
 
                     @Override
@@ -382,7 +383,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 }
 
                 @Override
-                public void onPanelSlide(View v, float f) { // unnötig...
+                public void onPanelSlide(View v, float f) {
                 }
             });
         }
@@ -462,7 +463,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                     ((EmojiconTextView) v.findViewById(R.id.title)).setText(conversation.getName());
                     v.setOnClickListener(this);
                     if (conversation.getMode() == Conversation.MODE_SINGLE) {
-                        v.findViewById(R.id.subtitle).setVisibility(View.VISIBLE);
+                        v.findViewById(R.id.subtitle).setVisibility(VISIBLE);
                         ChatState state = conversation.getIncomingChatState();
                         if (state == ChatState.COMPOSING) {
                             ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText(getString(R.string.contact_is_typing));
@@ -478,10 +479,10 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                         }
                     } else if (useSubjectToIdentifyConference()) {
                         ((EmojiconTextView) v.findViewById(R.id.subtitle)).setText((conversation.getParticipants() == null ? "" : conversation.getParticipants()));
-                        v.findViewById(R.id.subtitle).setVisibility((conversation.getParticipants() == null ? View.GONE : View.VISIBLE));
+                        v.findViewById(R.id.subtitle).setVisibility((conversation.getParticipants() == null ? View.GONE : VISIBLE));
                     }
                 } else ab.setTitle(conversation.getJid().toBareJid().toString());
-                iv_avatar.setVisibility(View.VISIBLE);
+                iv_avatar.setVisibility(VISIBLE);
                 loadAvatar(conversation, iv_avatar);
             } else {
                 ab.setDisplayHomeAsUpEnabled(false);
@@ -787,7 +788,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
         final CheckBox endConversationCheckBox = (CheckBox) dialogView
                 .findViewById(R.id.end_conversation_checkbox);
         if (conversation.getMode() == Conversation.MODE_SINGLE) {
-            endConversationCheckBox.setVisibility(View.VISIBLE);
+            endConversationCheckBox.setVisibility(VISIBLE);
         }
         builder.setView(dialogView);
         builder.setNegativeButton(getString(R.string.cancel), null);

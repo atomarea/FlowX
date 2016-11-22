@@ -68,10 +68,7 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
         View view = inflater.inflate(R.layout.conversation_list_row, parent, false);
         Conversation conversation = getItem(position);
         if (this.activity instanceof ConversationActivity) {
-            View swipeableItem = view.findViewById(R.id.swipeable_item);
             ConversationActivity a = (ConversationActivity) this.activity;
-            int c = a.highlightSelectedConversations() && conversation == a.getSelectedConversation() ? a.getSecondaryBackgroundColor() : a.getPrimaryBackgroundColor();
-            swipeableItem.setBackgroundColor(c);
         }
         TextView convName = (TextView) view.findViewById(R.id.conversation_name);
         if (conversation.getMode() == Conversation.MODE_SINGLE || activity.useSubjectToIdentifyConference())
