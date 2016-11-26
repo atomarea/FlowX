@@ -2,7 +2,9 @@ package net.atomarea.flowx.services;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -408,6 +410,57 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 		Rect dst = new Rect(dstleft, dsttop, dstright, dstbottom);
 		canvas.drawBitmap(bm, null, dst, null);
 		return true;
+	}
+
+	public Bitmap getRoundedAvatar(final Contact contact, int size) {
+		final String KEY = key(contact, size) + "rounded";
+		Bitmap avatar = this.mXmppConnectionService.getBitmapCache().get(KEY);
+
+		if (avatar != null) {
+			return avatar;
+		}
+
+		avatar = getRoundedBitmap(get(contact, size), size);
+
+		this.mXmppConnectionService.getBitmapCache().put(KEY, avatar);
+
+		return avatar;
+	}
+
+	public Bitmap getRoundedBitmap(Bitmap bmp, int radius) {
+		return getRoundedBitmap(bmp, radius, "#FFFFFF");
+	}
+
+	public Bitmap getRoundedBitmap(Bitmap bmp, int radius, String background) {
+		Bitmap sbmp;
+
+		if (bmp.getWidth() != radius || bmp.getHeight() != radius) {
+			float smallest = Math.min(bmp.getWidth(), bmp.getHeight());
+			float factor = smallest / radius;
+			sbmp = Bitmap.createScaledBitmap(bmp,
+					(int) (bmp.getWidth() / factor),
+					(int) (bmp.getHeight() / factor), false);
+		} else {
+			sbmp = bmp;
+		}
+
+		Bitmap output = Bitmap.createBitmap(radius, radius, Bitmap.Config.ARGB_8888);
+		Canvas canvas = new Canvas(output);
+
+		final Paint paint = new Paint();
+		final Rect rect = new Rect(0, 0, radius, radius);
+
+		paint.setAntiAlias(true);
+		paint.setFilterBitmap(true);
+		paint.setDither(true);
+		canvas.drawARGB(0, 0, 0, 0);
+		paint.setColor(Color.parseColor(background));
+		canvas.drawCircle(radius / 2 + 0.7f, radius / 2 + 0.7f,
+				radius / 2 + 0.1f, paint);
+		paint.setXfermode(new PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN));
+		canvas.drawBitmap(sbmp, rect, rect, paint);
+
+		return output;
 	}
 
 	@Override

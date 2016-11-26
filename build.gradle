@@ -34,7 +34,7 @@ dependencies {
     compile project(':libs:audiowife')
     compile files('libs/aspectjrt-1.7.3.jar')
     compile files('libs/isoparser-1.0.6.jar')
-    compile 'com.android.support:support-v13:24.2.1'
+    compile 'com.android.support:support-v13:25.0.0'
     compile 'org.bouncycastle:bcprov-jdk15on:1.52'
     compile 'org.bouncycastle:bcmail-jdk15on:1.52'
     compile 'org.gnu.inet:libidn:1.15'
@@ -76,13 +76,13 @@ android {
         config {
         }
     }
-    compileSdkVersion 24
+    compileSdkVersion 25
     buildToolsVersion "24.0.2"
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 24
-        versionCode 1481
-        versionName "2.10"
+        targetSdkVersion 25
+        versionCode 1483
+        versionName "2.12"
         archivesBaseName += "-$versionName"
         applicationId "net.atomarea.flowx"
         multiDexEnabled true

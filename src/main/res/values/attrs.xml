@@ -8,6 +8,7 @@
     <attr name="color_background_secondary" format="reference|color" />
     <attr name="color_text_secondary" format="reference|color" />
     <attr name="icon_scan_qr_code" format="reference"/>
+    <attr name="icon_quote" format="reference"/>
 
     <attr name="icon_add_group" format="reference"/>
     <attr name="icon_add_person" format="reference"/>

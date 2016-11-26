@@ -2,6 +2,7 @@
 <resources>
 	<color name="primary">#ff086FB5</color>
 	<color name="primary_dark">#0866A5</color>
+	<color name="bubble">#b2ffffff</color>
 	<color name="accent">#ff0091ea</color>
 	<color name="black87">#de000000</color>
 	<color name="black54">#8a000000</color>

@@ -16,11 +16,14 @@ import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -58,6 +61,7 @@ import net.atomarea.flowx.crypto.axolotl.AxolotlService;
 import net.atomarea.flowx.crypto.axolotl.FingerprintStatus;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Blockable;
+import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.entities.Conversation;
 import net.atomarea.flowx.entities.Message;
 import net.atomarea.flowx.entities.Transferable;
@@ -364,8 +368,9 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             mSlidingPaneLayout.setParallaxDistance(150);
             mSlidingPaneLayout.setSliderFadeColor(0);
             mSlidingPaneLayout.setPanelSlideListener(new PanelSlideListener() {
+
                 @Override
-                public void onPanelOpened(View v) {
+                public void onPanelOpened(View arg0) {
                     updateActionBarTitle();
                     invalidateOptionsMenu();
                     hideKeyboard();
@@ -377,16 +382,68 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
                 }
 
                 @Override
-                public void onPanelClosed(View v) {
+                public void onPanelClosed(View arg0) {
                     listView.discardUndo();
                     openConversation();
                 }
 
                 @Override
-                public void onPanelSlide(View v, float f) {
+                public void onPanelSlide(View arg0, float arg1) {
+                    // TODO Auto-generated method stub
+
                 }
             });
         }
+
+        buildShortcuts();
+    }
+
+    private void buildShortcuts() {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
+            return;
+        }
+
+        ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+
+        Intent shortcutIntent = new Intent(this, StartConversationActivity.class);
+        shortcutIntent.setAction(Intent.ACTION_MAIN);
+
+        ArrayList<ShortcutInfo> shortcuts = new ArrayList<>();
+
+        ShortcutInfo shortcut = new ShortcutInfo.Builder(this, "idNew")
+                .setShortLabel(getString(R.string.action_add))
+                .setLongLabel(getString(R.string.action_add))
+                .setIcon(Icon.createWithResource(this, R.drawable.ic_shortcut_add_52dp))
+                .setIntent(shortcutIntent)
+                .build();
+
+        shortcuts.add(shortcut);
+
+        int i = 0;
+
+        for(Conversation c: conversationList) {
+            Contact contact = c.getContact();
+            String name = contact.getDisplayName();
+
+            Intent intent = new Intent(this, ConversationActivity.class);
+            intent.setAction(ACTION_VIEW_CONVERSATION);
+            intent.putExtra(CONVERSATION, c.getUuid());
+
+            ShortcutInfo.Builder builder = new ShortcutInfo.Builder(this, c.getUuid())
+                    .setShortLabel(name)
+                    .setLongLabel(name)
+                    .setIntent(intent);
+
+            Icon avatar = Icon.createWithBitmap(avatarService().getRoundedBitmap(avatarService().get(c, 100), 100, "#FFFFFF"));
+            builder.setIcon(avatar);
+
+
+            shortcuts.add(builder.build());
+
+            if(i++ == 2) break;
+        }
+
+        shortcutManager.setDynamicShortcuts(shortcuts);
     }
 
     protected void AppUpdate() {
@@ -501,6 +558,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             sendReadMarkerIfNecessary(conversation);
         }
         listAdapter.notifyDataSetChanged();
+        buildShortcuts();
     }
 
     public void sendReadMarkerIfNecessary(final Conversation conversation) {
@@ -756,7 +814,9 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
     }
 
     public void endConversation(Conversation conversation, boolean showOverview, boolean reinit) {
-        if (showOverview) showConversationsOverview();
+        if (showOverview) {
+            showConversationsOverview();
+        }
         xmppConnectionService.archiveConversation(conversation);
         if (reinit) {
             if (conversationList.size() > 0) {
@@ -765,18 +825,15 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             } else {
                 setSelectedConversation(null);
                 if (mRedirected.compareAndSet(false, true)) {
-                    Account pendingAccount = xmppConnectionService.getPendingAccount();
-                    if (pendingAccount == null) {
-                        Intent intent = new Intent(this, StartConversationActivity.class);
-                        intent.putExtra("init", true);
-                        startActivity(intent);
-                    } else {
-                        switchToAccount(pendingAccount, true);
-                    }
+                    Intent intent = new Intent(this, StartConversationActivity.class);
+                    intent.putExtra("init", true);
+                    startActivity(intent);
                     finish();
                 }
             }
         }
+
+        buildShortcuts();
     }
 
     @SuppressLint("InflateParams")
@@ -1701,6 +1758,7 @@ public class ConversationActivity extends XmppActivity implements OnAccountUpdat
             else listView.discardUndo();
         }
         listAdapter.notifyDataSetChanged();
+        buildShortcuts();
     }
 
     public void runIntent(PendingIntent pi, int requestCode) {

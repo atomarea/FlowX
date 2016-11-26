@@ -610,4 +610,6 @@
     <string name="pref_blind_trust_before_verification">Blind vertrauen vor der Überprüfung</string>
     <string name="blindly_trusted_omemo_keys">Blind vertraute OMEMO-Schlüssel</string>
     <string name="not_trusted">Nicht vertraut</string>
+    <string name="quote">Zitieren</string>
+
 </resources>
