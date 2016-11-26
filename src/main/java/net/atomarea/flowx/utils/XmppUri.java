@@ -43,7 +43,7 @@ public class XmppUri {
 		String scheme = uri.getScheme();
 		String host = uri.getHost();
 		List<String> segments = uri.getPathSegments();
-		if ("https".equalsIgnoreCase(scheme) && "conversations.im".equalsIgnoreCase(host)) {
+		if ("https".equalsIgnoreCase(scheme) && "flowx.im".equalsIgnoreCase(host)) {
 			if (segments.size() >= 2 && segments.get(1).contains("@")) {
 				// sample : https://conversations.im/i/foo@bar.com
 				try {
@@ -84,18 +84,18 @@ public class XmppUri {
 	protected List<Fingerprint> parseFingerprints(String query) {
 		List<Fingerprint> fingerprints = new ArrayList<>();
 		String[] pairs = query == null ? new String[0] : query.split(";");
-		for(String pair : pairs) {
-			String[] parts = pair.split("=",2);
+		for (String pair : pairs) {
+			String[] parts = pair.split("=", 2);
 			if (parts.length == 2) {
 				String key = parts[0].toLowerCase(Locale.US);
 				String value = parts[1].toLowerCase(Locale.US);
 				if (OTR_URI_PARAM.equals(key)) {
-					fingerprints.add(new Fingerprint(FingerprintType.OTR,value));
+					fingerprints.add(new Fingerprint(FingerprintType.OTR, value));
 				}
 				if (key.startsWith(OMEMO_URI_PARAM)) {
 					try {
 						int id = Integer.parseInt(key.substring(OMEMO_URI_PARAM.length()));
-						fingerprints.add(new Fingerprint(FingerprintType.OMEMO,value,id));
+						fingerprints.add(new Fingerprint(FingerprintType.OMEMO, value, id));
 					} catch (Exception e) {
 						//ignoring invalid device id
 					}

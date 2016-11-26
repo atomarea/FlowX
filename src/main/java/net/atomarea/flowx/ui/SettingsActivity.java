@@ -32,6 +32,7 @@ import java.util.Locale;
 public class SettingsActivity extends XmppActivity implements
 		OnSharedPreferenceChangeListener {
 
+	public static final String BLIND_TRUST_BEFORE_VERIFICATION = "btbv";
 	public static final int REQUEST_WRITE_LOGS = 0xbf8701;
 	private SettingsFragment mSettingsFragment;
 

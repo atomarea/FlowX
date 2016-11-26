@@ -2,6 +2,13 @@ package net.atomarea.flowx.generator;
 
 import android.util.Base64;
 
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.crypto.axolotl.AxolotlService;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.PhoneHelper;
+import net.atomarea.flowx.xmpp.jingle.stanzas.Content;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -11,13 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.PhoneHelper;
-import net.atomarea.flowx.xmpp.jingle.stanzas.Content;
 
 public abstract class AbstractGenerator {
 	private final String[] FEATURES = {
@@ -114,9 +114,6 @@ public abstract class AbstractGenerator {
 		}
 		if (!mXmppConnectionService.useTorToConnect()) {
 			features.addAll(Arrays.asList(PRIVACY_SENSITIVE));
-		}
-		if (Config.supportOtr()) {
-			features.addAll(Arrays.asList(OTR));
 		}
 		Collections.sort(features);
 		return features;

@@ -480,6 +480,15 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         startActivity(intent);
     }
 
+    private void shareLink(boolean http) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        String text;
+        text = mAccount.getShareableUri();
+        intent.putExtra(Intent.EXTRA_TEXT,text);
+        startActivity(Intent.createChooser(intent, getText(R.string.share_with)));
+    }
+
     @Override
     public void alias(String alias) {
         if (alias != null) {
@@ -507,6 +516,7 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
             this.mAvatar.setImageBitmap(avatarService().get(this.mAccount, getPixel(180)));
             BitmapDrawable bm = getQrCode();
             if (bm != null) ((ImageView) findViewById(R.id.iv_cqr)).setImageDrawable(bm);
+
         }
         if (this.mAccount.isOptionSet(Account.OPTION_REGISTER)) {
             this.mAccount_info.setVisibility(View.GONE);
@@ -521,7 +531,9 @@ public class EditAccountActivity extends OmemoActivity implements OnAccountUpdat
         if (this.mAccount.isOnlineAndConnected() && !this.mFetchingAvatar) {
         }
     }
-
+    public void imageClick(View view) {
+        shareLink(false);
+    }
     public void showRegenerateAxolotlKeyDialog() {
         Builder builder = new Builder(this);
         builder.setTitle(R.string.regenerate_omemo_key);

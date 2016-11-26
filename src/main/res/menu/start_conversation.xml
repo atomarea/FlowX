@@ -18,9 +18,9 @@
         android:showAsAction="always"
         android:title="@string/create_conference"/>
     <item
-        android:id="@+id/action_show_qr_code"
-        android:visible="false"
+        android:id="@+id/action_scan_qr_code"
         android:showAsAction="never"
+        android:visible="false"
         android:title="QR Scanner" />
 
     <item

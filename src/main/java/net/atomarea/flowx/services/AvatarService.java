@@ -44,7 +44,9 @@ public class AvatarService implements OnAdvancedStreamFeaturesLoaded {
 	}
 
 	private Bitmap get(final Contact contact, final int size, boolean cachedOnly) {
-		final String KEY = key(contact, size);
+		if (contact.isSelf()) {
+			return get(contact.getAccount(),size,cachedOnly);
+		}		final String KEY = key(contact, size);
 		Bitmap avatar = this.mXmppConnectionService.getBitmapCache().get(KEY);
 		if (avatar != null || cachedOnly) {
 			return avatar;

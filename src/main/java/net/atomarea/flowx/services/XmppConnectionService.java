@@ -66,6 +66,7 @@ import net.atomarea.flowx.parser.MessageParser;
 import net.atomarea.flowx.parser.PresenceParser;
 import net.atomarea.flowx.persistance.DatabaseBackend;
 import net.atomarea.flowx.persistance.FileBackend;
+import net.atomarea.flowx.ui.SettingsActivity;
 import net.atomarea.flowx.ui.UiCallback;
 import net.atomarea.flowx.utils.ConversationsFileObserver;
 import net.atomarea.flowx.utils.CryptoHelper;
@@ -953,7 +954,7 @@ public class XmppConnectionService extends Service {
 
     private void logoutAndSave(boolean stop) {
         int activeAccounts = 0;
-        databaseBackend.clearStartTimeCounter(); // regular swipes don't count towards restart counter
+        databaseBackend.clearStartTimeCounter(true); // regular swipes don't count towards restart counter
         for (final Account account : accounts) {
             if (account.getStatus() != Account.State.DISABLED) {
                 activeAccounts++;
@@ -1004,7 +1005,7 @@ public class XmppConnectionService extends Service {
                 throw new Exception();
             }
         } catch (Exception e) {
-            resource = "Pix-Art Messenger";
+            resource = "FlowX Messenger";
         }
         account.setResource(resource);
         final XmppConnection connection = new XmppConnection(account, this);
@@ -1103,26 +1104,6 @@ public class XmppConnectionService extends Service {
             }
         } else {
             switch (message.getEncryption()) {
-                case Message.ENCRYPTION_DECRYPTED:
-                    if (!message.needsUploading()) {
-                        String pgpBody = message.getEncryptedBody();
-                        String decryptedBody = message.getBody();
-                        message.setBody(pgpBody);
-                        message.setEncryption(Message.ENCRYPTION_PGP);
-                        if (message.edited()) {
-                            message.setBody(decryptedBody);
-                            message.setEncryption(Message.ENCRYPTION_DECRYPTED);
-                            databaseBackend.updateMessage(message, message.getEditedId());
-                            updateConversationUi();
-                            return;
-                        } else {
-                            databaseBackend.createMessage(message);
-                            saveInDb = false;
-                            message.setBody(decryptedBody);
-                            message.setEncryption(Message.ENCRYPTION_DECRYPTED);
-                        }
-                    }
-                    break;
                 case Message.ENCRYPTION_AXOLOTL:
                     message.setFingerprint(account.getAxolotlService().getOwnFingerprint());
                     break;
@@ -3468,22 +3449,25 @@ public class XmppConnectionService extends Service {
         mDatabaseExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                databaseBackend.clearStartTimeCounter();
+                databaseBackend.clearStartTimeCounter(false);
             }
         });
     }
 
-    public void verifyFingerprints(Contact contact, List<XmppUri.Fingerprint> fingerprints) {
+    public boolean verifyFingerprints(Contact contact, List<XmppUri.Fingerprint> fingerprints) {
         boolean needsRosterWrite = false;
+        boolean performedVerification = false;
         final AxolotlService axolotlService = contact.getAccount().getAxolotlService();
         for (XmppUri.Fingerprint fp : fingerprints) {
             if (fp.type == XmppUri.FingerprintType.OTR) {
-                needsRosterWrite |= contact.addOtrFingerprint(fp.fingerprint);
+                performedVerification |= contact.addOtrFingerprint(fp.fingerprint);
+                needsRosterWrite |= performedVerification;
             } else if (fp.type == XmppUri.FingerprintType.OMEMO) {
                 String fingerprint = "05" + fp.fingerprint.replaceAll("\\s", "");
                 FingerprintStatus fingerprintStatus = axolotlService.getFingerprintTrust(fingerprint);
                 if (fingerprintStatus != null) {
                     if (!fingerprintStatus.isVerified()) {
+                        performedVerification = true;
                         axolotlService.setFingerprintTrust(fingerprint, fingerprintStatus.toVerified());
                     }
                 } else {
@@ -3494,6 +3478,7 @@ public class XmppConnectionService extends Service {
         if (needsRosterWrite) {
             syncRosterToDisk(contact.getAccount());
         }
+        return performedVerification;
     }
 
     public boolean verifyFingerprints(Account account, List<XmppUri.Fingerprint> fingerprints) {
@@ -3516,6 +3501,10 @@ public class XmppConnectionService extends Service {
             }
         }
         return verifiedSomething;
+    }
+
+    public boolean blindTrustBeforeVerification() {
+        return getPreferences().getBoolean(SettingsActivity.BLIND_TRUST_BEFORE_VERIFICATION, true);
     }
 
     public interface OnMamPreferencesFetched {

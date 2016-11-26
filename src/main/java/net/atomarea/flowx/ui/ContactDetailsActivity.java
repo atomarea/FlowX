@@ -235,6 +235,9 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
         return true;
     }
 
+    public void imageClick(View view) {
+        shareUri();
+    }
     private void populateView() {
         if (contact == null) {
             return;

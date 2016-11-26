@@ -133,6 +133,7 @@
             <ImageView
                 android:id="@+id/iv_cqr"
                 android:layout_width="match_parent"
+                android:onClick="imageClick"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/app_name" />
             </RelativeLayout>

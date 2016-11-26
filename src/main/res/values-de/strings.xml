@@ -600,4 +600,14 @@
     <string name="received_contact">Empfange Kontakt</string>
     <string name="contact">Kontakt</string>
     <string name="this_device_is_no_longer_in_use">Dieses Gerät ist nicht länger in Benutzung</string>
+    <string name="copy_fingerprint">Fingerabdruck kopieren</string>
+    <string name="all_omemo_keys_have_been_verified">Alle OMEMO-Schlüssel wurden verifiziert</string>
+    <string name="barcode_does_not_contain_fingerprints_for_this_conversation">Barcode enthält keine Fingerabdrücke für diese Unterhaltung.</string>
+    <string name="verified_fingerprints">Überprüfte Fingerabdrücke</string>
+    <string name="use_camera_icon_to_scan_barcode">Nutze Kamera, um Barcodes deiner Kontakte zu scannen</string>
+    <string name="please_wait_for_keys_to_be_fetched">Bitte warten bis Schlüssel abgerufen werden …</string>
+    <string name="share_as_uri">Als XMPP URI teilen</string>
+    <string name="pref_blind_trust_before_verification">Blind vertrauen vor der Überprüfung</string>
+    <string name="blindly_trusted_omemo_keys">Blind vertraute OMEMO-Schlüssel</string>
+    <string name="not_trusted">Nicht vertraut</string>
 </resources>

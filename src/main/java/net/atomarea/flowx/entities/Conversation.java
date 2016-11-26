@@ -38,7 +38,7 @@ public class Conversation extends AbstractEntity implements Blockable, Comparabl
     public static final String MODE = "mode";
     public static final String ATTRIBUTES = "attributes";
 
-    public static final String ATTRIBUTE_NEXT_ENCRYPTION = "";
+    public static final String ATTRIBUTE_NEXT_ENCRYPTION = "next_encryption";
     public static final String ATTRIBUTE_MUC_PASSWORD = "muc_password";
     public static final String ATTRIBUTE_MUTED_TILL = "muted_till";
     public static final String ATTRIBUTE_ALWAYS_NOTIFY = "always_notify";
