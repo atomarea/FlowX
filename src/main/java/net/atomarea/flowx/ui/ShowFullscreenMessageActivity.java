@@ -6,10 +6,12 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -27,6 +29,7 @@ import net.atomarea.flowx.Config;
 import net.atomarea.flowx.R;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import uk.co.senab.photoview.PhotoView;
@@ -92,7 +95,28 @@ public class ShowFullscreenMessageActivity extends Activity {
         super.onStart();
         Intent intent = getIntent();
         if (intent != null) {
-            if (intent.hasExtra("image")) {
+            if (intent.hasExtra("abc_profile")) {
+                mImage.setImageDrawable(new BitmapDrawable(getResources(), ContactDetailsActivity.profilePicture));
+                mImage.setVisibility(View.VISIBLE);
+                mFAB.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        try {
+                            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlowX/Profile");
+                            dir.mkdirs();
+                            File file = new File(dir, System.currentTimeMillis() + ".png");
+                            FileOutputStream out = new FileOutputStream(file);
+                            ContactDetailsActivity.profilePicture.compress(Bitmap.CompressFormat.PNG, 80, out);
+                            out.flush();
+                            out.close();
+                            Toast.makeText(ShowFullscreenMessageActivity.this, R.string.save, Toast.LENGTH_LONG).show();
+                        } catch (Exception e) {
+                            Toast.makeText(ShowFullscreenMessageActivity.this, R.string.error, Toast.LENGTH_LONG).show();
+                            Log.e("ERR", "ERR", e);
+                        }
+                    }
+                });
+            } else if (intent.hasExtra("image")) {
                 mFileUri = intent.getParcelableExtra("image");
                 mFile = new File(mFileUri.getPath());
                 if (mFileUri != null && mFile.exists() && mFile.length() > 0) {
@@ -162,7 +186,7 @@ public class ShowFullscreenMessageActivity extends Activity {
     }
 
     private void DisplayVideo(Uri uri) {
-        MediaMetadataRetriever retriever = new  MediaMetadataRetriever();
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(uri.getPath());
         height = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
         width = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
@@ -215,7 +239,7 @@ public class ShowFullscreenMessageActivity extends Activity {
     }
 
     @Override
-    public void onStop () {
+    public void onStop() {
         mVideo.reset();
         WindowManager.LayoutParams layout = getWindow().getAttributes();
         getWindow().setAttributes(layout);

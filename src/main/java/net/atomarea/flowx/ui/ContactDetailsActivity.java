@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -11,6 +12,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,15 +27,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.manuelpeinado.fadingactionbar.FadingActionBarHelper;
 
 import net.atomarea.flowx.Config;
 import net.atomarea.flowx.OmemoActivity;
 import net.atomarea.flowx.R;
 import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.crypto.axolotl.AxolotlService;
-import net.atomarea.flowx.crypto.axolotl.FingerprintStatus;
-import net.atomarea.flowx.crypto.axolotl.XmppAxolotlSession;
 import net.atomarea.flowx.entities.Account;
 import net.atomarea.flowx.entities.Contact;
 import net.atomarea.flowx.services.XmppConnectionService.OnAccountUpdate;
@@ -47,6 +50,8 @@ import net.atomarea.flowx.xmpp.jid.Jid;
 import java.util.List;
 
 import github.ankushsachdeva.emojicon.EmojiconTextView;
+
+import static net.atomarea.flowx.R.string.file;
 
 public class ContactDetailsActivity extends OmemoActivity implements OnAccountUpdate, OnRosterUpdate, OnUpdateBlocklist, OnKeyStatusUpdated {
     public static final String ACTION_VIEW_CONTACT = "view_contact";
@@ -197,6 +202,11 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                     startActivity(intent);
                 }
                 break;
+            case R.id.action_view_image:
+                Intent i = new Intent(ContactDetailsActivity.this, ShowFullscreenMessageActivity.class);
+                i.putExtra("abc_profile", true);
+                startActivity(i);
+                break;
             case R.id.action_block:
                 BlockContactDialog.show(this, xmppConnectionService, contact);
                 break;
@@ -237,14 +247,19 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
 
     public void imageClick(View view) {
         shareUri();
+
+
     }
+
+    public static Bitmap profilePicture;
+
     private void populateView() {
         if (contact == null) {
             return;
         }
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
-        BitmapDrawable bmd = new BitmapDrawable(this.getResources(), avatarService().get(contact, size.x));
+        BitmapDrawable bmd = new BitmapDrawable(this.getResources(), profilePicture = avatarService().get(contact, size.x));
         ImageView iv = new ImageView(this);
         iv.setImageDrawable(bmd);
 
@@ -252,6 +267,8 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 .actionBarBackground(new ColorDrawable(ContextCompat.getColor(this, R.color.primary)))
                 .headerView(iv)
                 .contentLayout(R.layout.activity_contact_details);
+
+        helper.parallax(true);
 
         setContentView(helper.createView(this));
 
@@ -272,6 +289,7 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
                 showAddToRosterDialog(contact);
             }
         });
+
         if (getActionBar() != null) {
             getActionBar().setHomeButtonEnabled(true);
             getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -410,6 +428,10 @@ public class ContactDetailsActivity extends OmemoActivity implements OnAccountUp
             this.contact = account.getRoster().getContact(contactJid);
             populateView();
         }
+        if (contact == null) {
+            return;
+        }
+
     }
 
     @Override

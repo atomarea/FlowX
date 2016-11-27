@@ -2,13 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@android:color/black">
+    android:background="@android:color/black"
+    android:orientation="vertical">
 
     <include
         android:id="@+id/toolbar"
-        layout="@layout/tool_bar">
-    </include>
+        layout="@layout/tool_bar" />
 
     <uk.co.senab.photoview.PhotoView
         android:id="@id/message_image_view"
@@ -24,20 +23,20 @@
         android:visibility="gone" />
 
     <FrameLayout
+        android:id="@+id/frameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:id="@+id/frameLayout">
+        android:layout_alignParentTop="true">
 
         <ImageButton
-            android:layout_margin="15dp"
+            android:id="@+id/imageButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/ic_share_white_24dp"
-            android:background="@drawable/circle"
-            android:id="@+id/imageButton"
-            android:layout_gravity="right|top" />
+            android:layout_gravity="right|top"
+            android:layout_margin="15dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_share_white_24dp" />
     </FrameLayout>
 </RelativeLayout>

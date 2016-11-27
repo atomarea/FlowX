@@ -118,8 +118,9 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
     }
 
     public void setOnQuoteListener(OnQuoteListener listener) {
-        		this.onQuoteListener = listener;
-        	}
+        this.onQuoteListener = listener;
+    }
+
     private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
         if (imageView != null) {
             final Drawable drawable = imageView.getDrawable();
@@ -150,6 +151,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
     private int getMessageTextColor(boolean onDark, boolean primary) {
         return (onDark ? ContextCompat.getColor(activity, primary ? R.color.black87 : R.color.black54) : ContextCompat.getColor(activity, primary ? R.color.white : R.color.white70));
     }
+
     private void displayStatus(ViewHolder viewHolder, Message message, int type, boolean darkBackground, boolean inValidSession) {
 
         String filesize = null;
@@ -219,7 +221,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
         if (error && type == SENT) {
             viewHolder.time.setTextColor(activity.getWarningTextColor());
         } else {
-            viewHolder.time.setTextColor(this.getMessageTextColor(darkBackground,false));
+            viewHolder.time.setTextColor(this.getMessageTextColor(darkBackground, false));
         }
         if (message.getEncryption() == Message.ENCRYPTION_NONE) {
             viewHolder.indicator.setVisibility(View.GONE);
@@ -231,7 +233,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
                         .getAccount().getAxolotlService().getFingerprintTrust(
                                 message.getFingerprint());
 
-                if(status == null || (!status.isVerified() && inValidSession)) {
+                if (status == null || (!status.isVerified() && inValidSession)) {
                     viewHolder.indicator.setAlpha(0.57f);
                 } else {
                     viewHolder.indicator.clearColorFilter();
@@ -255,7 +257,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
                 message.getMergedTimeSent());
         if (message.getStatus() <= Message.STATUS_RECEIVED) {
             if ((filesize != null) && (info != null)) {
-                viewHolder.time.setText(formatedTime + " \u00B7 " + filesize +" \u00B7 " + info);
+                viewHolder.time.setText(formatedTime + " \u00B7 " + filesize + " \u00B7 " + info);
             } else if ((filesize == null) && (info != null)) {
                 viewHolder.time.setText(formatedTime + " \u00B7 " + info);
             } else if ((filesize != null) && (info == null)) {
@@ -525,25 +527,25 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
         String mimeType = message.getMimeType();
         String fullName = "";
         if (mimeType != null) {
-            } else if (message.getMimeType().contains("vcard")) {
-                File file = new File(activity.xmppConnectionService.getFileBackend().getFile(message).toString());
-                VCard vcard = null;
-                String name = null;
-                String version = null;
-                try {
-                    vcard = Ezvcard.parse(file).first();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (vcard != null) {
-                    version = vcard.getVersion().toString();
-                    Log.d(Config.LOGTAG, "VCard version: " + version);
-                    name = vcard.getFormattedName().getValue();
-                    fullName = " (" + name + ")";
-                }
+        } else if (message.getMimeType().contains("vcard")) {
+            File file = new File(activity.xmppConnectionService.getFileBackend().getFile(message).toString());
+            VCard vcard = null;
+            String name = null;
+            String version = null;
+            try {
+                vcard = Ezvcard.parse(file).first();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (vcard != null) {
+                version = vcard.getVersion().toString();
+                Log.d(Config.LOGTAG, "VCard version: " + version);
+                name = vcard.getFormattedName().getValue();
+                fullName = " (" + name + ")";
+            }
         }
-                viewHolder.download_button.setText(activity.getString(R.string.open_x_file, UIHelper.getFileDescriptionString(activity, message) + fullName));
-                viewHolder.download_button.setOnClickListener(new OnClickListener() {
+        viewHolder.download_button.setText(activity.getString(R.string.open_x_file, UIHelper.getFileDescriptionString(activity, message) + fullName));
+        viewHolder.download_button.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -556,6 +558,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
         String contact = body.toLowerCase();
         contact = contact.split(":")[1];
         contact = contact.split("\\?")[0];
+        contact = contact.split("@")[0];
         String add_contact = activity.getString(R.string.add_to_contact_list) + " (" + contact + ")";
         viewHolder.aw_player.setVisibility(View.GONE);
         viewHolder.download_button.setVisibility(View.VISIBLE);
@@ -573,6 +576,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
         viewHolder.messageBody.setVisibility(View.GONE);
 
     }
+
     private void displayLocationMessage(ViewHolder viewHolder, final Message message) {
         viewHolder.aw_player.setVisibility(View.GONE);
         viewHolder.messageBody.setVisibility(View.GONE);
@@ -610,6 +614,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
         });
 
     }
+
     private void displayImageMessage(ViewHolder viewHolder, final Message message) {
         viewHolder.aw_player.setVisibility(View.GONE);
         if (viewHolder.download_button != null) viewHolder.download_button.setVisibility(View.GONE);
@@ -655,7 +660,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
         }
         activity.setMessagesLoaded();
         activity.xmppConnectionService.getMessageArchiveService().query(conversation, 0, timestamp);
-        Toast.makeText(activity, R.string.fetching_history_from_server,Toast.LENGTH_LONG).show();
+        Toast.makeText(activity, R.string.fetching_history_from_server, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -762,14 +767,14 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
                 } else displayOpenableMessage(viewHolder, message);
             }
         } else if (message.getEncryption() == Message.ENCRYPTION_DECRYPTION_FAILED) {
-            displayDecryptionFailed(viewHolder,darkBackground);
+            displayDecryptionFailed(viewHolder, darkBackground);
         } else {
             if (GeoHelper.isGeoUri(message.getBody())) {
-                displayLocationMessage(viewHolder,message);
+                displayLocationMessage(viewHolder, message);
             } else if (message.bodyIsHeart()) {
                 displayHeartMessage(viewHolder, message.getBody().trim());
             } else if (message.bodyIsXmpp()) {
-                                displayXmppMessage(viewHolder, message.getBody().trim());
+                displayXmppMessage(viewHolder, message.getBody().trim());
             } else if (message.treatAsDownloadable() == Message.Decision.MUST ||
                     message.treatAsDownloadable() == Message.Decision.SHOULD) {
                 try {
@@ -894,7 +899,8 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
         }
 
         @Override
-        public void onDestroyActionMode(ActionMode mode) {}
+        public void onDestroyActionMode(ActionMode mode) {
+        }
     }
 
     public void openDownloadable(Message message) {
