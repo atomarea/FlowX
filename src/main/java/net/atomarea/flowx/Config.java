@@ -32,7 +32,6 @@ public final class Config {
     public static final int VIDEO_BITRATE = 500000;
     public static final int VIDEO_SIZE = 640;
     public static final int VIDEO_MAX_SIZE = 5242880; //5 MiB
-    public static boolean AlwayUseOMEMO = false; //true makes OMEMO as default on every 1 to 1 chat
     public static final boolean DISALLOW_REGISTRATION_IN_UI = false; //hide the register checkbox
     public static final int MAX_DISPLAY_MESSAGE_CHARS = 4096;
     public static final int IDLE_PING_INTERVAL = 600; //540 is minimum according to docs;
@@ -56,6 +55,8 @@ public final class Config {
     public static final boolean DISABLE_PROXY_LOOKUP = false; //useful to debug ibb
     public static final String UPDATE_URL = "http://apk.atom-area.net/flowx/";
     public static final boolean DISABLE_HTTP_UPLOAD = false;
+    public static final boolean OMEMO_PADDING = false;
+    public static final boolean REMOVE_BROKEN_DEVICES = false;
     public static final boolean EXTENDED_SM_LOGGING = false; // log stanza counts
     public static final boolean PARSE_REAL_JID_FROM_MUC_MAM = false; //dangerous if
     public static final int AVATAR_SIZE = 1920;
@@ -74,7 +75,7 @@ public final class Config {
 
     public static final int REFRESH_UI_INTERVAL = 500;
 
-    public static final boolean DISABLE_STRING_PREP = true; // setting to true might increase startup performance
+    public static final boolean DISABLE_STRING_PREP = false; // setting to true might increase startup performance
     public static final boolean RESET_ATTEMPT_COUNT_ON_NETWORK_CHANGE = true; //setting to true might increase power consumption
 
     public static final boolean IGNORE_ID_REWRITE_IN_MUC = true;

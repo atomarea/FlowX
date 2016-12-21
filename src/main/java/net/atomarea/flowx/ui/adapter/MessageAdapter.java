@@ -242,6 +242,7 @@ public class MessageAdapter extends ArrayAdapter<Message> implements CopyTextVie
                     } else {
                         viewHolder.indicator.setAlpha(0.57f);
                     }
+                    viewHolder.indicator.setVisibility(View.VISIBLE);
                 }
             } else {
                 viewHolder.indicator.clearColorFilter();

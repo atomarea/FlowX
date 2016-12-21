@@ -3,18 +3,6 @@ package net.atomarea.flowx.http;
 import android.os.PowerManager;
 import android.util.Log;
 
-import net.atomarea.flowx.Config;
-import net.atomarea.flowx.R;
-import net.atomarea.flowx.entities.DownloadableFile;
-import net.atomarea.flowx.entities.Message;
-import net.atomarea.flowx.entities.Transferable;
-import net.atomarea.flowx.entities.TransferablePlaceholder;
-import net.atomarea.flowx.persistance.FileBackend;
-import net.atomarea.flowx.services.AbstractConnectionManager;
-import net.atomarea.flowx.services.XmppConnectionService;
-import net.atomarea.flowx.utils.CryptoHelper;
-import net.atomarea.flowx.utils.FileWriterException;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +14,18 @@ import java.util.concurrent.CancellationException;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
+
+import net.atomarea.flowx.Config;
+import net.atomarea.flowx.R;
+import net.atomarea.flowx.entities.DownloadableFile;
+import net.atomarea.flowx.entities.Message;
+import net.atomarea.flowx.entities.Transferable;
+import net.atomarea.flowx.entities.TransferablePlaceholder;
+import net.atomarea.flowx.persistance.FileBackend;
+import net.atomarea.flowx.services.AbstractConnectionManager;
+import net.atomarea.flowx.services.XmppConnectionService;
+import net.atomarea.flowx.utils.CryptoHelper;
+import net.atomarea.flowx.utils.FileWriterException;
 
 public class HttpDownloadConnection implements Transferable {
 
@@ -100,7 +100,7 @@ public class HttpDownloadConnection implements Transferable {
 					|| this.message.getEncryption() == Message.ENCRYPTION_AXOLOTL)
 					&& this.file.getKey() == null) {
 				this.message.setEncryption(Message.ENCRYPTION_NONE);
-					}
+			}
 			checkFileSize(interactive);
 		} catch (MalformedURLException e) {
 			this.cancel();
@@ -128,6 +128,8 @@ public class HttpDownloadConnection implements Transferable {
 		message.setTransferable(null);
 		mHttpConnectionManager.finishConnection(this);
 		boolean notify = acceptedAutomatically && !message.isRead();
+		if (message.getEncryption() == Message.ENCRYPTION_PGP) {
+		}
 		mXmppConnectionService.updateConversationUi();
 		if (notify) {
 			mXmppConnectionService.getNotificationService().push(message);
@@ -270,16 +272,18 @@ public class HttpDownloadConnection implements Transferable {
 				}
 				connection.setRequestProperty("User-Agent",mXmppConnectionService.getIqGenerator().getIdentityName());
 				final boolean tryResume = file.exists() && file.getKey() == null;
+				long resumeSize = 0;
 				if (tryResume) {
 					Log.d(Config.LOGTAG,"http download trying resume");
-					long size = file.getSize();
-					connection.setRequestProperty("Range", "bytes="+size+"-");
+					resumeSize = file.getSize();
+					connection.setRequestProperty("Range", "bytes="+resumeSize+"-");
 				}
 				connection.setConnectTimeout(Config.SOCKET_TIMEOUT * 1000);
 				connection.setReadTimeout(Config.SOCKET_TIMEOUT * 1000);
 				connection.connect();
 				is = new BufferedInputStream(connection.getInputStream());
-				boolean serverResumed = "bytes".equals(connection.getHeaderField("Accept-Ranges"));
+				final String contentRange = connection.getHeaderField("Content-Range");
+				boolean serverResumed = tryResume && contentRange != null && contentRange.startsWith("bytes "+resumeSize+"-");
 				long transmitted = 0;
 				long expected = file.getExpectedSize();
 				if (tryResume && serverResumed) {
@@ -287,9 +291,14 @@ public class HttpDownloadConnection implements Transferable {
 					transmitted = file.getSize();
 					updateProgress((int) ((((double) transmitted) / expected) * 100));
 					os = AbstractConnectionManager.createAppendedOutputStream(file);
+					if (os == null) {
+						throw new FileWriterException();
+					}
 				} else {
 					file.getParentFile().mkdirs();
-					file.createNewFile();
+					if (!file.exists() && !file.createNewFile()) {
+						throw new FileWriterException();
+					}
 					os = AbstractConnectionManager.createOutputStream(file, true);
 				}
 				int count;

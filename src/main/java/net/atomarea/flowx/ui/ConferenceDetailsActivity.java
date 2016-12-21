@@ -367,7 +367,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
                 MenuItem invite = menu.findItem(R.id.invite);
                 startConversation.setVisible(true);
                 if (contact != null) {
-                    showContactDetails.setVisible(true);
+                    showContactDetails.setVisible(!contact.isSelf());
                 }
                 if (user.getRole() == MucOptions.Role.NONE) {
                     invite.setVisible(true);
@@ -498,8 +498,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
             this.uuid = getIntent().getExtras().getString("uuid");
         }
         if (uuid != null) {
-            this.mConversation = xmppConnectionService
-                    .findConversationByUuid(uuid);
+            this.mConversation = xmppConnectionService.findConversationByUuid(uuid);
             if (this.mConversation != null) {
                 updateView();
             }
@@ -507,6 +506,7 @@ public class ConferenceDetailsActivity extends XmppActivity implements OnConvers
     }
 
     private void updateView() {
+        invalidateOptionsMenu();
         final MucOptions mucOptions = mConversation.getMucOptions();
         final User self = mucOptions.getSelf();
         String account;

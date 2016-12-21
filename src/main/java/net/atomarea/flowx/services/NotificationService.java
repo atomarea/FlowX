@@ -44,7 +44,6 @@ import java.util.regex.Pattern;
 public class NotificationService {
 
     public static final int NOTIFICATION_ID = 0x2342;
-    public static final int FOREGROUND_NOTIFICATION_ID = 0x8899;
     public static final int ERROR_NOTIFICATION_ID = 0x5678;
     private static final String CONVERSATIONS_GROUP = "net.atomarea.flowx";
     private final XmppConnectionService mXmppConnectionService;
@@ -491,12 +490,6 @@ public class NotificationService {
         return PendingIntent.getService(mXmppConnectionService, id, intent, 0);
     }
 
-    private PendingIntent createTryAgainIntent() {
-        final Intent intent = new Intent(mXmppConnectionService, XmppConnectionService.class);
-        intent.setAction(XmppConnectionService.ACTION_TRY_AGAIN);
-        return PendingIntent.getService(mXmppConnectionService, 45, intent, 0);
-    }
-
     private boolean wasHighlightedOrPrivate(final Message message) {
         final String nick = message.getConversation().getMucOptions().getActualNick();
         final Pattern highlight = generateNickHighlightPattern(nick);
@@ -533,44 +526,5 @@ public class NotificationService {
 
     private PendingIntent createOpenConversationsIntent() {
         return PendingIntent.getActivity(mXmppConnectionService, 0, new Intent(mXmppConnectionService, ConversationActivity.class), 0);
-    }
-
-    public void updateErrorNotification() {
-        final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(mXmppConnectionService);
-        final List<Account> errors = new ArrayList<>();
-        for (final Account account : mXmppConnectionService.getAccounts()) {
-            if (account.hasErrorStatus()) {
-                errors.add(account);
-            }
-        }
-        final NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mXmppConnectionService);
-        if (errors.size() == 0) {
-            notificationManager.cancel(ERROR_NOTIFICATION_ID);
-            return;
-        } else if (errors.size() == 1) {
-            mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.problem_connecting_to_account));
-            mBuilder.setContentText(errors.get(0).getJid().toBareJid().toString());
-        } else {
-            mBuilder.setContentTitle(mXmppConnectionService.getString(R.string.problem_connecting_to_accounts));
-            mBuilder.setContentText(mXmppConnectionService.getString(R.string.touch_to_fix));
-        }
-        mBuilder.addAction(R.drawable.ic_autorenew_white_24dp,
-                mXmppConnectionService.getString(R.string.try_again),
-                createTryAgainIntent());
-        if (errors.size() == 1) {
-        }
-        mBuilder.setOngoing(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mBuilder.setSmallIcon(R.drawable.ic_warning_white_24dp);
-        } else {
-            mBuilder.setSmallIcon(R.drawable.ic_stat_alert_warning);
-        }
-        final TaskStackBuilder stackBuilder = TaskStackBuilder.create(mXmppConnectionService);
-        stackBuilder.addParentStack(ConversationActivity.class);
-
-        final PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        mBuilder.setContentIntent(resultPendingIntent);
-        notificationManager.notify(ERROR_NOTIFICATION_ID, mBuilder.build());
     }
 }

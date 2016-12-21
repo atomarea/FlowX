@@ -357,7 +357,7 @@ public class XmppConnectionService extends Service {
                     }
                 }
             }
-            getNotificationService().updateErrorNotification();
+            getNotificationService();
         }
     };
     private PowerManager pm;
@@ -381,8 +381,9 @@ public class XmppConnectionService extends Service {
     public AvatarService getAvatarService() {
         return this.mAvatarService;
     }
+
     private void buildShortcuts() {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
             return;
         }
 
@@ -404,7 +405,7 @@ public class XmppConnectionService extends Service {
 
         int i = 0;
 
-        for(Conversation c: getConversations()) {
+        for (Conversation c : getConversations()) {
             Contact contact = c.getContact();
             String name = contact.getDisplayName();
 
@@ -423,7 +424,7 @@ public class XmppConnectionService extends Service {
 
             shortcuts.add(builder.build());
 
-            if(i++ == 2) break;
+            if (i++ == 2) break;
         }
 
         shortcutManager.setDynamicShortcuts(shortcuts);
@@ -754,14 +755,14 @@ public class XmppConnectionService extends Service {
                     long discoTimeout = Config.CONNECT_DISCO_TIMEOUT - secondsSinceLastDisco;
                     long timeout = Config.CONNECT_TIMEOUT - secondsSinceLastConnect;
                     if (timeout < 0) {
-                        Log.d(Config.LOGTAG, account.getJid() + ": time out during connect reconnecting (secondsSinceLast="+secondsSinceLastConnect+")");
+                        Log.d(Config.LOGTAG, account.getJid() + ": time out during connect reconnecting (secondsSinceLast=" + secondsSinceLastConnect + ")");
                         account.getXmppConnection().resetAttemptCount(false);
                         reconnectAccount(account, true, interactive);
                     } else if (discoTimeout < 0) {
                         account.getXmppConnection().sendDiscoTimeout();
-                        scheduleWakeUpCall((int) Math.min(timeout,discoTimeout), account.getUuid().hashCode());
+                        scheduleWakeUpCall((int) Math.min(timeout, discoTimeout), account.getUuid().hashCode());
                     } else {
-                        scheduleWakeUpCall((int) Math.min(timeout,discoTimeout), account.getUuid().hashCode());
+                        scheduleWakeUpCall((int) Math.min(timeout, discoTimeout), account.getUuid().hashCode());
                     }
                 } else {
                     if (account.getXmppConnection().getTimeToNextAttempt() <= 0) {
@@ -786,13 +787,13 @@ public class XmppConnectionService extends Service {
     private void directReply(Conversation conversation, String body, final boolean dismissAfterReply) {
         Message message = new Message(conversation, body, conversation.getNextEncryption());
         message.markUnread();
-            sendMessage(message);
-            if (dismissAfterReply) {
-                markRead(conversation, true);
-            } else {
-                mNotificationService.pushFromDirectReply(message);
-            }
+        sendMessage(message);
+        if (dismissAfterReply) {
+            markRead(conversation, true);
+        } else {
+            mNotificationService.pushFromDirectReply(message);
         }
+    }
 
     private boolean xaOnSilentMode() {
         return getPreferences().getBoolean("xa_on_silent_mode", false);
@@ -1102,7 +1103,6 @@ public class XmppConnectionService extends Service {
         final Account account = message.getConversation().getAccount();
         if (account.setShowErrorNotification(true)) {
             databaseBackend.updateAccount(account);
-            mNotificationService.updateErrorNotification();
         }
         final Conversation conversation = message.getConversation();
         account.deactivateGracePeriod();
@@ -1616,7 +1616,7 @@ public class XmppConnectionService extends Service {
                         callback.onAccountCreated(account);
                         if (Config.X509_VERIFICATION) {
                             try {
-                                getMemorizingTrustManager().getNonInteractive().checkClientTrusted(chain, "RSA");
+                                getMemorizingTrustManager().getNonInteractive(account.getJid().getDomainpart()).checkClientTrusted(chain, "RSA");
                             } catch (CertificateException e) {
                                 callback.informUser(R.string.certificate_chain_is_not_trusted);
                             }
@@ -1644,7 +1644,7 @@ public class XmppConnectionService extends Service {
                 databaseBackend.updateAccount(account);
                 if (Config.X509_VERIFICATION) {
                     try {
-                        getMemorizingTrustManager().getNonInteractive().checkClientTrusted(chain, "RSA");
+                        getMemorizingTrustManager().getNonInteractive(account.getJid().getDomainpart()).checkClientTrusted(chain, "RSA");
                     } catch (CertificateException e) {
                         showErrorToastInUi(R.string.certificate_chain_is_not_trusted);
                     }
@@ -1665,7 +1665,7 @@ public class XmppConnectionService extends Service {
             databaseBackend.updateAccount(account);
             reconnectAccountInBackground(account);
             updateAccountUi();
-            getNotificationService().updateErrorNotification();
+            getNotificationService();
             return true;
         } else {
             return false;
@@ -1719,7 +1719,7 @@ public class XmppConnectionService extends Service {
             mDatabaseExecutor.execute(runnable);
             this.accounts.remove(account);
             updateAccountUi();
-            getNotificationService().updateErrorNotification();
+            getNotificationService();
         }
     }
 
@@ -2783,7 +2783,8 @@ public class XmppConnectionService extends Service {
                 connection = createConnection(account);
                 account.setXmppConnection(connection);
             }
-            if (!account.isOptionSet(Account.OPTION_DISABLED)) {
+            boolean hasInternet = hasInternetConnection();
+            if (!account.isOptionSet(Account.OPTION_DISABLED) && hasInternet) {
                 if (!force) {
                     disconnect(account, false);
                 }
@@ -2794,10 +2795,13 @@ public class XmppConnectionService extends Service {
                 thread.start();
                 scheduleWakeUpCall(Config.CONNECT_DISCO_TIMEOUT, account.getUuid().hashCode());
             } else {
-                disconnect(account, force);
+                disconnect(account, force || account.getTrueStatus().isError() || !hasInternet);
                 account.getRoster().clearPresences();
                 connection.resetEverything();
                 account.getAxolotlService().resetBrokenness();
+                if (!hasInternet) {
+                    account.setStatus(Account.State.NO_INTERNET);
+                }
             }
         }
     }

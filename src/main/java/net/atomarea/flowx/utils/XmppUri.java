@@ -15,6 +15,7 @@ public class XmppUri {
 
 	protected String jid;
 	protected boolean muc;
+	private String body;
 	protected List<Fingerprint> fingerprints = new ArrayList<>();
 	public static final String OMEMO_URI_PARAM = "omemo-sid-";
 	public static final String OTR_URI_PARAM = "otr-fingerprint";
@@ -58,13 +59,14 @@ public class XmppUri {
 			muc = segments.size() > 1 && "j".equalsIgnoreCase(segments.get(0));
 		} else if ("xmpp".equalsIgnoreCase(scheme)) {
 			// sample: xmpp:foo@bar.com
-			muc = "join".equalsIgnoreCase(uri.getQuery());
+			muc = isMuc(uri.getQuery());
 			if (uri.getAuthority() != null) {
 				jid = uri.getAuthority();
 			} else {
 				jid = uri.getSchemeSpecificPart().split("\\?")[0];
 			}
 			this.fingerprints = parseFingerprints(uri.getQuery());
+			this.body = parseBody(uri.getQuery());
 		} else if ("imto".equalsIgnoreCase(scheme)) {
 			// sample: imto://xmpp/foo@bar.com
 			try {
@@ -105,12 +107,40 @@ public class XmppUri {
 		return fingerprints;
 	}
 
+	protected String parseBody(String query) {
+		for(String pair : query == null ? new String[0] : query.split(";")) {
+			final String[] parts = pair.split("=",2);
+			if (parts.length == 2 && "body".equals(parts[0].toLowerCase(Locale.US))) {
+				try {
+					return URLDecoder.decode(parts[1],"UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					return null;
+				}
+			}
+		}
+		return null;
+	}
+
+	protected boolean isMuc(String query) {
+		for(String pair : query == null ? new String[0] : query.split(";")) {
+			final String[] parts = pair.split("=",2);
+			if (parts.length == 1 && "join".equals(parts[0])) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public Jid getJid() {
 		try {
 			return this.jid == null ? null :Jid.fromString(this.jid.toLowerCase());
 		} catch (InvalidJidException e) {
 			return null;
 		}
+	}
+
+	public String getBody() {
+		return body;
 	}
 
 	public List<Fingerprint> getFingerprints() {
@@ -120,6 +150,7 @@ public class XmppUri {
 	public boolean hasFingerprints() {
 		return fingerprints.size() > 0;
 	}
+
 	public enum FingerprintType {
 		OMEMO,
 		OTR

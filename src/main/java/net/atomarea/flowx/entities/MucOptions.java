@@ -394,10 +394,18 @@ public class MucOptions {
 		if (user != null) {
 			synchronized (users) {
 				users.remove(user);
-				if (membersOnly() &&
-						nonanonymous() &&
-						user.affiliation.ranks(Affiliation.MEMBER) &&
-						user.realJid != null) {
+				boolean realJidInMuc = false;
+				for (User u : users) {
+					if (user.realJid != null && user.realJid.equals(u.realJid)) {
+						realJidInMuc = true;
+						break;
+					}
+				}
+				if (membersOnly()
+						&& nonanonymous()
+						&& user.affiliation.ranks(Affiliation.MEMBER)
+						&& user.realJid != null
+						&& !realJidInMuc) {
 					user.role = Role.NONE;
 					user.avatar = null;
 					user.fullJid = null;

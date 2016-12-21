@@ -495,8 +495,8 @@ public class XmppConnection implements Runnable {
 		} else {
 			keyManager = null;
 		}
-		sc.init(keyManager, new X509TrustManager[]{mInteractive ? trustManager : trustManager.getNonInteractive()}, mXmppConnectionService.getRNG());
-		final SSLSocketFactory factory = sc.getSocketFactory();
+		String domain = account.getJid().getDomainpart();
+		sc.init(keyManager, new X509TrustManager[]{mInteractive ? trustManager.getInteractive(domain) : trustManager.getNonInteractive(domain)}, mXmppConnectionService.getRNG());		final SSLSocketFactory factory = sc.getSocketFactory();
 		final HostnameVerifier verifier;
 		if (mInteractive) {
 			verifier = trustManager.wrapHostnameVerifier(new XmppDomainVerifier());
