@@ -44,7 +44,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignLeft="@+id/conversation_lastwrapper"
                     android:layout_alignStart="@+id/conversation_lastwrapper"
-                    android:layout_toLeftOf="@+id/conversation_lastupdate"
+                    android:layout_toLeftOf="@+id/conversation_unread"
                     android:layout_toStartOf="@+id/conversation_lastupdate"
                     android:fontFamily="sans-serif-medium"
                     android:singleLine="true"
@@ -99,6 +99,19 @@
                         android:src="@drawable/ic_notifications_grey600_24dp" />
                 </RelativeLayout>
 
+                <TextView
+                    android:id="@+id/conversation_unread"
+                    android:layout_toLeftOf="@+id/conversation_lastupdate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/conversation_name"
+                    android:text="100"
+                    android:textColor="@color/primary"
+                    android:textSize="?attr/TextSizeBody"
+                    android:visibility="gone"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:paddingBottom="2dp" />
                 <github.ankushsachdeva.emojicon.EmojiconTextView
                     android:id="@+id/conversation_lastupdate"
                     android:layout_width="wrap_content"

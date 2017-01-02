@@ -74,7 +74,7 @@ public class GeoHelper {
 			label = "";
 		}
 
-		Intent locationPluginIntent = new Intent("de.pixart.messenger.location.show");
+		Intent locationPluginIntent = new Intent("net.atomarea.flowxr.location.show");
 		locationPluginIntent.putExtra("latitude",latitude);
 		locationPluginIntent.putExtra("longitude",longitude);
 		if (message.getStatus() != Message.STATUS_RECEIVED) {

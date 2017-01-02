@@ -78,8 +78,10 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
         TextView mTimestamp = (TextView) view.findViewById(R.id.conversation_lastupdate);
         ImageView imagePreview = (ImageView) view.findViewById(R.id.conversation_lastimage);
         ImageView notificationStatus = (ImageView) view.findViewById(R.id.notification_status);
+        TextView mUnread = (TextView) view.findViewById(R.id.conversation_unread);
 
         Message message = conversation.getLatestMessage();
+        int unreadcount = conversation.unreadCount();
         String mimeType = message.getMimeType();
 
         if (!conversation.isRead()) convName.setTypeface(null, Typeface.BOLD);
@@ -99,6 +101,12 @@ public class ConversationAdapter extends ArrayAdapter<Conversation> {
                 mLastMessage.setVisibility(View.VISIBLE);
                 imagePreview.setVisibility(View.GONE);
                 mLastMessage.setText(preview.first);
+                if (unreadcount > 0) {
+                    mUnread.setVisibility(View.VISIBLE);
+                    mUnread.setText(String.valueOf(unreadcount));
+                } else {
+                    mUnread.setVisibility(View.GONE);
+                }
                 if (preview.second) {
                     if (conversation.isRead()) {
                         mLastMessage.setTypeface(null, Typeface.ITALIC);

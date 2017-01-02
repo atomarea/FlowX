@@ -27,13 +27,15 @@ import android.os.Parcelable;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -75,8 +77,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import eu.livotov.labs.android.camview.ScannerLiveView;
 
 public class StartConversationActivity extends XmppActivity implements OnRosterUpdate, OnUpdateBlocklist {
 
@@ -875,12 +875,13 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
 
     private boolean handleJid(Invite invite) {
         Account account = xmppConnectionService.findAccountByJid(invite.getJid());
-        if (account != null && !account.isOptionSet(Account.OPTION_DISABLED) && invite.hasFingerprints()) {
-            if (xmppConnectionService.verifyFingerprints(account,invite.getFingerprints())) {
-                switchToAccount(account);
-                finish();
-                return true;
+        if (account != null && !account.isOptionSet(Account.OPTION_DISABLED)) {
+            if (invite.hasFingerprints() && xmppConnectionService.verifyFingerprints(account,invite.getFingerprints())) {
+                Toast.makeText(this,R.string.verified_fingerprints,Toast.LENGTH_SHORT).show();
             }
+            switchToAccount(account);
+            finish();
+            return true;
         }
         List<Contact> contacts = xmppConnectionService.findContacts(invite.getJid());
         if (invite.isMuc()) {
@@ -897,10 +898,16 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
             return false;
         } else if (contacts.size() == 1) {
             Contact contact = contacts.get(0);
-            if (invite.hasFingerprints()) {
-                xmppConnectionService.verifyFingerprints(contact,invite.getFingerprints());
+            if (!invite.isSafeSource() && invite.hasFingerprints()) {
+                displayVerificationWarningDialog(contact,invite);
+            } else {
+                if (invite.hasFingerprints()) {
+                    if(xmppConnectionService.verifyFingerprints(contact, invite.getFingerprints())) {
+                        Toast.makeText(this,R.string.verified_fingerprints,Toast.LENGTH_SHORT).show();
+                    }
+                }
+                switchToConversation(contact, invite.getBody());
             }
-            switchToConversation(contact,invite.getBody());
             return true;
         } else {
             if (mMenuSearchView != null) {
@@ -914,14 +921,51 @@ public class StartConversationActivity extends XmppActivity implements OnRosterU
             return true;
         }
     }
-
     protected void filter(String needle) {
         if (xmppConnectionServiceBound) {
             this.filterContacts(needle);
             this.filterConferences(needle);
         }
     }
-
+    private void displayVerificationWarningDialog(final Contact contact, final Invite invite) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.verify_omemo_keys);
+        View view = getLayoutInflater().inflate(R.layout.dialog_verify_fingerprints, null);
+        final CheckBox isTrustedSource = (CheckBox) view.findViewById(R.id.trusted_source);
+        TextView warning = (TextView) view.findViewById(R.id.warning);
+        String jid = contact.getJid().toBareJid().toString();
+        SpannableString spannable = new SpannableString(getString(R.string.verifying_omemo_keys_trusted_source,jid,contact.getDisplayName()));
+        int start = spannable.toString().indexOf(jid);
+        if (start >= 0) {
+            spannable.setSpan(new TypefaceSpan("monospace"),start,start + jid.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        warning.setText(spannable);
+        builder.setView(view);
+        builder.setPositiveButton(R.string.confirm, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (isTrustedSource.isChecked() && invite.hasFingerprints()) {
+                    xmppConnectionService.verifyFingerprints(contact, invite.getFingerprints());
+                }
+                switchToConversation(contact, invite.getBody());
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                StartConversationActivity.this.finish();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                StartConversationActivity.this.finish();
+            }
+        });
+        dialog.show();
+    }
     protected void filterContacts(String needle) {
         this.contacts.clear();
         for (Account account : xmppConnectionService.getAccounts()) {

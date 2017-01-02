@@ -611,5 +611,6 @@
     <string name="blindly_trusted_omemo_keys">Blind vertraute OMEMO-Schlüssel</string>
     <string name="not_trusted">Nicht vertraut</string>
     <string name="quote">Zitieren</string>
+    <string name="verify_omemo_keys">Schlüssel überprüfen</string>
 
 </resources>

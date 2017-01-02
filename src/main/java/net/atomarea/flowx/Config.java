@@ -29,9 +29,9 @@ public final class Config {
     public static final String DOMAIN_LOCK = "flowx.im"; //only allow account creation for this domain
     public static final String MUC_LOCK = "@conference.flowx.im";
     public static final String JID_LOCK = "@flowx.im";
-    public static final int VIDEO_BITRATE = 500000;
+    public static final int VIDEO_BITRATE = 2 * 1000 * 1000; // 2 Mbps
     public static final int VIDEO_SIZE = 640;
-    public static final int VIDEO_MAX_SIZE = 5242880; //5 MiB
+    public static final int VIDEO_MAX_SIZE = 10485760; //10 MiB
     public static final boolean DISALLOW_REGISTRATION_IN_UI = false; //hide the register checkbox
     public static final int MAX_DISPLAY_MESSAGE_CHARS = 4096;
     public static final int IDLE_PING_INTERVAL = 600; //540 is minimum according to docs;
